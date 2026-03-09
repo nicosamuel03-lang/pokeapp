@@ -1,0 +1,2378 @@
+[
+  {
+    "id": "ME02",
+    "name": "ME02 Flammes Fantasmagoriques FR",
+    "category": "Displays",
+    "block": "Méga Évolution",
+    "releaseDate": "2025-11",
+    "msrp": 150,
+    "currentMarketPrice": 220,
+    "imageUrl": "/images/displays/Flammes Fantasmagoriques.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 190
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 220
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 600
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 725
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 830
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 960
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1320
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1700
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1450
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1200
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1800
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1950
+      }
+    ]
+  },
+  {
+    "id": "ME01",
+    "name": "ME01 Méga Évolution FR",
+    "category": "Displays",
+    "block": "Méga Évolution",
+    "releaseDate": "2025-09",
+    "msrp": 150,
+    "currentMarketPrice": 230,
+    "imageUrl": "/images/displays/Méga Évolution.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 178
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 240
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 627
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 758
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 868
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1004
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1380
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1777
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1516
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1255
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1882
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2039
+      }
+    ]
+  },
+  {
+    "id": "EV10",
+    "name": "EV10 Rivalités Destinées FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2025-05",
+    "msrp": 140,
+    "currentMarketPrice": 300,
+    "imageUrl": "/images/displays/Rivalités Destinées.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 191
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 409
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 818
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 989
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1132
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1309
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1800
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2318
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1977
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1636
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2455
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2659
+      }
+    ]
+  },
+  {
+    "id": "EV09",
+    "name": "EV09 Aventure Ensemble FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2025-03",
+    "msrp": 140,
+    "currentMarketPrice": 220,
+    "imageUrl": "/images/displays/Aventure Ensemble.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 120
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 220
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 600
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 725
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 830
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 960
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1320
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1700
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1450
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1200
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1800
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1950
+      }
+    ]
+  },
+  {
+    "id": "EV08",
+    "name": "EV08 Étincelles Déferlantes FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2025-02",
+    "msrp": 140,
+    "currentMarketPrice": 230,
+    "imageUrl": "/images/displays/Étincelles Déferlantes.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 209
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 240
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 627
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 758
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 868
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1004
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1380
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1777
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1516
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1255
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1882
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2039
+      }
+    ]
+  },
+  {
+    "id": "EV07",
+    "name": "EV07 Couronne Stellaire FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2024-11",
+    "msrp": 140,
+    "currentMarketPrice": 200,
+    "imageUrl": "/images/displays/Couronne Stellaire.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 118
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 182
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 545
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 659
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 755
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 873
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1200
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1545
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1318
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1091
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1636
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1773
+      }
+    ]
+  },
+  {
+    "id": "EV06",
+    "name": "EV06 Mascarade Crépusculaire FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2024-08",
+    "msrp": 140,
+    "currentMarketPrice": 200,
+    "imageUrl": "/images/displays/Mascarade Crépusculaire.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 127
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 182
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 545
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 659
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 755
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 873
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1200
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1545
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1318
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1091
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1636
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1773
+      }
+    ]
+  },
+  {
+    "id": "EV05",
+    "name": "EV05 Forces Temporelles FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2024-03",
+    "msrp": 140,
+    "currentMarketPrice": 230,
+    "imageUrl": "/images/displays/Forces Temporelles.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 157
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 240
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 627
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 758
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 868
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1004
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1380
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1777
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1516
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1255
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1882
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2039
+      }
+    ]
+  },
+  {
+    "id": "EV04",
+    "name": "EV04 Faille Paradoxe FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2023-10",
+    "msrp": 140,
+    "currentMarketPrice": 240,
+    "imageUrl": "/images/displays/Faille Paradoxe.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 131
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 262
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 655
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 791
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 905
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1047
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1440
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1855
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1582
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1309
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1964
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2127
+      }
+    ]
+  },
+  {
+    "id": "EV03",
+    "name": "EV03 Flammes Obsidiennes FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2023-08",
+    "msrp": 140,
+    "currentMarketPrice": 250,
+    "imageUrl": "/images/displays/Flammes Obsidiennes.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 114
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 284
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 682
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 824
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 943
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1091
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1500
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1932
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1648
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1364
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2045
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2216
+      }
+    ]
+  },
+  {
+    "id": "EV02",
+    "name": "EV02 Évolutions à Paldéa FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2023-06",
+    "msrp": 140,
+    "currentMarketPrice": 270,
+    "imageUrl": "/images/displays/Évolutions à Paldéa.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 123
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 331
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 736
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 890
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1019
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1178
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1620
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2086
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1780
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1473
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2209
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2393
+      }
+    ]
+  },
+  {
+    "id": "EV01",
+    "name": "EV01 Écarlate et Violet FR",
+    "category": "Displays",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2023-03",
+    "msrp": 140,
+    "currentMarketPrice": 250,
+    "imageUrl": "/images/displays/Écarlate et Violet.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 227
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 284
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 682
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 824
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 943
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1091
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1500
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1932
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1648
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1364
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2045
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2216
+      }
+    ]
+  },
+  {
+    "id": "EB12",
+    "name": "EB12 Tempête Argentée FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2022-11",
+    "msrp": 130,
+    "currentMarketPrice": 320,
+    "imageUrl": "/images/displays/Tempête Argentée.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 727
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 465
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 873
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1055
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1207
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1396
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1920
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2473
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 2109
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1745
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2618
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2836
+      }
+    ]
+  },
+  {
+    "id": "EB11",
+    "name": "EB11 Origine Perdue FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2022-09",
+    "msrp": 130,
+    "currentMarketPrice": 400,
+    "imageUrl": "/images/displays/Origine Perdue.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 727
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 727
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 1091
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1318
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1509
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1745
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 2400
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 3091
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 2636
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 2182
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 3273
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 3545
+      }
+    ]
+  },
+  {
+    "id": "EB10",
+    "name": "EB10 Astres Radieux FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2022-05",
+    "msrp": 130,
+    "currentMarketPrice": 320,
+    "imageUrl": "/images/displays/Astres Radieux.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 436
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 465
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 873
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1055
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1207
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1396
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1920
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2473
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 2109
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1745
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2618
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2836
+      }
+    ]
+  },
+  {
+    "id": "EB09",
+    "name": "EB09 Stars Étincelantes FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2022-02",
+    "msrp": 130,
+    "currentMarketPrice": 420,
+    "imageUrl": "/images/displays/Stars Étincelantes.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 382
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 802
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 1145
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1384
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1585
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1833
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 2520
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 3245
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 2768
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 2291
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 3436
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 3723
+      }
+    ]
+  },
+  {
+    "id": "EB08",
+    "name": "EB08 Poing de Fusion FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2021-11",
+    "msrp": 130,
+    "currentMarketPrice": 600,
+    "imageUrl": "/images/displays/Poing de Fusion.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 273
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 1636
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 1636
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1977
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 2264
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 2618
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 3600
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 4636
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 3955
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 3273
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 4909
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 5318
+      }
+    ]
+  },
+  {
+    "id": "EB07",
+    "name": "EB07 Évolution Céleste FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2021-08",
+    "msrp": 130,
+    "currentMarketPrice": 1380,
+    "imageUrl": "/images/displays/Évolution Céleste.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 7527
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 8656
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 3764
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 4548
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 5206
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 6022
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 8280
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 10664
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 9095
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 7527
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 11291
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 12232
+      }
+    ]
+  },
+  {
+    "id": "EB06",
+    "name": "EB06 Règne de Glace FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2021-06",
+    "msrp": 110,
+    "currentMarketPrice": 215,
+    "imageUrl": "/images/displays/Règne de Glace.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 98
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 210
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 586
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 709
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 811
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 938
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1290
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1661
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1417
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1173
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1759
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1906
+      }
+    ]
+  },
+  {
+    "id": "EB05",
+    "name": "EB05 Styles de Combat FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2021-03",
+    "msrp": 110,
+    "currentMarketPrice": 210,
+    "imageUrl": "/images/displays/Styles de Combat.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 95
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 200
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 573
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 692
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 792
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 916
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1260
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1623
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1384
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1145
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1718
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1861
+      }
+    ]
+  },
+  {
+    "id": "EB04",
+    "name": "EB04 Voltage Éclatant FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2020-11",
+    "msrp": 110,
+    "currentMarketPrice": 290,
+    "imageUrl": "/images/displays/Voltage Éclatant.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 132
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 382
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 791
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 956
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1094
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1265
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1740
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2241
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 1911
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1582
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2373
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2570
+      }
+    ]
+  },
+  {
+    "id": "EB03",
+    "name": "EB03 Ténèbres Embrasées FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2020-08",
+    "msrp": 110,
+    "currentMarketPrice": 310,
+    "imageUrl": "/images/displays/Ténèbres Embrasées.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 1127
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 437
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 845
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1022
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1170
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1353
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1860
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2395
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 2043
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1691
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2536
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2748
+      }
+    ]
+  },
+  {
+    "id": "EB02",
+    "name": "EB02 Clash des Rebelles FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2020-05",
+    "msrp": 110,
+    "currentMarketPrice": 320,
+    "imageUrl": "/images/displays/Clash des Rebelles.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 815
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 465
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 873
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1055
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1207
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 1396
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 1920
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 2473
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 2109
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 1745
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 2618
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 2836
+      }
+    ]
+  },
+  {
+    "id": "EB01",
+    "name": "EB01 Épée et Bouclier FR",
+    "category": "Displays",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2020-02",
+    "msrp": 110,
+    "currentMarketPrice": 499,
+    "imageUrl": "/images/displays/Épée et Bouclier.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 499
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 1132
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 1361
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 1644
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 1883
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 2177
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 2994
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 3856
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 3289
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 2722
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 4083
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 4423
+      }
+    ]
+  },
+  {
+    "id": "ME03",
+    "name": "ME03 Tempête Émeraude FR",
+    "category": "Displays",
+    "block": "Méga Évolution",
+    "releaseDate": "",
+    "msrp": 150,
+    "currentMarketPrice": 150,
+    "imageUrl": null,
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 102
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": 102
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": 409
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": 494
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": 566
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": 655
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": 900
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": 1159
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": 989
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": 818
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": 1227
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": 1330
+      }
+    ]
+  },
+  {
+    "id": "UPC08",
+    "name": "UPC Sulfura ex Team Rocket FR",
+    "category": "UPC",
+    "block": "Méga Évolution",
+    "releaseDate": "2025-12",
+    "msrp": 159.99,
+    "currentMarketPrice": 200,
+    "imageUrl": "/images/upc/UPC Sulfura ex Team Rocket.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC07",
+    "name": "UPC Méga-Dracaufeu X ex FR",
+    "category": "UPC",
+    "block": "Méga Évolution",
+    "releaseDate": "2025-11",
+    "msrp": 159.99,
+    "currentMarketPrice": 180,
+    "imageUrl": "/images/upc/UPC Méga-Dracaufeu X ex.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC06",
+    "name": "UPC Évoli ex (Évolutions Prismatiques) FR",
+    "category": "UPC",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2025-03",
+    "msrp": 79.99,
+    "currentMarketPrice": 150,
+    "imageUrl": "/images/upc/UPC Évoli ex (Évolutions Prismatiques).png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC04",
+    "name": "UPC Amphinobi ex FR",
+    "category": "UPC",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2024-11",
+    "msrp": 149.99,
+    "currentMarketPrice": 200,
+    "imageUrl": "/images/upc/UPC Amphinobi ex.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC05",
+    "name": "UPC Terapagos ex FR",
+    "category": "UPC",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2024-11",
+    "msrp": 149.99,
+    "currentMarketPrice": 200,
+    "imageUrl": "/images/upc/UPC Terapagos ex.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC03",
+    "name": "UPC Mew 151 FR",
+    "category": "UPC",
+    "block": "Écarlate & Violet",
+    "releaseDate": "2023-10",
+    "msrp": 149.99,
+    "currentMarketPrice": 400,
+    "imageUrl": "/images/upc/UPC Mew 151.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC02",
+    "name": "UPC Dracaufeu VSTAR FR",
+    "category": "UPC",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2022-11",
+    "msrp": 129.99,
+    "currentMarketPrice": 500,
+    "imageUrl": "/images/upc/UPC Dracaufeu VSTAR.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  },
+  {
+    "id": "UPC01",
+    "name": "UPC Célébrations 25 ans FR",
+    "category": "UPC",
+    "block": "Épée & Bouclier",
+    "releaseDate": "2021-10",
+    "msrp": 129.99,
+    "currentMarketPrice": 1000,
+    "imageUrl": "/images/upc/UPC Célébrations 25 ans.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ]
+  }
+]

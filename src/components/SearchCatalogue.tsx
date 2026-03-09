@@ -1,0 +1,556 @@
+import { useEffect, useRef, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { useProducts } from "../state/ProductsContext";
+import { useCollection } from "../state/CollectionContext";
+import {
+  pokemonCatalogue,
+  searchPokemonCatalogue,
+  type PokemonCatalogueItem,
+} from "../data/pokemonCatalogue";
+import { etbData } from "../data/etbData";
+import { getLastPrixFromHistorique } from "../utils/prixMarche";
+import { getDisplayImageUrlForCatalogueItem } from "../utils/displayImage";
+import { getEraBadgeForCatalogueItem } from "../utils/eraBadge";
+import { formatDisplayProductName, formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
+
+function getMarchéActuel(item: PokemonCatalogueItem): number {
+  if (item.etbId) {
+    const etb = etbData.find((e) => e.id === item.etbId);
+    if (etb?.prixActuel != null && etb.prixActuel > 0) return etb.prixActuel;
+    if (etb?.historique_prix?.length) {
+      const p = getLastPrixFromHistorique(etb.historique_prix);
+      if (p > 0) return p;
+    }
+  }
+  const v = (item as unknown as { currentMarketPrice?: unknown }).currentMarketPrice;
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** Image produit :
+ * - Displays : même source que page d'accueil (displayData via displayImage.ts)
+ * - UPC : displayData (item.imageUrl ou lookup par id)
+ * - ETB : priorité etbData, puis item.imageUrl (hors logos)
+ */
+function getProductImageUrlForCatalogueItem(item: PokemonCatalogueItem | null | undefined): string | null {
+  if (!item) return null;
+  if (item.type === "Display" || item.type === "UPC") {
+    return getDisplayImageUrlForCatalogueItem(item) ?? item.imageUrl ?? null;
+  }
+
+  // ETB : 1) Lien explicite par etbId + nom (plusieurs ETB partagent le même id, ex. ME01, EB01)
+  if (item.etbId) {
+    const etb = etbData.find(
+      (e) => e.id === item.etbId && item.name === `ETB ${e.nom}`
+    );
+    if (etb?.imageUrl) return etb.imageUrl;
+  }
+
+  // 2) item.imageUrl si chemin local (catalogue auto a déjà la bonne image)
+  if (item.imageUrl && (item.imageUrl.startsWith("/images/") || item.imageUrl.startsWith("http"))) {
+    if (!item.imageUrl.toLowerCase().includes("/logos/") && !item.imageUrl.toLowerCase().includes("/series/")) {
+      return item.imageUrl;
+    }
+  }
+
+  // 3) Correspondance par id dans le nom (ex. "ETB EB06 ..." → EB06)
+  const byName = etbData
+    .slice()
+    .sort((a, b) => (b?.id?.length ?? 0) - (a?.id?.length ?? 0))
+    .find((e) => item.name?.includes(e.id));
+  if (byName?.imageUrl) return byName.imageUrl;
+
+  return null;
+}
+
+function todayISO(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+interface AddModalProps {
+  item: PokemonCatalogueItem;
+  onClose: () => void;
+  onAdd: (item: PokemonCatalogueItem, buyPrice: number, qty: number, purchaseDate?: string) => void;
+}
+
+const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
+  const [buyPrice, setBuyPrice] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState(todayISO);
+  const [qty, setQty] = useState("1");
+  const [justAdded, setJustAdded] = useState(false);
+
+  const modalImgUrl = getProductImageUrlForCatalogueItem(item);
+  const modalEraBadge = getEraBadgeForCatalogueItem(item);
+  const modalPlaceholderBg =
+    (item.type === "Display" || item.type === "UPC") && modalEraBadge ? modalEraBadge.bg : "var(--placeholder-bg)";
+
+  const handleConfirm = () => {
+    const price = parseFloat(buyPrice.replace(",", "."));
+    const quantity = parseInt(qty, 10);
+    if (Number.isNaN(price) || price <= 0 || Number.isNaN(quantity) || quantity < 1)
+      return;
+    if (navigator.vibrate) navigator.vibrate(50);
+    onAdd(item, price, quantity, purchaseDate || undefined);
+    setJustAdded(true);
+    setTimeout(() => {
+      setJustAdded(false);
+      onClose();
+    }, 400);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center"
+      style={{
+        background: "var(--overlay-bg)",
+        backdropFilter: "blur(4px)",
+        WebkitBackdropFilter: "blur(4px)",
+      }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div
+        className="w-full max-w-md h-full rounded-t-3xl flex flex-col"
+        style={{
+          background: "var(--card-color)",
+          boxShadow: "0 -8px 32px rgba(0,0,0,0.35)",
+          maxHeight: "90vh",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex flex-col px-4 pt-4 pb-4">
+            {/* Image ETB + infos + champs */}
+            <div className="space-y-4">
+              <div className="flex flex-col items-start gap-3">
+                <div className="relative w-full flex items-center justify-center rounded-2xl overflow-hidden" style={{ height: "192px", minHeight: "192px", background: "var(--img-container-bg)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}>
+                  {modalImgUrl ? (
+                    <img
+                      src={modalImgUrl || ""}
+                      alt={formatDisplayProductName(item.name, item.type === "Display" || item.type === "UPC")}
+                      loading="eager"
+                      width={288}
+                      height={192}
+                      className="w-full h-full object-contain"
+                      style={{ objectFit: "contain" }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                        const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
+                        if (placeholder) {
+                          (placeholder as HTMLElement).style.display = "block";
+                          (placeholder as HTMLElement).style.background = modalPlaceholderBg;
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      display: modalImgUrl ? "none" : "block",
+                      background: modalPlaceholderBg,
+                    }}
+                    aria-hidden
+                  />
+                </div>
+                <div className="min-w-0 w-full text-left">
+                  <p className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>
+                    {formatProductNameWithSetCode(
+                      item.name,
+                      getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
+                      item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
+                    )}
+                  </p>
+                  <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                    {item.block} · Sortie{" "}
+                    {(item.releaseDate ?? "").slice(0, 7).replace("-", "/")}
+                  </p>
+                  <p className="mt-0.5 text-xs font-medium">
+                    <span style={{ color: "var(--accent-yellow)" }}>Marché actuel :</span>{" "}
+                    <span style={{ color: "var(--accent-yellow)" }}>
+                      {getMarchéActuel(item).toLocaleString("fr-FR", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0,
+                      })}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                    Prix d&apos;achat (€)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    className="w-full rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]"
+                    style={{
+                      background: "var(--input-bg)",
+                      color: "var(--text-primary)",
+                    }}
+                    placeholder={`Retail ${item.msrp}€`}
+                    value={buyPrice}
+                    onChange={(e) => setBuyPrice(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                    Date d&apos;achat
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]"
+                    style={{
+                      background: "var(--input-bg)",
+                      color: "var(--text-primary)",
+                    }}
+                    value={purchaseDate}
+                    onChange={(e) => setPurchaseDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+                    Quantité
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    className="w-full rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]"
+                    style={{
+                      background: "var(--input-bg)",
+                      color: "var(--text-primary)",
+                    }}
+                    value={qty}
+                    onChange={(e) => setQty(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Boutons directement sous Quantité */}
+            <div className="flex flex-row gap-2 mt-4 shrink-0">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-2xl py-2.5 text-sm font-medium transition"
+                style={{
+                  background: "var(--input-bg)",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirm}
+                disabled={justAdded}
+                className="flex-1 rounded-2xl py-2.5 text-sm font-semibold transition disabled:cursor-default disabled:opacity-100"
+                style={{
+                  background: justAdded ? "#166534" : "#15803D",
+                  color: "#FFFFFF",
+                }}
+              >
+                {justAdded ? (
+                  <>
+                    <span>✓</span>
+                    <span> Ajouté !</span>
+                  </>
+                ) : (
+                  "Ajouter à ma collection"
+                )}
+              </button>
+            </div>
+          </div>
+      </div>
+    </div>
+  );
+};
+
+export const SearchCatalogue = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { addProduct } = useProducts();
+  const { addToCollection } = useCollection();
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<PokemonCatalogueItem[]>(() => searchPokemonCatalogue("") ?? []);
+  const [open, setOpen] = useState(true);
+  const [selected, setSelected] = useState<PokemonCatalogueItem | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const itemParam = searchParams.get("item");
+
+  useEffect(() => {
+    if (!itemParam) return;
+    const fullCatalogue = searchPokemonCatalogue("") ?? [];
+    const paramLower = itemParam.toLowerCase();
+    const match = fullCatalogue.find(
+      (i) =>
+        (i.etbId && i.etbId.toLowerCase() === paramLower) ||
+        i.id.toLowerCase() === paramLower ||
+        i.id.toLowerCase() === `etb-${paramLower}` ||
+        i.id.toLowerCase() === `display-${paramLower}` ||
+        i.id.toLowerCase() === `upc-${paramLower}`
+    );
+    if (match) {
+      setSelected(match);
+      setSearchParams({}, { replace: true });
+    }
+  }, [itemParam, setSearchParams]);
+
+  useEffect(() => {
+    const found = searchPokemonCatalogue(query) ?? [];
+    setResults(found);
+    setOpen(found.length > 0);
+  }, [query]);
+
+  useEffect(() => {
+    const handleOutside = (e: MouseEvent) => {
+      if (query.trim().length > 0 && containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [query]);
+
+  const handleAdd = (item: PokemonCatalogueItem, buyPrice: number, qty: number, purchaseDate?: string) => {
+    const marchéActuel = getMarchéActuel(item);
+    const product = addProduct({
+      emoji: item.emoji,
+      name: item.name,
+      category:
+        item.type === "Display"
+          ? "Displays"
+          : item.type === "UPC"
+          ? "UPC"
+          : item.type === "ETB"
+          ? "ETB"
+          : "Coffrets",
+      set: item.block,
+      condition: "Neuf scellé",
+      currentPrice: marchéActuel,
+      change30dPercent: 0,
+      badge: item.block,
+      imageUrl: item.imageUrl,
+      dateSortie: item.releaseDate,
+      quantite: qty,
+      prixAchat: buyPrice,
+      prixMarcheActuel: marchéActuel,
+      prixVente: null,
+      etbId: item.etbId ?? item.id?.replace(/^(?:display-|upc-|etb-)/, "") ?? undefined,
+    });
+    addToCollection(product, buyPrice, qty, purchaseDate);
+    navigate("/collection");
+  };
+
+  // Suggestions populaires quand la barre est vide
+  const popularItems = searchPokemonCatalogue("").filter((i) =>
+    i.type === "Display" && ["display-EB01", "display-EB06", "display-EV01", "display-EV03", "display-EV05", "display-ME01"].includes(i.id ?? "")
+  );
+
+  return (
+    <div ref={containerRef} className="relative">
+      {/* Barre de recherche */}
+      <div
+        className="flex items-center gap-2 rounded-2xl px-3 py-2.5 transition-all"
+        style={{ background: "var(--card-color)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
+      >
+        <svg
+          className="h-4 w-4 shrink-0"
+          style={{ color: "var(--text-secondary)" }}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+          />
+        </svg>
+        <input
+          ref={inputRef}
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => query.length >= 2 && setOpen(true)}
+          placeholder="Rechercher un item (ex: ETB 151, Display EV, Coffret 151…)"
+          className="flex-1 bg-transparent text-sm focus:outline-none"
+          style={{ color: "var(--text-primary)" }}
+        />
+        {query && (
+          <button
+            onClick={() => {
+              setQuery("");
+              setOpen(true);
+              inputRef.current?.focus();
+            }}
+            className="shrink-0 hover:opacity-80"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Dropdown résultats */}
+      {open && Array.isArray(results) && results.length > 0 && (
+        <div
+          className="absolute left-0 right-0 z-40 mt-1.5 overflow-hidden rounded-2xl"
+          style={{ background: "var(--card-color)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
+        >
+          {results.map((item, i) => (
+            <button
+              key={item?.id ?? `result-${i}`}
+              onClick={() => {
+                setSelected(item);
+              }}
+              className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition ${
+                i < results.length - 1 ? "border-b border-[var(--border-color)]" : ""
+              }`}
+            >
+              {(() => {
+                const imgUrl = getProductImageUrlForCatalogueItem(item);
+                const eraBadge = getEraBadgeForCatalogueItem(item);
+                const placeholderBg =
+                  (item.type === "Display" || item.type === "UPC") && eraBadge ? eraBadge.bg : "var(--placeholder-bg)";
+                return (
+                  <div
+                    className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl"
+                    style={{ height: "48px", minHeight: "48px", background: "var(--img-container-bg)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
+                  >
+                    {imgUrl ? (
+                      <img
+                        src={imgUrl || ""}
+                        alt={formatDisplayProductName(item.name, item.type === "Display" || item.type === "UPC")}
+                        loading="eager"
+                        width={48}
+                        height={48}
+                        className="h-full w-full object-contain"
+                        style={{ objectFit: "contain" }}
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
+                          if (placeholder) {
+                            placeholder.style.display = "block";
+                            placeholder.style.background = placeholderBg;
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="h-full w-full"
+                      style={{
+                        display: imgUrl ? "none" : "block",
+                        background: placeholderBg,
+                      }}
+                      aria-hidden
+                    />
+                  </div>
+                );
+              })()}
+                <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <p className="app-heading truncate text-[13px]" style={{ color: "var(--text-primary)" }}>
+                    {formatProductNameWithSetCode(
+                      item.name,
+                      getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
+                      item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
+                    )}
+                  </p>
+                  {item.block === "Méga Évolution" && (
+                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide" style={{ color: "var(--gain-green)", background: "rgba(34,197,94,0.15)" }}>
+                      NEW
+                    </span>
+                  )}
+                </div>
+                <div className="mt-0.5 flex items-center gap-1.5">
+                  {(() => {
+                    const eraBadge = getEraBadgeForCatalogueItem(item);
+                    return eraBadge ? (
+                      <span
+                        className="shrink-0 whitespace-nowrap font-medium"
+                        style={{
+                          fontSize: "9px",
+                          padding: "2px 5px",
+                          borderRadius: "4px",
+                          background: eraBadge.bg,
+                          color: eraBadge.color,
+                        }}
+                      >
+                        {eraBadge.label}
+                      </span>
+                    ) : null;
+                  })()}
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="text-[13px] font-semibold" style={{ color: "var(--accent-yellow)" }}>
+                  {getMarchéActuel(item).toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+                <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                  Retail {item.msrp}€
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {open && results.length === 0 && (
+        <div
+          className="absolute left-0 right-0 z-40 mt-1.5 rounded-2xl px-3 py-3 text-sm"
+          style={{ background: "var(--card-color)", color: "var(--text-secondary)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
+        >
+          No items found
+        </div>
+      )}
+
+      {/* Produits populaires — texte uniquement, minimaliste */}
+      {!query && (
+        <div className="mt-3">
+          <p className="app-heading mb-2 text-[11px] uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+            Produits populaires
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {popularItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setSelected(item)}
+                className="rounded-xl px-2.5 py-1.5 text-[12px] font-medium transition hover:opacity-90"
+                style={{ background: "var(--card-color)", color: "var(--text-secondary)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
+              >
+                <span className="truncate max-w-[130px]">{formatProductNameWithSetCode(
+                  item.name,
+                  getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
+                  item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
+                )}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal ajout */}
+      {selected && (
+        <AddModal
+          item={selected}
+          onClose={() => {
+            setSelected(null);
+            setOpen(true);
+          }}
+          onAdd={handleAdd}
+        />
+      )}
+    </div>
+  );
+};

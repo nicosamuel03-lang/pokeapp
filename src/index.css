@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* ========== THEME: CSS Custom Properties ========== */
+:root,
+.dark {
+  --bg-color: #111111;
+  --bg-app: #111111;
+  --card-color: #1e1e1e;
+  --bg-card: #1e1e1e;
+  --bg-card-elevated: #252525;
+  --input-bg: #2a2a2a;
+  --bg-input: #2a2a2a;
+  --nav-bg: #1a1a1a;
+  --bg-nav: #1a1a1a;
+  --border-color: #333333;
+  --nav-border: transparent;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --accent-yellow: #D4A757;
+  --gain-green: #22c55e;
+  --loss-red: #f87171;
+  --img-container-bg: #ffffff;
+  --border-subtle: #333333;
+  --placeholder-bg: #e5e7eb;
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+}
+
+.light {
+  --bg-color: #f5f5f5;
+  --bg-app: #f5f5f5;
+  --card-color: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-elevated: #ffffff;
+  --input-bg: #eeeeee;
+  --bg-input: #eeeeee;
+  --nav-bg: #ffffff;
+  --bg-nav: #ffffff;
+  --border-color: #e0e0e0;
+  --nav-border: #e0e0e0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #444444;
+  --accent-yellow: #D4A757;
+  --gain-green: #16a34a;
+  --loss-red: #dc2626;
+  --img-container-bg: #f0f0f0;
+  --border-subtle: #e5e5e5;
+  --placeholder-bg: #e5e7eb;
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+}
+
+/* Base styles - use variables */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-app);
+  color: var(--text-secondary);
+  font-family: system-ui, ui-sans-serif, sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Source: PORTEFEUILLE GLOBAL — font-family, weight 700 (Bold), letter-spacing 0.025em */
+h1, h2, h3,
+.app-heading {
+  font-family: system-ui, ui-sans-serif, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+/* Exact section title style (Portefeuille global / Produits): 11px, uppercase, same font */
+.title-section {
+  font-family: system-ui, ui-sans-serif, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.025em !important;
+  text-transform: uppercase !important;
+}
+
+/* ========== BOTTOM NAVIGATION ========== */
+#app-bottom-nav {
+  background: var(--bg-nav) !important;
+  background-color: var(--bg-nav) !important;
+  border: none !important;
+  border-top: 1px solid var(--nav-border) !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  outline: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  opacity: 1 !important;
+  font-family: system-ui, ui-sans-serif, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 9px !important;
+  letter-spacing: 0.025em !important;
+  text-transform: uppercase !important;
+}
+#app-bottom-nav *,
+#app-bottom-nav a,
+#app-bottom-nav a:link,
+#app-bottom-nav a:visited,
+#app-bottom-nav span {
+  font-family: system-ui, ui-sans-serif, sans-serif !important;
+  letter-spacing: 0.025em !important;
+}
+#app-bottom-nav a.nav-label-active,
+#app-bottom-nav .nav-label-active {
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+}
+#app-bottom-nav a.nav-label-inactive,
+#app-bottom-nav .nav-label-inactive {
+  font-weight: 700 !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Hide scrollbar on horizontal scroll containers (era filter buttons) */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Clerk modal: stable position from first frame, no layout shift */
+.cl-rootBox {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  pointer-events: none;
+  transform: translateZ(0);
+  transition: none !important;
+  animation: none !important;
+  box-shadow: none !important;
+}
+.cl-card,
+.cl-modal {
+  transition: none !important;
+  animation: none !important;
+  transform: translateZ(0);
+  margin: 0 !important;
+}
+.cl-card {
+  pointer-events: auto;
+  border-radius: 12px 12px 0 0 !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+.cl-footer {
+  border-radius: 0 0 12px 12px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+  margin-top: 0 !important;
+  padding-top: 16px !important;
+}
+.cl-modalContent {
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+/* Clerk modal: close button (X) visible in dark mode */
+.cl-modalCloseButton {
+  color: white !important;
+  opacity: 1 !important;
+}
+.cl-modalCloseButton svg {
+  stroke: white !important;
+  fill: white !important;
+}
+

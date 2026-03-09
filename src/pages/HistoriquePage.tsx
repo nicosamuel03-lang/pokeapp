@@ -1,0 +1,455 @@
+import { useMemo, useState, useCallback } from "react";
+import {
+  getSalesHistory,
+  updateSaleRecord,
+  deleteSaleRecord,
+  type SaleRecord,
+} from "../utils/salesHistoryStorage";
+import { useTheme } from "../state/ThemeContext";
+
+function formatSaleDate(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${d ?? ""}/${m ?? ""}/${y ?? ""}`;
+}
+
+function todayISO(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+export const HistoriquePage = () => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  const [sales, setSales] = useState<SaleRecord[]>(() => getSalesHistory());
+  const [editId, setEditId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editBuyPrice, setEditBuyPrice] = useState("");
+  const [editSalePrice, setEditSalePrice] = useState("");
+  const [editDate, setEditDate] = useState("");
+
+  const refreshSales = useCallback(() => setSales(getSalesHistory()), []);
+
+  const openEdit = (sale: SaleRecord) => {
+    setEditId(sale.id);
+    setEditBuyPrice(String(sale.buyPrice));
+    setEditSalePrice(String(sale.salePrice));
+    setEditDate(sale.saleDate || todayISO());
+  };
+
+  const saveEdit = () => {
+    if (!editId) return;
+    const buyPrice = parseFloat(editBuyPrice.replace(",", "."));
+    const salePrice = parseFloat(editSalePrice.replace(",", "."));
+    if (!Number.isNaN(buyPrice) && !Number.isNaN(salePrice) && editDate) {
+      updateSaleRecord(editId, {
+        buyPrice,
+        salePrice,
+        saleDate: editDate,
+      });
+      refreshSales();
+      setEditId(null);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (deleteId) {
+      deleteSaleRecord(deleteId);
+      refreshSales();
+      setDeleteId(null);
+    }
+  };
+
+  const summary = useMemo(() => {
+    let totalVentes = 0;
+    let totalInvesti = 0;
+    let gainTotal = 0;
+    sales.forEach((r) => {
+      const ventes = r.salePrice * r.quantity;
+      const investi = r.buyPrice * r.quantity;
+      totalVentes += ventes;
+      totalInvesti += investi;
+      gainTotal += r.profit ?? 0;
+    });
+    const perfMoyenne = totalInvesti > 0 ? (gainTotal / totalInvesti) * 100 : 0;
+    return { totalVentes, totalInvesti, gainTotal, perfMoyenne };
+  }, [sales]);
+
+  const sortedSales = useMemo(
+    () => [...sales].sort((a, b) => (b.saleDate > a.saleDate ? 1 : -1)),
+    [sales]
+  );
+
+  return (
+    <div
+      className="space-y-4"
+      style={{ minHeight: "100vh", width: "100%", touchAction: "pan-y" }}
+    >
+      <h2 className="title-section" style={{ color: "var(--text-primary)" }}>
+        Historique des ventes
+      </h2>
+
+      {sales.length === 0 ? (
+        <section
+          className="rounded-2xl p-6 text-center"
+          style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+        >
+          <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            Aucune vente enregistrée pour le moment.
+          </p>
+          <p className="mt-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+            Les ventes seront affichées ici une fois que vous aurez vendu des articles depuis la fiche produit.
+          </p>
+        </section>
+      ) : (
+        <>
+          {/* Synthèse */}
+          <section
+            className="rounded-2xl p-4"
+            style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+          >
+            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+              Synthèse des ventes
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div
+                className={!isLight ? "rounded-2xl p-3" : ""}
+                style={
+                  isLight
+                    ? { background: "var(--input-bg)", borderRadius: 8, padding: 12 }
+                    : { background: "var(--bg-card-elevated)" }
+                }
+              >
+                <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total des ventes</p>
+                <p className="mt-1 text-sm font-semibold" style={{ color: "var(--accent-yellow)" }}>
+                  {summary.totalVentes.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+              <div
+                className={!isLight ? "rounded-2xl p-3" : ""}
+                style={
+                  isLight
+                    ? { background: "var(--input-bg)", borderRadius: 8, padding: 12 }
+                    : { background: "var(--bg-card-elevated)" }
+                }
+              >
+                <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total investi</p>
+                <p className="mt-1 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                  {summary.totalInvesti.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+              <div
+                className={!isLight ? "rounded-2xl p-3" : ""}
+                style={
+                  isLight
+                    ? { background: "var(--input-bg)", borderRadius: 8, padding: 12 }
+                    : { background: "var(--bg-card-elevated)" }
+                }
+              >
+                <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Gain total réalisé</p>
+                <p
+                  className="mt-1 text-sm font-semibold"
+                  style={{ color: summary.gainTotal >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                >
+                  {summary.gainTotal >= 0 ? "+" : ""}
+                  {summary.gainTotal.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0,
+                  })}
+                </p>
+              </div>
+              <div
+                className={!isLight ? "rounded-2xl p-3" : ""}
+                style={
+                  isLight
+                    ? { background: "var(--input-bg)", borderRadius: 8, padding: 12 }
+                    : { background: "var(--bg-card-elevated)" }
+                }
+              >
+                <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Performance moyenne</p>
+                <p
+                  className="mt-1 text-sm font-semibold"
+                  style={{ color: summary.perfMoyenne >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                >
+                  {summary.perfMoyenne >= 0 ? "+" : ""}
+                  {summary.perfMoyenne.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Liste des ventes */}
+          <section className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+              Détail des ventes ({sortedSales.length})
+            </h3>
+            <div className="space-y-3">
+              {sortedSales.map((sale) => {
+                const investi = sale.buyPrice * sale.quantity;
+                const perfPct = investi > 0 ? (sale.profit / investi) * 100 : 0;
+                const imageUrl = sale.image ?? sale.imageUrl ?? null;
+                const displayName = (sale.productName ?? "").replace(/ FR$/, "");
+
+                return (
+                  <div
+                    key={sale.id}
+                    className={isLight ? "relative" : "relative rounded-2xl p-3"}
+                    style={{
+                      background: "var(--card-color)",
+                      boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+                      ...(isLight && {
+                        border: "1px solid var(--border-color)",
+                        borderRadius: 12,
+                        padding: 12,
+                      }),
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setDeleteId(sale.id)}
+                      aria-label="Supprimer la vente"
+                      className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full transition-colors"
+                      style={{
+                        background: "var(--input-bg)",
+                        color: "var(--text-secondary)",
+                        border: "none",
+                        fontSize: "12px",
+                        zIndex: 10,
+                      }}
+                    >
+                      ✕
+                    </button>
+                    <div className="flex gap-3">
+                      <div
+                        className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl"
+                        style={{ width: "56px", height: "56px", minHeight: "56px", background: "var(--img-container-bg)" }}
+                      >
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={displayName}
+                            loading="eager"
+                            width={56}
+                            height={56}
+                            className="h-full w-full object-contain"
+                            style={{ objectFit: "contain" }}
+                          />
+                        ) : (
+                          <span className="text-lg opacity-60">🎴</span>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="app-heading line-clamp-2 text-xs" style={{ color: "var(--text-primary)" }}>
+                          {displayName}
+                        </p>
+                        <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                          Vendu le {formatSaleDate(sale.saleDate)}
+                          {sale.quantity > 1 && ` · x${sale.quantity}`}
+                        </p>
+                        <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
+                          <span style={{ color: "var(--text-secondary)" }}>
+                            Achat:{" "}
+                            <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>
+                              {sale.buyPrice.toLocaleString("fr-FR", {
+                                style: "currency",
+                                currency: "EUR",
+                                maximumFractionDigits: 0,
+                              })}
+                            </span>
+                          </span>
+                          <span style={{ color: "var(--text-secondary)" }}>
+                            Vente:{" "}
+                            <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>
+                              {sale.salePrice.toLocaleString("fr-FR", {
+                                style: "currency",
+                                currency: "EUR",
+                                maximumFractionDigits: 0,
+                              })}
+                            </span>
+                          </span>
+                          <span style={{ color: "var(--text-secondary)" }}>
+                            Bénéfice:{" "}
+                            <span
+                              className="font-semibold"
+                              style={{ color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                            >
+                              {sale.profit >= 0 ? "+" : ""}
+                              {sale.profit.toLocaleString("fr-FR", {
+                                style: "currency",
+                                currency: "EUR",
+                                maximumFractionDigits: 0,
+                              })}
+                            </span>
+                          </span>
+                          <span style={{ color: "var(--text-secondary)" }}>
+                            Perf:{" "}
+                            <span
+                              className="font-semibold"
+                              style={{ color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                            >
+                              {perfPct >= 0 ? "+" : ""}
+                              {perfPct.toFixed(1)}%
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 flex-col justify-end">
+                        <button
+                          type="button"
+                          onClick={() => openEdit(sale)}
+                          className="rounded-lg px-2.5 py-1 text-xs font-semibold transition hover:opacity-90"
+                          style={{
+                            background: "rgba(250,204,21,0.25)",
+                            color: "var(--accent-yellow)",
+                            border: "1px solid rgba(250,204,21,0.5)",
+                          }}
+                        >
+                          Modifier
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* Modal Modifier */}
+      {editId && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center px-4"
+          style={{
+            background: "var(--overlay-bg)",
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setEditId(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-4 space-y-4"
+            style={{
+              background: "var(--card-color)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Modifier la vente</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs" style={{ color: "var(--text-secondary)" }}>Prix d&apos;achat (€)</label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={editBuyPrice}
+                  onChange={(e) => setEditBuyPrice(e.target.value)}
+                  className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50"
+                  style={{ background: "var(--input-bg)", color: "var(--text-primary)" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs" style={{ color: "var(--text-secondary)" }}>Prix de vente (€)</label>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={editSalePrice}
+                  onChange={(e) => setEditSalePrice(e.target.value)}
+                  className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50"
+                  style={{ background: "var(--input-bg)", color: "var(--text-primary)" }}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs" style={{ color: "var(--text-secondary)" }}>Date de vente</label>
+                <input
+                  type="date"
+                  value={editDate}
+                  onChange={(e) => setEditDate(e.target.value)}
+                  className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50"
+                  style={{ background: "var(--input-bg)", color: "var(--text-primary)" }}
+                />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setEditId(null)}
+                className="flex-1 rounded-xl py-2 text-sm font-medium"
+                style={{ background: "var(--input-bg)", color: "var(--text-secondary)" }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={saveEdit}
+                className="flex-1 rounded-xl py-2 text-sm font-semibold"
+                style={{
+                  background: "rgba(250,204,21,0.25)",
+                  color: "var(--accent-yellow)",
+                  border: "1px solid rgba(250,204,21,0.5)",
+                }}
+              >
+                Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Confirmation suppression */}
+      {deleteId && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center px-4"
+          style={{
+            background: "var(--overlay-bg)",
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setDeleteId(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-4 space-y-4"
+            style={{
+              background: "var(--card-color)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Supprimer cette vente ?</h3>
+            <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+              Cette action est irréversible. La vente sera retirée de l&apos;historique.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteId(null)}
+                className="flex-1 rounded-xl py-2 text-sm font-medium"
+                style={{ background: "var(--input-bg)", color: "var(--text-secondary)" }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="flex-1 rounded-xl py-2 text-sm font-semibold"
+                style={{
+                  background: "rgba(239,68,68,0.3)",
+                  color: "var(--loss-red)",
+                  border: "1px solid rgba(239,68,68,0.5)",
+                }}
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
