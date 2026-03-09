@@ -347,7 +347,7 @@ export const CollectionPage = () => {
             onClick={() => navigate("/premium")}
             className="rounded-2xl py-2.5 px-4 text-sm font-bold w-full"
             style={{
-              background: "linear-gradient(135deg, #C9A84C 0%, #B18A4A 100%)",
+              background: "#D4A757",
               color: "#000",
               border: "none",
               cursor: "pointer",
