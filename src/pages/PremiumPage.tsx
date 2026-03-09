@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const CHECKOUT_URL = "https://pokeapp-production-52e4.up.railway.app/api/checkout";
+
+const benefits = [
+  { icon: "📦", label: "Collection illimitée", sub: "Gratuit = limité à 5 items" },
+  { icon: "📈", label: "Graphiques d'évolution des prix", sub: "" },
+  { icon: "🛒", label: "Accès complet au Marché", sub: "" },
+  { icon: "🔔", label: "Alertes prix", sub: "Notification quand un item monte ou descend" },
+];
 
 export function PremiumPage() {
   const [searchParams] = useSearchParams();
@@ -10,12 +17,12 @@ export function PremiumPage() {
   const success = searchParams.get("success") === "1";
   const canceled = searchParams.get("canceled") === "1";
 
-  const handleCheckout = async () => {
+  const handleSubscribe = async () => {
     setLoading(true);
     setError(null);
     try {
       const baseUrl = window.location.origin;
-      const res = await fetch(`${API_URL}/api/checkout`, {
+      const res = await fetch(CHECKOUT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -38,46 +45,155 @@ export function PremiumPage() {
   };
 
   return (
-    <div style={{ padding: "24px 16px", maxWidth: 480, margin: "0 auto" }}>
-      <h2 className="app-heading" style={{ fontSize: "20px", color: "var(--text-primary)", marginBottom: 8 }}>
-        Accès Premium
-      </h2>
-      <p style={{ color: "var(--text-secondary)", marginBottom: 24 }}>
-        Accès Premium Giovanni Collection — 9,99 €
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg-app)",
+        color: "var(--text-secondary)",
+        padding: "24px 16px",
+        maxWidth: 480,
+        margin: "0 auto",
+      }}
+    >
+      <h1
+        className="title-section"
+        style={{
+          fontSize: "22px",
+          color: "#C9A84C",
+          marginBottom: 4,
+          letterSpacing: "0.08em",
+          textAlign: "center",
+        }}
+      >
+        BOSS ACCESS
+      </h1>
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "18px",
+          fontWeight: 700,
+          color: "var(--text-primary)",
+          marginBottom: 24,
+        }}
+      >
+        €2,99 / mois
       </p>
+
       {success && (
-        <p style={{ color: "var(--gain-green)", marginBottom: 16, fontWeight: 600 }}>
+        <p
+          style={{
+            color: "var(--gain-green)",
+            marginBottom: 16,
+            fontWeight: 600,
+            textAlign: "center",
+          }}
+        >
           Paiement réussi. Merci !
         </p>
       )}
       {canceled && (
-        <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>
+        <p
+          style={{
+            color: "var(--text-secondary)",
+            marginBottom: 16,
+            textAlign: "center",
+          }}
+        >
           Paiement annulé.
         </p>
       )}
       {error && (
-        <p style={{ color: "var(--loss-red)", marginBottom: 16 }}>
+        <p style={{ color: "var(--loss-red)", marginBottom: 16, textAlign: "center" }}>
           {error}
         </p>
       )}
-      <button
-        type="button"
-        onClick={handleCheckout}
-        disabled={loading}
+
+      <section
         style={{
-          padding: "12px 24px",
-          borderRadius: "9999px",
-          background: "#D4A757",
-          color: "#000",
-          border: "none",
-          cursor: loading ? "not-allowed" : "pointer",
-          fontSize: 14,
-          fontWeight: 600,
-          opacity: loading ? 0.7 : 1,
+          background: "var(--card-color)",
+          borderRadius: 16,
+          padding: 20,
+          marginBottom: 24,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+          border: "1px solid var(--border-color, rgba(255,255,255,0.08))",
         }}
       >
-        {loading ? "Redirection…" : "Continue"}
-      </button>
+        {benefits.map((b) => (
+          <div
+            key={b.label}
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
+              marginBottom: 16,
+            }}
+          >
+            <span style={{ fontSize: "24px", lineHeight: 1 }}>{b.icon}</span>
+            <div>
+              <p
+                style={{
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  margin: 0,
+                  fontSize: 14,
+                }}
+              >
+                {b.label}
+              </p>
+              {b.sub && (
+                <p
+                  style={{
+                    margin: "2px 0 0 0",
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  {b.sub}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <button
+          type="button"
+          onClick={handleSubscribe}
+          disabled={loading}
+          style={{
+            width: "100%",
+            padding: "14px 24px",
+            borderRadius: 9999,
+            background: "linear-gradient(135deg, #C9A84C 0%, #B18A4A 100%)",
+            color: "#000",
+            border: "1px solid #E5C284",
+            boxShadow: "0 2px 4px rgba(201, 168, 76, 0.3)",
+            cursor: loading ? "not-allowed" : "pointer",
+            fontSize: 14,
+            fontWeight: 700,
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            opacity: loading ? 0.7 : 1,
+          }}
+        >
+          {loading ? "Redirection…" : "S'abonner maintenant"}
+        </button>
+        <Link
+          to="/"
+          style={{
+            display: "block",
+            textAlign: "center",
+            padding: "12px",
+            color: "var(--text-secondary)",
+            fontWeight: 600,
+            fontSize: 14,
+            textDecoration: "none",
+          }}
+        >
+          ← Retour à l'accueil
+        </Link>
+      </div>
     </div>
   );
 }

@@ -1,37 +1,10 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function PremiumBanner() {
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handlePremiumClick = async () => {
-    setLoading(true);
-    try {
-      // On utilise 127.0.0.1 au lieu de localhost pour éviter les blocages Windows
-      const response = await fetch("https://pokeapp-production-52e4.up.railway.app/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          success_url: window.location.origin,
-          cancel_url: window.location.origin,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erreur serveur: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data.url) {
-        window.location.assign(data.url);
-      } else {
-        alert("Erreur: Stripe n'a pas renvoyé de lien.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("ERREUR RÉELLE : " + (err as Error).message + " | Vérifie que le terminal affiche 'SERVER STRIPE IS READY ON PORT 4000'");
-    } finally {
-      setLoading(false);
-    }
+  const handlePremiumClick = () => {
+    navigate("/premium");
   };
 
   return (
@@ -69,7 +42,6 @@ export function PremiumBanner() {
       <button
         type="button"
         onClick={handlePremiumClick}
-        disabled={loading}
         style={{
           padding: "6px 14px",
           fontSize: 11,
@@ -81,12 +53,11 @@ export function PremiumBanner() {
           border: "1px solid #E5C284",
           borderRadius: 9999,
           boxShadow: "0 2px 4px rgba(212, 167, 87, 0.3)",
-          cursor: loading ? "not-allowed" : "pointer",
-          opacity: loading ? 0.7 : 1,
+          cursor: "pointer",
           flexShrink: 0,
         }}
       >
-        {loading ? "Chargement..." : "Premium"}
+        Premium
       </button>
     </section>
   );
