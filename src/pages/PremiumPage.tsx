@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useUser } from "@clerk/react";
 import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
 
 const CHECKOUT_URL = "https://pokeapp-production-52e4.up.railway.app/api/checkout";
@@ -28,6 +29,7 @@ const benefits = [
 ];
 
 export function PremiumPage() {
+  const { user } = useUser();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +47,7 @@ export function PremiumPage() {
         body: JSON.stringify({
           success_url: `${baseUrl}/premium?success=1`,
           cancel_url: `${baseUrl}/premium?canceled=1`,
+          client_reference_id: user?.id ?? null,
         }),
       });
       const data = await res.json();

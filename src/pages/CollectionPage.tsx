@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCollection } from "../state/CollectionContext";
+import { usePremium } from "../hooks/usePremium";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { getTotalRealizedGain } from "../utils/salesHistoryStorage";
 import { etbData } from "../data/etbData";
@@ -55,9 +56,13 @@ function todayISO(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+const FREE_COLLECTION_LIMIT = 5;
+
 export const CollectionPage = () => {
+  const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const { isPremium, loading: premiumLoading } = usePremium();
   const { items, removeFromCollection, updateCollectionItem } = useCollection();
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("Tous");
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
@@ -118,6 +123,35 @@ export const CollectionPage = () => {
     }
     return list;
   }, [items, selectedCategory, selectedEra, hasEraSubFilter]);
+
+  const totalQuantity = useMemo(
+    () => items.reduce((sum, it) => sum + it.quantity, 0),
+    [items]
+  );
+
+  const displayedItems = useMemo(() => {
+    if (premiumLoading || isPremium) return filteredItems;
+    let sum = 0;
+    const result: typeof filteredItems = [];
+    for (const item of filteredItems) {
+      if (sum + item.quantity <= FREE_COLLECTION_LIMIT) {
+        result.push(item);
+        sum += item.quantity;
+      } else break;
+    }
+    return result;
+  }, [filteredItems, isPremium, premiumLoading]);
+
+  const displayedQuantity = useMemo(
+    () => displayedItems.reduce((s, it) => s + it.quantity, 0),
+    [displayedItems]
+  );
+  const filteredQuantity = useMemo(
+    () => filteredItems.reduce((s, it) => s + it.quantity, 0),
+    [filteredItems]
+  );
+
+  const atFreeLimit = !premiumLoading && !isPremium && totalQuantity >= FREE_COLLECTION_LIMIT;
 
   const { totalValue, totalInvested, unrealizedGain } = items.reduce(
     (acc, item) => {
@@ -295,13 +329,43 @@ export const CollectionPage = () => {
         )}
       </div>
 
+      {/* Limite 5 items (gratuit) + CTA Premium */}
+      {atFreeLimit && (
+        <section
+          className="rounded-2xl p-4 space-y-3"
+          style={{
+            background: "var(--card-color)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+            border: "1px solid var(--accent-yellow)",
+          }}
+        >
+          <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+            Vous avez atteint la limite de 5 items. Passez Premium pour une collection illimitée !
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate("/premium")}
+            className="rounded-2xl py-2.5 px-4 text-sm font-bold w-full"
+            style={{
+              background: "linear-gradient(135deg, #C9A84C 0%, #B18A4A 100%)",
+              color: "#000",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Voir l&apos;offre Premium
+          </button>
+        </section>
+      )}
+
       {/* Détail des produits — grille 2 colonnes comme Accueil */}
       <section className="space-y-2">
         <h3 className="title-section" style={{ color: "var(--text-primary)" }}>
-          Détail des produits ({filteredItems.length})
+          Détail des produits ({displayedQuantity}
+          {!isPremium && totalQuantity > FREE_COLLECTION_LIMIT ? ` / ${filteredQuantity} items` : " items"})
         </h3>
         <div className="grid grid-cols-2 gap-3">
-          {filteredItems.map((item) => {
+          {displayedItems.map((item) => {
             const current = getPrixMarcheForProduct(item.product, etbData);
             const gainPerItem = current - item.buyPrice;
             const totalGainItem = gainPerItem * item.quantity;
@@ -477,7 +541,7 @@ export const CollectionPage = () => {
               </Link>
             );
           })}
-          {filteredItems.length === 0 && (
+          {displayedItems.length === 0 && (
             <p className="col-span-2 rounded-2xl p-4 text-center text-xs" style={{ background: "var(--card-color)", color: "var(--text-secondary)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}>
               Aucun produit dans votre collection pour le moment.
             </p>
