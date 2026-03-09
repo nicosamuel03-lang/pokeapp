@@ -7,7 +7,7 @@ export function PremiumBanner() {
     setLoading(true);
     try {
       // On utilise 127.0.0.1 au lieu de localhost pour éviter les blocages Windows
-      const response = await fetch("http://127.0.0.1:4000/api/checkout", {
+      const response = await fetch("https://pokeapp-production-52e4.up.railway.app/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
