@@ -217,7 +217,7 @@ export const BottomNavLayout = () => {
               </span>
             </div>
           </header>
-          <PremiumBanner />
+          {location.pathname !== "/premium" && <PremiumBanner />}
           <Outlet />
         </div>
       </main>

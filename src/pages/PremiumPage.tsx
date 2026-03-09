@@ -1,13 +1,30 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
 
 const CHECKOUT_URL = "https://pokeapp-production-52e4.up.railway.app/api/checkout";
 
 const benefits = [
-  { icon: "📦", label: "Collection illimitée", sub: "Gratuit = limité à 5 items" },
-  { icon: "📈", label: "Graphiques d'évolution des prix", sub: "" },
-  { icon: "🛒", label: "Accès complet au Marché", sub: "" },
-  { icon: "🔔", label: "Alertes prix", sub: "Notification quand un item monte ou descend" },
+  {
+    Icon: Package,
+    label: "Collection illimitée",
+    sub: "Ajoutez autant d'items que vous voulez. Displays, ETB, UPC... aucune limite.",
+  },
+  {
+    Icon: TrendingUp,
+    label: "Graphiques d'évolution des prix",
+    sub: "Suivez la valeur de chaque item sur 1 an ou 2 ans et anticipez les meilleures opportunités.",
+  },
+  {
+    Icon: ShoppingCart,
+    label: "Accès complet au Marché",
+    sub: "Consultez les prix du marché en temps réel et comparez la valeur de vos items.",
+  },
+  {
+    Icon: Bell,
+    label: "Alertes prix",
+    sub: "Notification quand un item monte ou descend. Ne ratez plus jamais une opportunité.",
+  },
 ];
 
 export function PremiumPage() {
@@ -47,7 +64,6 @@ export function PremiumPage() {
   return (
     <div
       style={{
-        minHeight: "100vh",
         background: "var(--bg-app)",
         color: "var(--text-secondary)",
         padding: "24px 16px",
@@ -128,7 +144,17 @@ export function PremiumPage() {
               marginBottom: 16,
             }}
           >
-            <span style={{ fontSize: "24px", lineHeight: 1 }}>{b.icon}</span>
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+                flexShrink: 0,
+                width: 18,
+                height: 18,
+              }}
+            >
+              <b.Icon size={18} color="#C9A84C" strokeWidth={2} />
+            </span>
             <div>
               <p
                 style={{
@@ -155,6 +181,17 @@ export function PremiumPage() {
           </div>
         ))}
       </section>
+
+      <p
+        style={{
+          marginBottom: 16,
+          fontSize: 12,
+          color: "var(--text-secondary)",
+          textAlign: "center",
+        }}
+      >
+        Résiliable à tout moment. Aucun engagement.
+      </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <button
