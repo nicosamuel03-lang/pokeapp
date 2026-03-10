@@ -12,11 +12,12 @@ import {
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { setSalePrice } from "../utils/salesStorage";
-import { addSaleRecord } from "../utils/salesHistoryStorage";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
+import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
 import { ItemIcon } from "../components/ItemIcon";
 import { ArrowLeft } from "lucide-react";
+import { usePremium } from "../hooks/usePremium";
 
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
@@ -72,6 +73,8 @@ const ProductDetailPageInner = () => {
   const navigate = useNavigate();
   const { products } = useProducts();
   const { items: collectionItems, removeFromCollection } = useCollection();
+  const { isPremium } = usePremium();
+  const { addSaleRecord, isAtFreeLimit } = useSalesHistory();
 
   const sid = (id ?? "").trim();
   const sidLower = sid.toLowerCase();
@@ -121,6 +124,7 @@ const ProductDetailPageInner = () => {
 
   const [saleInput, setSaleInput] = useState<string>("");
   const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const history2024 = useMemo(() => {
     const raw = etb?.historique_prix_2024;
@@ -302,7 +306,7 @@ const ProductDetailPageInner = () => {
     navigate(`/ajouter?item=${encodeURIComponent(itemId)}`);
   };
 
-  const handleVendre = () => {
+  const handleVendre = async () => {
     if (!hasSale || !product) return;
     const pid = product.etbId ?? product.id;
     const matching = collectionItems.filter(
@@ -312,6 +316,10 @@ const ProductDetailPageInner = () => {
         it.product.id === pid
     );
     if (matching.length === 0) return;
+    if (!isPremium && isAtFreeLimit) {
+      setShowLimitModal(true);
+      return;
+    }
     if (navigator.vibrate) navigator.vibrate(50);
 
     const totalBuyCost = matching.reduce((sum, it) => sum + it.buyPrice * it.quantity, 0);
@@ -321,7 +329,6 @@ const ProductDetailPageInner = () => {
     const today = new Date();
     const saleDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
-    // Résolution de l'image : product.imageUrl ou fallback via etbData (même logique que CollectionPage)
     let imageToSave: string | null = product.imageUrl ?? null;
     if (!imageToSave && (product.etbId || product.id)) {
       const etb =
@@ -329,9 +336,8 @@ const ProductDetailPageInner = () => {
         etbData.find((e) => product.id.startsWith(e.id));
       imageToSave = etb?.imageUrl ?? null;
     }
-    console.log("[handleVendre] product.imageUrl:", product.imageUrl, "→ imageToSave:", imageToSave);
 
-    addSaleRecord({
+    await addSaleRecord({
       productId: product.id,
       productName: product.name ?? "",
       image: imageToSave,
@@ -468,82 +474,194 @@ const ProductDetailPageInner = () => {
             2 ans
           </button>
         </div>
-        <div
-          className="rounded-2xl overflow-hidden"
-          style={{
-            background: "var(--bg-card-elevated)",
-            height: 260,
-            width: "100%",
-            minHeight: 200,
-          }}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={chartData.length > 0 ? chartData : MOCK_CHART_DATA}
-              margin={{ top: 12, right: 8, left: 4, bottom: 8 }}
+        <div style={{ position: "relative" }}>
+          <div
+            style={
+              isPremium
+                ? {}
+                : {
+                    filter: "blur(12px) brightness(0.6)",
+                    pointerEvents: "none",
+                    userSelect: "none",
+                  }
+            }
+          >
+            <div
+              className="rounded-2xl overflow-hidden"
+              style={{
+                background: "var(--bg-card-elevated)",
+                height: 260,
+                width: "100%",
+                minHeight: 200,
+              }}
             >
-              <defs>
-                <linearGradient id="areaGradDetail" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#D4A757" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#D4A757" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis
-                dataKey="mois_court"
-                tick={{ fontSize: 9, fill: "#9CA3AF" }}
-                tickLine={false}
-                axisLine={false}
-                interval={chartData.length > 0 ? xAxisInterval : 1}
-              />
-              <YAxis
-                tickFormatter={(v) => `${v}€`}
-                tick={{ fontSize: 9, fill: "#9CA3AF" }}
-                tickLine={false}
-                axisLine={false}
-                width={32}
-              />
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (!active || !payload?.length) return null;
-                  const p = payload[0]?.payload;
-                  if (!p) return null;
-                  const label = p.mois_label ?? "";
-                  const prixVal = p.prix;
-                  const prixStr = prixVal != null && !Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—";
-                  return (
-                    <div
-                      className="rounded-xl px-3 py-2 text-xs"
-                      style={{
-                        background: "var(--card-color)",
-                        color: "#D4A757",
-                        boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
-                      }}
-                    >
-                      {label} : {prixStr}
-                    </div>
-                  );
-                }}
-              />
-              {Number.isFinite(prixAchat) && (
-                <ReferenceLine
-                  y={prixAchat}
-                  stroke="#9CA3AF"
-                  strokeDasharray="4 4"
-                  strokeWidth={1}
+              <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={chartData.length > 0 ? chartData : MOCK_CHART_DATA}
+                margin={{ top: 12, right: 8, left: 4, bottom: 8 }}
+              >
+                <defs>
+                  <linearGradient id="areaGradDetail" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#D4A757" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#D4A757" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="mois_court"
+                  tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={chartData.length > 0 ? xAxisInterval : 1}
                 />
-              )}
-              <Area
-                type="monotone"
-                dataKey="prix"
-                stroke="#D4A757"
-                strokeWidth={2}
-                fill="url(#areaGradDetail)"
-                dot={{ fill: "#D4A757", r: 2 }}
-                activeDot={{ fill: "#D4A757", r: 4 }}
-                connectNulls={false}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+                <YAxis
+                  tickFormatter={(v) => `${v}€`}
+                  tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                  tickLine={false}
+                  axisLine={false}
+                  width={32}
+                />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null;
+                    const p = payload[0]?.payload;
+                    if (!p) return null;
+                    const label = p.mois_label ?? "";
+                    const prixVal = p.prix;
+                    const prixStr = prixVal != null && !Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—";
+                    return (
+                      <div
+                        className="rounded-xl px-3 py-2 text-xs"
+                        style={{
+                          background: "var(--card-color)",
+                          color: "#D4A757",
+                          boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
+                        }}
+                      >
+                        {label} : {prixStr}
+                      </div>
+                    );
+                  }}
+                />
+                {Number.isFinite(prixAchat) && (
+                  <ReferenceLine
+                    y={prixAchat}
+                    stroke="#9CA3AF"
+                    strokeDasharray="4 4"
+                    strokeWidth={1}
+                  />
+                )}
+                <Area
+                  type="monotone"
+                  dataKey="prix"
+                  stroke="#D4A757"
+                  strokeWidth={2}
+                  fill="url(#areaGradDetail)"
+                  dot={{ fill: "#D4A757", r: 2 }}
+                  activeDot={{ fill: "#D4A757", r: 4 }}
+                  connectNulls={false}
+                />
+              </AreaChart>
+              </ResponsiveContainer>
+            </div>
+            {priceListRows.length > 0 && (
+              <div
+                className="overflow-hidden text-xs"
+                style={{
+                  background: "var(--card-color)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: 12,
+                  padding: 16,
+                  marginTop: 12,
+                }}
+              >
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b" style={{ borderColor: "var(--card-color)" }}>
+                      <th className="py-2 pl-3 text-left font-medium" style={{ color: "var(--text-secondary)" }}>
+                        Mois
+                      </th>
+                      <th className="py-2 pr-3 text-right font-medium" style={{ color: "var(--text-secondary)" }}>
+                        Prix (€)
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...priceListRows].reverse().map((p, idx) => (
+                      <tr key={p?.mois ? String(p.mois) : `row-${idx}`} className="border-b" style={{ borderColor: "var(--card-color)" }}>
+                        <td className="py-2 pl-3" style={{ color: "var(--text-secondary)" }}>{p?.mois_label ?? "—"}</td>
+                        <td
+                          className="py-2 pr-3 text-right font-medium"
+                          style={{
+                            color: p?.prix != null && !Number.isNaN(Number(p?.prix)) ? "var(--accent-yellow)" : "var(--text-secondary)",
+                          }}
+                        >
+                          {p?.prix != null && !Number.isNaN(Number(p?.prix))
+                            ? `${Number(p.prix)} €`
+                            : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          {!isPremium && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                pointerEvents: "none",
+              }}
+            >
+              <div
+                style={{
+                  pointerEvents: "auto",
+                  textAlign: "center",
+                  padding: "12px 16px",
+                  borderRadius: 16,
+                  background: "rgba(0,0,0,0.65)",
+                  color: "var(--text-primary)",
+                  maxWidth: 260,
+                }}
+              >
+                <div style={{ marginBottom: 6 }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4A757" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </div>
+                <p
+                  style={{
+                    fontSize: 12,
+                    marginBottom: 10,
+                    color: "#FFFFFF",
+                  }}
+                >
+                  Fonctionnalité réservée aux membres Boss Access
+                </p>
+                <a
+                  href="/premium"
+                  style={{
+                    display: "inline-block",
+                    padding: "6px 14px",
+                    borderRadius: 9999,
+                    background: "#D4A757",
+                    color: "#000",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
+                  S&apos;abonner
+                </a>
+              </div>
+            </div>
+          )}
         </div>
         {!isInCollection && (
           <button
@@ -559,48 +677,6 @@ const ProductDetailPageInner = () => {
             <span>Ajouter à ma collection</span>
           </button>
         )}
-        {priceListRows.length > 0 && (
-          <div
-            className="overflow-hidden text-xs"
-            style={{
-              background: "var(--card-color)",
-              border: "1px solid var(--border-color)",
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b" style={{ borderColor: "var(--card-color)" }}>
-                  <th className="py-2 pl-3 text-left font-medium" style={{ color: "var(--text-secondary)" }}>
-                    Mois
-                  </th>
-                  <th className="py-2 pr-3 text-right font-medium" style={{ color: "var(--text-secondary)" }}>
-                    Prix (€)
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...priceListRows].reverse().map((p, idx) => (
-                  <tr key={p?.mois ? String(p.mois) : `row-${idx}`} className="border-b" style={{ borderColor: "var(--card-color)" }}>
-                    <td className="py-2 pl-3" style={{ color: "var(--text-secondary)" }}>{p?.mois_label ?? "—"}</td>
-                    <td
-                      className="py-2 pr-3 text-right font-medium"
-                      style={{
-                        color: p?.prix != null && !Number.isNaN(Number(p?.prix)) ? "var(--accent-yellow)" : "var(--text-secondary)",
-                      }}
-                    >
-                      {p?.prix != null && !Number.isNaN(Number(p?.prix))
-                        ? `${Number(p.prix)} €`
-                        : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
         {isInCollection && (
           <div
             className="space-y-2"
@@ -693,6 +769,52 @@ const ProductDetailPageInner = () => {
           </div>
         )}
       </section>
+
+      {/* Modal limite 10 ventes (non-premium) */}
+      {showLimitModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4"
+          style={{
+            background: "var(--overlay-bg)",
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowLimitModal(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl p-4 space-y-4"
+            style={{
+              background: "var(--card-color)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+              Limite atteinte — Passez à Boss Access pour continuer à vendre sans limite.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowLimitModal(false)}
+                className="flex-1 rounded-xl py-2 text-sm font-medium"
+                style={{ background: "var(--input-bg)", color: "var(--text-secondary)" }}
+              >
+                Annuler
+              </button>
+              <a
+                href="/premium"
+                className="flex-1 rounded-xl py-2 text-sm font-semibold text-center"
+                style={{
+                  background: "#D4A757",
+                  color: "#000",
+                  textDecoration: "none",
+                }}
+              >
+                S&apos;abonner
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -26,6 +26,11 @@ const benefits = [
     label: "Alertes prix",
     sub: "Notification quand un item monte ou descend. Ne ratez plus jamais une opportunité.",
   },
+  {
+    Icon: Bell,
+    label: "Mode sombre",
+    sub: "Personnalisez votre expérience avec le thème sombre, exclusif Boss Access.",
+  },
 ];
 
 export function PremiumPage() {
@@ -45,7 +50,7 @@ export function PremiumPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          success_url: `${baseUrl}/premium?success=1`,
+          success_url: `${baseUrl}/success`,
           cancel_url: `${baseUrl}/premium?canceled=1`,
           client_reference_id: user?.id ?? null,
         }),
@@ -72,6 +77,7 @@ export function PremiumPage() {
         padding: "24px 16px",
         maxWidth: 480,
         margin: "0 auto",
+        paddingBottom: 120,
       }}
     >
       <h1

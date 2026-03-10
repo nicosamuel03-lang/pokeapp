@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
 import { PremiumPage } from "./pages/PremiumPage";
+import { SuccessPage } from "./pages/SuccessPage";
+import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { BottomNavLayout } from "./components/BottomNavLayout";
@@ -26,6 +28,8 @@ const App = () => {
         <Route element={<BottomNavLayout />}>
           <Route path="/produit/:id" element={<ProductDetailPage />} />
           <Route path="/premium" element={<PremiumPage />} />
+          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/mon-abonnement" element={<SubscriptionPage />} />
           <Route path="*" element={<TabSwitch />} />
         </Route>
       </Routes>

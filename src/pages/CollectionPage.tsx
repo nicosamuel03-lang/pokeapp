@@ -129,24 +129,10 @@ export const CollectionPage = () => {
     [items]
   );
 
-  const displayedItems = useMemo(() => {
-    if (premiumLoading || isPremium) return filteredItems;
-    let sum = 0;
-    const result: typeof filteredItems = [];
-    for (const item of filteredItems) {
-      if (sum + item.quantity <= FREE_COLLECTION_LIMIT) {
-        result.push(item);
-        sum += item.quantity;
-      } else break;
-    }
-    return result;
-  }, [filteredItems, isPremium, premiumLoading]);
+  // Toujours afficher tous les items ; la limite gratuite bloque uniquement l'ajout, pas l'affichage.
+  const displayedItems = filteredItems;
 
   const displayedQuantity = useMemo(
-    () => displayedItems.reduce((s, it) => s + it.quantity, 0),
-    [displayedItems]
-  );
-  const filteredQuantity = useMemo(
     () => filteredItems.reduce((s, it) => s + it.quantity, 0),
     [filteredItems]
   );
@@ -361,8 +347,7 @@ export const CollectionPage = () => {
       {/* Détail des produits — grille 2 colonnes comme Accueil */}
       <section className="space-y-2">
         <h3 className="title-section" style={{ color: "var(--text-primary)" }}>
-          Détail des produits ({displayedQuantity}
-          {!isPremium && totalQuantity > FREE_COLLECTION_LIMIT ? ` / ${filteredQuantity} items` : " items"})
+          Détail des produits ({displayedQuantity} items)
         </h3>
         <div className="grid grid-cols-2 gap-3">
           {displayedItems.map((item) => {

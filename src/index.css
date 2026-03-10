@@ -175,3 +175,23 @@ h1, h2, h3,
   fill: white !important;
 }
 
+@keyframes success-check-scale-in {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-check-anim {
+  animation: success-check-scale-in 500ms ease-out;
+}
+
+

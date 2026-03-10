@@ -11,6 +11,7 @@ import { getTotalRealizedGain } from "../utils/salesHistoryStorage";
 import { getEraBadge, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
+import { usePremium } from "../hooks/usePremium";
 
 type HistPrix = { mois: string; prix: number | null }[] | undefined;
 
@@ -109,6 +110,7 @@ export const HomePage = () => {
   const { items: collectionItems } = useCollection();
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const { isPremium } = usePremium();
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
     "Tous"
   );
@@ -418,35 +420,105 @@ export const HomePage = () => {
               </p>
             </div>
           ) : (
-            <ResponsiveContainer width="100%" height={PORTFOLIO_CHART_HEIGHT}>
-              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <XAxis
-                  dataKey="mois"
-                  tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
-                  interval={chartPeriod === "1an" ? 1 : 2}
-                />
-                <YAxis tick={{ fill: "var(--text-secondary)", fontSize: 10 }} width={45} />
-                <Tooltip
-                  contentStyle={{ background: "var(--card-color)", borderRadius: 8, color: "var(--text-primary)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
-                  content={({ active, payload, label }) => {
-                    if (!active || !payload?.length) return null;
-                    const sorted = [...payload].sort((a, b) => (a.dataKey === "valeurMarche" ? -1 : b.dataKey === "valeurMarche" ? 1 : 0));
-                    return (
-                      <div className="rounded-lg px-3 py-2" style={{ background: "var(--card-color)", color: "var(--text-primary)" }}>
-                        <p className="text-[10px] mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
-                        {sorted.map((entry) => (
-                          <p key={String(entry.dataKey)} className="text-xs" style={{ color: entry.color }}>
-                            {entry.dataKey === "investissement" ? "Investi" : "Marché"}: {typeof entry.value === "number" ? `${entry.value} €` : entry.value}
-                          </p>
-                        ))}
-                      </div>
-                    );
+            <div style={{ position: "relative" }}>
+              <div
+                style={
+                  isPremium
+                    ? {}
+                    : {
+                        filter: "blur(12px) brightness(0.6)",
+                        pointerEvents: "none",
+                        userSelect: "none",
+                      }
+                }
+              >
+                <ResponsiveContainer width="100%" height={PORTFOLIO_CHART_HEIGHT}>
+                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                    <XAxis
+                      dataKey="mois"
+                      tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
+                      interval={chartPeriod === "1an" ? 1 : 2}
+                    />
+                    <YAxis tick={{ fill: "var(--text-secondary)", fontSize: 10 }} width={45} />
+                    <Tooltip
+                      contentStyle={{ background: "var(--card-color)", borderRadius: 8, color: "var(--text-primary)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
+                      content={({ active, payload, label }) => {
+                        if (!active || !payload?.length) return null;
+                        const sorted = [...payload].sort((a, b) => (a.dataKey === "valeurMarche" ? -1 : b.dataKey === "valeurMarche" ? 1 : 0));
+                        return (
+                          <div className="rounded-lg px-3 py-2" style={{ background: "var(--card-color)", color: "var(--text-primary)" }}>
+                            <p className="text-[10px] mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
+                            {sorted.map((entry) => (
+                              <p key={String(entry.dataKey)} className="text-xs" style={{ color: entry.color }}>
+                                {entry.dataKey === "investissement" ? "Investi" : "Marché"}: {typeof entry.value === "number" ? `${entry.value} €` : entry.value}
+                              </p>
+                            ))}
+                          </div>
+                        );
+                      }}
+                    />
+                    <Line type="monotone" dataKey="valeurMarche" name="Marché" stroke="#D4A757" strokeWidth={2} dot={false} connectNulls={true} />
+                    <Line type="monotone" dataKey="investissement" name="Investi" stroke="var(--text-primary)" strokeWidth={2} strokeDasharray="5 5" dot={false} connectNulls={true} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              {!isPremium && (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    pointerEvents: "none",
                   }}
-                />
-                <Line type="monotone" dataKey="valeurMarche" name="Marché" stroke="#D4A757" strokeWidth={2} dot={false} connectNulls={true} />
-                <Line type="monotone" dataKey="investissement" name="Investi" stroke="var(--text-primary)" strokeWidth={2} strokeDasharray="5 5" dot={false} connectNulls={true} />
-              </LineChart>
-            </ResponsiveContainer>
+                >
+                  <div
+                    style={{
+                      pointerEvents: "auto",
+                      textAlign: "center",
+                      padding: "12px 16px",
+                      borderRadius: 16,
+                      background: "rgba(0,0,0,0.65)",
+                      color: "var(--text-primary)",
+                      maxWidth: 260,
+                    }}
+                  >
+                    <div style={{ marginBottom: 6 }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4A757" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    </div>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        marginBottom: 10,
+                        color: "#FFFFFF",
+                      }}
+                    >
+                      Fonctionnalité réservée aux membres Boss Access
+                    </p>
+                    <a
+                      href="/premium"
+                      style={{
+                        display: "inline-block",
+                        padding: "6px 14px",
+                        borderRadius: 9999,
+                        background: "#D4A757",
+                        color: "#000",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        textDecoration: "none",
+                      }}
+                    >
+                      S&apos;abonner
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 

@@ -1,10 +1,7 @@
-import { useMemo, useState, useCallback } from "react";
-import {
-  getSalesHistory,
-  updateSaleRecord,
-  deleteSaleRecord,
-  type SaleRecord,
-} from "../utils/salesHistoryStorage";
+import { useMemo, useState } from "react";
+import type { SaleRecord } from "../utils/salesHistoryStorage";
+import { useSalesHistory } from "../hooks/useSalesHistory";
+import { usePremium } from "../hooks/usePremium";
 import { useTheme } from "../state/ThemeContext";
 
 function formatSaleDate(iso: string): string {
@@ -20,14 +17,18 @@ function todayISO(): string {
 export const HistoriquePage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
-  const [sales, setSales] = useState<SaleRecord[]>(() => getSalesHistory());
+  const { isPremium } = usePremium();
+  const {
+    sales,
+    updateSaleRecord,
+    deleteSaleRecord,
+    refreshSales,
+  } = useSalesHistory();
   const [editId, setEditId] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editBuyPrice, setEditBuyPrice] = useState("");
   const [editSalePrice, setEditSalePrice] = useState("");
   const [editDate, setEditDate] = useState("");
-
-  const refreshSales = useCallback(() => setSales(getSalesHistory()), []);
 
   const openEdit = (sale: SaleRecord) => {
     setEditId(sale.id);
@@ -36,25 +37,23 @@ export const HistoriquePage = () => {
     setEditDate(sale.saleDate || todayISO());
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!editId) return;
     const buyPrice = parseFloat(editBuyPrice.replace(",", "."));
     const salePrice = parseFloat(editSalePrice.replace(",", "."));
     if (!Number.isNaN(buyPrice) && !Number.isNaN(salePrice) && editDate) {
-      updateSaleRecord(editId, {
+      await updateSaleRecord(editId, {
         buyPrice,
         salePrice,
         saleDate: editDate,
       });
-      refreshSales();
       setEditId(null);
     }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteId) {
-      deleteSaleRecord(deleteId);
-      refreshSales();
+      await deleteSaleRecord(deleteId);
       setDeleteId(null);
     }
   };
@@ -192,7 +191,7 @@ export const HistoriquePage = () => {
               Détail des ventes ({sortedSales.length})
             </h3>
             <div className="space-y-3">
-              {sortedSales.map((sale) => {
+              {(isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
                 const investi = sale.buyPrice * sale.quantity;
                 const perfPct = investi > 0 ? (sale.profit / investi) * 100 : 0;
                 const imageUrl = sale.image ?? sale.imageUrl ?? null;
@@ -319,6 +318,109 @@ export const HistoriquePage = () => {
                   </div>
                 );
               })}
+              {!isPremium && sortedSales.length > 5 && (
+                <div style={{ position: "relative", marginTop: 8 }}>
+                  <div
+                    style={{
+                      filter: "blur(12px) brightness(0.6)",
+                      pointerEvents: "none",
+                      userSelect: "none",
+                    }}
+                  >
+                    {sortedSales.slice(5).map((sale) => {
+                      const investi = sale.buyPrice * sale.quantity;
+                      const perfPct = investi > 0 ? (sale.profit / investi) * 100 : 0;
+                      const imageUrl = sale.image ?? sale.imageUrl ?? null;
+                      const displayName = (sale.productName ?? "").replace(/ FR$/, "");
+
+                      return (
+                        <div
+                          key={sale.id}
+                          className={isLight ? "relative" : "relative rounded-2xl p-3"}
+                          style={{
+                            background: "var(--card-color)",
+                            boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+                            marginBottom: 12,
+                            ...(isLight && {
+                              border: "1px solid var(--border-color)",
+                              borderRadius: 12,
+                              padding: 12,
+                            }),
+                          }}
+                        >
+                          <div className="flex gap-3">
+                            <div
+                              className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl"
+                              style={{ width: "56px", height: "56px", minHeight: "56px", background: "var(--img-container-bg)" }}
+                            >
+                              {imageUrl ? (
+                                <img src={imageUrl} alt={displayName} width={56} height={56} className="h-full w-full object-contain" />
+                              ) : (
+                                <span className="text-lg opacity-60">🎴</span>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="app-heading line-clamp-2 text-xs" style={{ color: "var(--text-primary)" }}>{displayName}</p>
+                              <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                                Vendu le {formatSaleDate(sale.saleDate)}
+                                {sale.quantity > 1 && ` · x${sale.quantity}`}
+                              </p>
+                              <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
+                                <span style={{ color: "var(--text-secondary)" }}>Achat: <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>{sale.buyPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
+                                <span style={{ color: "var(--text-secondary)" }}>Vente: <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>{sale.salePrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
+                                <span style={{ color: "var(--text-secondary)" }}>Bénéfice: <span className="font-semibold" style={{ color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>{sale.profit >= 0 ? "+" : ""}{sale.profit.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
+                                <span style={{ color: "var(--text-secondary)" }}>Perf: <span className="font-semibold" style={{ color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>{perfPct >= 0 ? "+" : ""}{perfPct.toFixed(1)}%</span></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <div
+                      style={{
+                        pointerEvents: "auto",
+                        textAlign: "center",
+                        padding: "16px 20px",
+                        borderRadius: 16,
+                        background: "rgba(0,0,0,0.65)",
+                        color: "var(--text-primary)",
+                        maxWidth: 280,
+                      }}
+                    >
+                      <p className="text-xs mb-3" style={{ color: "var(--text-secondary)" }}>
+                        Débloquez l&apos;historique complet avec Boss Access
+                      </p>
+                      <a
+                        href="/premium"
+                        style={{
+                          display: "inline-block",
+                          padding: "8px 18px",
+                          borderRadius: 9999,
+                          background: "#D4A757",
+                          color: "#000",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          textDecoration: "none",
+                        }}
+                      >
+                        S&apos;abonner
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         </>

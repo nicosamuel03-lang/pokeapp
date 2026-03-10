@@ -44,18 +44,28 @@ app.post(
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
       const clerkUserId = session.client_reference_id;
+      const subscriptionId = session.subscription || null;
       if (clerkUserId && supabase) {
         const { error } = await supabase
           .from("users")
           .upsert(
-            { id: clerkUserId, is_premium: true },
+            {
+              id: clerkUserId,
+              is_premium: true,
+              stripe_subscription_id: subscriptionId,
+            },
             { onConflict: "id" }
           );
         if (error) {
           console.error("Supabase upsert failed:", error);
           return res.status(500).send("Failed to update premium status");
         }
-        console.log("Premium activated for user:", clerkUserId);
+        console.log(
+          "Premium activated for user:",
+          clerkUserId,
+          "subscription:",
+          subscriptionId
+        );
       }
     }
     res.json({ received: true });
@@ -76,7 +86,7 @@ app.post("/api/checkout", async (req, res) => {
   try {
     const baseUrl = req.body.base_url || "http://localhost:5173";
     const success_url =
-      req.body.success_url || `${baseUrl}/premium?success=1`;
+      req.body.success_url || `${baseUrl}/success`;
     const cancel_url =
       req.body.cancel_url || `${baseUrl}/premium?canceled=1`;
     const client_reference_id = req.body.client_reference_id || null;
@@ -107,6 +117,70 @@ app.post("/api/checkout", async (req, res) => {
     return res.json({ url: session.url });
   } catch (err) {
     console.error("STRIPE / SERVER ERROR:", err?.message || err);
+    return res
+      .status(500)
+      .json({ error: err?.message || "Unknown server error" });
+  }
+});
+
+app.post("/api/cancel-subscription", async (req, res) => {
+  try {
+    const { userId } = req.body || {};
+    if (!userId) {
+      return res.status(400).json({ error: "Missing userId" });
+    }
+    if (!supabase) {
+      return res.status(500).json({ error: "Supabase not configured" });
+    }
+
+    // IMPORTANT : userId doit être l'ID Clerk (format user_xxx) stocké dans users.id
+    console.log("[cancel-subscription] incoming userId (expected Clerk ID):", userId);
+
+    const { data, error: fetchError } = await supabase
+      .from("users")
+      .select("stripe_subscription_id")
+      .eq("id", userId)
+      .single();
+    if (fetchError) {
+      console.error("Supabase fetch error:", fetchError);
+      return res.status(500).json({ error: "Failed to load subscription" });
+    }
+    console.log("[cancel-subscription] loaded user row for id =", userId, "=>", data);
+    const subscriptionId = data?.stripe_subscription_id;
+
+    // Essayez d'annuler l'abonnement Stripe si nous avons un ID, mais
+    // même si l'annulation Stripe échoue ou si aucun ID n'est présent,
+    // on repasse quand même l'utilisateur en mode gratuit côté app.
+    if (subscriptionId) {
+      try {
+        await stripe.subscriptions.cancel(subscriptionId);
+      } catch (cancelErr) {
+        console.error(
+          "Stripe subscription cancel failed (will still downgrade user):",
+          cancelErr?.message || cancelErr
+        );
+      }
+    }
+
+    const { data: updatedRows, error: updateError } = await supabase
+      .from("users")
+      .update({ is_premium: false, stripe_subscription_id: null })
+      .eq("id", userId)
+      .select();
+    console.log(
+      "UPDATE RESULT:",
+      JSON.stringify(updatedRows),
+      "ERROR:",
+      updateError
+    );
+    if (updateError) {
+      console.error("Supabase update error:", updateError);
+      return res.status(500).json({ error: "Failed to update user" });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Cancel subscription error:", err?.message || err);
     return res
       .status(500)
       .json({ error: err?.message || "Unknown server error" });

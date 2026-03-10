@@ -1,10 +1,11 @@
-import { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, useClerk, useUser } from "@clerk/react";
 import { Home, Layers, Plus, LineChart, History, Sun, Moon } from "lucide-react";
 import { useTheme } from "../state/ThemeContext";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
+import { usePremium } from "../hooks/usePremium";
 
 const SWIPE_MIN_DISTANCE = 90;
 const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
@@ -33,8 +34,16 @@ export const BottomNavLayout = () => {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { user } = useUser();
+  const { isPremium } = usePremium();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  // Free users : forcer le mode clair, Premium : libre de changer.
+  useEffect(() => {
+    if (!isPremium && theme === "dark") {
+      toggleTheme();
+    }
+  }, [isPremium, theme, toggleTheme]);
 
   const isOnTabRoute = TAB_PATHS.some(
     (p) => p === "/" ? location.pathname === "/" : location.pathname === p
@@ -103,6 +112,8 @@ export const BottomNavLayout = () => {
           width: "100%",
           paddingBottom: `${MAIN_PADDING_BOTTOM}px`,
           touchAction: "pan-y",
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
         }}
         onTouchStartCapture={handleTouchStart}
         onTouchEndCapture={handleTouchEnd}
@@ -192,32 +203,60 @@ export const BottomNavLayout = () => {
                   <ClerkSignInModal open={showSignInModal} onClose={() => setShowSignInModal(false)} />
                 </>
               )}
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
+              <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background: "var(--bg-card)",
-                  color: "var(--text-secondary)",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
+                  gap: 4,
                 }}
+                title={
+                  isPremium
+                    ? theme === "dark"
+                      ? "Passer en mode clair"
+                      : "Passer en mode sombre"
+                    : "Fonctionnalité réservée aux membres Boss Access"
+                }
               >
-                {theme === "dark" ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
-              </button>
+                <button
+                  type="button"
+                  onClick={isPremium ? toggleTheme : undefined}
+                  aria-label={
+                    theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"
+                  }
+                  disabled={!isPremium}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: "var(--bg-card)",
+                    color: "var(--text-secondary)",
+                    border: "none",
+                    cursor: isPremium ? "pointer" : "not-allowed",
+                    padding: 0,
+                    opacity: isPremium ? 1 : 0.5,
+                  }}
+                >
+                  {theme === "dark" ? <Sun size={18} strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
+                </button>
+                {!isPremium && (
+                  <span style={{ display: "inline-flex", alignItems: "center", color: "var(--text-secondary)" }} aria-hidden>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                )}
+              </div>
               <span style={{ borderRadius: "9999px", background: "var(--bg-card)", padding: "2px 12px", fontSize: "11px", color: "var(--text-secondary)" }}>
                 Beta
               </span>
             </div>
           </header>
-          {location.pathname !== "/premium" && <PremiumBanner />}
+          {location.pathname !== "/premium" &&
+            location.pathname !== "/success" && <PremiumBanner />}
           <Outlet />
         </div>
       </main>

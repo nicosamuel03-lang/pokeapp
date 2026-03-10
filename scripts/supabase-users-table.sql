@@ -5,8 +5,12 @@
 create table if not exists public.users (
   id text primary key,
   is_premium boolean not null default false,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  stripe_subscription_id text
 );
+
+alter table public.users
+  add column if not exists stripe_subscription_id text;
 
 -- Optional: enable RLS and allow read for authenticated users (adjust to your auth strategy)
 -- alter table public.users enable row level security;

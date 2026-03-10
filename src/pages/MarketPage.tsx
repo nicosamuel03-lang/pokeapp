@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { TrendingUp } from "lucide-react";
+import { usePremium } from "../hooks/usePremium";
 import { getEraBadge } from "../utils/eraBadge";
 import { getPerformanceForPeriod } from "../utils/marketPerformance";
 import { formatProductNameWithSetCode } from "../utils/formatProduct";
@@ -283,6 +284,7 @@ function mapEtbToProduct(item: (typeof etbData)[number]): MarketProduct {
 }
 
 export const MarketPage = () => {
+  const { isPremium } = usePremium();
   const [mainTab, setMainTab] = useState<MainTab>("etb");
 
   const filteredProducts = useMemo(() => {
@@ -316,56 +318,130 @@ export const MarketPage = () => {
   const sectionTitle = mainTab === "etb" ? "ETB" : mainTab === "upc" ? "UPC" : "Displays";
 
   return (
-    <div className="space-y-6">
-      <h2 className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>Marché des cartes</h2>
+    <div style={{ position: "relative", minHeight: "100%" }}>
+      <div
+        className="space-y-6"
+        style={
+          isPremium
+            ? {}
+            : {
+                filter: "blur(20px) brightness(0.4)",
+                pointerEvents: "none",
+                userSelect: "none",
+              }
+        }
+      >
+        <h2 className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>Marché des cartes</h2>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setMainTab("etb")}
-          style={mainTab === "etb" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
-        >
-          ETB
-        </button>
-        <button
-          type="button"
-          onClick={() => setMainTab("displays")}
-          style={mainTab === "displays" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
-        >
-          Displays
-        </button>
-        <button
-          type="button"
-          onClick={() => setMainTab("upc")}
-          style={mainTab === "upc" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
-        >
-          UPC
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setMainTab("etb")}
+            style={mainTab === "etb" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+          >
+            ETB
+          </button>
+          <button
+            type="button"
+            onClick={() => setMainTab("displays")}
+            style={mainTab === "displays" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+          >
+            Displays
+          </button>
+          <button
+            type="button"
+            onClick={() => setMainTab("upc")}
+            style={mainTab === "upc" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+          >
+            UPC
+          </button>
+        </div>
+
+        <div className="pt-4 space-y-6">
+          <div className="flex justify-center">
+            <div
+              className="flex items-center justify-center gap-2 rounded-full px-6 py-3 w-fit"
+              style={{
+                background: "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
+                color: "#FFFFFF",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                boxShadow: "0 2px 4px rgba(212, 167, 87, 0.2)",
+                overflow: "hidden",
+                isolation: "isolate",
+                contain: "paint",
+                transform: "translateZ(0)",
+              }}
+            >
+              <TrendingUp size={18} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
+              <span>Top du mois de Mars 2026 !</span>
+            </div>
+          </div>
+          <RankingSection key={mainTab} title={sectionTitle} products={productsToShow} />
+        </div>
       </div>
 
-      <div className="pt-4 space-y-6">
-        <div className="flex justify-center">
+      {!isPremium && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            pointerEvents: "none",
+            zIndex: 10,
+          }}
+        >
           <div
-            className="flex items-center justify-center gap-2 rounded-full px-6 py-3 w-fit"
             style={{
-              background: "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
-              color: "#FFFFFF",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              boxShadow: "0 2px 4px rgba(212, 167, 87, 0.2)",
-              overflow: "hidden",
-              isolation: "isolate",
-              contain: "paint",
-              transform: "translateZ(0)",
+              pointerEvents: "auto",
+              textAlign: "center",
+              padding: "20px 24px",
+              borderRadius: 20,
+              background: "rgba(0,0,0,0.75)",
+              color: "var(--text-primary)",
+              maxWidth: 280,
+              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
             }}
           >
-            <TrendingUp size={18} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
-            <span>Top du mois de Mars 2026 !</span>
+            <div style={{ marginBottom: 10 }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4A757" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </div>
+            <p
+              style={{
+                fontSize: 13,
+                marginBottom: 14,
+                color: "#FFFFFF",
+                lineHeight: 1.35,
+              }}
+            >
+              Fonctionnalité réservée aux membres Boss Access
+            </p>
+            <Link
+              to="/premium"
+              style={{
+                display: "inline-block",
+                padding: "8px 18px",
+                borderRadius: 9999,
+                background: "#D4A757",
+                color: "#000",
+                fontSize: 12,
+                fontWeight: 700,
+                textDecoration: "none",
+                boxShadow: "0 2px 8px rgba(212,167,87,0.35)",
+              }}
+            >
+              S&apos;abonner
+            </Link>
           </div>
         </div>
-        <RankingSection key={mainTab} title={sectionTitle} products={productsToShow} />
-      </div>
+      )}
     </div>
   );
 };

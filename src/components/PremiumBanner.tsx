@@ -1,7 +1,66 @@
 import { useNavigate } from "react-router-dom";
+import { Star } from "lucide-react";
+import { usePremium } from "../hooks/usePremium";
+import { useTheme } from "../state/ThemeContext";
 
 export function PremiumBanner() {
   const navigate = useNavigate();
+  const { isPremium } = usePremium();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
+  if (isPremium) {
+    const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
+    const badgeTextColor = isLight ? "#8B6914" : "#FBBF24";
+    const starColor = isLight ? "#8B6914" : "#FDE68A";
+    const badgeBgTint = isLight ? "rgba(184, 134, 11, 0.12)" : "rgba(212, 167, 87, 0.18)";
+    const badgeShadow = isLight ? "0 0 0 1px rgba(139, 105, 20, 0.25)" : "0 0 0 1px rgba(0,0,0,0.4)";
+
+    return (
+      <button
+        type="button"
+        onClick={() => navigate("/mon-abonnement")}
+        style={{
+          border: `1px solid ${badgeBorder}`,
+          borderRadius: 9999,
+          padding: "6px 10px",
+          marginBottom: 8,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          background: `radial-gradient(circle at 0 0, ${badgeBgTint}, transparent 55%), var(--card-color)`,
+          boxShadow: badgeShadow,
+          cursor: "pointer",
+        }}
+      >
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 18,
+            height: 18,
+            borderRadius: "9999px",
+            background: badgeBgTint,
+          }}
+        >
+          <Star size={12} color={starColor} strokeWidth={2.4} />
+        </span>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: badgeTextColor,
+            whiteSpace: "nowrap",
+          }}
+        >
+          Boss Access
+        </span>
+      </button>
+    );
+  }
 
   const handlePremiumClick = () => {
     navigate("/premium");
@@ -25,7 +84,15 @@ export function PremiumBanner() {
         flexWrap: "wrap",
       }}
     >
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6, flex: "1 1 auto", minWidth: 0 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 6,
+          flex: "1 1 auto",
+          minWidth: 0,
+        }}
+      >
         <span
           className="title-section"
           style={{
@@ -35,7 +102,13 @@ export function PremiumBanner() {
         >
           Accès Boss
         </span>
-        <span style={{ fontSize: 11, color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--text-secondary)",
+            whiteSpace: "nowrap",
+          }}
+        >
           2.99€ / mois
         </span>
       </div>

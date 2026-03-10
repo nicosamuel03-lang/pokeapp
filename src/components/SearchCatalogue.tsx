@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
+import { usePremium } from "../hooks/usePremium";
 import {
   pokemonCatalogue,
   searchPokemonCatalogue,
@@ -268,11 +269,19 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
   );
 };
 
+const FREE_COLLECTION_LIMIT = 5;
+
 export const SearchCatalogue = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { addProduct } = useProducts();
-  const { addToCollection } = useCollection();
+  const { items, addToCollection } = useCollection();
+  const { isPremium } = usePremium();
+
+  const totalQuantity = useMemo(
+    () => items.reduce((sum, it) => sum + it.quantity, 0),
+    [items]
+  );
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PokemonCatalogueItem[]>(() => searchPokemonCatalogue("") ?? []);
@@ -318,6 +327,10 @@ export const SearchCatalogue = () => {
   }, [query]);
 
   const handleAdd = (item: PokemonCatalogueItem, buyPrice: number, qty: number, purchaseDate?: string) => {
+    if (!isPremium && totalQuantity + qty > FREE_COLLECTION_LIMIT) {
+      navigate("/premium");
+      return;
+    }
     const marchéActuel = getMarchéActuel(item);
     const product = addProduct({
       emoji: item.emoji,
@@ -551,6 +564,7 @@ export const SearchCatalogue = () => {
           onAdd={handleAdd}
         />
       )}
+
     </div>
   );
 };
