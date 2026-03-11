@@ -59,7 +59,8 @@ export function useSalesHistory(): {
     async (record: Omit<SaleRecord, "id">) => {
       if (userId) {
         const created = await insertSale(userId, record);
-        if (created) refreshSales();
+        refreshSales();
+        return;
       } else {
         addSaleLocal(record);
         setSales(getSalesHistory());
@@ -99,8 +100,9 @@ export function useSalesHistory(): {
     [userId, refreshSales]
   );
 
-  const saleCount = sales.length;
-  const isAtFreeLimit = saleCount >= FREE_SALE_LIMIT;
+  const saleCount = sales.reduce((sum, s) => sum + (s.quantity ?? 1), 0);
+const isAtFreeLimit = saleCount >= FREE_SALE_LIMIT;
+  
 
   return {
     sales,

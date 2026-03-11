@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Category } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ItemIcon } from "../components/ItemIcon";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
-import { getTotalRealizedGain } from "../utils/salesHistoryStorage";
+import { useSalesHistory } from "../hooks/useSalesHistory";
 import { getEraBadge, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
@@ -110,12 +110,24 @@ export const HomePage = () => {
   const { items: collectionItems } = useCollection();
   const { theme } = useTheme();
   const isLight = theme === "light";
-  const { isPremium } = usePremium();
+  const { isPremium, userProfile, refetchPremium } = usePremium();
+  const { pathname } = useLocation();
+  const { sales, refreshSales } = useSalesHistory();
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
     "Tous"
   );
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
+
+  useEffect(() => {
+    if (pathname === "/") {
+      refreshSales();
+    }
+  }, [pathname, refreshSales]);
+
+  useEffect(() => {
+    if (pathname === "/") refetchPremium();
+  }, [pathname, refetchPremium]);
 
   useEffect(() => {
     try {
@@ -207,7 +219,7 @@ export const HomePage = () => {
       totalMarcheP += getPrixMarcheForProduct(item.product, etbData) * qty;
     });
     const plusValueLatente = totalMarcheP - totalInvestiP;
-    const gainRealise = getTotalRealizedGain();
+    const gainRealise = sales.reduce((sum, r) => sum + (r.profit ?? 0), 0);
     const plusValueTotale = plusValueLatente + gainRealise;
     const perfGlobale = totalInvestiP > 0 ? (plusValueTotale / totalInvestiP) * 100 : 0;
     return {
@@ -218,7 +230,7 @@ export const HomePage = () => {
       plusValueTotale,
       perfGlobale,
     };
-  }, [collectionItems]);
+  }, [collectionItems, sales]);
 
   const databaseProducts: HomeProduct[] = useMemo(() => {
     const etbProducts: HomeProduct[] = etbData.map((item, index) => {
@@ -423,7 +435,7 @@ export const HomePage = () => {
             <div style={{ position: "relative" }}>
               <div
                 style={
-                  isPremium
+                  userProfile?.is_premium
                     ? {}
                     : {
                         filter: "blur(12px) brightness(0.6)",
@@ -462,7 +474,7 @@ export const HomePage = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              {!isPremium && (
+              {!userProfile?.is_premium && (
                 <div
                   style={{
                     position: "absolute",

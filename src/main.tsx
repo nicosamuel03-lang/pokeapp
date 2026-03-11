@@ -7,6 +7,7 @@ import { frFR } from "@clerk/localizations";
 import App from "./App";
 import "./index.css";
 import { ThemeProvider, useTheme } from "./state/ThemeContext";
+import { PremiumProvider } from "./state/PremiumContext";
 import { CollectionProvider } from "./state/CollectionContext";
 import { ProductsProvider } from "./state/ProductsContext";
 import { preloadProductImages } from "./utils/preloadImages";
@@ -86,11 +87,13 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ThemeProvider>
       <ClerkWithTheme>
         <BrowserRouter>
-          <ProductsProvider>
-            <CollectionProvider>
-              <App />
-            </CollectionProvider>
-          </ProductsProvider>
+          <PremiumProvider>
+            <ProductsProvider>
+              <CollectionProvider>
+                <App />
+              </CollectionProvider>
+            </ProductsProvider>
+          </PremiumProvider>
         </BrowserRouter>
       </ClerkWithTheme>
     </ThemeProvider>

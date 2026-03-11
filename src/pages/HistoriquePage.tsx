@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import type { SaleRecord } from "../utils/salesHistoryStorage";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { usePremium } from "../hooks/usePremium";
@@ -15,6 +16,7 @@ function todayISO(): string {
 }
 
 export const HistoriquePage = () => {
+  const { pathname } = useLocation();
   const { theme } = useTheme();
   const isLight = theme === "light";
   const { isPremium } = usePremium();
@@ -25,6 +27,12 @@ export const HistoriquePage = () => {
     refreshSales,
   } = useSalesHistory();
   const [editId, setEditId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (pathname === "/historique") {
+      refreshSales();
+    }
+  }, [pathname, refreshSales]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editBuyPrice, setEditBuyPrice] = useState("");
   const [editSalePrice, setEditSalePrice] = useState("");

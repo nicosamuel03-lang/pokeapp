@@ -1,8 +1,41 @@
+import { useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/react";
+import { supabase } from "../lib/supabase";
+import { usePremium } from "../hooks/usePremium";
 
 export function SuccessPage() {
-  const navigate = useNavigate();
+  const { user } = useUser();
+  const { setPremiumSuccess } = usePremium();
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    let cancelled = false;
+
+    (async () => {
+      await supabase
+        .from("profiles")
+        .update({ is_premium: true })
+        .eq("id", user.id);
+
+      if (cancelled) return;
+      setPremiumSuccess();
+      try {
+        window.localStorage.setItem("pokevault_is_premium", "true");
+      } catch {
+        /* ignore */
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, setPremiumSuccess]);
+
+  const handleAccess = () => {
+    window.location.href = "/";
+  };
 
   return (
     <div
@@ -82,7 +115,7 @@ export function SuccessPage() {
 
         <button
           type="button"
-          onClick={() => navigate("/")}
+          onClick={handleAccess}
           style={{
             width: "100%",
             padding: "12px 20px",

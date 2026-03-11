@@ -49,25 +49,26 @@ export async function fetchSalesByUserId(userId: string): Promise<SaleRecord[]> 
   return (data ?? []).map((r) => rowToRecord(r as SaleRow));
 }
 
+/** Row shape must match Supabase table 'sales' (snake_case columns). */
 export async function insertSale(
   userId: string,
   record: Omit<SaleRecord, "id">
 ): Promise<SaleRecord | null> {
   const row = {
-    user_id: userId,
-    product_id: record.productId,
-    product_name: record.productName,
-    image: record.image ?? null,
-    buy_price: record.buyPrice,
-    sale_price: record.salePrice,
-    quantity: record.quantity,
-    sale_date: record.saleDate,
-    profit: record.profit,
+    user_id: String(userId),
+    product_id: String(record.productId ?? ""),
+    product_name: String(record.productName ?? ""),
+    image: record.image != null ? String(record.image) : null,
+    buy_price: Number(record.buyPrice),
+    sale_price: Number(record.salePrice),
+    quantity: Math.floor(Number(record.quantity)) || 1,
+    sale_date: String(record.saleDate ?? ""),
+    profit: Number(record.profit),
   };
   const { data, error } = await supabase.from(TABLE).insert(row).select("id").single();
   if (error) {
-    console.warn("[salesSupabase] insertSale error", error);
-    return null;
+    console.error("[salesSupabase] insertSale FAILED:", error);
+    throw error;
   }
   return { ...record, id: (data as { id: string }).id };
 }

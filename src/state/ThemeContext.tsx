@@ -11,7 +11,7 @@ function getStoredTheme(): Theme {
   } catch {
     /* ignore */
   }
-  return "dark";
+  return "light";
 }
 
 interface ThemeContextValue {

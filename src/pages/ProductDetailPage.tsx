@@ -17,22 +17,24 @@ import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
 import { ItemIcon } from "../components/ItemIcon";
 import { ArrowLeft } from "lucide-react";
+import { useUser } from "@clerk/react";
 import { usePremium } from "../hooks/usePremium";
+import { supabase } from "../lib/supabase";
 
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
-  { mois_court: "Jan", mois_label: "Janvier", prix: 60 },
-  { mois_court: "Fév", mois_label: "Février", prix: 62 },
-  { mois_court: "Mar", mois_label: "Mars", prix: 63 },
-  { mois_court: "Avr", mois_label: "Avril", prix: 65 },
-  { mois_court: "Mai", mois_label: "Mai", prix: 66 },
-  { mois_court: "Juin", mois_label: "Juin", prix: 68 },
-  { mois_court: "Juil", mois_label: "Juillet", prix: 69 },
-  { mois_court: "Août", mois_label: "Août", prix: 70 },
-  { mois_court: "Sept", mois_label: "Septembre", prix: 71 },
-  { mois_court: "Oct", mois_label: "Octobre", prix: 73 },
-  { mois_court: "Nov", mois_label: "Novembre", prix: 74 },
-  { mois_court: "Déc", mois_label: "Décembre", prix: 75 },
+  { mois_court: "Jan", mois_label: "Janvier", prix: 55 },
+  { mois_court: "Fév", mois_label: "Février", prix: 72 },
+  { mois_court: "Mar", mois_label: "Mars", prix: 61 },
+  { mois_court: "Avr", mois_label: "Avril", prix: 85 },
+  { mois_court: "Mai", mois_label: "Mai", prix: 68 },
+  { mois_court: "Juin", mois_label: "Juin", prix: 90 },
+  { mois_court: "Juil", mois_label: "Juillet", prix: 74 },
+  { mois_court: "Août", mois_label: "Août", prix: 95 },
+  { mois_court: "Sept", mois_label: "Septembre", prix: 80 },
+  { mois_court: "Oct", mois_label: "Octobre", prix: 110 },
+  { mois_court: "Nov", mois_label: "Novembre", prix: 88 },
+  { mois_court: "Déc", mois_label: "Décembre", prix: 120 },
 ];
 
 /** Error Boundary: affiche "Produit non trouvé" et log l'erreur pour éviter l'écran noir. */
@@ -73,8 +75,9 @@ const ProductDetailPageInner = () => {
   const navigate = useNavigate();
   const { products } = useProducts();
   const { items: collectionItems, removeFromCollection } = useCollection();
+  const { user } = useUser();
   const { isPremium } = usePremium();
-  const { addSaleRecord, isAtFreeLimit } = useSalesHistory();
+  const { addSaleRecord, refreshSales, isAtFreeLimit } = useSalesHistory();
 
   const sid = (id ?? "").trim();
   const sidLower = sid.toLowerCase();
@@ -109,7 +112,7 @@ const ProductDetailPageInner = () => {
         badge: etb.statut,
         createdAt: Date.now(),
         quantite: 1,
-        prixAchat: pvc,
+        prixAchat: collectionItems.find(it => it.product.etbId === etb.id || it.product.id === etb.id)?.buyPrice ?? pvc,
         prixMarcheActuel: prixActuel,
         prixVente: null as number | null,
         historique_prix: etb.historique_prix,
@@ -124,7 +127,6 @@ const ProductDetailPageInner = () => {
 
   const [saleInput, setSaleInput] = useState<string>("");
   const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
-  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const history2024 = useMemo(() => {
     const raw = etb?.historique_prix_2024;
@@ -276,7 +278,8 @@ const ProductDetailPageInner = () => {
     );
   }
 
-  const prixAchat = product.prixAchat ?? product.currentPrice;
+  const collectionMatch = collectionItems.find(it => it.product.etbId === (product.etbId ?? product.id) || it.product.id === product.id);
+const prixAchat = collectionMatch?.buyPrice ?? product.prixAchat ?? product.currentPrice;
   const quantite = product.quantite ?? 1;
   const prixMarche = getPrixMarcheForProduct(product, etbData);
   const salePriceNumber = parseFloat(saleInput.replace(",", "."));
@@ -317,7 +320,7 @@ const ProductDetailPageInner = () => {
     );
     if (matching.length === 0) return;
     if (!isPremium && isAtFreeLimit) {
-      setShowLimitModal(true);
+      alert("Limite de 10 ventes atteinte. Passez Premium pour un historique illimité !");
       return;
     }
     if (navigator.vibrate) navigator.vibrate(50);
@@ -337,7 +340,7 @@ const ProductDetailPageInner = () => {
       imageToSave = etb?.imageUrl ?? null;
     }
 
-    await addSaleRecord({
+    const saleRecord = {
       productId: product.id,
       productName: product.name ?? "",
       image: imageToSave,
@@ -346,11 +349,43 @@ const ProductDetailPageInner = () => {
       quantity: totalQuantity,
       saleDate,
       profit,
-    });
+    };
+
+    const userId = user?.id ?? null;
+
+    const row = {
+      user_id: userId ?? "",
+      product_id: String(saleRecord.productId),
+      product_name: String(saleRecord.productName),
+      image: saleRecord.image != null ? String(saleRecord.image) : null,
+      buy_price: Number(saleRecord.buyPrice),
+      sale_price: Number(saleRecord.salePrice),
+      quantity: Math.floor(Number(saleRecord.quantity)) || 1,
+      sale_date: String(saleRecord.saleDate),
+      profit: Number(saleRecord.profit),
+    };
+
+    console.log("DEBUG SALE:", { saleData: row, saleRecord });
+
+    if (userId) {
+      const { data, error } = await supabase.from("sales").insert([row]).select("id").single();
+      if (error) {
+        console.error("SUPABASE ERROR:", error);
+        return;
+      }
+      refreshSales();
+    } else {
+      try {
+        await addSaleRecord(saleRecord);
+      } catch (err) {
+        console.error("SUPABASE ERROR:", err);
+        return;
+      }
+    }
 
     setSalePrice(product.id, salePriceNumber);
-
     matching.forEach((it) => removeFromCollection(it.id, "all"));
+    refreshSales();
     navigate("/collection");
   };
 
@@ -420,17 +455,19 @@ const ProductDetailPageInner = () => {
                 maximumFractionDigits: 0
               })}
             </p>
-            <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-              Achat{" "}
-              <span className="font-medium" style={{ color: "var(--text-primary)" }}>
-                {prixAchat.toLocaleString("fr-FR", {
-                  style: "currency",
-                  currency: "EUR",
-                  maximumFractionDigits: 0
-                })}
-              </span>{" "}
-              • ×{quantite}
-            </p>
+            {isInCollection && (
+  <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+    Achat{" "}
+    <span className="font-medium" style={{ color: "var(--text-primary)" }}>
+      {prixAchat.toLocaleString("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+      })}
+    </span>{" "}
+    • ×{quantite}
+  </p>
+)}
           </div>
         </div>
       </section>
@@ -445,7 +482,7 @@ const ProductDetailPageInner = () => {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setChartPeriod("1an")}
+            onClick={isPremium ? () => setChartPeriod("1an") : undefined}
             className="text-xs font-medium transition"
             style={{
               background: chartPeriod === "1an" ? "#D4A757" : "var(--input-bg)",
@@ -454,13 +491,14 @@ const ProductDetailPageInner = () => {
               borderRadius: 20,
               padding: "4px 12px",
               fontWeight: chartPeriod === "1an" ? "bold" : "normal",
+              ...(!isPremium && { pointerEvents: "none", opacity: 0.4 }),
             }}
           >
             1 an
           </button>
           <button
             type="button"
-            onClick={() => setChartPeriod("2ans")}
+            onClick={isPremium ? () => setChartPeriod("2ans") : undefined}
             className="text-xs font-medium transition"
             style={{
               background: chartPeriod === "2ans" ? "#D4A757" : "var(--input-bg)",
@@ -469,6 +507,7 @@ const ProductDetailPageInner = () => {
               borderRadius: 20,
               padding: "4px 12px",
               fontWeight: chartPeriod === "2ans" ? "bold" : "normal",
+              ...(!isPremium && { pointerEvents: "none", opacity: 0.4 }),
             }}
           >
             2 ans
@@ -480,7 +519,8 @@ const ProductDetailPageInner = () => {
               isPremium
                 ? {}
                 : {
-                    filter: "blur(12px) brightness(0.6)",
+                    filter: "blur(4px)",
+                    opacity: 0.3,
                     pointerEvents: "none",
                     userSelect: "none",
                   }
@@ -497,7 +537,7 @@ const ProductDetailPageInner = () => {
             >
               <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={chartData.length > 0 ? chartData : MOCK_CHART_DATA}
+                data={isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA}
                 margin={{ top: 12, right: 8, left: 4, bottom: 8 }}
               >
                 <defs>
@@ -610,7 +650,10 @@ const ProductDetailPageInner = () => {
             <div
               style={{
                 position: "absolute",
-                inset: 0,
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 260,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
@@ -770,51 +813,6 @@ const ProductDetailPageInner = () => {
         )}
       </section>
 
-      {/* Modal limite 10 ventes (non-premium) */}
-      {showLimitModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center px-4"
-          style={{
-            background: "var(--overlay-bg)",
-            backdropFilter: "blur(4px)",
-          }}
-          onClick={() => setShowLimitModal(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl p-4 space-y-4"
-            style={{
-              background: "var(--card-color)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-              Limite atteinte — Passez à Boss Access pour continuer à vendre sans limite.
-            </p>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setShowLimitModal(false)}
-                className="flex-1 rounded-xl py-2 text-sm font-medium"
-                style={{ background: "var(--input-bg)", color: "var(--text-secondary)" }}
-              >
-                Annuler
-              </button>
-              <a
-                href="/premium"
-                className="flex-1 rounded-xl py-2 text-sm font-semibold text-center"
-                style={{
-                  background: "#D4A757",
-                  color: "#000",
-                  textDecoration: "none",
-                }}
-              >
-                S&apos;abonner
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

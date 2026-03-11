@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCollection } from "../state/CollectionContext";
 import { usePremium } from "../hooks/usePremium";
+import { useSalesHistory } from "../hooks/useSalesHistory";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
-import { getTotalRealizedGain } from "../utils/salesHistoryStorage";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
 import { ItemIcon } from "../components/ItemIcon";
@@ -64,6 +64,8 @@ export const CollectionPage = () => {
   const isLight = theme === "light";
   const { isPremium, loading: premiumLoading } = usePremium();
   const { items, removeFromCollection, updateCollectionItem } = useCollection();
+  const { pathname } = useLocation();
+  const { sales, refreshSales } = useSalesHistory();
   const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("Tous");
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -71,6 +73,12 @@ export const CollectionPage = () => {
   const [editPriceInput, setEditPriceInput] = useState<string>("");
   const [editDateInput, setEditDateInput] = useState<string>("");
   const [editQuantityInput, setEditQuantityInput] = useState<string>("");
+
+  useEffect(() => {
+    if (pathname === "/collection") {
+      refreshSales();
+    }
+  }, [pathname, refreshSales]);
 
   useEffect(() => {
     try {
@@ -151,7 +159,10 @@ export const CollectionPage = () => {
     { totalValue: 0, totalInvested: 0, unrealizedGain: 0 }
   );
 
-  const realizedGain = getTotalRealizedGain();
+  const realizedGain = useMemo(
+    () => sales.reduce((sum, r) => sum + (r.profit ?? 0), 0),
+    [sales]
+  );
   const totalGain = unrealizedGain + realizedGain;
   const computedPerf = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
