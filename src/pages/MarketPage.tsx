@@ -206,13 +206,14 @@ function RankingSection({
       {top3.length > 0 && (
         <div className="flex flex-col gap-4">
           {top3.map((product, i) => (
-  <ProductCard
-    product={product}
-    rank={i + 1}
-    perf={getPerformanceForPeriod(product, DEFAULT_PERIOD)}
-    variant="top3"
-  />
-))}
+            <ProductCard
+              key={`top3-${product.id}`}
+              product={product}
+              rank={i + 1}
+              perf={getPerformanceForPeriod(product, DEFAULT_PERIOD)}
+              variant="top3"
+            />
+          ))}
         </div>
       )}
 

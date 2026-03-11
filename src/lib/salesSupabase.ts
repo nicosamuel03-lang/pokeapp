@@ -49,6 +49,19 @@ export async function fetchSalesByUserId(userId: string): Promise<SaleRecord[]> 
   return (data ?? []).map((r) => rowToRecord(r as SaleRow));
 }
 
+export async function sumSoldQuantityByUserId(userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .select("quantity")
+    .eq("user_id", userId);
+  if (error) {
+    console.warn("[salesSupabase] sumSoldQuantityByUserId error", error);
+    return 0;
+  }
+  const rows = (data as Pick<SaleRow, "quantity">[]) ?? [];
+  return rows.reduce((sum, row) => sum + Number(row.quantity ?? 0), 0);
+}
+
 /** Row shape must match Supabase table 'sales' (snake_case columns). */
 export async function insertSale(
   userId: string,
@@ -67,7 +80,7 @@ export async function insertSale(
   };
   const { data, error } = await supabase.from(TABLE).insert(row).select("id").single();
   if (error) {
-    console.error("[salesSupabase] insertSale FAILED:", error);
+    console.error("SUPABASE_ERROR:", error);
     throw error;
   }
   return { ...record, id: (data as { id: string }).id };

@@ -71,6 +71,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({
       ) => {
         const now = new Date();
         const addedAt = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        console.log("Adding to collection - product.id:", product.id, "product.imageUrl:", (product as any).imageUrl ?? (product as any).image);
         setItems((prev) => [
           ...prev,
           {

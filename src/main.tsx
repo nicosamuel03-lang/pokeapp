@@ -14,6 +14,15 @@ import { preloadProductImages } from "./utils/preloadImages";
 
 preloadProductImages();
 
+if (typeof window !== "undefined") {
+  try {
+    window.localStorage.removeItem("pokevault_sales");
+    window.localStorage.removeItem("pokevault_sales_history_v1");
+  } catch {
+    // ignore
+  }
+}
+
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
   throw new Error("Add VITE_CLERK_PUBLISHABLE_KEY to your .env.local file");

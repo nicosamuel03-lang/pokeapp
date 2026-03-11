@@ -1,36 +1,45 @@
 import { useState } from "react";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Package,
+  TrendingUp,
+  ShoppingCart,
+  Bell,
+  Moon,
+  Trash2,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 
 const features = [
   {
-    icon: "📦",
+    icon: Package,
     title: "Collection illimitée",
     description:
       "Ajoutez autant d'items que vous voulez. Displays, ETB, UPC... aucune limite.",
   },
   {
-    icon: "📈",
+    icon: TrendingUp,
     title: "Graphiques d'évolution des prix",
     description:
       "Suivez la valeur de chaque item sur 1 an ou 2 ans et anticipez les meilleures opportunités.",
   },
   {
-    icon: "🛒",
+    icon: ShoppingCart,
     title: "Accès complet au Marché",
     description:
       "Consultez les prix du marché en temps réel et comparez la valeur de vos items.",
   },
   {
-    icon: "🔔",
+    icon: Bell,
     title: "Alertes prix",
     description:
       "Notification quand un item monte ou descend. Ne ratez plus jamais une opportunité.",
   },
   {
-    icon: "🌙",
+    icon: Moon,
     title: "Mode sombre",
     description:
       "Personnalisez votre expérience avec le thème sombre, exclusif Boss Access.",
@@ -178,13 +187,17 @@ export function SubscriptionPage() {
             color: "var(--text-secondary)",
           }}
         >
-          {features.map((f) => (
+          {features.map((f) => {
+            const Icon = f.icon;
+            return (
             <li
               key={f.title}
               style={{ display: "flex", flexDirection: "column", gap: 2 }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span>{f.icon}</span>
+                <span>
+                  <Icon size={16} />
+                </span>
                 <span
                   style={{
                     fontSize: 12,
@@ -205,7 +218,8 @@ export function SubscriptionPage() {
                 {f.description}
               </span>
             </li>
-          ))}
+          );
+          })}
         </ul>
       </div>
 
@@ -216,15 +230,20 @@ export function SubscriptionPage() {
           width: "100%",
           padding: "11px 16px",
           borderRadius: 9999,
-          border: "1px solid rgba(248, 113, 113, 0.9)",
-          background: "rgba(127, 29, 29, 0.08)",
-          color: "#fecaca",
+          border: "2px solid #ef4444",
+          background: "#ffffff",
+          color: "#ef4444",
           fontSize: 13,
-          fontWeight: 600,
+          fontWeight: 700,
           cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
         }}
       >
-        Se désabonner
+        <Trash2 size={16} />
+        <span>Se désabonner</span>
       </button>
 
       {confirmOpen && (
@@ -318,7 +337,6 @@ export function SubscriptionPage() {
         </div>
       )}
 
-      <div style={{ color: "red", fontSize: 24, padding: 20 }}>TEST 12345</div>
     </div>
   );
 }

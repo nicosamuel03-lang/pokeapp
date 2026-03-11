@@ -435,7 +435,9 @@ export const HomePage = () => {
             <div style={{ position: "relative" }}>
               <div
                 style={
-                  userProfile?.is_premium
+                  userProfile?.is_premium ||
+                  (typeof window !== "undefined" &&
+                    window.localStorage.getItem("force_premium") === "true")
                     ? {}
                     : {
                         filter: "blur(12px) brightness(0.6)",
@@ -474,7 +476,11 @@ export const HomePage = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              {!userProfile?.is_premium && (
+              {!(
+                userProfile?.is_premium ||
+                (typeof window !== "undefined" &&
+                  window.localStorage.getItem("force_premium") === "true")
+              ) && (
                 <div
                   style={{
                     position: "absolute",

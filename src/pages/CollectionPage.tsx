@@ -28,6 +28,11 @@ function getProductImageUrl(product: {
   category?: string;
   imageUrl?: string | null;
 }): string | null {
+  // 1. Toujours privilégier l'image du produit lui-même (issue du catalogue ETB/Displays/UPC)
+  if (product.imageUrl) {
+    return product.imageUrl;
+  }
+
   // UPC : priorité displayData (UPC items) — par id upc-* ou par etbId quand category UPC
   const upcId = product.id.startsWith("upc-") ? product.id.replace(/^upc-/, "") : (product.category === "UPC" && product.etbId ? product.etbId : null);
   if (upcId) {
@@ -41,11 +46,8 @@ function getProductImageUrl(product: {
     if (etb?.imageUrl) return etb.imageUrl;
   }
 
-  // Sinon, on tente un match direct/id préfixé
-  const etb =
-    etbData.find((e) => e.id === product.id) ||
-    etbData.find((e) => product.id.startsWith(e.id));
-
+  // Sinon, on tente un match direct sur l'id exact
+  const etb = etbData.find((e) => e.id === product.id);
   if (etb?.imageUrl) return etb.imageUrl;
 
   return product.imageUrl ?? null;
@@ -73,6 +75,7 @@ export const CollectionPage = () => {
   const [editPriceInput, setEditPriceInput] = useState<string>("");
   const [editDateInput, setEditDateInput] = useState<string>("");
   const [editQuantityInput, setEditQuantityInput] = useState<string>("");
+  const [editQuantityWarning, setEditQuantityWarning] = useState<string | null>(null);
 
   useEffect(() => {
     if (pathname === "/collection") {
@@ -366,8 +369,16 @@ export const CollectionPage = () => {
             const gainPerItem = current - item.buyPrice;
             const totalGainItem = gainPerItem * item.quantity;
             const isUp = gainPerItem >= 0;
-            const detailUrl = `/produit/${item.product.etbId ?? item.product.id}`;
+            const detailUrl = `/produit/${item.product.etbId ?? item.product.id}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);
+            const imageUrl = getProductImageUrl(item.product);
+            console.log("Collection image debug:", {
+              collectionItemId: item.id,
+              productId: item.product.id,
+              etbId: item.product.etbId,
+              category: item.product.category,
+              imageUrl,
+            });
             return (
               <Link
                 key={item.id}
@@ -425,7 +436,7 @@ export const CollectionPage = () => {
                 >
                   {getProductImageUrl(item.product) ? (
                     <img
-                      src={getProductImageUrl(item.product)!}
+                      src={imageUrl!}
                       alt={item.product.name}
                       loading="eager"
                       width={144}
@@ -694,8 +705,44 @@ export const CollectionPage = () => {
                       border: "none",
                     }}
                     value={editQuantityInput}
-                    onChange={(e) => setEditQuantityInput(e.target.value)}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      setEditQuantityInput(raw);
+                      setEditQuantityWarning(null);
+
+                      if (!raw) return;
+                      const next = parseInt(raw, 10);
+                      if (!Number.isFinite(next) || next < 1) return;
+
+                      if (!isPremium) {
+                        const currentTotal = totalQuantity;
+                        const currentItemQty = item.quantity;
+                        const maxAllowed =
+                          FREE_COLLECTION_LIMIT - (currentTotal - currentItemQty);
+                        if (maxAllowed < 1) {
+                          setEditQuantityInput(String(currentItemQty));
+                          setEditQuantityWarning(
+                            "Limite de 5 items — passez Premium pour plus"
+                          );
+                          return;
+                        }
+                        if (next > maxAllowed) {
+                          setEditQuantityInput(String(maxAllowed));
+                          setEditQuantityWarning(
+                            "Limite de 5 items — passez Premium pour plus"
+                          );
+                        }
+                      }
+                    }}
                   />
+                  {editQuantityWarning && (
+                    <p
+                      className="mt-1 text-[10px]"
+                      style={{ color: "var(--loss-red)" }}
+                    >
+                      {editQuantityWarning}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2 pt-1">
@@ -706,6 +753,7 @@ export const CollectionPage = () => {
                     setEditPriceInput("");
                     setEditDateInput("");
                     setEditQuantityInput("");
+                    setEditQuantityWarning(null);
                   }}
                   className="flex-1 rounded-2xl py-2 text-xs font-medium"
                   style={{ background: "var(--input-bg)", color: "var(--text-secondary)" }}
@@ -725,6 +773,28 @@ export const CollectionPage = () => {
                     if (!Number.isFinite(qty) || qty < 1) {
                       return;
                     }
+
+                    if (!isPremium) {
+                      const currentTotal = totalQuantity;
+                      const currentItemQty = item.quantity;
+                      const maxAllowed =
+                        FREE_COLLECTION_LIMIT - (currentTotal - currentItemQty);
+                      if (maxAllowed < 1) {
+                        setEditQuantityInput(String(currentItemQty));
+                        setEditQuantityWarning(
+                          "Limite de 5 items — passez Premium pour plus"
+                        );
+                        return;
+                      }
+                      if (qty > maxAllowed) {
+                        setEditQuantityInput(String(maxAllowed));
+                        setEditQuantityWarning(
+                          "Limite de 5 items — passez Premium pour plus"
+                        );
+                        return;
+                      }
+                    }
+
                     updateCollectionItem(item.id, {
                       buyPrice: parsed,
                       purchaseDate: editDateInput.trim() || undefined,
@@ -734,6 +804,7 @@ export const CollectionPage = () => {
                     setEditPriceInput("");
                     setEditDateInput("");
                     setEditQuantityInput("");
+                    setEditQuantityWarning(null);
                   }}
                   className="flex-1 rounded-2xl py-2 text-xs font-semibold"
                   style={{ background: "var(--gain-green)", color: "var(--text-primary)" }}

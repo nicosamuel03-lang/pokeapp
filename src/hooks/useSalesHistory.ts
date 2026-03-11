@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@clerk/react";
-import {
-  getSalesHistory,
-  addSaleRecord as addSaleLocal,
-  updateSaleRecord as updateSaleLocal,
-  deleteSaleRecord as deleteSaleLocal,
-  type SaleRecord,
-} from "../utils/salesHistoryStorage";
+import { type SaleRecord } from "../utils/salesHistoryStorage";
 import {
   fetchSalesByUserId,
   insertSale,
@@ -14,17 +8,13 @@ import {
   deleteSaleInSupabase,
 } from "../lib/salesSupabase";
 
-const FREE_SALE_LIMIT = 10;
-
 export function useSalesHistory(): {
   sales: SaleRecord[];
-  saleCount: number;
   loading: boolean;
   addSaleRecord: (record: Omit<SaleRecord, "id">) => Promise<void>;
   updateSaleRecord: (id: string, updates: { buyPrice?: number; salePrice?: number; saleDate?: string }) => Promise<boolean>;
   deleteSaleRecord: (id: string) => Promise<boolean>;
   refreshSales: () => void;
-  isAtFreeLimit: boolean;
 } {
   const { user } = useUser();
   const userId = user?.id ?? null;
@@ -32,39 +22,34 @@ export function useSalesHistory(): {
   const [loading, setLoading] = useState(true);
 
   const refreshSales = useCallback(() => {
-    if (userId) {
-      setLoading(true);
-      fetchSalesByUserId(userId)
-        .then(setSales)
-        .finally(() => setLoading(false));
-    } else {
-      setSales(getSalesHistory());
+    if (!userId) {
+      setSales([]);
       setLoading(false);
+      return;
     }
+    setLoading(true);
+    fetchSalesByUserId(userId)
+      .then(setSales)
+      .finally(() => setLoading(false));
   }, [userId]);
 
   useEffect(() => {
-    if (userId) {
-      setLoading(true);
-      fetchSalesByUserId(userId)
-        .then(setSales)
-        .finally(() => setLoading(false));
-    } else {
-      setSales(getSalesHistory());
+    if (!userId) {
+      setSales([]);
       setLoading(false);
+      return;
     }
+    setLoading(true);
+    fetchSalesByUserId(userId)
+      .then(setSales)
+      .finally(() => setLoading(false));
   }, [userId]);
 
   const addSaleRecord = useCallback(
     async (record: Omit<SaleRecord, "id">) => {
-      if (userId) {
-        const created = await insertSale(userId, record);
-        refreshSales();
-        return;
-      } else {
-        addSaleLocal(record);
-        setSales(getSalesHistory());
-      }
+      if (!userId) return;
+      await insertSale(userId, record);
+      refreshSales();
     },
     [userId, refreshSales]
   );
@@ -74,13 +59,9 @@ export function useSalesHistory(): {
       id: string,
       updates: { buyPrice?: number; salePrice?: number; saleDate?: string }
     ): Promise<boolean> => {
-      if (userId) {
-        const ok = await updateSaleInSupabase(userId, id, updates);
-        if (ok) refreshSales();
-        return ok;
-      }
-      const ok = updateSaleLocal(id, updates);
-      if (ok) setSales(getSalesHistory());
+      if (!userId) return false;
+      const ok = await updateSaleInSupabase(userId, id, updates);
+      if (ok) refreshSales();
       return ok;
     },
     [userId, refreshSales]
@@ -88,30 +69,20 @@ export function useSalesHistory(): {
 
   const deleteSaleRecord = useCallback(
     async (id: string): Promise<boolean> => {
-      if (userId) {
-        const ok = await deleteSaleInSupabase(userId, id);
-        if (ok) refreshSales();
-        return ok;
-      }
-      const ok = deleteSaleLocal(id);
-      if (ok) setSales(getSalesHistory());
+      if (!userId) return false;
+      const ok = await deleteSaleInSupabase(userId, id);
+      if (ok) refreshSales();
       return ok;
     },
     [userId, refreshSales]
   );
 
-  const saleCount = sales.reduce((sum, s) => sum + (s.quantity ?? 1), 0);
-const isAtFreeLimit = saleCount >= FREE_SALE_LIMIT;
-  
-
   return {
     sales,
-    saleCount,
     loading,
     addSaleRecord,
     updateSaleRecord,
     deleteSaleRecord,
     refreshSales,
-    isAtFreeLimit,
   };
 }

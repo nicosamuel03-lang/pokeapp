@@ -2,11 +2,14 @@ import { useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
-import { usePremium } from "../hooks/usePremium";
 
 export function SuccessPage() {
   const { user } = useUser();
-  const { setPremiumSuccess } = usePremium();
+
+  const handleAccess = () => {
+    // Force un reload complet pour que usePremium relise l'état à jour depuis Supabase
+    window.location.href = "/";
+  };
 
   useEffect(() => {
     if (!user?.id) return;
@@ -14,28 +17,29 @@ export function SuccessPage() {
     let cancelled = false;
 
     (async () => {
-      await supabase
-        .from("profiles")
+      const uid = user.id;
+
+      console.log("Activating premium for userId:", uid);
+
+      // 1. Mise à jour directe du profil dans Supabase sur la table réellement utilisée : `users`
+      const { error } = await supabase
+        .from("users")
         .update({ is_premium: true })
-        .eq("id", user.id);
+        .eq("id", uid);
+      if (error) {
+        console.error("Premium Activation Error:", error);
+        return;
+      }
 
       if (cancelled) return;
-      setPremiumSuccess();
-      try {
-        window.localStorage.setItem("pokevault_is_premium", "true");
-      } catch {
-        /* ignore */
-      }
+
+      // On laisse l'utilisateur voir la page de succès ; le bouton permettra de revenir à l'accueil.
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [user?.id, setPremiumSuccess]);
-
-  const handleAccess = () => {
-    window.location.href = "/";
-  };
+  }, [user?.id]);
 
   return (
     <div

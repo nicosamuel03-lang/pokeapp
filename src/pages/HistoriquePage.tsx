@@ -19,7 +19,7 @@ export const HistoriquePage = () => {
   const { pathname } = useLocation();
   const { theme } = useTheme();
   const isLight = theme === "light";
-  const { isPremium } = usePremium();
+  const { isPremium, userProfile } = usePremium();
   const {
     sales,
     updateSaleRecord,
@@ -81,6 +81,11 @@ export const HistoriquePage = () => {
     return { totalVentes, totalInvesti, gainTotal, perfMoyenne };
   }, [sales]);
 
+  const totalSalesCount = userProfile?.total_sales_count ?? 0;
+  const clampedSalesCount = Math.max(0, Math.min(10, totalSalesCount));
+  const salesProgress = (Math.min(clampedSalesCount, 10) / 10) * 100;
+  const salesLimitReached = clampedSalesCount >= 10;
+
   const sortedSales = useMemo(
     () => [...sales].sort((a, b) => (b.saleDate > a.saleDate ? 1 : -1)),
     [sales]
@@ -109,6 +114,54 @@ export const HistoriquePage = () => {
         </section>
       ) : (
         <>
+          {!isPremium && (
+            <section
+              className="rounded-2xl p-3 space-y-2"
+              style={{
+                background: "var(--card-color)",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+              }}
+            >
+              <div className="flex justify-between items-center text-[11px]">
+                <span style={{ color: "var(--text-secondary)" }}>
+                  {salesLimitReached
+                    ? "Limite atteinte"
+                    : "Ventes utilisées"}
+                </span>
+                <span
+                  style={{
+                    color: salesLimitReached
+                      ? "var(--loss-red)"
+                      : "var(--accent-yellow)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {clampedSalesCount} / 10
+                </span>
+              </div>
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: 6,
+                  borderRadius: 9999,
+                  background: "var(--input-bg)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: `${salesProgress}%`,
+                    background: salesLimitReached ? "#EF4444" : "#D4A757",
+                    transition: "width 150ms ease-out",
+                  }}
+                />
+              </div>
+            </section>
+          )}
+
           {/* Synthèse */}
           <section
             className="rounded-2xl p-4"

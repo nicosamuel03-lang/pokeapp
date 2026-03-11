@@ -1,5 +1,5 @@
 import { Component, useEffect, useMemo, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -37,6 +37,8 @@ const MOCK_CHART_DATA = [
   { mois_court: "Déc", mois_label: "Décembre", prix: 120 },
 ];
 
+const FREE_SALE_LIMIT = 10;
+
 /** Error Boundary: affiche "Produit non trouvé" et log l'erreur pour éviter l'écran noir. */
 class ProductDetailErrorBoundary extends Component<
   { children: React.ReactNode },
@@ -72,12 +74,14 @@ class ProductDetailErrorBoundary extends Component<
 
 const ProductDetailPageInner = () => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { products } = useProducts();
   const { items: collectionItems, removeFromCollection } = useCollection();
   const { user } = useUser();
-  const { isPremium } = usePremium();
-  const { addSaleRecord, refreshSales, isAtFreeLimit } = useSalesHistory();
+  const { isPremium, refetchPremium } = usePremium();
+  const { addSaleRecord, refreshSales } = useSalesHistory();
+  const [isSelling, setIsSelling] = useState(false);
 
   const sid = (id ?? "").trim();
   const sidLower = sid.toLowerCase();
@@ -267,6 +271,12 @@ const ProductDetailPageInner = () => {
     }
   }, [chartPeriod, history2024, history2025, history2026, releaseMonthKey, product]);
 
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search]
+  );
+  const collectionId = searchParams.get("collectionId");
+
   if (!product) {
     return (
       <div
@@ -278,9 +288,26 @@ const ProductDetailPageInner = () => {
     );
   }
 
-  const collectionMatch = collectionItems.find(it => it.product.etbId === (product.etbId ?? product.id) || it.product.id === product.id);
-const prixAchat = collectionMatch?.buyPrice ?? product.prixAchat ?? product.currentPrice;
-  const quantite = product.quantite ?? 1;
+  const collectionMatch = useMemo(() => {
+    if (!product) return null;
+    const pid = product.etbId ?? product.id;
+    const matching = collectionItems.filter(
+      (it) =>
+        it.product.id === product.id ||
+        it.product.etbId === pid ||
+        it.product.id === pid
+    );
+    if (matching.length === 0) return null;
+    if (collectionId) {
+      const exact = matching.find((it) => it.id === collectionId);
+      if (exact) return exact;
+    }
+    return matching[0] ?? null;
+  }, [product, collectionItems, collectionId]);
+
+  const prixAchat =
+    collectionMatch?.buyPrice ?? product.prixAchat ?? product.currentPrice;
+  const quantite = collectionMatch?.quantity ?? product.quantite ?? 1;
   const prixMarche = getPrixMarcheForProduct(product, etbData);
   const salePriceNumber = parseFloat(saleInput.replace(",", "."));
   const hasSale =
@@ -292,16 +319,7 @@ const prixAchat = collectionMatch?.buyPrice ?? product.prixAchat ?? product.curr
     : 0;
   const isPositive = brut >= 0;
 
-  const isInCollection = useMemo(() => {
-    if (!product) return false;
-    const pid = product.etbId ?? product.id;
-    return collectionItems.some(
-      (it) =>
-        it.product.id === product.id ||
-        it.product.etbId === pid ||
-        it.product.id === pid
-    );
-  }, [product, collectionItems]);
+  const isInCollection = useMemo(() => !!collectionMatch, [collectionMatch]);
 
   const handleAddToCollection = () => {
     if (navigator.vibrate) navigator.vibrate(50);
@@ -310,83 +328,116 @@ const prixAchat = collectionMatch?.buyPrice ?? product.prixAchat ?? product.curr
   };
 
   const handleVendre = async () => {
-    if (!hasSale || !product) return;
-    const pid = product.etbId ?? product.id;
-    const matching = collectionItems.filter(
-      (it) =>
-        it.product.id === product.id ||
-        it.product.etbId === pid ||
-        it.product.id === pid
-    );
-    if (matching.length === 0) return;
-    if (!isPremium && isAtFreeLimit) {
-      alert("Limite de 10 ventes atteinte. Passez Premium pour un historique illimité !");
-      return;
-    }
-    if (navigator.vibrate) navigator.vibrate(50);
+    if (!hasSale || !product || !collectionMatch) return;
 
-    const totalBuyCost = matching.reduce((sum, it) => sum + it.buyPrice * it.quantity, 0);
-    const totalQuantity = matching.reduce((sum, it) => sum + it.quantity, 0);
-    const profit = salePriceNumber * totalQuantity - totalBuyCost;
-
-    const today = new Date();
-    const saleDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-    let imageToSave: string | null = product.imageUrl ?? null;
-    if (!imageToSave && (product.etbId || product.id)) {
-      const etb =
-        etbData.find((e) => e.id === (product.etbId ?? product.id)) ||
-        etbData.find((e) => product.id.startsWith(e.id));
-      imageToSave = etb?.imageUrl ?? null;
-    }
-
-    const saleRecord = {
-      productId: product.id,
-      productName: product.name ?? "",
-      image: imageToSave,
-      buyPrice: totalBuyCost / totalQuantity,
-      salePrice: salePriceNumber,
-      quantity: totalQuantity,
-      saleDate,
-      profit,
-    };
-
+    const totalQuantity = collectionMatch.quantity;
     const userId = user?.id ?? null;
 
-    const row = {
-      user_id: userId ?? "",
-      product_id: String(saleRecord.productId),
-      product_name: String(saleRecord.productName),
-      image: saleRecord.image != null ? String(saleRecord.image) : null,
-      buy_price: Number(saleRecord.buyPrice),
-      sale_price: Number(saleRecord.salePrice),
-      quantity: Math.floor(Number(saleRecord.quantity)) || 1,
-      sale_date: String(saleRecord.saleDate),
-      profit: Number(saleRecord.profit),
-    };
-
-    console.log("DEBUG SALE:", { saleData: row, saleRecord });
-
-    if (userId) {
-      const { data, error } = await supabase.from("sales").insert([row]).select("id").single();
+    // Premium users bypass the 10-sale limit
+    if (!isPremium && userId) {
+      const { data: userRow, error } = await supabase
+        .from("users")
+        .select("total_sales_count")
+        .eq("id", userId)
+        .single();
       if (error) {
-        console.error("SUPABASE ERROR:", error);
+        console.error("SUPABASE_ERROR:", error);
+      }
+      const currentCount = Number(
+        (userRow as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0
+      );
+      const newTotal = currentCount + totalQuantity;
+      if (newTotal > 10) {
+        navigate("/premium");
         return;
       }
-      refreshSales();
-    } else {
-      try {
-        await addSaleRecord(saleRecord);
-      } catch (err) {
-        console.error("SUPABASE ERROR:", err);
-        return;
-      }
+      (window as any).__pokevault_next_total_sales_count__ = newTotal;
     }
 
-    setSalePrice(product.id, salePriceNumber);
-    matching.forEach((it) => removeFromCollection(it.id, "all"));
-    refreshSales();
-    navigate("/collection");
+    setIsSelling(true);
+    try {
+      if (navigator.vibrate) navigator.vibrate(50);
+
+      const totalBuyCost = collectionMatch.buyPrice * collectionMatch.quantity;
+      const profit = salePriceNumber * totalQuantity - totalBuyCost;
+      const today = new Date();
+      const saleDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+      let imageToSave: string | null = product.imageUrl ?? null;
+      if (!imageToSave && (product.etbId || product.id)) {
+        const etb =
+          etbData.find((e) => e.id === (product.etbId ?? product.id)) ||
+          etbData.find((e) => product.id.startsWith(e.id));
+        imageToSave = etb?.imageUrl ?? null;
+      }
+
+      const row = {
+        user_id: userId ?? "",
+        product_id: String(product.id),
+        product_name: String(product.name ?? ""),
+        image: imageToSave != null ? String(imageToSave) : null,
+        buy_price: Number(totalBuyCost / totalQuantity),
+        sale_price: Number(salePriceNumber),
+        quantity: Math.floor(Number(totalQuantity)) || 1,
+        sale_date: saleDate,
+        profit: Number(profit),
+      };
+
+      // Operation 1: INSERT into sales table (Supabase table: sales, columns: user_id, product_id, product_name, image, buy_price, sale_price, quantity, sale_date, profit)
+      if (userId) {
+        const { error: insertError } = await supabase.from("sales").insert([row]).select("id").single();
+        if (insertError) {
+          console.error("SUPABASE_ERROR:", insertError);
+          return;
+        }
+        if (!isPremium) {
+          const nextTotal = (window as any).__pokevault_next_total_sales_count__;
+          if (typeof nextTotal === "number") {
+            const { error: updateErr } = await supabase
+              .from("users")
+              .update({ total_sales_count: nextTotal })
+              .eq("id", userId);
+            if (updateErr) console.error("SUPABASE_ERROR:", updateErr);
+          }
+          try {
+            delete (window as any).__pokevault_next_total_sales_count__;
+          } catch {
+            /* ignore */
+          }
+        }
+        refreshSales();
+      } else {
+        try {
+          await addSaleRecord({
+            productId: product.id,
+            productName: product.name ?? "",
+            image: imageToSave,
+            buyPrice: totalBuyCost / totalQuantity,
+            salePrice: salePriceNumber,
+            quantity: totalQuantity,
+            saleDate,
+            profit,
+          });
+        } catch (err) {
+          console.error("SUPABASE_ERROR:", err);
+          return;
+        }
+        refreshSales();
+      }
+
+      setSalePrice(product.id, salePriceNumber);
+
+      // Operation 2: DELETE from collection (remove item from local state + localStorage)
+      removeFromCollection(collectionMatch.id, "all");
+
+      refreshSales();
+      refetchPremium();
+      navigate("/collection");
+    } catch (err) {
+      console.error("SUPABASE_ERROR:", err);
+    } finally {
+      setIsSelling(false);
+    }
   };
 
   return (
@@ -798,16 +849,16 @@ const prixAchat = collectionMatch?.buyPrice ?? product.prixAchat ?? product.curr
             <button
               type="button"
               onClick={handleVendre}
-              disabled={!hasSale}
+              disabled={!hasSale || isSelling}
               className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm transition disabled:cursor-not-allowed"
               style={{
-                background: hasSale ? "var(--accent-yellow)" : "var(--input-bg)",
-                color: hasSale ? "var(--text-primary)" : "var(--text-secondary)",
+                background: hasSale && !isSelling ? "var(--accent-yellow)" : "var(--input-bg)",
+                color: hasSale && !isSelling ? "var(--text-primary)" : "var(--text-secondary)",
                 fontWeight: hasSale ? "bold" : "normal",
                 border: "1px solid var(--border-color)",
               }}
             >
-              Vendre
+              {isSelling ? "Vente…" : "Vendre"}
             </button>
           </div>
         )}

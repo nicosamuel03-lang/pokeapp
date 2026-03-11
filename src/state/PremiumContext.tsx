@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 
-export type UserProfile = { is_premium: boolean } | null;
+export type UserProfile = { is_premium: boolean; total_sales_count: number } | null;
 
 type PremiumContextValue = {
   isPremium: boolean;
@@ -15,26 +15,59 @@ type PremiumContextValue = {
 
 const PremiumContext = createContext<PremiumContextValue | undefined>(undefined);
 
-async function fetchIsPremium(userId: string): Promise<boolean> {
-  const { data: profilesData, error: profilesError } = await supabase
-    .from("profiles")
-    .select("is_premium")
+async function fetchUserProfile(userId: string): Promise<UserProfile> {
+  console.log("[PremiumContext] fetchUserProfile → querying Supabase users with id:", userId);
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("is_premium, total_sales_count")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
-  if (!profilesError && profilesData != null) return profilesData.is_premium === true;
+  console.log("usePremium debug - userId:", userId);
+  console.log("usePremium debug - data:", data);
+  console.log("usePremium debug - error:", error);
 
-  const tableMissing = profilesError?.message?.includes("does not exist") ?? false;
-  if (tableMissing) {
-    const { data: usersData, error: usersError } = await supabase
-      .from("users")
-      .select("is_premium")
-      .eq("id", userId)
-      .single();
-    if (!usersError && usersData != null) return usersData.is_premium === true;
+  if (error || !data) {
+    // PGRST116 = no rows found; in that case, we create the user row.
+    const code = (error as { code?: string } | null)?.code;
+    console.warn("[PremiumContext] fetchUserProfile error or empty result:", {
+      userId,
+      error,
+      data,
+    });
+
+    if (code === "PGRST116" || (!data && !error)) {
+      console.log(
+        "[PremiumContext] No existing user row, inserting default user with id:",
+        userId
+      );
+      const { error: insertError } = await supabase
+        .from("users")
+        .insert({
+          id: userId,
+          is_premium: false,
+        });
+      if (insertError) {
+        console.error("SUPABASE_ERROR:", insertError);
+      }
+    }
+
+    return { is_premium: false, total_sales_count: 0 };
   }
 
-  return false;
+  console.log("[PremiumContext] fetchUserProfile result:", data);
+  console.log(
+    "FINAL CHECK - Premium status from DB:",
+    (data as { is_premium?: boolean }).is_premium
+  );
+
+  return {
+    is_premium: !!(data as { is_premium?: boolean }).is_premium,
+    total_sales_count: Number(
+      (data as { total_sales_count?: number | null }).total_sales_count ?? 0
+    ),
+  };
 }
 
 export function PremiumProvider({ children }: { children: React.ReactNode }) {
@@ -44,15 +77,15 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [refetchCount, setRefetchCount] = useState(0);
 
+  console.log("[PremiumContext] Clerk user.id =", user?.id);
+
   const isPremium = userProfile?.is_premium === true;
 
   const setPremiumSuccess = useCallback(() => {
-    setUserProfile({ is_premium: true });
-    try {
-      window.localStorage.setItem("pokevault_is_premium", "true");
-    } catch {
-      /* ignore */
-    }
+    setUserProfile((prev) => ({
+      is_premium: true,
+      total_sales_count: prev?.total_sales_count ?? 0,
+    }));
   }, []);
 
   const refetchPremium = useCallback(() => {
@@ -61,29 +94,42 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const userId = user?.id ?? null;
+    console.log("Fetching for ID:", userId);
     if (!userId) {
-      setUserProfile({ is_premium: false });
+      setUserProfile({ is_premium: false, total_sales_count: 0 });
       setLoading(false);
-      try {
-        window.localStorage.removeItem("pokevault_is_premium");
-      } catch {
-        /* ignore */
-      }
       return;
     }
 
     let cancelled = false;
     setLoading(true);
 
-    fetchIsPremium(userId)
-      .then((next) => {
+    fetchUserProfile(userId)
+      .then((profile) => {
         if (cancelled) return;
-        setUserProfile({ is_premium: next });
+        let safeProfile: UserProfile = profile ?? {
+          is_premium: false,
+          total_sales_count: 0,
+        };
+
+        // Emergency override: si l'URL contient ?success=true ou le localStorage force_premium === "true",
+        // on force is_premium = true pour débloquer l'UI même si la BDD est capricieuse.
         try {
-          window.localStorage.setItem("pokevault_is_premium", next ? "true" : "false");
+          const params = new URLSearchParams(window.location.search);
+          const success = params.get("success");
+          const forced = window.localStorage.getItem("force_premium") === "true";
+          if (success === "true" || forced) {
+            safeProfile = {
+              is_premium: true,
+              total_sales_count: safeProfile?.total_sales_count ?? 0,
+            };
+            window.localStorage.setItem("force_premium", "true");
+          }
         } catch {
           /* ignore */
         }
+
+        setUserProfile(safeProfile);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -93,6 +139,33 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, [user?.id, location.pathname, refetchCount]);
+
+  // Realtime subscription on users table to keep premium status fresh
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`premium-user-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "users", filter: `id=eq.${userId}` },
+        (payload) => {
+          const newRow = payload.new as { is_premium?: boolean; total_sales_count?: number | null } | null;
+          if (!newRow) return;
+          console.log("[PremiumContext] realtime users update:", newRow);
+          setUserProfile((prev) => ({
+            is_premium: !!newRow.is_premium,
+            total_sales_count: Number(newRow.total_sales_count ?? prev?.total_sales_count ?? 0),
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
 
   const value: PremiumContextValue = {
     isPremium,
