@@ -4,6 +4,7 @@ require("dotenv").config({
 const express = require("express");
 const cors = require("cors");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { Webhook } = require("svix");
 const { createClient } = require("@supabase/supabase-js");
 
 const supabase =
@@ -69,6 +70,67 @@ app.post(
       }
     }
     res.json({ received: true });
+  }
+);
+
+// Clerk webhook : création automatique d'une ligne dans `users` lors du signup
+app.post(
+  "/api/clerk-webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    try {
+      const svixSecret = process.env.CLERK_WEBHOOK_SECRET;
+      if (!svixSecret) {
+        console.error("CLERK_WEBHOOK_SECRET is not set");
+        return res.status(500).send("Webhook secret missing");
+      }
+
+      const svixHeaders = {
+        "svix-id": req.headers["svix-id"],
+        "svix-timestamp": req.headers["svix-timestamp"],
+        "svix-signature": req.headers["svix-signature"],
+      };
+
+      const wh = new Webhook(svixSecret);
+      let evt;
+      try {
+        evt = wh.verify(req.body, svixHeaders);
+      } catch (err) {
+        console.error("Clerk webhook verification failed:", err?.message || err);
+        return res.status(400).send("Invalid webhook signature");
+      }
+
+      const eventType = evt.type;
+      if (eventType === "user.created") {
+        const user = evt.data;
+        const clerkUserId = user.id;
+
+        if (!clerkUserId || !supabase) {
+          console.error("[Clerk webhook] missing user id or Supabase client");
+          return res.status(500).send("Configuration error");
+        }
+
+        console.log("[Clerk webhook] user.created for:", clerkUserId);
+
+        const { error: insertError } = await supabase
+          .from("users")
+          .insert({
+            id: clerkUserId,
+            is_premium: false,
+          })
+          .single();
+
+        if (insertError) {
+          console.error("[Clerk webhook] Supabase insert failed:", insertError);
+          return res.status(500).send("Failed to insert user");
+        }
+      }
+
+      return res.json({ received: true });
+    } catch (err) {
+      console.error("Clerk webhook handler error:", err?.message || err);
+      return res.status(500).send("Internal server error");
+    }
   }
 );
 
