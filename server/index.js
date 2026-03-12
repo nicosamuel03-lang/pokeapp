@@ -249,6 +249,42 @@ app.post("/api/cancel-subscription", async (req, res) => {
   }
 });
 
+// Suppression de compte : vérifie le token Clerk puis supprime l'utilisateur via l'API Clerk
+app.post("/api/delete-account", express.json(), async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    const { userId } = req.body || {};
+    if (!token || !userId) {
+      return res.status(400).json({ error: "Missing token or userId" });
+    }
+    const clerkSecret = process.env.CLERK_SECRET_KEY;
+    if (!clerkSecret) {
+      console.error("CLERK_SECRET_KEY is not set");
+      return res.status(500).json({ error: "Server not configured for account deletion" });
+    }
+    let verifiedSub = null;
+    let clerkClient;
+    try {
+      const { verifyToken, createClerkClient } = require("@clerk/backend");
+      const payload = await verifyToken(token, { secretKey: clerkSecret });
+      verifiedSub = payload.sub;
+      clerkClient = createClerkClient({ secretKey: clerkSecret });
+    } catch (e) {
+      console.error("Clerk verifyToken failed:", e?.message || e);
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+    if (verifiedSub !== userId) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+    await clerkClient.users.deleteUser(userId);
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Delete account error:", err?.message || err);
+    return res.status(500).json({ error: err?.message || "Unknown server error" });
+  }
+});
+
 const PORT = 4000;
 app.listen(4000, "0.0.0.0", () =>
   console.log("SERVER STRIPE IS READY ON PORT 4000")

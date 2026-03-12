@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell } from "lucide-react";
+import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useClerk, useUser } from "@clerk/react";
+import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
 import { usePremium } from "../hooks/usePremium";
 
@@ -37,6 +37,9 @@ export function SettingsPage() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelLinkHover, setCancelLinkHover] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const { getToken } = useAuth();
 
   useEffect(() => {
     try {
@@ -69,6 +72,26 @@ export function SettingsPage() {
       window.location.href = "/";
     } catch {
       setCancelLoading(false);
+    }
+  };
+
+  const handleDeleteAccountConfirm = async () => {
+    setDeleteLoading(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`${API_BASE}/api/delete-account`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ userId: user?.id }),
+      });
+      if (!res.ok) throw new Error("Échec de la suppression");
+      await signOut();
+      window.location.href = "/";
+    } catch {
+      setDeleteLoading(false);
     }
   };
 
@@ -147,6 +170,27 @@ export function SettingsPage() {
           >
             <LogOut size={18} />
             Déconnexion
+          </button>
+        </div>
+        <div style={rowStyle}>
+          <button
+            type="button"
+            onClick={() => setDeleteModalOpen(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 0",
+              border: "none",
+              background: "transparent",
+              color: "#ef4444",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <Trash2 size={18} />
+            Supprimer mon compte
           </button>
         </div>
 
@@ -279,11 +323,48 @@ export function SettingsPage() {
           <ExternalLink size={14} color="var(--text-secondary)" />
         </a>
 
+        {/* SUPPORT */}
+        <h2 className="title-section" style={sectionHeaderStyle}>
+          SUPPORT
+        </h2>
+        <a
+          href="mailto:support@pokevault.app"
+          style={{
+            ...rowStyle,
+            textDecoration: "none",
+            color: "var(--text-primary)",
+            fontSize: 14,
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Mail size={18} color="var(--text-secondary)" />
+            Nous contacter
+          </span>
+          <ExternalLink size={14} color="var(--text-secondary)" />
+        </a>
+        <a
+          href="https://apps.apple.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            ...rowStyle,
+            textDecoration: "none",
+            color: "var(--text-primary)",
+            fontSize: 14,
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Star size={18} color="var(--text-secondary)" />
+            Noter l&apos;app
+          </span>
+          <ExternalLink size={14} color="var(--text-secondary)" />
+        </a>
+
         {/* NOTIFICATIONS */}
         <h2 className="title-section" style={sectionHeaderStyle}>
           NOTIFICATIONS
         </h2>
-        <div style={{ ...rowStyle, borderBottom: "none", paddingBottom: 16 }}>
+        <div style={{ ...rowStyle, borderBottom: "none", paddingBottom: 20 }}>
           <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text-primary)" }}>
             <Bell size={18} />
             Activer les notifications
@@ -319,6 +400,110 @@ export function SettingsPage() {
           </button>
         </div>
       </div>
+
+      <p
+        style={{
+          textAlign: "center",
+          color: "#666666",
+          fontSize: 12,
+          marginTop: 32,
+          marginBottom: 100,
+        }}
+      >
+        PokéVault v1.0.0
+      </p>
+
+      {/* Modal confirmation suppression compte */}
+      {deleteModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+            background: "var(--overlay-bg)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 320,
+              borderRadius: 16,
+              padding: 20,
+              background: "var(--card-color)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            }}
+          >
+            <p
+              style={{
+                fontSize: 16,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                marginBottom: 8,
+              }}
+            >
+              Supprimer mon compte
+            </p>
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                marginBottom: 20,
+                lineHeight: 1.5,
+              }}
+            >
+              Êtes-vous sûr ? Cette action est irréversible.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => !deleteLoading && setDeleteModalOpen(false)}
+                disabled={deleteLoading}
+                style={{
+                  padding: "10px 18px",
+                  borderRadius: 9999,
+                  border: "1px solid var(--border-color)",
+                  background: "var(--input-bg)",
+                  color: "var(--text-secondary)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: deleteLoading ? "default" : "pointer",
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccountConfirm}
+                disabled={deleteLoading}
+                style={{
+                  padding: "10px 18px",
+                  borderRadius: 9999,
+                  border: "none",
+                  background: "#ef4444",
+                  color: "#fff",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: deleteLoading ? "default" : "pointer",
+                  opacity: deleteLoading ? 0.8 : 1,
+                }}
+              >
+                {deleteLoading ? "Suppression…" : "Supprimer"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
