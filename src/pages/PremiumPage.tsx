@@ -101,7 +101,7 @@ export function PremiumPage() {
           marginBottom: 24,
         }}
       >
-        €2,99 / mois
+        €3,99 / mois
       </p>
 
       {success && (

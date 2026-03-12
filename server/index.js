@@ -163,7 +163,7 @@ app.post("/api/checkout", async (req, res) => {
             product_data: {
               name: "Premium Access (2.99€)",
             },
-            unit_amount: 299,
+            unit_amount: 399,
             recurring: {
               interval: "month",
             },
