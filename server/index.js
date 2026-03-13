@@ -152,28 +152,50 @@ app.post("/api/checkout", async (req, res) => {
     const cancel_url =
       req.body.cancel_url || `${baseUrl}/premium?canceled=1`;
     const client_reference_id = req.body.client_reference_id || null;
+    const plan = req.body.plan === "annual" ? "annual" : "monthly";
+
+    const isAnnual = plan === "annual";
+    const priceData =
+      isAnnual
+        ? {
+            currency: "eur",
+            product_data: {
+              name: "Boss Access Annuel (39,99€)",
+              metadata: { plan: "annual" },
+            },
+            unit_amount: 3999,
+            recurring: {
+              interval: "year",
+            },
+          }
+        : {
+            currency: "eur",
+            product_data: {
+              name: "Boss Access Mensuel (3,99€)",
+              metadata: { plan: "monthly" },
+            },
+            unit_amount: 399,
+            recurring: {
+              interval: "month",
+            },
+          };
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [
         {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: "Premium Access (3.99€)",
-            },
-            unit_amount: 399,
-            recurring: {
-              interval: "month",
-            },
-          },
+          price_data: priceData,
           quantity: 1,
         },
       ],
       success_url,
       cancel_url,
       client_reference_id,
+      subscription_data: {
+        trial_period_days: 30,
+        metadata: { plan },
+      },
     });
 
     return res.json({ url: session.url });

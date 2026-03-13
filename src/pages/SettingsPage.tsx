@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
@@ -202,33 +202,47 @@ export function SettingsPage() {
           <span style={{ fontSize: 14, color: "var(--text-primary)" }}>
             Thème clair / sombre
           </span>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              background: theme === "dark" ? "var(--bg-card-elevated)" : "#D4A757",
-              color: theme === "dark" ? "var(--text-secondary)" : "#111827",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            {theme === "dark" ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <button
+              type="button"
+              onClick={isPremium ? toggleTheme : undefined}
+              disabled={!isPremium}
+              aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: theme === "dark" ? "var(--bg-card-elevated)" : "#D4A757",
+                color: theme === "dark" ? "var(--text-secondary)" : "#111827",
+                border: "none",
+                cursor: isPremium ? "pointer" : "not-allowed",
+                padding: 0,
+                opacity: isPremium ? 1 : 0.4,
+              }}
+            >
+              {theme === "dark" ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
+            </button>
+            {!isPremium && (
+              <Lock size={14} color="var(--text-secondary)" aria-hidden />
+            )}
+          </div>
         </div>
 
         {/* ABONNEMENT */}
         <h2 className="title-section" style={sectionHeaderStyle}>
           ABONNEMENT
         </h2>
-        <div style={{ ...rowStyle, flexDirection: isPremium ? "row" : "column", alignItems: isPremium ? "center" : "stretch" }}>
+        <div
+          style={{
+            ...rowStyle,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           {isPremium ? (
             <>
               <p
@@ -265,27 +279,31 @@ export function SettingsPage() {
               </button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={() => navigate("/premium")}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                padding: "12px 16px",
-                borderRadius: 9999,
-                background: "#D4A757",
-                color: "#111827",
-                border: "none",
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              <Crown size={18} />
-              Passer en Boss Access
-            </button>
+            <>
+              <span style={{ fontSize: 14, color: "var(--text-primary)" }}>
+                Passez en Boss Access pour débloquer toutes les fonctionnalités
+              </span>
+              <button
+                type="button"
+                onClick={() => navigate("/premium")}
+                aria-label="Passer en Boss Access"
+                style={{
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "50%",
+                  minWidth: "44px",
+                  minHeight: "44px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#C9A84C",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+              >
+                <Crown size={20} />
+              </button>
+            </>
           )}
         </div>
 

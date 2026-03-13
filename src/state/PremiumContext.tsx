@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { useLocation } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "./ThemeContext";
 
 export type UserProfile = { is_premium: boolean; total_sales_count: number } | null;
 
@@ -80,6 +81,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
   console.log("[PremiumContext] Clerk user.id =", user?.id);
 
   const isPremium = userProfile?.is_premium === true;
+  const { theme, toggleTheme } = useTheme();
 
   const setPremiumSuccess = useCallback(() => {
     setUserProfile((prev) => ({
@@ -91,6 +93,13 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
   const refetchPremium = useCallback(() => {
     setRefetchCount((c) => c + 1);
   }, []);
+
+  // Forcer le thème clair pour les utilisateurs non premium, même si une préférence sombre était sauvegardée.
+  useEffect(() => {
+    if (!isPremium && theme === "dark") {
+      toggleTheme();
+    }
+  }, [isPremium, theme, toggleTheme]);
 
   useEffect(() => {
     const userId = user?.id ?? null;
