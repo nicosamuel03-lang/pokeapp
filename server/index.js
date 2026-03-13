@@ -147,45 +147,36 @@ app.post("/api/checkout", async (req, res) => {
   console.log("FRONTEND IS CALLING ME!", req.body);
   try {
     const baseUrl = req.body.base_url || "http://localhost:5173";
-    const success_url =
-      req.body.success_url || `${baseUrl}/success`;
+    const {
+      success_url: bodySuccessUrl,
+      cancel_url: bodyCancelUrl,
+      client_reference_id,
+      plan,
+    } = req.body;
+
+    const success_url = bodySuccessUrl || `${baseUrl}/success`;
     const cancel_url =
-      req.body.cancel_url || `${baseUrl}/premium?canceled=1`;
-    const client_reference_id = req.body.client_reference_id || null;
-    const plan = req.body.plan === "annual" ? "annual" : "monthly";
+      bodyCancelUrl || `${baseUrl}/premium?canceled=1`;
 
     const isAnnual = plan === "annual";
-    const priceData =
-      isAnnual
-        ? {
-            currency: "eur",
-            product_data: {
-              name: "Boss Access Annuel (39,99€)",
-              metadata: { plan: "annual" },
-            },
-            unit_amount: 3999,
-            recurring: {
-              interval: "year",
-            },
-          }
-        : {
-            currency: "eur",
-            product_data: {
-              name: "Boss Access Mensuel (3,99€)",
-              metadata: { plan: "monthly" },
-            },
-            unit_amount: 399,
-            recurring: {
-              interval: "month",
-            },
-          };
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [
         {
-          price_data: priceData,
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: isAnnual
+                ? "Premium Access (39.99€)"
+                : "Premium Access (3.99€)",
+            },
+            unit_amount: isAnnual ? 3999 : 399,
+            recurring: {
+              interval: isAnnual ? "year" : "month",
+            },
+          },
           quantity: 1,
         },
       ],
