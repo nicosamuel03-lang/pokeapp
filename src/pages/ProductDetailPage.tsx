@@ -19,8 +19,8 @@ import { ItemIcon } from "../components/ItemIcon";
 import { ArrowLeft } from "lucide-react";
 import { useUser } from "@clerk/react";
 import { usePremium } from "../hooks/usePremium";
+import { useTheme } from "../state/ThemeContext";
 import { supabase } from "../lib/supabase";
-
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
   { mois_court: "Jan", mois_label: "Janvier", prix: 55 },
@@ -80,6 +80,8 @@ const ProductDetailPageInner = () => {
   const { items: collectionItems, removeFromCollection } = useCollection();
   const { user } = useUser();
   const { isPremium, refetchPremium } = usePremium();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { addSaleRecord, refreshSales } = useSalesHistory();
   const [isSelling, setIsSelling] = useState(false);
 
@@ -580,12 +582,28 @@ const ProductDetailPageInner = () => {
             <div
               className="rounded-2xl overflow-hidden"
               style={{
+                position: "relative",
                 background: "var(--bg-card-elevated)",
                 height: 260,
                 width: "100%",
                 minHeight: 200,
               }}
             >
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 0,
+                  backgroundImage: `url(${isDark ? "/images/fond%20graphique/mewtwoo.png" : "/images/fond%20graphique/mewtwoo_gris.png"})`,
+                  backgroundSize: "contain",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "center",
+                  opacity: 0.18,
+                  pointerEvents: "none",
+                }}
+              />
+              <div style={{ position: "relative", zIndex: 1, height: "100%" }}>
               <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA}
@@ -653,6 +671,7 @@ const ProductDetailPageInner = () => {
                 />
               </AreaChart>
               </ResponsiveContainer>
+              </div>
             </div>
             {priceListRows.length > 0 && (
               <div

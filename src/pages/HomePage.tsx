@@ -12,7 +12,6 @@ import { getEraBadge, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { usePremium } from "../hooks/usePremium";
-
 type HistPrix = { mois: string; prix: number | null }[] | undefined;
 
 function getLastNonNullPrice(hist: HistPrix): number {
@@ -414,8 +413,76 @@ export const HomePage = () => {
           {collectionItems.length === 0 ? (
             <div
               className="relative flex flex-col items-center justify-center rounded-xl py-12 text-center"
-              style={{ height: PORTFOLIO_CHART_HEIGHT, background: "var(--bg-card-elevated)" }}
+              style={{
+                height: PORTFOLIO_CHART_HEIGHT,
+                background: "var(--bg-card-elevated)",
+                overflow: "hidden",
+              }}
             >
+              {/* Mewtwo prominent in center when chart is empty (no items in collection) */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 0,
+                  backgroundImage: `url(${isLight ? "/images/fond%20graphique/mewtwoo_gris.png" : "/images/fond%20graphique/mewtwoo.png"})`,
+                  backgroundSize: "contain",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  opacity: 0.85,
+                  pointerEvents: "none",
+                }}
+              />
+              {/* Ghost watermarks: Charizard, Celebi, Arceus */}
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: "8%",
+                  left: "5%",
+                  width: "28%",
+                  height: "40%",
+                  backgroundImage: "url(/images/hero/watermarks/charizard.png)",
+                  backgroundSize: "contain",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  opacity: 0.1,
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  top: "12%",
+                  right: "8%",
+                  width: "22%",
+                  height: "35%",
+                  backgroundImage: "url(/images/hero/watermarks/celebi.png)",
+                  backgroundSize: "contain",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  opacity: 0.1,
+                  pointerEvents: "none",
+                }}
+              />
+              <div
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  bottom: "15%",
+                  left: "10%",
+                  width: "25%",
+                  height: "38%",
+                  backgroundImage: "url(/images/hero/watermarks/arceus.png)",
+                  backgroundSize: "contain",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  opacity: 0.1,
+                  pointerEvents: "none",
+                }}
+              />
               <Link
                 to="/ajouter"
                 className="absolute right-3 bottom-3 flex h-8 w-8 items-center justify-center rounded-full text-lg font-medium transition hover:opacity-80"
@@ -427,15 +494,34 @@ export const HomePage = () => {
               >
                 +
               </Link>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+              <p className="text-sm mt-2 relative z-10" style={{ color: "var(--text-secondary)" }}>
                 Ajoutez des items pour voir l&apos;évolution
               </p>
             </div>
           ) : (
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", background: "var(--card-color)" }}>
+              {/* Mewtwo hidden when chart has data; only shown when empty (see empty state below) */}
               <div
-                style={
-                  userProfile?.is_premium ||
+                aria-hidden
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 0,
+                  backgroundImage: `url(${isLight ? "/images/fond%20graphique/mewtwoo_gris.png" : "/images/fond%20graphique/mewtwoo.png"})`,
+                  backgroundSize: "contain",
+                  backgroundPosition: "center",
+                  backgroundRepeat: "no-repeat",
+                  opacity: 0,
+                  pointerEvents: "none",
+                  visibility: "hidden",
+                }}
+              />
+              {/* Chart layer: all data and lines on top */}
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  ...(userProfile?.is_premium ||
                   (typeof window !== "undefined" &&
                     window.localStorage.getItem("force_premium") === "true")
                     ? {}
@@ -443,8 +529,8 @@ export const HomePage = () => {
                         filter: "blur(12px) brightness(0.6)",
                         pointerEvents: "none",
                         userSelect: "none",
-                      }
-                }
+                      }),
+                }}
               >
                 <ResponsiveContainer width="100%" height={PORTFOLIO_CHART_HEIGHT}>
                   <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>

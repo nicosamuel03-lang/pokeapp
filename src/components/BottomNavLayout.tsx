@@ -4,6 +4,7 @@ import { useAuth, useClerk, useUser } from "@clerk/react";
 import { Home, Layers, Plus, LineChart, History, Settings } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
+import { useTheme } from "../state/ThemeContext";
 
 const SWIPE_MIN_DISTANCE = 90;
 const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
@@ -14,6 +15,46 @@ const ICON_SIZE = 12;
 const ICON_PLUS_SIZE = 14;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
 const LETTER_SPACING = "0.025em";
+
+function PokeballLogoSilver({ size = 28 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: "block", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
+    >
+      <defs>
+        <linearGradient id="silver-top" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#e8e8e8" />
+          <stop offset="50%" stopColor="#c0c0c0" />
+          <stop offset="100%" stopColor="#a0a0a0" />
+        </linearGradient>
+        <linearGradient id="silver-bottom" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#808080" />
+          <stop offset="50%" stopColor="#a8a8a8" />
+          <stop offset="100%" stopColor="#c8c8c8" />
+        </linearGradient>
+        <linearGradient id="silver-band" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#d0d0d0" />
+          <stop offset="50%" stopColor="#606060" />
+          <stop offset="100%" stopColor="#d0d0d0" />
+        </linearGradient>
+        <linearGradient id="center-highlight" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="100%" stopColor="#909090" />
+        </linearGradient>
+      </defs>
+      <path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20z" fill="url(#silver-top)" />
+      <path d="M12 22a10 10 0 0 0 0-20 10 10 0 0 0 0 20z" fill="url(#silver-bottom)" />
+      <rect x="4" y="10.5" width="16" height="3" rx="0.5" fill="url(#silver-band)" stroke="#404040" strokeWidth="0.5" />
+      <circle cx="12" cy="12" r="3" fill="url(#center-highlight)" stroke="#505050" strokeWidth="0.8" />
+      <circle cx="12" cy="12" r="1.2" fill="#383838" />
+    </svg>
+  );
+}
 
 const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; iconSize: number }[] = [
   { to: "/", label: "Accueil", Icon: Home, iconSize: ICON_SIZE },
@@ -31,8 +72,11 @@ export const BottomNavLayout = () => {
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { user } = useUser();
+  const { theme } = useTheme();
   const [showSignInModal, setShowSignInModal] = useState(false);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  const headerBrandColor = theme === "light" ? "#000000" : "#ffffff";
 
   const isOnTabRoute = TAB_PATHS.some(
     (p) => p === "/" ? location.pathname === "/" : location.pathname === p
@@ -122,9 +166,33 @@ export const BottomNavLayout = () => {
               paddingBottom: 4,
             }}
           >
-            <h1 className="app-heading" style={{ fontSize: "18px", color: "var(--text-primary)", flexShrink: 0 }}>
-              PokéVault
-            </h1>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                flexShrink: 0,
+              }}
+            >
+              <h1
+                className="app-heading"
+                style={{
+                  fontSize: "16px",
+                  fontWeight: 900,
+                  fontFamily: '"Inter", "Impact", "Anton", system-ui, sans-serif',
+                  letterSpacing: "-0.02em",
+                  textTransform: "uppercase",
+                  color: headerBrandColor,
+                  margin: 0,
+                  lineHeight: 1.1,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                GIOVANNI COLLECTION
+              </h1>
+              <PokeballLogoSilver size={26} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
               {isSignedIn ? (
                 <button
