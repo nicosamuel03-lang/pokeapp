@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2, Lock } from "lucide-react";
+import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2, Lock, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
@@ -40,6 +40,8 @@ export function SettingsPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const { getToken } = useAuth();
+  const [legalCguOpen, setLegalCguOpen] = useState(false);
+  const [legalPrivacyOpen, setLegalPrivacyOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -307,39 +309,165 @@ export function SettingsPage() {
           )}
         </div>
 
-        {/* LÉGAL */}
+        {/* MENTIONS LÉGALES */}
         <h2 className="title-section" style={sectionHeaderStyle}>
-          LÉGAL
+          Mentions légales
         </h2>
-        <a
-          href="/cgu"
-          target="_blank"
-          rel="noopener noreferrer"
+        {/* Accordéon CGU */}
+        <div
           style={{
-            ...rowStyle,
-            textDecoration: "none",
-            color: "var(--text-primary)",
-            fontSize: 14,
+            borderRadius: 12,
+            overflow: "hidden",
+            border: "1px solid var(--border-color)",
+            marginBottom: 8,
           }}
         >
-          Conditions Générales d&apos;Utilisation
-          <ExternalLink size={14} color="var(--text-secondary)" />
-        </a>
-        <a
-          href="/privacy"
-          target="_blank"
-          rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => setLegalCguOpen((v) => !v)}
+            style={{
+              ...rowStyle,
+              borderBottom: "none",
+              background: "var(--card-color)",
+              cursor: "pointer",
+              width: "100%",
+            }}
+          >
+            <span style={{ fontSize: 14, color: "var(--text-primary)", fontWeight: 600 }}>
+              Conditions Générales d&apos;Utilisation
+            </span>
+            <ChevronDown
+              size={16}
+              color="#D4A757"
+              style={{
+                transform: legalCguOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.15s ease",
+              }}
+            />
+          </button>
+          {legalCguOpen && (
+            <div
+              style={{
+                padding: "10px 14px 12px",
+                fontSize: 12,
+                lineHeight: 1.6,
+                color: "var(--text-secondary)",
+                background: "var(--bg-card-elevated, #050505)",
+                whiteSpace: "pre-line",
+              }}
+            >
+{`PokéVault — Conditions Générales d'Utilisation
+Date d'entrée en vigueur : 11 mars 2026
+
+Article 1 — Présentation de l'application
+PokéVault est une application indépendante permettant aux collectionneurs de cartes Pokémon de gérer leur collection personnelle, de suivre l'évolution de sa valeur marchande et de consulter des historiques de prix. PokéVault n'est pas affiliée, sponsorisée, approuvée ou associée à Nintendo, Game Freak, Creatures Inc., The Pokémon Company ou leurs filiales. Les noms, marques, personnages et logos Pokémon sont la propriété exclusive de The Pokémon Company International, Nintendo, Game Freak et Creatures Inc. Leur utilisation dans PokéVault est purement descriptive et référentielle.
+
+Article 2 — Acceptation des conditions
+En accédant à PokéVault ou en utilisant ses services, vous acceptez pleinement et sans réserve les présentes CGU. Si vous n'acceptez pas ces conditions, vous devez cesser immédiatement d'utiliser l'application.
+
+Article 3 — Description des services
+PokéVault propose : gestion et suivi d'une collection de cartes Pokémon, consultation des valeurs marchandes estimées, historique de prix sur 1 an et 2 ans (Premium), portefeuille global de la collection (Premium), accès au marché secondaire de référence.
+
+Article 4 — Abonnement Premium (Boss Access)
+L'abonnement Boss Access est proposé à 3,99 € par mois ou 39,99 € par an. L'abonnement est renouvelé automatiquement. L'utilisateur peut annuler à tout moment. Conformément à la législation européenne, un droit de rétractation de 14 jours s'applique à compter de la souscription.
+
+Article 5 — Propriété intellectuelle
+Le code source, le design, les fonctionnalités et le nom \"PokéVault\" sont la propriété exclusive de leur créateur. Les noms, images et marques liés à Pokémon appartiennent à leurs propriétaires respectifs et sont utilisés uniquement à des fins descriptives.
+
+Article 6 — Limitation de responsabilité
+Les valeurs et prix affichés sont fournis à titre indicatif uniquement. Ils ne constituent pas une offre d'achat ou de vente. PokéVault ne peut être tenu responsable des décisions financières prises sur la base de ces informations, ni des interruptions de service ou pertes de données.
+
+Article 7 — Comportement des utilisateurs
+Il est interdit de tenter de pirater l'application, reproduire le code source, utiliser l'application à des fins illégales ou partager ses identifiants avec des tiers.
+
+Article 8 — Modifications des CGU
+PokéVault se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront notifiés par e-mail ou via l'application.
+
+Article 9 — Résiliation
+PokéVault se réserve le droit de suspendre ou supprimer tout compte en cas de violation des CGU, sans préavis ni remboursement.
+
+Article 10 — Droit applicable
+Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux compétents de France seront saisis.
+
+Article 11 — Contact
+support@pokevault.app`}
+            </div>
+          )}
+        </div>
+
+        {/* Accordéon Politique de confidentialité */}
+        <div
           style={{
-            ...rowStyle,
-            textDecoration: "none",
-            color: "var(--text-primary)",
-            fontSize: 14,
-            borderBottom: "none",
+            borderRadius: 12,
+            overflow: "hidden",
+            border: "1px solid var(--border-color)",
+            marginBottom: 8,
           }}
         >
-          Politique de confidentialité
-          <ExternalLink size={14} color="var(--text-secondary)" />
-        </a>
+          <button
+            type="button"
+            onClick={() => setLegalPrivacyOpen((v) => !v)}
+            style={{
+              ...rowStyle,
+              borderBottom: "none",
+              background: "var(--card-color)",
+              cursor: "pointer",
+              width: "100%",
+            }}
+          >
+            <span style={{ fontSize: 14, color: "var(--text-primary)", fontWeight: 600 }}>
+              Politique de confidentialité
+            </span>
+            <ChevronDown
+              size={16}
+              color="#D4A757"
+              style={{
+                transform: legalPrivacyOpen ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.15s ease",
+              }}
+            />
+          </button>
+          {legalPrivacyOpen && (
+            <div
+              style={{
+                padding: "10px 14px 12px",
+                fontSize: 12,
+                lineHeight: 1.6,
+                color: "var(--text-secondary)",
+                background: "var(--bg-card-elevated, #050505)",
+                whiteSpace: "pre-line",
+              }}
+            >
+{`PokéVault — Politique de Confidentialité
+Date d'entrée en vigueur : 11 mars 2026
+
+Responsable du traitement : support@pokevault.app
+Données collectées : adresse e-mail (via Clerk), données de collection (noms, quantités, prix d'achat), informations de paiement (traitées par Stripe — données bancaires jamais stockées), données de connexion, statut d'abonnement.
+Utilisation des données : faire fonctionner et améliorer l'application, gérer votre compte et abonnement, vous envoyer des informations liées à votre compte, respecter nos obligations légales.
+Partage des données : vos données ne sont jamais vendues. Elles sont partagées uniquement avec Clerk (authentification), Supabase (base de données) et Stripe (paiement), tous conformes au RGPD.
+Conservation : données conservées tant que le compte est actif. Suppression dans les 30 jours suivant la clôture du compte.
+Vos droits (RGPD) : droit d'accès, rectification, effacement, portabilité et opposition. Contact : support@pokevault.app — réponse sous 30 jours.
+Cookies : stockage local minimal (thème, langue). Aucun cookie publicitaire ou tracking tiers.
+Sécurité : connexions HTTPS, authentification via Clerk, accès restreint à la base de données.
+Mineurs : application non destinée aux moins de 13 ans.
+Modifications : notification par e-mail ou via l'app au moins 15 jours avant tout changement important.
+Contact : support@pokevault.app`}
+            </div>
+          )}
+        </div>
+
+        <p
+          style={{
+            fontSize: 11,
+            color: "var(--text-secondary)",
+            marginTop: 4,
+          }}
+        >
+          PokéVault est une application indépendante. Elle n&apos;est ni affiliée, ni sponsorisée, ni approuvée par
+          The Pokémon Company International, Nintendo Co. Ltd., Game Freak Inc. ou Creatures Inc. Pokémon et tous les
+          noms et images associés sont des marques déposées de The Pokémon Company International, Nintendo, Game Freak
+          et Creatures Inc.
+        </p>
 
         {/* SUPPORT */}
         <h2 className="title-section" style={sectionHeaderStyle}>

@@ -159,24 +159,18 @@ app.post("/api/checkout", async (req, res) => {
       bodyCancelUrl || `${baseUrl}/premium?canceled=1`;
 
     const isAnnual = plan === "annual";
+    const priceId = isAnnual
+      ? process.env.STRIPE_ANNUAL_PRICE_ID
+      : process.env.STRIPE_MONTHLY_PRICE_ID;
+
+    console.log("[checkout] plan:", plan, "isAnnual:", isAnnual, "priceId:", priceId);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [
         {
-          price_data: {
-            currency: "eur",
-            product_data: {
-              name: isAnnual
-                ? "Premium Access (39.99€)"
-                : "Premium Access (3.99€)",
-            },
-            unit_amount: isAnnual ? 3999 : 399,
-            recurring: {
-              interval: isAnnual ? "year" : "month",
-            },
-          },
+          price: priceId,
           quantity: 1,
         },
       ],

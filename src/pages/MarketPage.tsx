@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { TrendingUp } from "lucide-react";
 import { usePremium } from "../hooks/usePremium";
+import { NewsCarousel } from "../components/NewsCarousel";
 import { getEraBadge } from "../utils/eraBadge";
 import { getPerformanceForPeriod } from "../utils/marketPerformance";
 import { formatProductNameWithSetCode } from "../utils/formatProduct";
@@ -332,9 +333,43 @@ export const MarketPage = () => {
               }
         }
       >
-        <h2 className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>Marché des cartes</h2>
+        <h2
+          className="title-section"
+          style={{
+            color: "var(--text-primary)",
+            marginBottom: 24,
+            display: "block",
+          }}
+        >
+          MARCHÉ DES CARTES
+        </h2>
 
-        <div className="flex flex-wrap gap-2">
+        <div>
+          <NewsCarousel />
+        </div>
+
+        <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
+          <div
+            className="flex items-center justify-center gap-2 rounded-full px-6 py-3 w-fit"
+            style={{
+              background: "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
+              color: "#FFFFFF",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              boxShadow: "0 2px 4px rgba(212, 167, 87, 0.2)",
+              overflow: "hidden",
+              isolation: "isolate",
+              contain: "paint",
+              transform: "translateZ(0)",
+            }}
+          >
+            <TrendingUp size={18} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
+            <span>Top de la semaine !</span>
+          </div>
+        </div>
+
+        <div style={{ marginTop: 18, display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8 }}>
           <button
             type="button"
             onClick={() => setMainTab("etb")}
@@ -358,27 +393,7 @@ export const MarketPage = () => {
           </button>
         </div>
 
-        <div className="pt-4 space-y-6">
-          <div className="flex justify-center">
-            <div
-              className="flex items-center justify-center gap-2 rounded-full px-6 py-3 w-fit"
-              style={{
-                background: "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
-                color: "#FFFFFF",
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.05em",
-                boxShadow: "0 2px 4px rgba(212, 167, 87, 0.2)",
-                overflow: "hidden",
-                isolation: "isolate",
-                contain: "paint",
-                transform: "translateZ(0)",
-              }}
-            >
-              <TrendingUp size={18} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
-              <span>Top du mois de Mars 2026 !</span>
-            </div>
-          </div>
+        <div style={{ marginTop: 18 }}>
           <RankingSection key={mainTab} title={sectionTitle} products={productsToShow} />
         </div>
       </div>

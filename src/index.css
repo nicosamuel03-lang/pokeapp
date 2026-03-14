@@ -194,4 +194,5 @@ h1, h2, h3,
   animation: success-check-scale-in 500ms ease-out;
 }
 
+/* News carousel: transform and transition are applied inline in NewsCarousel.tsx (JS-driven). */
 
