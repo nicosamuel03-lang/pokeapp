@@ -595,7 +595,7 @@ const ProductDetailPageInner = () => {
                   position: "absolute",
                   inset: 0,
                   zIndex: 0,
-                  backgroundImage: `url(${isDark ? "/images/fond%20graphique/mewtwoo.png" : "/images/fond%20graphique/mewtwoo_gris.png"})`,
+                  backgroundImage: `url(${isDark ? "/images/fond%20graphique/mewtwoo.png?v=2" : "/images/fond%20graphique/mewtwoo_gris.png"})`,
                   backgroundSize: "contain",
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "center",
