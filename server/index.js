@@ -143,6 +143,13 @@ console.log(
 console.log("SERVER STARTING - Keys loaded:", !!process.env.STRIPE_SECRET_KEY);
 console.log("✅ Stripe Server is ready with Secret Key");
 
+app.get("/api/debug-stripe", async (req, res) => {
+  res.json({
+    monthly: process.env.STRIPE_MONTHLY_PRICE_ID,
+    annual: process.env.STRIPE_ANNUAL_PRICE_ID,
+  });
+});
+
 app.post("/api/checkout", async (req, res) => {
   console.log("FRONTEND IS CALLING ME!", req.body);
   try {
