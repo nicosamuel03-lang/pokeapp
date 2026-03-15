@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  ArrowLeft,
+  ChevronLeft,
   CheckCircle2,
   Package,
   TrendingUp,
@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../state/ThemeContext";
 
 const features = [
   {
@@ -49,6 +50,8 @@ const features = [
 export function SubscriptionPage() {
   const navigate = useNavigate();
   const { user } = useUser();
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -111,7 +114,7 @@ export function SubscriptionPage() {
           cursor: "pointer",
         }}
       >
-        <ArrowLeft size={16} />
+        <ChevronLeft size={28} strokeWidth={1.5} />
         <span>Retour</span>
       </button>
 
@@ -119,7 +122,7 @@ export function SubscriptionPage() {
         className="title-section"
         style={{
           fontSize: "22px",
-          color: "#D4A757",
+          color: accentGold,
           marginBottom: 4,
           letterSpacing: "0.08em",
           textAlign: "left",

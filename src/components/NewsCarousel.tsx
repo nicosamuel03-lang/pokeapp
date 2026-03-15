@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useTheme } from "../state/ThemeContext";
 
 export interface NewsItem {
   id: string;
@@ -71,11 +72,13 @@ const getCardBase = (): React.CSSProperties => ({
 });
 
 function NewsCard({ item }: { item: NewsItem }) {
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const isImageCard = Boolean(item.backgroundImage);
   const CARD_BASE = getCardBase();
 
   if (isImageCard) {
-    const badgeBg = item.category === "NEW" ? "#10b981" : item.category === "PRE-ORDER" ? "#8b5cf6" : "#D4A757";
+    const badgeBg = item.category === "NEW" ? "#10b981" : item.category === "PRE-ORDER" ? "#8b5cf6" : accentGold;
     return (
       <div
         style={{
@@ -133,8 +136,8 @@ function NewsCard({ item }: { item: NewsItem }) {
 
   const badgeStyle =
     item.badgeVariant === "exclu"
-      ? { backgroundColor: "#D4A757", color: "#000", padding: "2px 6px", borderRadius: 4 }
-      : { color: "#D4A757" };
+      ? { backgroundColor: accentGold, color: "#000", padding: "2px 6px", borderRadius: 4 }
+      : { color: accentGold };
 
   return (
     <div style={CARD_BASE as React.CSSProperties}>
@@ -237,7 +240,7 @@ export function NewsCarousel() {
         height: CAROUSEL_HEIGHT,
         maxHeight: CAROUSEL_HEIGHT,
         overflow: "hidden",
-        borderRadius: "1.25rem",
+        borderRadius: 0,
         background: "transparent",
         boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
         border: "none",
@@ -257,7 +260,7 @@ export function NewsCarousel() {
           overflow: "hidden",
           height: "100%",
           width: "100%",
-          borderRadius: "1.25rem",
+          borderRadius: 0,
           padding: 0,
           margin: 0,
         }}

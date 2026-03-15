@@ -19,6 +19,8 @@ export const HistoriquePage = () => {
   const { pathname } = useLocation();
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const isDark = theme === "dark";
+  const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, userProfile } = usePremium();
   const {
     sales,
@@ -132,7 +134,7 @@ export const HistoriquePage = () => {
                   style={{
                     color: salesLimitReached
                       ? "var(--loss-red)"
-                      : "var(--accent-yellow)",
+                      : accentGold,
                     fontWeight: 600,
                   }}
                 >
@@ -154,7 +156,7 @@ export const HistoriquePage = () => {
                     position: "absolute",
                     inset: 0,
                     width: `${salesProgress}%`,
-                    background: salesLimitReached ? "#EF4444" : "#D4A757",
+                    background: salesLimitReached ? "#EF4444" : accentGold,
                     transition: "width 150ms ease-out",
                   }}
                 />
@@ -180,7 +182,7 @@ export const HistoriquePage = () => {
                 }
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total des ventes</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: "var(--accent-yellow)" }}>
+                <p className="mt-1 text-sm font-semibold" style={{ color: accentGold }}>
                   {summary.totalVentes.toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",
@@ -317,7 +319,7 @@ export const HistoriquePage = () => {
                         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
                           <span style={{ color: "var(--text-secondary)" }}>
                             Achat:{" "}
-                            <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>
+                            <span className="font-medium" style={{ color: accentGold }}>
                               {sale.buyPrice.toLocaleString("fr-FR", {
                                 style: "currency",
                                 currency: "EUR",
@@ -327,7 +329,7 @@ export const HistoriquePage = () => {
                           </span>
                           <span style={{ color: "var(--text-secondary)" }}>
                             Vente:{" "}
-                            <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>
+                            <span className="font-medium" style={{ color: accentGold }}>
                               {sale.salePrice.toLocaleString("fr-FR", {
                                 style: "currency",
                                 currency: "EUR",
@@ -368,7 +370,7 @@ export const HistoriquePage = () => {
                           className="rounded-lg px-2.5 py-1 text-xs font-semibold transition hover:opacity-90"
                           style={{
                             background: "rgba(250,204,21,0.25)",
-                            color: "var(--accent-yellow)",
+                            color: accentGold,
                             border: "1px solid rgba(250,204,21,0.5)",
                           }}
                         >
@@ -427,8 +429,8 @@ export const HistoriquePage = () => {
                                 {sale.quantity > 1 && ` · x${sale.quantity}`}
                               </p>
                               <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
-                                <span style={{ color: "var(--text-secondary)" }}>Achat: <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>{sale.buyPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
-                                <span style={{ color: "var(--text-secondary)" }}>Vente: <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>{sale.salePrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
+                                <span style={{ color: "var(--text-secondary)" }}>Achat: <span className="font-medium" style={{ color: accentGold }}>{sale.buyPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
+                                <span style={{ color: "var(--text-secondary)" }}>Vente: <span className="font-medium" style={{ color: accentGold }}>{sale.salePrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
                                 <span style={{ color: "var(--text-secondary)" }}>Bénéfice: <span className="font-semibold" style={{ color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>{sale.profit >= 0 ? "+" : ""}{sale.profit.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
                                 <span style={{ color: "var(--text-secondary)" }}>Perf: <span className="font-semibold" style={{ color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>{perfPct >= 0 ? "+" : ""}{perfPct.toFixed(1)}%</span></span>
                               </div>
@@ -469,7 +471,7 @@ export const HistoriquePage = () => {
                           display: "inline-block",
                           padding: "8px 18px",
                           borderRadius: 9999,
-                          background: "#D4A757",
+                          background: accentGold,
                           color: "#000",
                           fontSize: 12,
                           fontWeight: 700,
@@ -555,7 +557,7 @@ export const HistoriquePage = () => {
                 className="flex-1 rounded-xl py-2 text-sm font-semibold"
                 style={{
                   background: "rgba(250,204,21,0.25)",
-                  color: "var(--accent-yellow)",
+                  color: accentGold,
                   border: "1px solid rgba(250,204,21,0.5)",
                 }}
               >

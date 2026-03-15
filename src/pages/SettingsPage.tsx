@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2, Lock, ChevronDown } from "lucide-react";
+import { ChevronLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, Trash2, Lock, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
@@ -8,12 +8,11 @@ import { usePremium } from "../hooks/usePremium";
 const NOTIFICATIONS_STORAGE_KEY = "pokevault_notifications_enabled";
 const API_BASE = "https://pokeapp-production-52e4.up.railway.app";
 
-const sectionHeaderStyle: React.CSSProperties = {
+const sectionHeaderBaseStyle: React.CSSProperties = {
   fontSize: 11,
   fontWeight: 700,
   letterSpacing: "0.08em",
   textTransform: "uppercase",
-  color: "#D4A757",
   padding: "12px 0 6px 0",
   marginTop: 4,
 };
@@ -33,6 +32,8 @@ export function SettingsPage() {
   const { signOut } = useClerk();
   const { user } = useUser();
   const { theme, toggleTheme } = useTheme();
+  const isDark = theme === "dark";
+  const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium } = usePremium();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -99,13 +100,13 @@ export function SettingsPage() {
 
   return (
     <div
+      className="-mx-3"
       style={{
         background: "var(--bg-app)",
         color: "var(--text-secondary)",
-        padding: "24px 16px",
+        padding: "24px 0 120px 0",
         maxWidth: 480,
         margin: "0 auto",
-        paddingBottom: 120,
       }}
     >
       <button
@@ -124,7 +125,7 @@ export function SettingsPage() {
           cursor: "pointer",
         }}
       >
-        <ArrowLeft size={16} />
+        <ChevronLeft size={28} strokeWidth={1.5} />
         <span>Retour</span>
       </button>
 
@@ -132,7 +133,7 @@ export function SettingsPage() {
         className="title-section"
         style={{
           fontSize: "22px",
-          color: "#D4A757",
+          color: accentGold,
           marginBottom: 24,
           letterSpacing: "0.08em",
           textAlign: "left",
@@ -143,6 +144,8 @@ export function SettingsPage() {
 
       <div
         style={{
+          width: "100%",
+          margin: 0,
           borderRadius: 16,
           padding: "0 16px",
           background: "var(--card-color)",
@@ -150,7 +153,7 @@ export function SettingsPage() {
         }}
       >
         {/* COMPTE */}
-        <h2 className="title-section" style={{ ...sectionHeaderStyle, marginTop: 0 }}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold, marginTop: 0 }}>
           COMPTE
         </h2>
         <div style={rowStyle}>
@@ -197,7 +200,7 @@ export function SettingsPage() {
         </div>
 
         {/* APPARENCE */}
-        <h2 className="title-section" style={sectionHeaderStyle}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
           APPARENCE
         </h2>
         <div style={rowStyle}>
@@ -234,7 +237,7 @@ export function SettingsPage() {
         </div>
 
         {/* ABONNEMENT */}
-        <h2 className="title-section" style={sectionHeaderStyle}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
           ABONNEMENT
         </h2>
         <div
@@ -257,7 +260,7 @@ export function SettingsPage() {
                   gap: 6,
                 }}
               >
-                <Crown size={18} color="#D4A757" />
+                <Crown size={18} color={accentGold} />
                 Boss Access actif
               </p>
               <button
@@ -298,7 +301,7 @@ export function SettingsPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: "#C9A84C",
+                  backgroundColor: isDark ? "#FBBF24" : "#C9A84C",
                   border: "none",
                   cursor: "pointer",
                 }}
@@ -310,7 +313,7 @@ export function SettingsPage() {
         </div>
 
         {/* MENTIONS LÉGALES */}
-        <h2 className="title-section" style={sectionHeaderStyle}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
           Mentions légales
         </h2>
         {/* Accordéon CGU */}
@@ -338,7 +341,7 @@ export function SettingsPage() {
             </span>
             <ChevronDown
               size={16}
-              color="#D4A757"
+              color={accentGold}
               style={{
                 transform: legalCguOpen ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "transform 0.15s ease",
@@ -420,7 +423,7 @@ support@pokevault.app`}
             </span>
             <ChevronDown
               size={16}
-              color="#D4A757"
+              color={accentGold}
               style={{
                 transform: legalPrivacyOpen ? "rotate(180deg)" : "rotate(0deg)",
                 transition: "transform 0.15s ease",
@@ -470,7 +473,7 @@ Contact : support@pokevault.app`}
         </p>
 
         {/* SUPPORT */}
-        <h2 className="title-section" style={sectionHeaderStyle}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
           SUPPORT
         </h2>
         <a
@@ -507,7 +510,7 @@ Contact : support@pokevault.app`}
         </a>
 
         {/* NOTIFICATIONS */}
-        <h2 className="title-section" style={sectionHeaderStyle}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
           NOTIFICATIONS
         </h2>
         <div style={{ ...rowStyle, borderBottom: "none", paddingBottom: 20 }}>
@@ -526,7 +529,7 @@ Contact : support@pokevault.app`}
               borderRadius: 9999,
               border: "none",
               cursor: "pointer",
-              background: notificationsEnabled ? "#D4A757" : "var(--input-bg)",
+              background: notificationsEnabled ? accentGold : "var(--input-bg)",
               position: "relative",
             }}
           >

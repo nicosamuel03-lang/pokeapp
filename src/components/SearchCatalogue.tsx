@@ -13,6 +13,7 @@ import { getLastPrixFromHistorique } from "../utils/prixMarche";
 import { getDisplayImageUrlForCatalogueItem } from "../utils/displayImage";
 import { getEraBadgeForCatalogueItem } from "../utils/eraBadge";
 import { formatDisplayProductName, formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
+import { useTheme } from "../state/ThemeContext";
 
 function getMarchéActuel(item: PokemonCatalogueItem): number {
   if (item.etbId) {
@@ -76,10 +77,17 @@ interface AddModalProps {
 }
 
 const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const [buyPrice, setBuyPrice] = useState("");
   const [purchaseDate, setPurchaseDate] = useState(todayISO);
   const [qty, setQty] = useState("1");
   const [justAdded, setJustAdded] = useState(false);
+  const [pressedBtn, setPressedBtn] = useState<"annuler" | "ajouter" | null>(null);
+  const triggerPress = (key: "annuler" | "ajouter") => {
+    setPressedBtn(key);
+    setTimeout(() => setPressedBtn(null), 150);
+  };
 
   const modalImgUrl = getProductImageUrlForCatalogueItem(item);
   const modalEraBadge = getEraBadgeForCatalogueItem(item);
@@ -165,8 +173,8 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                     {(item.releaseDate ?? "").slice(0, 7).replace("-", "/")}
                   </p>
                   <p className="mt-0.5 text-xs font-medium">
-                    <span style={{ color: "var(--accent-yellow)" }}>Marché actuel :</span>{" "}
-                    <span style={{ color: "var(--accent-yellow)" }}>
+                    <span style={{ color: accentGold }}>Marché actuel :</span>{" "}
+                    <span style={{ color: accentGold }}>
                       {getMarchéActuel(item).toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",
@@ -234,8 +242,9 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
             <div className="flex flex-row gap-2 mt-4 shrink-0">
               <button
                 type="button"
+                className={`btn-press flex-1 rounded-2xl py-2.5 text-sm font-medium transition ${pressedBtn === "annuler" ? "btn-press-pressed" : ""}`}
+                onPointerDown={() => triggerPress("annuler")}
                 onClick={onClose}
-                className="flex-1 rounded-2xl py-2.5 text-sm font-medium transition"
                 style={{
                   background: "var(--input-bg)",
                   color: "var(--text-secondary)",
@@ -247,7 +256,8 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                 type="button"
                 onClick={handleConfirm}
                 disabled={justAdded}
-                className="flex-1 rounded-2xl py-2.5 text-sm font-semibold transition disabled:cursor-default disabled:opacity-100"
+                className={`btn-press flex-1 rounded-2xl py-2.5 text-sm font-semibold transition disabled:cursor-default disabled:opacity-100 ${pressedBtn === "ajouter" ? "btn-press-pressed" : ""}`}
+                onPointerDown={() => !justAdded && triggerPress("ajouter")}
                 style={{
                   background: justAdded ? "#166534" : "#15803D",
                   color: "#FFFFFF",
@@ -274,6 +284,8 @@ const FREE_COLLECTION_LIMIT = 5;
 export const SearchCatalogue = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const { addProduct } = useProducts();
   const { items, addToCollection } = useCollection();
   const { isPremium } = usePremium();
@@ -469,20 +481,6 @@ export const SearchCatalogue = () => {
               })()}
                 <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <p className="app-heading truncate text-[13px]" style={{ color: "var(--text-primary)" }}>
-                    {formatProductNameWithSetCode(
-                      item.name,
-                      getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
-                      item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
-                    )}
-                  </p>
-                  {item.block === "Méga Évolution" && (
-                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide" style={{ color: "var(--gain-green)", background: "rgba(34,197,94,0.15)" }}>
-                      NEW
-                    </span>
-                  )}
-                </div>
-                <div className="mt-0.5 flex items-center gap-1.5">
                   {(() => {
                     const eraBadge = getEraBadgeForCatalogueItem(item);
                     return eraBadge ? (
@@ -501,9 +499,23 @@ export const SearchCatalogue = () => {
                     ) : null;
                   })()}
                 </div>
+                <div className="mt-0.5 flex items-center gap-1.5">
+                  <p className="app-heading truncate text-[13px]" style={{ color: "var(--text-primary)" }}>
+                    {formatProductNameWithSetCode(
+                      item.name,
+                      getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
+                      item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
+                    )}
+                  </p>
+                  {item.block === "Méga Évolution" && (
+                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide" style={{ color: "var(--gain-green)", background: "rgba(34,197,94,0.15)" }}>
+                      NEW
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-[13px] font-semibold" style={{ color: "var(--accent-yellow)" }}>
+                <p className="text-[13px] font-semibold" style={{ color: accentGold }}>
                   {getMarchéActuel(item).toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",

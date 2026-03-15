@@ -16,7 +16,7 @@ import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
 import { ItemIcon } from "../components/ItemIcon";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useUser } from "@clerk/react";
 import { usePremium } from "../hooks/usePremium";
 import { useTheme } from "../state/ThemeContext";
@@ -82,6 +82,7 @@ const ProductDetailPageInner = () => {
   const { isPremium, refetchPremium } = usePremium();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { addSaleRecord, refreshSales } = useSalesHistory();
   const [isSelling, setIsSelling] = useState(false);
 
@@ -133,6 +134,11 @@ const ProductDetailPageInner = () => {
 
   const [saleInput, setSaleInput] = useState<string>("");
   const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
+  const [addBtnPressed, setAddBtnPressed] = useState(false);
+  const triggerAddPress = () => {
+    setAddBtnPressed(true);
+    setTimeout(() => setAddBtnPressed(false), 150);
+  };
 
   const history2024 = useMemo(() => {
     const raw = etb?.historique_prix_2024;
@@ -454,7 +460,7 @@ const ProductDetailPageInner = () => {
         style={{ color: "var(--text-secondary)", background: "none", border: "none" }}
         aria-label="Retour"
       >
-        <ArrowLeft size={18} strokeWidth={2} />
+        <ChevronLeft size={28} strokeWidth={1.5} />
       </button>
       <section
         className="rounded-2xl p-4"
@@ -501,7 +507,7 @@ const ProductDetailPageInner = () => {
             <p className="text-[11px] uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
               Prix actuel
             </p>
-            <p className="text-2xl font-semibold" style={{ color: "#D4A757" }}>
+            <p className="text-2xl font-semibold" style={{ color: accentGold }}>
               {prixMarche.toLocaleString("fr-FR", {
                 style: "currency",
                 currency: "EUR",
@@ -538,7 +544,7 @@ const ProductDetailPageInner = () => {
             onClick={isPremium ? () => setChartPeriod("1an") : undefined}
             className="text-xs font-medium transition"
             style={{
-              background: chartPeriod === "1an" ? "#D4A757" : "var(--input-bg)",
+              background: chartPeriod === "1an" ? accentGold : "var(--input-bg)",
               color: chartPeriod === "1an" ? "#000" : "var(--text-primary)",
               border: chartPeriod === "1an" ? "none" : "1px solid var(--border-color)",
               borderRadius: 20,
@@ -554,7 +560,7 @@ const ProductDetailPageInner = () => {
             onClick={isPremium ? () => setChartPeriod("2ans") : undefined}
             className="text-xs font-medium transition"
             style={{
-              background: chartPeriod === "2ans" ? "#D4A757" : "var(--input-bg)",
+              background: chartPeriod === "2ans" ? accentGold : "var(--input-bg)",
               color: chartPeriod === "2ans" ? "#000" : "var(--text-primary)",
               border: chartPeriod === "2ans" ? "none" : "1px solid var(--border-color)",
               borderRadius: 20,
@@ -611,8 +617,8 @@ const ProductDetailPageInner = () => {
               >
                 <defs>
                   <linearGradient id="areaGradDetail" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#D4A757" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#D4A757" stopOpacity={0} />
+                    <stop offset="0%" stopColor={accentGold} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={accentGold} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis
@@ -642,7 +648,7 @@ const ProductDetailPageInner = () => {
                         className="rounded-xl px-3 py-2 text-xs"
                         style={{
                           background: "var(--card-color)",
-                          color: "#D4A757",
+                          color: accentGold,
                           boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
                         }}
                       >
@@ -662,11 +668,11 @@ const ProductDetailPageInner = () => {
                 <Area
                   type="monotone"
                   dataKey="prix"
-                  stroke="#D4A757"
+                  stroke={accentGold}
                   strokeWidth={2}
                   fill="url(#areaGradDetail)"
-                  dot={{ fill: "#D4A757", r: 2 }}
-                  activeDot={{ fill: "#D4A757", r: 4 }}
+                  dot={{ fill: accentGold, r: 2 }}
+                  activeDot={{ fill: accentGold, r: 4 }}
                   connectNulls={false}
                 />
               </AreaChart>
@@ -702,7 +708,7 @@ const ProductDetailPageInner = () => {
                         <td
                           className="py-2 pr-3 text-right font-medium"
                           style={{
-                            color: p?.prix != null && !Number.isNaN(Number(p?.prix)) ? "var(--accent-yellow)" : "var(--text-secondary)",
+                            color: p?.prix != null && !Number.isNaN(Number(p?.prix)) ? accentGold : "var(--text-secondary)",
                           }}
                         >
                           {p?.prix != null && !Number.isNaN(Number(p?.prix))
@@ -743,7 +749,7 @@ const ProductDetailPageInner = () => {
                 }}
               >
                 <div style={{ marginBottom: 6 }}>
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4A757" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={accentGold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -763,7 +769,7 @@ const ProductDetailPageInner = () => {
                     display: "inline-block",
                     padding: "6px 14px",
                     borderRadius: 9999,
-                    background: "#D4A757",
+                    background: accentGold,
                     color: "#000",
                     fontSize: 11,
                     fontWeight: 700,
@@ -780,7 +786,8 @@ const ProductDetailPageInner = () => {
           <button
             type="button"
             onClick={handleAddToCollection}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:opacity-90"
+            onPointerDown={triggerAddPress}
+            className={`btn-press flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:opacity-90 ${addBtnPressed ? "btn-press-pressed" : ""}`}
             style={{
               background: "var(--bg-card-elevated)",
               color: "var(--text-primary)",
@@ -871,7 +878,7 @@ const ProductDetailPageInner = () => {
               disabled={!hasSale || isSelling}
               className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm transition disabled:cursor-not-allowed"
               style={{
-                background: hasSale && !isSelling ? "var(--accent-yellow)" : "var(--input-bg)",
+                background: hasSale && !isSelling ? accentGold : "var(--input-bg)",
                 color: hasSale && !isSelling ? "var(--text-primary)" : "var(--text-secondary)",
                 fontWeight: hasSale ? "bold" : "normal",
                 border: "1px solid var(--border-color)",

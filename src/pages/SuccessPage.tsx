@@ -2,9 +2,12 @@ import { useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
+import { useTheme } from "../state/ThemeContext";
 
 export function SuccessPage() {
   const { user } = useUser();
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
 
   const handleAccess = () => {
     // Force un reload complet pour que usePremium relise l'état à jour depuis Supabase
@@ -75,7 +78,7 @@ export function SuccessPage() {
             borderRadius: "9999px",
             marginBottom: 20,
             background:
-              "radial-gradient(circle at 30% 0, #FFF7E1, #D4A757)",
+              theme === "dark" ? "radial-gradient(circle at 30% 0, #FFF7E1, #FBBF24)" : "radial-gradient(circle at 30% 0, #FFF7E1, #D4A757)",
             boxShadow: "0 0 0 1px rgba(0,0,0,0.3)",
           }}
         >
@@ -89,7 +92,7 @@ export function SuccessPage() {
             marginBottom: 8,
             letterSpacing: "0.06em",
             textTransform: "uppercase",
-            color: "#D4A757",
+            color: accentGold,
           }}
         >
           Bienvenue Boss&nbsp;!
@@ -124,7 +127,7 @@ export function SuccessPage() {
             width: "100%",
             padding: "12px 20px",
             borderRadius: 9999,
-            background: "#D4A757",
+            background: accentGold,
             color: "#111827",
             border: "none",
             fontSize: 14,

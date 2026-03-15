@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { TrendingUp } from "lucide-react";
 import { usePremium } from "../hooks/usePremium";
+import { useTheme } from "../state/ThemeContext";
 import { NewsCarousel } from "../components/NewsCarousel";
 import { getEraBadge } from "../utils/eraBadge";
 import { getPerformanceForPeriod } from "../utils/marketPerformance";
@@ -47,6 +48,8 @@ interface ProductCardProps {
 }
 
 function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const isUp = perf.percent >= 0;
   const rawId = product.etbId ?? product.id.replace(/^display-/, "").replace(/^upc-/, "");
   const eraBadge = getEraBadge(rawId, product.block);
@@ -118,7 +121,7 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
               )}
             </div>
             <div className="flex items-center justify-between gap-2 mt-1">
-              <p className="text-sm font-semibold shrink-0" style={{ color: "var(--accent-yellow)" }}>
+              <p className="text-sm font-semibold shrink-0" style={{ color: accentGold }}>
                 {product.currentPrice.toLocaleString("fr-FR", {
                   style: "currency",
                   currency: "EUR",
@@ -174,7 +177,7 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
         )}
       </div>
       <div className="shrink-0 flex flex-col items-end gap-0.5">
-        <p className="text-sm font-semibold" style={{ color: "var(--accent-yellow)" }}>
+        <p className="text-sm font-semibold" style={{ color: accentGold }}>
           {product.currentPrice.toLocaleString("fr-FR", {
             style: "currency",
             currency: "EUR",
@@ -189,21 +192,13 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
   );
 }
 
-function RankingSection({
-  title,
-  products,
-}: {
-  title: string;
-  products: MarketProduct[];
-}) {
+function RankingSection({ products }: { products: MarketProduct[] }) {
   const safeProducts = products;
   const top3 = safeProducts.slice(0, 3);
   const rest = safeProducts.slice(3);
 
   return (
     <section className="space-y-4">
-      <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{title}</h3>
-
       {top3.length > 0 && (
         <div className="flex flex-col gap-4">
           {top3.map((product, i) => (
@@ -286,8 +281,16 @@ function mapEtbToProduct(item: (typeof etbData)[number]): MarketProduct {
 }
 
 export const MarketPage = () => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium } = usePremium();
   const [mainTab, setMainTab] = useState<MainTab>("etb");
+  const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
+  const triggerFilterPress = (key: string) => {
+    setPressedFilterKey(key);
+    setTimeout(() => setPressedFilterKey(null), 150);
+  };
 
   const filteredProducts = useMemo(() => {
     if (mainTab === "displays") {
@@ -317,7 +320,6 @@ export const MarketPage = () => {
     [filteredProducts]
   );
 
-  const sectionTitle = mainTab === "etb" ? "ETB" : mainTab === "upc" ? "UPC" : "Displays";
 
   return (
     <div style={{ position: "relative", minHeight: "100%" }}>
@@ -344,7 +346,7 @@ export const MarketPage = () => {
           MARCHÉ DES CARTES
         </h2>
 
-        <div>
+        <div className="-mx-4 w-[calc(100%+2rem)] max-w-none px-0">
           <NewsCarousel />
         </div>
 
@@ -352,7 +354,7 @@ export const MarketPage = () => {
           <div
             className="flex items-center justify-center gap-2 rounded-full px-6 py-3 w-fit"
             style={{
-              background: "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
+              background: isDark ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
               color: "#FFFFFF",
               fontWeight: 700,
               textTransform: "uppercase",
@@ -372,29 +374,35 @@ export const MarketPage = () => {
         <div style={{ marginTop: 18, display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8 }}>
           <button
             type="button"
+            className={`filter-btn ${pressedFilterKey === "tab-etb" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("tab-etb")}
             onClick={() => setMainTab("etb")}
-            style={mainTab === "etb" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={mainTab === "etb" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             ETB
           </button>
           <button
             type="button"
+            className={`filter-btn ${pressedFilterKey === "tab-displays" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("tab-displays")}
             onClick={() => setMainTab("displays")}
-            style={mainTab === "displays" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={mainTab === "displays" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             Displays
           </button>
           <button
             type="button"
+            className={`filter-btn ${pressedFilterKey === "tab-upc" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("tab-upc")}
             onClick={() => setMainTab("upc")}
-            style={mainTab === "upc" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={mainTab === "upc" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             UPC
           </button>
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <RankingSection key={mainTab} title={sectionTitle} products={productsToShow} />
+          <RankingSection key={mainTab} products={productsToShow} />
         </div>
       </div>
 
@@ -424,7 +432,7 @@ export const MarketPage = () => {
             }}
           >
             <div style={{ marginBottom: 10 }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4A757" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={accentGold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
@@ -445,7 +453,7 @@ export const MarketPage = () => {
                 display: "inline-block",
                 padding: "8px 18px",
                 borderRadius: 9999,
-                background: "#D4A757",
+                background: accentGold,
                 color: "#000",
                 fontSize: 12,
                 fontWeight: 700,

@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
+import { useTheme } from "../state/ThemeContext";
 
-const CHECKOUT_URL = "https://pokeapp-production-52e4.up.railway.app/api/checkout";
+const CHECKOUT_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/checkout`
+  : "https://pokeapp-production-52e4.up.railway.app/api/checkout";
+
+const VITE_MONTHLY_PRICE_ID = import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID as string | undefined;
+const VITE_ANNUAL_PRICE_ID = import.meta.env.VITE_STRIPE_ANNUAL_PRICE_ID as string | undefined;
 
 const benefits = [
   {
@@ -35,6 +41,8 @@ const benefits = [
 
 export function PremiumPage() {
   const { user } = useUser();
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,16 +57,25 @@ export function PremiumPage() {
     setLoading(true);
     setError(null);
     try {
+      const checkoutUrl = CHECKOUT_URL;
+      console.log("[Premium checkout] Calling exact URL:", checkoutUrl, "| VITE_API_URL:", import.meta.env.VITE_API_URL ?? "(not set)");
       const baseUrl = window.location.origin;
-      const res = await fetch(CHECKOUT_URL, {
+      const priceId =
+        plan === "annual"
+          ? VITE_ANNUAL_PRICE_ID
+          : VITE_MONTHLY_PRICE_ID;
+      const payload = {
+        success_url: `${baseUrl}/success`,
+        cancel_url: `${baseUrl}/premium?canceled=1`,
+        client_reference_id: user?.id ?? null,
+        plan,
+        ...(priceId && { priceId }),
+      };
+      console.log("[Premium checkout] plan:", plan, "priceId sent to server:", priceId ?? "(none – server will use env)");
+      const res = await fetch(checkoutUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          success_url: `${baseUrl}/success`,
-          cancel_url: `${baseUrl}/premium?canceled=1`,
-          client_reference_id: user?.id ?? null,
-          plan,
-        }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Checkout failed");
@@ -101,7 +118,7 @@ export function PremiumPage() {
           style={{
             fontSize: "20px",
             fontWeight: "bold",
-            color: "#C9A84C",
+            color: accentGold,
             letterSpacing: "0.08em",
             textAlign: "center",
             marginBottom: 4,
@@ -114,7 +131,7 @@ export function PremiumPage() {
           style={{
             fontSize: "24px",
             fontWeight: "bold",
-            color: "#C9A84C",
+            color: accentGold,
             letterSpacing: "0.08em",
             textAlign: "center",
             marginBottom: 0,
@@ -187,7 +204,7 @@ export function PremiumPage() {
               fontWeight: 600,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
-              background: !isAnnual ? "#C9A84C" : "transparent",
+              background: !isAnnual ? accentGold : "transparent",
               color: !isAnnual ? "#111827" : "var(--text-secondary)",
               boxShadow: !isAnnual ? "0 1px 4px rgba(201,168,76,0.4)" : "none",
             }}
@@ -207,7 +224,7 @@ export function PremiumPage() {
               fontWeight: 600,
               letterSpacing: "0.04em",
               textTransform: "uppercase",
-              background: isAnnual ? "#C9A84C" : "transparent",
+              background: isAnnual ? accentGold : "transparent",
               color: isAnnual ? "#111827" : "var(--text-secondary)",
               boxShadow: isAnnual ? "0 1px 4px rgba(201,168,76,0.4)" : "none",
               position: "relative",
@@ -223,7 +240,7 @@ export function PremiumPage() {
                 padding: "3px 8px",
                 borderRadius: 9999,
                 background: "#FFFFFF",
-                color: "#C9A84C",
+                color: accentGold,
                 fontWeight: 600,
                 border: "1px solid rgba(201,168,76,0.8)",
                 boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
@@ -254,7 +271,7 @@ export function PremiumPage() {
                 height: 18,
               }}
             >
-              <b.Icon size={18} color="#C9A84C" strokeWidth={2} />
+              <b.Icon size={18} color={accentGold} strokeWidth={2} />
             </span>
             <div>
               <p
@@ -304,7 +321,7 @@ export function PremiumPage() {
             width: "100%",
             padding: "14px 24px",
             borderRadius: 9999,
-            background: "linear-gradient(135deg, #C9A84C 0%, #B18A4A 100%)",
+            background: theme === "dark" ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
             color: "#000",
             border: "1px solid #E5C284",
             boxShadow: "0 2px 4px rgba(201, 168, 76, 0.3)",

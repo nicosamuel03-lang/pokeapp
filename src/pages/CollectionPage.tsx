@@ -64,6 +64,8 @@ export const CollectionPage = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const isDark = theme === "dark";
+  const accentGold = isDark ? "#FBBF24" : "accentGold";
   const { isPremium, loading: premiumLoading } = usePremium();
   const { items, removeFromCollection, updateCollectionItem } = useCollection();
   const { pathname } = useLocation();
@@ -76,6 +78,11 @@ export const CollectionPage = () => {
   const [editDateInput, setEditDateInput] = useState<string>("");
   const [editQuantityInput, setEditQuantityInput] = useState<string>("");
   const [editQuantityWarning, setEditQuantityWarning] = useState<string | null>(null);
+  const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
+  const triggerFilterPress = (key: string) => {
+    setPressedFilterKey(key);
+    setTimeout(() => setPressedFilterKey(null), 150);
+  };
 
   useEffect(() => {
     if (pathname === "/collection") {
@@ -170,14 +177,14 @@ export const CollectionPage = () => {
   const computedPerf = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 -mx-3">
       {/* Carte Synthèse de portefeuille */}
       <section
-        className="rounded-2xl p-4"
+        className="rounded-2xl px-2 py-4"
         style={{
           background: "var(--card-color)",
           boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-          ...(isLight && { border: "1px solid var(--border-color)", padding: 16, borderRadius: 12 }),
+          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
         }}
       >
         <h2 className="title-section mb-3" style={{ color: "var(--text-primary)" }}>
@@ -192,7 +199,7 @@ export const CollectionPage = () => {
             }}
           >
             <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Valeur actuelle</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: "var(--accent-yellow)" }}>
+            <p className="mt-1 text-sm font-semibold" style={{ color: "accentGold" }}>
               {totalValue.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
             </p>
           </div>
@@ -259,40 +266,54 @@ export const CollectionPage = () => {
 
       {/* Filtres type + ère */}
       <div>
-        <p className="app-heading mb-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+        <p className="app-heading mb-2 text-xs pl-3" style={{ color: "var(--text-secondary)" }}>
           Filtres
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 pl-3">
           <button
+            type="button"
+            className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("cat-Tous")}
             onClick={() => handleCategoryChange("Tous")}
-            style={selectedCategory === "Tous" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Tous" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             Tous
           </button>
           <button
+            type="button"
+            className={`filter-btn ${pressedFilterKey === "cat-Displays" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("cat-Displays")}
             onClick={() => handleCategoryChange("Displays")}
-            style={selectedCategory === "Displays" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Displays" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             Displays
           </button>
           <button
+            type="button"
+            className={`filter-btn ${pressedFilterKey === "cat-ETB" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("cat-ETB")}
             onClick={() => handleCategoryChange("ETB")}
-            style={selectedCategory === "ETB" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "ETB" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             ETB
           </button>
           <button
+            type="button"
+            className={`filter-btn ${pressedFilterKey === "cat-UPC" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("cat-UPC")}
             onClick={() => handleCategoryChange("UPC")}
-            style={selectedCategory === "UPC" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "UPC" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             UPC
           </button>
         </div>
         {hasEraSubFilter && eras.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div className="mt-2 flex flex-wrap gap-1.5 pl-3">
             <button
+              type="button"
+              className={`filter-btn rounded-full font-bold shrink-0 ${pressedFilterKey === "era-null" ? "filter-btn-press" : ""}`}
+              onPointerDown={() => triggerFilterPress("era-null")}
               onClick={() => setSelectedEra(null)}
-              className="rounded-full font-bold transition shrink-0"
               style={{
                 fontSize: "11px",
                 padding: "4px 8px",
@@ -309,9 +330,11 @@ export const CollectionPage = () => {
               const { bg, color } = getEraStyle(era);
               return (
                 <button
+                  type="button"
                   key={era}
+                  className={`filter-btn rounded-full font-medium shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
+                  onPointerDown={() => triggerFilterPress(`era-${era}`)}
                   onClick={() => setSelectedEra(era)}
-                  className="rounded-full font-medium transition shrink-0"
                   style={{
                     fontSize: "10px",
                     padding: "2px 6px",
@@ -336,7 +359,7 @@ export const CollectionPage = () => {
           style={{
             background: "var(--card-color)",
             boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-            border: "1px solid var(--accent-yellow)",
+            border: "1px solid accentGold",
           }}
         >
           <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
@@ -347,7 +370,7 @@ export const CollectionPage = () => {
             onClick={() => navigate("/premium")}
             className="rounded-2xl py-2.5 px-4 text-sm font-bold w-full"
             style={{
-              background: "#D4A757",
+              background: "accentGold",
               color: "#000",
               border: "none",
               cursor: "pointer",
@@ -360,7 +383,7 @@ export const CollectionPage = () => {
 
       {/* Détail des produits — grille 2 colonnes comme Accueil */}
       <section className="space-y-2">
-        <h3 className="title-section" style={{ color: "var(--text-primary)" }}>
+        <h3 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
           Détail des produits ({displayedQuantity} items)
         </h3>
         <div className="grid grid-cols-2 gap-3">
@@ -495,7 +518,7 @@ export const CollectionPage = () => {
                   <p className="flex items-center gap-1 text-[10px]" style={{ color: "var(--text-secondary)" }}>
                     <span>
                       Achat{" "}
-                      <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>
+                      <span className="font-medium" style={{ color: "accentGold" }}>
                         {item.buyPrice.toLocaleString("fr-FR", {
                           style: "currency",
                           currency: "EUR",
@@ -509,7 +532,7 @@ export const CollectionPage = () => {
                   </p>
                   <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
                     Actuel{" "}
-                    <span className="font-medium" style={{ color: "var(--accent-yellow)" }}>
+                    <span className="font-medium" style={{ color: "accentGold" }}>
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </span>
                   </p>
@@ -530,7 +553,7 @@ export const CollectionPage = () => {
                     bottom: "12px",
                     right: "12px",
                     background: "rgba(250,204,21,0.12)",
-                    color: "var(--accent-yellow)",
+                    color: "accentGold",
                     borderColor: "rgba(250,204,21,0.5)",
                     zIndex: 10,
                   }}
@@ -597,7 +620,7 @@ export const CollectionPage = () => {
                       setConfirmId(null);
                     }}
                     className="flex-1 rounded-2xl py-1.5 text-xs font-semibold"
-                    style={{ background: "var(--input-bg)", color: "var(--accent-yellow)", border: "1px solid var(--accent-yellow)" }}
+                    style={{ background: "var(--input-bg)", color: "accentGold", border: "1px solid accentGold" }}
                   >
                     Retirer 1
                   </button>
@@ -649,7 +672,7 @@ export const CollectionPage = () => {
                   <input
                     type="text"
                     inputMode="decimal"
-                    className="w-full focus:outline-none focus:ring-1 focus:ring-[var(--accent-yellow)]"
+                    className={`w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
                     style={{
                       boxSizing: "border-box",
                       background: "var(--input-bg)",
@@ -670,7 +693,7 @@ export const CollectionPage = () => {
                   </label>
                   <input
                     type="date"
-                    className="w-full focus:outline-none focus:ring-1 focus:ring-[var(--accent-yellow)]"
+                    className={`w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
                     style={{
                       boxSizing: "border-box",
                       background: "var(--input-bg)",
@@ -693,7 +716,7 @@ export const CollectionPage = () => {
                     type="number"
                     min={1}
                     inputMode="numeric"
-                    className="w-full focus:outline-none focus:ring-1 focus:ring-[var(--accent-yellow)]"
+                    className={`w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
                     style={{
                       boxSizing: "border-box",
                       background: "var(--input-bg)",

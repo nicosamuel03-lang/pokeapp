@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { useTheme } from "../state/ThemeContext";
 
 export function PrivacyPage() {
+  const { theme } = useTheme();
+  const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   return (
     <div
       style={{
@@ -25,7 +28,7 @@ export function PrivacyPage() {
           textDecoration: "none",
         }}
       >
-        <ArrowLeft size={16} />
+        <ChevronLeft size={28} strokeWidth={1.5} />
         <span>Retour</span>
       </Link>
 
@@ -33,7 +36,7 @@ export function PrivacyPage() {
         className="title-section"
         style={{
           fontSize: "22px",
-          color: "#D4A757",
+          color: accentGold,
           marginBottom: 24,
           letterSpacing: "0.08em",
         }}

@@ -5,6 +5,7 @@ import { Home, Layers, Plus, LineChart, History, Settings } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
 import { useTheme } from "../state/ThemeContext";
+import { usePremium } from "../hooks/usePremium";
 
 const SWIPE_MIN_DISTANCE = 90;
 const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
@@ -15,46 +16,6 @@ const ICON_SIZE = 12;
 const ICON_PLUS_SIZE = 14;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
 const LETTER_SPACING = "0.025em";
-
-function PokeballLogoSilver({ size = 28 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ display: "block", filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
-    >
-      <defs>
-        <linearGradient id="silver-top" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#e8e8e8" />
-          <stop offset="50%" stopColor="#c0c0c0" />
-          <stop offset="100%" stopColor="#a0a0a0" />
-        </linearGradient>
-        <linearGradient id="silver-bottom" x1="0%" y1="100%" x2="0%" y2="0%">
-          <stop offset="0%" stopColor="#808080" />
-          <stop offset="50%" stopColor="#a8a8a8" />
-          <stop offset="100%" stopColor="#c8c8c8" />
-        </linearGradient>
-        <linearGradient id="silver-band" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#d0d0d0" />
-          <stop offset="50%" stopColor="#606060" />
-          <stop offset="100%" stopColor="#d0d0d0" />
-        </linearGradient>
-        <linearGradient id="center-highlight" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="100%" stopColor="#909090" />
-        </linearGradient>
-      </defs>
-      <path d="M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20z" fill="url(#silver-top)" />
-      <path d="M12 22a10 10 0 0 0 0-20 10 10 0 0 0 0 20z" fill="url(#silver-bottom)" />
-      <rect x="4" y="10.5" width="16" height="3" rx="0.5" fill="url(#silver-band)" stroke="#404040" strokeWidth="0.5" />
-      <circle cx="12" cy="12" r="3" fill="url(#center-highlight)" stroke="#505050" strokeWidth="0.8" />
-      <circle cx="12" cy="12" r="1.2" fill="#383838" />
-    </svg>
-  );
-}
 
 const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; iconSize: number }[] = [
   { to: "/", label: "Accueil", Icon: Home, iconSize: ICON_SIZE },
@@ -73,14 +34,28 @@ export const BottomNavLayout = () => {
   const { signOut } = useClerk();
   const { user } = useUser();
   const { theme } = useTheme();
+  const { isPremium } = usePremium();
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
-  const headerBrandColor = theme === "light" ? "#000000" : "#ffffff";
+  const isLight = theme === "light";
+  const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
+  const badgeTextColor = isLight ? "#8B6914" : "#FBBF24";
+  const badgeBgTint = isLight ? "rgba(184, 134, 11, 0.12)" : "rgba(212, 167, 87, 0.18)";
+  const badgeShadow = isLight ? "0 0 0 1px rgba(139, 105, 20, 0.25)" : "0 0 0 1px rgba(0,0,0,0.4)";
+  const ballTopHalf = isLight ? "#ffffff" : "#1a1a1a";
+  const ballGold = badgeTextColor;
+  const ballGoldGlow = isLight ? "0 0 4px rgba(139, 105, 20, 0.5)" : "0 0 4px rgba(251, 191, 36, 0.5)";
 
   const isOnTabRoute = TAB_PATHS.some(
     (p) => p === "/" ? location.pathname === "/" : location.pathname === p
   );
+
+  const activeTabIndex = navItems.findIndex((item) =>
+    item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to)
+  );
+  const pillIndex = activeTabIndex >= 0 ? activeTabIndex : 0;
 
   const goToTab = useCallback(
     (direction: "prev" | "next") => {
@@ -137,6 +112,12 @@ export const BottomNavLayout = () => {
     [isOnTabRoute, goToTab]
   );
 
+  useEffect(() => {
+    if (!clickedTab) return;
+    const id = setTimeout(() => setClickedTab(null), 1000);
+    return () => clearTimeout(id);
+  }, [clickedTab]);
+
   return (
     <div style={{ position: "relative", minHeight: "100vh", background: "var(--bg-app)", color: "var(--text-secondary)" }}>
       <main
@@ -174,23 +155,58 @@ export const BottomNavLayout = () => {
                 flexShrink: 0,
               }}
             >
-              <h1
-                className="app-heading"
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 900,
-                  fontFamily: '"Inter", "Impact", "Anton", system-ui, sans-serif',
-                  letterSpacing: "-0.02em",
-                  textTransform: "uppercase",
-                  color: headerBrandColor,
-                  margin: 0,
-                  lineHeight: 1.1,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                GIOVANNI COLLECTION
-              </h1>
-              <PokeballLogoSilver size={26} />
+              {isPremium ? (
+                <button
+                  type="button"
+                  onClick={() => navigate("/mon-abonnement")}
+                  style={{
+                    border: `1px solid ${badgeBorder}`,
+                    borderRadius: 9999,
+                    padding: "6px 10px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    background: `radial-gradient(circle at 0 0, ${badgeBgTint}, transparent 55%), var(--card-color)`,
+                    boxShadow: badgeShadow,
+                    cursor: "pointer",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: 16,
+                      height: 16,
+                      borderRadius: "50%",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      border: `1.5px solid ${ballGold}`,
+                      boxShadow: ballGoldGlow,
+                      backgroundImage: `
+                        radial-gradient(circle at 50% 50%, ${ballGold} 0%, ${ballGold} 1.5px, transparent 1.5px),
+                        linear-gradient(180deg, transparent 49%, ${ballGold} 49%, ${ballGold} 51%, transparent 51%),
+                        linear-gradient(180deg, ${ballTopHalf} 0%, ${ballTopHalf} 50%, transparent 50%),
+                        linear-gradient(180deg, transparent 50%, ${ballGold} 50%, ${ballGold} 100%)
+                      `,
+                      backgroundSize: "100% 100%, 100% 100%, 100% 100%, 100% 100%",
+                      backgroundPosition: "0 0, 0 0, 0 0, 0 0",
+                      backgroundRepeat: "no-repeat",
+                    }}
+                    aria-hidden
+                  />
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      color: badgeTextColor,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Boss Access
+                  </span>
+                </button>
+              ) : null}
             </div>
             <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
             <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
@@ -246,7 +262,7 @@ export const BottomNavLayout = () => {
                     style={{
                       padding: "6px 12px",
                       borderRadius: "9999px",
-                      background: "#D4A757",
+                      background: isLight ? "#D4A757" : "#FBBF24",
                       color: "#000",
                       border: "none",
                       cursor: "pointer",
@@ -281,9 +297,6 @@ export const BottomNavLayout = () => {
               >
                 <Settings size={18} strokeWidth={2} />
               </button>
-              <span style={{ borderRadius: "9999px", background: "var(--bg-card)", padding: "2px 12px", fontSize: "11px", color: "var(--text-secondary)" }}>
-                Beta
-              </span>
             </div>
           </header>
           {location.pathname !== "/premium" &&
@@ -328,26 +341,50 @@ export const BottomNavLayout = () => {
       >
         <div
           style={{
+            position: "relative",
             display: "flex",
             justifyContent: "space-around",
             alignItems: "center",
             width: "100%",
             maxWidth: 480,
             padding: "0 8px",
+            paddingTop: 0,
+            marginTop: -8,
           }}
         >
+          {/* Sliding pill behind active tab */}
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              left: 0,
+              top: "50%",
+              width: `${100 / navItems.length}%`,
+              height: 40,
+              background: "rgba(128, 128, 128, 0.25)",
+              borderRadius: 12,
+              transform: `translateY(-50%) translateX(${pillIndex * 100}%)`,
+              transition: "transform 0.3s ease",
+              pointerEvents: "none",
+            }}
+          />
           {navItems.map((item) => {
             const isActive =
               item.to === "/"
                 ? location.pathname === "/"
                 : location.pathname.startsWith(item.to);
             const color = isActive ? "var(--text-primary)" : "var(--text-secondary)";
+            const isJustClicked = clickedTab === item.to;
 
             return (
               <button
                 key={item.to}
                 type="button"
-                onClick={() => navigate(item.to)}
+                onClick={() => {
+                  navigate(item.to);
+                  setClickedTab(null);
+                  requestAnimationFrame(() => setClickedTab(item.to));
+                }}
                 aria-current={isActive ? "page" : undefined}
                 style={{
                   flex: 1,
@@ -356,7 +393,10 @@ export const BottomNavLayout = () => {
                   alignItems: "center",
                   justifyContent: "center",
                   gap: 3,
-                  padding: "8px 10px",
+                  paddingTop: 1,
+                  paddingBottom: 4,
+                  paddingLeft: 10,
+                  paddingRight: 10,
                   minHeight: 40,
                   minWidth: 56,
                   color,
@@ -372,9 +412,14 @@ export const BottomNavLayout = () => {
                   transition: "color 120ms ease",
                 }}
               >
-                <item.Icon size={item.iconSize} color={color} strokeWidth={2} />
-                <span style={{ color }}>
-                  {item.label}
+                <span
+                  className={isJustClicked ? "nav-icon-pop" : undefined}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}
+                >
+                  <item.Icon size={item.iconSize} color={color} strokeWidth={2} />
+                  <span style={{ color }}>
+                    {item.label}
+                  </span>
                 </span>
               </button>
             );

@@ -109,6 +109,8 @@ export const HomePage = () => {
   const { items: collectionItems } = useCollection();
   const { theme } = useTheme();
   const isLight = theme === "light";
+  const isDark = theme === "dark";
+  const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, userProfile, refetchPremium } = usePremium();
   const { pathname } = useLocation();
   const { sales, refreshSales } = useSalesHistory();
@@ -117,6 +119,11 @@ export const HomePage = () => {
   );
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
+  const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
+  const triggerFilterPress = (key: string) => {
+    setPressedFilterKey(key);
+    setTimeout(() => setPressedFilterKey(null), 150);
+  };
 
   useEffect(() => {
     if (pathname === "/") {
@@ -365,14 +372,14 @@ export const HomePage = () => {
   }, [categoryFiltered, hasEraSubFilter, selectedEra]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 -mx-3">
       {/* Carte Portefeuille global */}
       <section
-        className="rounded-2xl px-4 py-3"
+        className="rounded-2xl px-2 py-3"
         style={{
           background: "var(--card-color)",
           boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-          ...(isLight && { border: "1px solid var(--border-color)", padding: 16, borderRadius: 12 }),
+          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
         }}
       >
         <div className="mb-2 flex items-center justify-between">
@@ -396,14 +403,14 @@ export const HomePage = () => {
           <button
             type="button"
             onClick={() => setChartPeriod("1an")}
-            style={chartPeriod === "1an" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '4px 16px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '4px 16px', border: '1px solid gray', fontSize: 13 }}
+            style={chartPeriod === "1an" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '4px 16px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '4px 16px', border: '1px solid gray', fontSize: 13 }}
           >
             1 an
           </button>
           <button
             type="button"
             onClick={() => setChartPeriod("2ans")}
-            style={chartPeriod === "2ans" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '4px 16px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '4px 16px', border: '1px solid gray', fontSize: 13 }}
+            style={chartPeriod === "2ans" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '4px 16px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '4px 16px', border: '1px solid gray', fontSize: 13 }}
           >
             2 ans
           </button>
@@ -557,7 +564,7 @@ export const HomePage = () => {
                         );
                       }}
                     />
-                    <Line type="monotone" dataKey="valeurMarche" name="Marché" stroke="#D4A757" strokeWidth={2} dot={false} connectNulls={true} />
+                    <Line type="monotone" dataKey="valeurMarche" name="Marché" stroke={accentGold} strokeWidth={2} dot={false} connectNulls={true} />
                     <Line type="monotone" dataKey="investissement" name="Investi" stroke="var(--text-primary)" strokeWidth={2} strokeDasharray="5 5" dot={false} connectNulls={true} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -590,7 +597,7 @@ export const HomePage = () => {
                     }}
                   >
                     <div style={{ marginBottom: 6 }}>
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#D4A757" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={accentGold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
@@ -610,7 +617,7 @@ export const HomePage = () => {
                         display: "inline-block",
                         padding: "6px 14px",
                         borderRadius: 9999,
-                        background: "#D4A757",
+                        background: accentGold,
                         color: "#000",
                         fontSize: 11,
                         fontWeight: 700,
@@ -648,7 +655,7 @@ export const HomePage = () => {
             }}
           >
             <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Valeur marché</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: "var(--accent-yellow)" }}>
+            <p className="mt-1 text-sm font-semibold" style={{ color: accentGold }}>
               {portfolio.totalMarche.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
             </p>
           </div>
@@ -697,31 +704,39 @@ export const HomePage = () => {
       </section>
 
       <div>
-        <p className="app-heading mb-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+        <p className="app-heading mb-2 text-xs pl-3" style={{ color: "var(--text-secondary)" }}>
           Catégories
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 pl-3">
           <button
+            type="button"
+            className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
+            onPointerDown={() => triggerFilterPress("cat-Tous")}
             onClick={() => handleCategoryChange("Tous")}
-            style={selectedCategory === "Tous" ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Tous" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             Tous
           </button>
           {categories.map((cat) => (
             <button
+              type="button"
               key={cat.key}
+              className={`filter-btn ${pressedFilterKey === `cat-${cat.key}` ? "filter-btn-press" : ""}`}
+              onPointerDown={() => triggerFilterPress(`cat-${cat.key}`)}
               onClick={() => handleCategoryChange(cat.key)}
-              style={selectedCategory === cat.key ? { backgroundColor: '#D4A757', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+              style={selectedCategory === cat.key ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
             >
               {cat.label}
             </button>
           ))}
         </div>
         {hasEraSubFilter && eras.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
+          <div className="mt-2 flex flex-wrap gap-1.5 pl-3">
             <button
+              type="button"
+              className={`filter-btn rounded-full font-bold shrink-0 ${pressedFilterKey === "era-null" ? "filter-btn-press" : ""}`}
+              onPointerDown={() => triggerFilterPress("era-null")}
               onClick={() => setSelectedEra(null)}
-              className="rounded-full font-bold transition shrink-0"
               style={{
                 fontSize: "11px",
                 padding: "4px 8px",
@@ -738,9 +753,11 @@ export const HomePage = () => {
               const { bg, color } = getEraStyle(era);
               return (
                 <button
+                  type="button"
                   key={era}
+                  className={`filter-btn rounded-full font-medium shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
+                  onPointerDown={() => triggerFilterPress(`era-${era}`)}
                   onClick={() => setSelectedEra(era)}
-                  className="rounded-full font-medium transition shrink-0"
                   style={{
                     fontSize: "10px",
                     padding: "2px 6px",
@@ -759,10 +776,10 @@ export const HomePage = () => {
       </div>
 
       <section className="space-y-2">
-        <h2 className="title-section" style={{ color: "var(--text-primary)" }}>
+        <h2 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
           Produits ({filtered.length})
         </h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           {categoryFiltered.map((product) => {
             const isVisible = !hasEraSubFilter || !selectedEra || product.set === selectedEra;
             const perfPct = product.change30dPercent;
@@ -868,7 +885,7 @@ export const HomePage = () => {
                 <div
                   className="mt-auto flex justify-between items-center shrink-0"
                 >
-                  <p className="text-sm font-semibold" style={{ color: "var(--accent-yellow)" }}>
+                  <p className="text-sm font-semibold" style={{ color: accentGold }}>
                     {product.currentPrice.toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",

@@ -152,6 +152,7 @@ app.post("/api/checkout", async (req, res) => {
       cancel_url: bodyCancelUrl,
       client_reference_id,
       plan,
+      priceId: bodyPriceId,
     } = req.body;
 
     const success_url = bodySuccessUrl || `${baseUrl}/success`;
@@ -159,11 +160,14 @@ app.post("/api/checkout", async (req, res) => {
       bodyCancelUrl || `${baseUrl}/premium?canceled=1`;
 
     const isAnnual = plan === "annual";
-    const priceId = isAnnual
-      ? process.env.STRIPE_ANNUAL_PRICE_ID
-      : process.env.STRIPE_MONTHLY_PRICE_ID;
+    const priceId =
+      bodyPriceId && String(bodyPriceId).trim()
+        ? String(bodyPriceId).trim()
+        : isAnnual
+          ? process.env.STRIPE_ANNUAL_PRICE_ID
+          : process.env.STRIPE_MONTHLY_PRICE_ID;
 
-    console.log("[checkout] plan:", plan, "isAnnual:", isAnnual, "priceId:", priceId);
+    console.log("[checkout] plan:", plan, "isAnnual:", isAnnual, "priceId:", priceId, "source:", bodyPriceId ? "frontend" : "server env");
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
