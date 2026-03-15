@@ -352,19 +352,19 @@ export const BottomNavLayout = () => {
             marginTop: -8,
           }}
         >
-          {/* Sliding pill behind active tab */}
+          {/* Sliding pill behind active tab — left-based for smooth slide on all tabs */}
           <div
             aria-hidden
             style={{
               position: "absolute",
-              left: 0,
+              left: `${(pillIndex / navItems.length) * 100}%`,
               top: "50%",
               width: `${100 / navItems.length}%`,
-              height: 40,
+              height: 52,
               background: "rgba(128, 128, 128, 0.25)",
               borderRadius: 12,
-              transform: `translateY(-50%) translateX(${pillIndex * 100}%)`,
-              transition: "transform 0.3s ease",
+              transform: "translateY(-50%)",
+              transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
               pointerEvents: "none",
             }}
           />
