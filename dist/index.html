@@ -1,25 +1,58 @@
 <!doctype html>
-<html lang="fr" class="dark">
+<html lang="fr">
   <head>
+    <script>
+      (function(){
+        var c='#111111';
+        document.documentElement.style.backgroundColor=c;
+      })();
+    </script>
+    <style>html, body, #root { background-color: #111111 !important; min-height: 100%; }</style>
+    <script>
+      (function(){
+        var t=localStorage.getItem("pokevault-theme");
+        var isDark=t!=="light";
+        var el=document.documentElement;
+        el.classList.remove("light","dark");
+        el.classList.add(isDark?"dark":"light");
+        var meta=document.querySelector('meta[name="theme-color"]');
+        if(meta) meta.setAttribute("content",isDark?"#0a0a0a":"#ffffff");
+      })();
+    </script>
     <meta charset="UTF-8" />
     <title>PokéVault</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
     />
-    <meta name="theme-color" content="#121212" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="PokéVault" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icon.png" />
     <link rel="apple-touch-icon" href="/icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <script type="module" crossorigin src="/assets/index-DYllfbfT.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-1CYww3pk.css">
+    <script type="module" crossorigin src="/assets/index-BYMBRFH6.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index--UngEQQv.css">
   </head>
   <body class="text-slate-50">
-    <div id="root"></div>
+    <script>document.body.style.backgroundColor='#111111';document.body.style.minHeight='100%';</script>
+    <div id="root"></div>
+    <script>
+      (function(){
+        function log(){
+          var body=document.body, root=document.getElementById('root');
+          var bodyBg=body?window.getComputedStyle(body).backgroundColor:'N/A';
+          var rootBg=root?window.getComputedStyle(root).backgroundColor:'N/A';
+          console.log('[PokéVault] body background:', bodyBg, '| #root background:', rootBg, '| expected: #111111 (rgb(17, 17, 17))');
+        }
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',log); else log();
+      })();
+    </script>
   </body>
   </html>
 

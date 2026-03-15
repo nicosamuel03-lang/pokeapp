@@ -33,8 +33,9 @@ export function SettingsPage() {
   const { user } = useUser();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
+  const isLight = theme === "light";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium } = usePremium();
+  const { isPremium, loading: premiumLoading } = usePremium();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelLinkHover, setCancelLinkHover] = useState(false);
@@ -100,56 +101,51 @@ export function SettingsPage() {
 
   return (
     <div
-      className="-mx-3"
+      className="space-y-4 -mx-3"
       style={{
         background: "var(--bg-app)",
         color: "var(--text-secondary)",
-        padding: "24px 0 120px 0",
+        padding: "16px 0 120px 0",
         maxWidth: 480,
         margin: "0 auto",
       }}
     >
-      <button
-        type="button"
-        onClick={() => navigate(-1)}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          marginBottom: 16,
-          fontSize: 13,
-          color: "var(--text-secondary)",
-          background: "transparent",
-          border: "none",
-          padding: 0,
-          cursor: "pointer",
-        }}
-      >
-        <ChevronLeft size={28} strokeWidth={1.5} />
-        <span>Retour</span>
-      </button>
-
-      <h1
-        className="title-section"
-        style={{
-          fontSize: "22px",
-          color: accentGold,
-          marginBottom: 24,
-          letterSpacing: "0.08em",
-          textAlign: "left",
-        }}
-      >
-        Paramètres
-      </h1>
-
       <div
         style={{
-          width: "100%",
-          margin: 0,
-          borderRadius: 16,
-          padding: "0 16px",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 24,
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 13,
+            color: "var(--text-secondary)",
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+          }}
+        >
+          <ChevronLeft size={28} strokeWidth={1.5} />
+        </button>
+        <h1 className="title-section" style={{ color: "var(--text-primary)", margin: 0 }}>
+          PARAMÈTRES
+        </h1>
+      </div>
+
+      <div
+        className="rounded-2xl px-2 py-3"
+        style={{
           background: "var(--card-color)",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
         }}
       >
         {/* COMPTE */}
@@ -210,8 +206,8 @@ export function SettingsPage() {
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <button
               type="button"
-              onClick={isPremium ? toggleTheme : undefined}
-              disabled={!isPremium}
+              onClick={premiumLoading ? undefined : isPremium ? toggleTheme : undefined}
+              disabled={premiumLoading || !isPremium}
               aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
               style={{
                 display: "flex",
@@ -223,14 +219,14 @@ export function SettingsPage() {
                 background: theme === "dark" ? "var(--bg-card-elevated)" : "#D4A757",
                 color: theme === "dark" ? "var(--text-secondary)" : "#111827",
                 border: "none",
-                cursor: isPremium ? "pointer" : "not-allowed",
+                cursor: premiumLoading || isPremium ? "pointer" : "not-allowed",
                 padding: 0,
-                opacity: isPremium ? 1 : 0.4,
+                opacity: premiumLoading || isPremium ? 1 : 0.4,
               }}
             >
               {theme === "dark" ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
             </button>
-            {!isPremium && (
+            {!premiumLoading && !isPremium && (
               <Lock size={14} color="var(--text-secondary)" aria-hidden />
             )}
           </div>
@@ -248,7 +244,11 @@ export function SettingsPage() {
             justifyContent: "space-between",
           }}
         >
-          {isPremium ? (
+          {premiumLoading ? (
+            <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>
+              Chargement…
+            </span>
+          ) : isPremium ? (
             <>
               <p
                 style={{

@@ -79,9 +79,10 @@ const ProductDetailPageInner = () => {
   const { products } = useProducts();
   const { items: collectionItems, removeFromCollection } = useCollection();
   const { user } = useUser();
-  const { isPremium, refetchPremium } = usePremium();
+  const { isPremium, loading: premiumLoading, refetchPremium } = usePremium();
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const isLight = theme === "light";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { addSaleRecord, refreshSales } = useSalesHistory();
   const [isSelling, setIsSelling] = useState(false);
@@ -341,8 +342,8 @@ const ProductDetailPageInner = () => {
     const totalQuantity = collectionMatch.quantity;
     const userId = user?.id ?? null;
 
-    // Premium users bypass the 10-sale limit
-    if (!isPremium && userId) {
+    // Premium users bypass the 10-sale limit; skip check while subscription status is loading
+    if (!premiumLoading && !isPremium && userId) {
       const { data: userRow, error } = await supabase
         .from("users")
         .select("total_sales_count")
@@ -398,7 +399,7 @@ const ProductDetailPageInner = () => {
           console.error("SUPABASE_ERROR:", insertError);
           return;
         }
-        if (!isPremium) {
+        if (!premiumLoading && !isPremium) {
           const nextTotal = (window as any).__pokevault_next_total_sales_count__;
           if (typeof nextTotal === "number") {
             const { error: updateErr } = await supabase
@@ -449,7 +450,7 @@ const ProductDetailPageInner = () => {
   };
 
   return (
-    <div className="relative space-y-4">
+    <div className="relative space-y-4 -mx-3">
       <button
         type="button"
         onClick={() => {
@@ -462,86 +463,119 @@ const ProductDetailPageInner = () => {
       >
         <ChevronLeft size={28} strokeWidth={1.5} />
       </button>
-      <section
-        className="rounded-2xl p-4"
-        style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+      <div
+        className="rounded-2xl px-2 py-3"
+        style={{
+          background: "var(--card-color)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
+        }}
       >
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div
-              className="flex shrink-0 items-center justify-center overflow-hidden"
-              style={{
-                width: 72,
-                height: 72,
-                minHeight: 72,
-                background: "var(--img-container-bg)",
-                borderRadius: "10px",
-                padding: "8px",
-              }}
-            >
-              <ItemIcon
-                imageUrl={product.imageUrl}
-                emoji={product.emoji}
-                name={product.name}
-                size={56}
-                frame="none"
-              />
+        <div style={{ paddingLeft: 12 }}>
+          <div className="mb-2 flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl p-3"
+                style={{
+                  width: 154,
+                  height: 154,
+                  minWidth: 154,
+                  minHeight: 154,
+                  background: "var(--img-container-bg)",
+                  boxSizing: "border-box",
+                }}
+              >
+                {product.imageUrl ? (
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    width={130}
+                    height={130}
+                    className="object-contain"
+                    style={{ objectFit: "contain" }}
+                    loading="eager"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
+                      if (fallback) fallback.style.display = "flex";
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="flex items-center justify-center"
+                  style={{
+                    display: product.imageUrl ? "none" : "flex",
+                    width: 130,
+                    height: 130,
+                  }}
+                >
+                  <ItemIcon
+                    imageUrl={null}
+                    emoji={product.emoji}
+                    name={product.name}
+                    size={130}
+                    frame="none"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1 min-w-0 flex-1">
+                <h2 className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>
+                  {product.name}
+                </h2>
+                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                  {product?.set ?? ""}
+                </p>
+                <p className="text-[11px] uppercase tracking-wide mt-2 mb-0" style={{ color: "var(--text-secondary)" }}>
+                  Prix actuel
+                </p>
+                <p className="text-2xl font-semibold mt-0" style={{ color: accentGold }}>
+                  {prixMarche.toLocaleString("fr-FR", {
+                    style: "currency",
+                    currency: "EUR",
+                    maximumFractionDigits: 0
+                  })}
+                </p>
+                {isInCollection && (
+                  <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
+                    Achat{" "}
+                    <span className="font-medium" style={{ color: "var(--text-primary)" }}>
+                      {prixAchat.toLocaleString("fr-FR", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0
+                      })}
+                    </span>{" "}
+                    • ×{quantite}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="space-y-1">
-              <h2 className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>
-                {product.name}
-              </h2>
-              <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                {product?.set ?? ""}
-              </p>
-            </div>
-          </div>
-          {hasSale && (
-            <span className="mt-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide" style={{ color: "var(--gain-green)", background: "rgba(34,197,94,0.15)" }}>
-              Vendu
-            </span>
-          )}
-        </div>
-        <div className="mt-2 flex items-end justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
-              Prix actuel
-            </p>
-            <p className="text-2xl font-semibold" style={{ color: accentGold }}>
-              {prixMarche.toLocaleString("fr-FR", {
-                style: "currency",
-                currency: "EUR",
-                maximumFractionDigits: 0
-              })}
-            </p>
-            {isInCollection && (
-  <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-    Achat{" "}
-    <span className="font-medium" style={{ color: "var(--text-primary)" }}>
-      {prixAchat.toLocaleString("fr-FR", {
-        style: "currency",
-        currency: "EUR",
-        maximumFractionDigits: 0
-      })}
-    </span>{" "}
-    • ×{quantite}
-  </p>
-)}
+            {hasSale && (
+              <span className="mt-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wide shrink-0" style={{ color: "var(--gain-green)", background: "rgba(34,197,94,0.15)" }}>
+                Vendu
+              </span>
+            )}
           </div>
         </div>
-      </section>
+      </div>
 
-      <section
-        className="space-y-3 rounded-2xl p-4"
-        style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+      <div
+        className="rounded-2xl px-2 py-3"
+        style={{
+          background: "var(--card-color)",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
+        }}
       >
-        <h3 className="app-heading mb-1 text-sm" style={{ color: "var(--text-primary)" }}>
-          Historique de prix & vente
-        </h3>
-        <div className="flex gap-2">
-          <button
+        <div className="space-y-3">
+          <div style={{ paddingLeft: 12 }}>
+            <h3 className="app-heading mb-1 text-sm" style={{ color: "var(--text-primary)" }}>
+              Historique de prix & vente
+            </h3>
+            <div className="flex gap-2">
+              <button
             type="button"
-            onClick={isPremium ? () => setChartPeriod("1an") : undefined}
+            onClick={!premiumLoading && isPremium ? () => setChartPeriod("1an") : undefined}
             className="text-xs font-medium transition"
             style={{
               background: chartPeriod === "1an" ? accentGold : "var(--input-bg)",
@@ -550,14 +584,14 @@ const ProductDetailPageInner = () => {
               borderRadius: 20,
               padding: "4px 12px",
               fontWeight: chartPeriod === "1an" ? "bold" : "normal",
-              ...(!isPremium && { pointerEvents: "none", opacity: 0.4 }),
+              ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
             }}
           >
             1 an
           </button>
           <button
             type="button"
-            onClick={isPremium ? () => setChartPeriod("2ans") : undefined}
+            onClick={!premiumLoading && isPremium ? () => setChartPeriod("2ans") : undefined}
             className="text-xs font-medium transition"
             style={{
               background: chartPeriod === "2ans" ? accentGold : "var(--input-bg)",
@@ -566,16 +600,17 @@ const ProductDetailPageInner = () => {
               borderRadius: 20,
               padding: "4px 12px",
               fontWeight: chartPeriod === "2ans" ? "bold" : "normal",
-              ...(!isPremium && { pointerEvents: "none", opacity: 0.4 }),
+              ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
             }}
           >
             2 ans
           </button>
-        </div>
-        <div style={{ position: "relative" }}>
+            </div>
+          </div>
+          <div style={{ position: "relative" }}>
           <div
             style={
-              isPremium
+              premiumLoading || isPremium
                 ? {}
                 : {
                     filter: "blur(4px)",
@@ -612,7 +647,7 @@ const ProductDetailPageInner = () => {
               <div style={{ position: "relative", zIndex: 1, height: "100%" }}>
               <ResponsiveContainer width="100%" height="100%">
               <AreaChart
-                data={isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA}
+                data={!premiumLoading && isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA}
                 margin={{ top: 12, right: 8, left: 4, bottom: 8 }}
               >
                 <defs>
@@ -722,7 +757,7 @@ const ProductDetailPageInner = () => {
               </div>
             )}
           </div>
-          {!isPremium && (
+          {!premiumLoading && !isPremium && (
             <div
               style={{
                 position: "absolute",
@@ -888,7 +923,8 @@ const ProductDetailPageInner = () => {
             </button>
           </div>
         )}
-      </section>
+        </div>
+      </div>
 
     </div>
   );

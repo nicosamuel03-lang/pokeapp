@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { useUser } from "@clerk/react";
+import { useAuth, useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 import { useTheme } from "./ThemeContext";
 
@@ -72,13 +72,17 @@ async function fetchUserProfile(userId: string): Promise<UserProfile> {
 }
 
 export function PremiumProvider({ children }: { children: React.ReactNode }) {
+  const { isLoaded: isAuthLoaded } = useAuth();
   const { user } = useUser();
   const location = useLocation();
   const [userProfile, setUserProfile] = useState<UserProfile>(null);
-  const [loading, setLoading] = useState(true);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
   const [refetchCount, setRefetchCount] = useState(0);
 
-  console.log("[PremiumContext] Clerk user.id =", user?.id);
+  // Subscription is "loading" until Clerk has loaded AND we have resolved premium status (fetch done or no user).
+  const loading = !isAuthLoaded || subscriptionLoading;
+
+  console.log("[PremiumContext] Clerk user.id =", user?.id, "isAuthLoaded =", isAuthLoaded);
 
   const isPremium = userProfile?.is_premium === true;
   const { theme, toggleTheme } = useTheme();
@@ -94,24 +98,27 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
     setRefetchCount((c) => c + 1);
   }, []);
 
-  // Forcer le thème clair pour les utilisateurs non premium, même si une préférence sombre était sauvegardée.
+  // Forcer le thème clair pour les utilisateurs non premium, une fois le statut abonnement résolu (évite le flash au chargement).
   useEffect(() => {
-    if (!isPremium && theme === "dark") {
+    if (!loading && !isPremium && theme === "dark") {
       toggleTheme();
     }
-  }, [isPremium, theme, toggleTheme]);
+  }, [loading, isPremium, theme, toggleTheme]);
 
   useEffect(() => {
+    // Do not resolve subscription state until Clerk has finished loading (avoids flash when user is defined after a tick).
+    if (!isAuthLoaded) return;
+
     const userId = user?.id ?? null;
     console.log("Fetching for ID:", userId);
     if (!userId) {
       setUserProfile({ is_premium: false, total_sales_count: 0 });
-      setLoading(false);
+      setSubscriptionLoading(false);
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
+    setSubscriptionLoading(true);
 
     fetchUserProfile(userId)
       .then((profile) => {
@@ -141,13 +148,13 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
         setUserProfile(safeProfile);
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setSubscriptionLoading(false);
       });
 
     return () => {
       cancelled = true;
     };
-  }, [user?.id, location.pathname, refetchCount]);
+  }, [isAuthLoaded, user?.id, location.pathname, refetchCount]);
 
   // Realtime subscription on users table to keep premium status fresh
   useEffect(() => {

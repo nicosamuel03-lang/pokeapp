@@ -50,7 +50,7 @@ const TRANSITION_DURATION_MS = 2000;
 
 const TOTAL_SLOTS = NEWS_ITEMS.length + 1; // items + clone of first
 const CARD_SLOT_WIDTH = 100 / TOTAL_SLOTS;
-const CAROUSEL_HEIGHT = 180;
+const CAROUSEL_HEIGHT = "min(160px, 40vw)";
 
 const getCardBase = (): React.CSSProperties => ({
   flex: `0 0 ${CARD_SLOT_WIDTH}%`,

@@ -21,7 +21,7 @@ export const HistoriquePage = () => {
   const isLight = theme === "light";
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, userProfile } = usePremium();
+  const { isPremium, loading: premiumLoading, userProfile } = usePremium();
   const {
     sales,
     updateSaleRecord,
@@ -104,8 +104,12 @@ export const HistoriquePage = () => {
 
       {sales.length === 0 ? (
         <section
-          className="rounded-2xl p-6 text-center"
-          style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+          className="rounded-2xl px-2 py-3 text-center"
+          style={{
+            background: "var(--card-color)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+            ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
+          }}
         >
           <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
             Aucune vente enregistrée pour le moment.
@@ -116,7 +120,7 @@ export const HistoriquePage = () => {
         </section>
       ) : (
         <>
-          {!isPremium && (
+          {!premiumLoading && !isPremium && (
             <section
               className="rounded-2xl p-3 space-y-2"
               style={{
@@ -254,7 +258,7 @@ export const HistoriquePage = () => {
               Détail des ventes ({sortedSales.length})
             </h3>
             <div className="space-y-3">
-              {(isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
+              {(premiumLoading || isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
                 const investi = sale.buyPrice * sale.quantity;
                 const perfPct = investi > 0 ? (sale.profit / investi) * 100 : 0;
                 const imageUrl = sale.image ?? sale.imageUrl ?? null;
@@ -381,7 +385,7 @@ export const HistoriquePage = () => {
                   </div>
                 );
               })}
-              {!isPremium && sortedSales.length > 5 && (
+              {!premiumLoading && !isPremium && sortedSales.length > 5 && (
                 <div style={{ position: "relative", marginTop: 8 }}>
                   <div
                     style={{

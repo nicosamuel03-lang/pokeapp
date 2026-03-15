@@ -65,7 +65,7 @@ export const CollectionPage = () => {
   const { theme } = useTheme();
   const isLight = theme === "light";
   const isDark = theme === "dark";
-  const accentGold = isDark ? "#FBBF24" : "accentGold";
+  const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, loading: premiumLoading } = usePremium();
   const { items, removeFromCollection, updateCollectionItem } = useCollection();
   const { pathname } = useLocation();
@@ -199,7 +199,7 @@ export const CollectionPage = () => {
             }}
           >
             <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Valeur actuelle</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: "accentGold" }}>
+            <p className="mt-1 text-sm font-semibold" style={{ color: accentGold }}>
               {totalValue.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
             </p>
           </div>
@@ -275,7 +275,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Tous")}
             onClick={() => handleCategoryChange("Tous")}
-            style={selectedCategory === "Tous" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Tous" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             Tous
           </button>
@@ -284,7 +284,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Displays" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Displays")}
             onClick={() => handleCategoryChange("Displays")}
-            style={selectedCategory === "Displays" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Displays" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             Displays
           </button>
@@ -293,7 +293,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-ETB" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-ETB")}
             onClick={() => handleCategoryChange("ETB")}
-            style={selectedCategory === "ETB" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "ETB" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             ETB
           </button>
@@ -302,7 +302,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-UPC" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-UPC")}
             onClick={() => handleCategoryChange("UPC")}
-            style={selectedCategory === "UPC" ? { backgroundColor: 'accentGold', color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "UPC" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
           >
             UPC
           </button>
@@ -359,7 +359,7 @@ export const CollectionPage = () => {
           style={{
             background: "var(--card-color)",
             boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-            border: "1px solid accentGold",
+            border: `1px solid ${accentGold}`,
           }}
         >
           <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
@@ -370,7 +370,7 @@ export const CollectionPage = () => {
             onClick={() => navigate("/premium")}
             className="rounded-2xl py-2.5 px-4 text-sm font-bold w-full"
             style={{
-              background: "accentGold",
+              background: accentGold,
               color: "#000",
               border: "none",
               cursor: "pointer",
@@ -518,7 +518,7 @@ export const CollectionPage = () => {
                   <p className="flex items-center gap-1 text-[10px]" style={{ color: "var(--text-secondary)" }}>
                     <span>
                       Achat{" "}
-                      <span className="font-medium" style={{ color: "accentGold" }}>
+                      <span className="font-medium" style={{ color: accentGold }}>
                         {item.buyPrice.toLocaleString("fr-FR", {
                           style: "currency",
                           currency: "EUR",
@@ -532,7 +532,7 @@ export const CollectionPage = () => {
                   </p>
                   <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
                     Actuel{" "}
-                    <span className="font-medium" style={{ color: "accentGold" }}>
+                    <span className="font-medium" style={{ color: accentGold }}>
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </span>
                   </p>
@@ -553,7 +553,7 @@ export const CollectionPage = () => {
                     bottom: "12px",
                     right: "12px",
                     background: "rgba(250,204,21,0.12)",
-                    color: "accentGold",
+                    color: accentGold,
                     borderColor: "rgba(250,204,21,0.5)",
                     zIndex: 10,
                   }}
@@ -620,7 +620,7 @@ export const CollectionPage = () => {
                       setConfirmId(null);
                     }}
                     className="flex-1 rounded-2xl py-1.5 text-xs font-semibold"
-                    style={{ background: "var(--input-bg)", color: "accentGold", border: "1px solid accentGold" }}
+                    style={{ background: "var(--input-bg)", color: accentGold, border: `1px solid ${accentGold}` }}
                   >
                     Retirer 1
                   </button>

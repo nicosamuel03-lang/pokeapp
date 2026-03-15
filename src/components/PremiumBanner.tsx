@@ -4,12 +4,12 @@ import { useTheme } from "../state/ThemeContext";
 
 export function PremiumBanner() {
   const navigate = useNavigate();
-  const { isPremium } = usePremium();
+  const { isPremium, loading: premiumLoading } = usePremium();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const buttonBg = theme === "dark" ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)";
 
-  if (isPremium) {
+  if (premiumLoading || isPremium) {
     return null;
   }
 

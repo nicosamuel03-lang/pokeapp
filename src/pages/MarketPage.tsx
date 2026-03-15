@@ -76,8 +76,8 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
     return (
       <Link
         to={`/produit/${product.id}`}
-        className="flex rounded-2xl p-5 transition hover:opacity-95 w-full"
-        style={cardStyle}
+        className="flex rounded-2xl transition hover:opacity-95"
+        style={{ width: "100%", margin: 0, padding: "0 4px", ...cardStyle }}
       >
         <div className="flex flex-row items-center gap-4 w-full min-w-0">
           <span
@@ -141,8 +141,8 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
   return (
     <Link
       to={`/produit/${product.id}`}
-      className="flex flex-row items-center gap-3 w-full rounded-xl py-3 px-4 transition hover:opacity-95"
-      style={cardStyle}
+      className="flex flex-row items-center gap-3 rounded-xl transition hover:opacity-95"
+      style={{ width: "100%", margin: 0, padding: "0 4px", ...cardStyle }}
     >
       <span
         className="shrink-0 text-sm font-extrabold w-8 flex items-center justify-center"
@@ -198,9 +198,9 @@ function RankingSection({ products }: { products: MarketProduct[] }) {
   const rest = safeProducts.slice(3);
 
   return (
-    <section className="space-y-4">
+    <section style={{ width: "100%", padding: 0 }}>
       {top3.length > 0 && (
-        <div className="flex flex-col gap-4">
+        <div style={{ width: "100%", padding: 0, display: "flex", flexDirection: "column", gap: 16 }}>
           {top3.map((product, i) => (
             <ProductCard
               key={`top3-${product.id}`}
@@ -214,7 +214,7 @@ function RankingSection({ products }: { products: MarketProduct[] }) {
       )}
 
       {rest.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div style={{ width: "100%", padding: 0, display: "flex", flexDirection: "column", gap: 8, marginTop: top3.length > 0 ? 16 : 0 }}>
           {rest.map((product, i) => (
             <ProductCard
               key={product.id}
@@ -228,7 +228,7 @@ function RankingSection({ products }: { products: MarketProduct[] }) {
       )}
 
       {top3.length === 0 && rest.length === 0 && (
-        <p className="text-xs py-4" style={{ color: "var(--text-secondary)" }}>Aucun produit dans cette catégorie.</p>
+        <p className="text-xs" style={{ color: "var(--text-secondary)", padding: "16px 0", margin: 0 }}>Aucun produit dans cette catégorie.</p>
       )}
     </section>
   );
@@ -284,7 +284,7 @@ export const MarketPage = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium } = usePremium();
+  const { isPremium, loading: premiumLoading } = usePremium();
   const [mainTab, setMainTab] = useState<MainTab>("etb");
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   const triggerFilterPress = (key: string) => {
@@ -326,7 +326,7 @@ export const MarketPage = () => {
       <div
         className="space-y-6"
         style={
-          isPremium
+          premiumLoading || isPremium
             ? {}
             : {
                 filter: "blur(20px) brightness(0.4)",
@@ -352,11 +352,13 @@ export const MarketPage = () => {
 
         <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
           <div
-            className="flex items-center justify-center gap-2 rounded-full px-6 py-3 w-fit"
+            className="flex items-center justify-center gap-1.5 rounded-full w-fit"
             style={{
+              padding: "6px 16px",
               background: isDark ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
               color: "#FFFFFF",
               fontWeight: 700,
+              fontSize: 12,
               textTransform: "uppercase",
               letterSpacing: "0.05em",
               boxShadow: "0 2px 4px rgba(212, 167, 87, 0.2)",
@@ -366,7 +368,7 @@ export const MarketPage = () => {
               transform: "translateZ(0)",
             }}
           >
-            <TrendingUp size={18} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
+            <TrendingUp size={14} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
             <span>Top de la semaine !</span>
           </div>
         </div>
@@ -401,12 +403,12 @@ export const MarketPage = () => {
           </button>
         </div>
 
-        <div style={{ marginTop: 18 }}>
+        <div className="space-y-4 -mx-3" style={{ marginTop: 18 }}>
           <RankingSection key={mainTab} products={productsToShow} />
         </div>
       </div>
 
-      {!isPremium && (
+      {!premiumLoading && !isPremium && (
         <div
           style={{
             position: "fixed",

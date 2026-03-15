@@ -288,7 +288,7 @@ export const SearchCatalogue = () => {
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const { addProduct } = useProducts();
   const { items, addToCollection } = useCollection();
-  const { isPremium } = usePremium();
+  const { isPremium, loading: premiumLoading } = usePremium();
 
   const totalQuantity = useMemo(
     () => items.reduce((sum, it) => sum + it.quantity, 0),
@@ -339,7 +339,7 @@ export const SearchCatalogue = () => {
   }, [query]);
 
   const handleAdd = (item: PokemonCatalogueItem, buyPrice: number, qty: number, purchaseDate?: string) => {
-    if (!isPremium && totalQuantity + qty > FREE_COLLECTION_LIMIT) {
+    if (!premiumLoading && !isPremium && totalQuantity + qty > FREE_COLLECTION_LIMIT) {
       navigate("/premium");
       return;
     }

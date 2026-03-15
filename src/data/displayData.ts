@@ -12,7 +12,7 @@ export interface DisplayHistoriquePrixPoint {
 export interface DisplayDataItem {
   id: string;
   name: string;
-  category: "Displays" | "ETB" | "UPC";
+  category: "Displays" | "ETB";
   block: string;
   releaseDate: string;
   msrp: number;

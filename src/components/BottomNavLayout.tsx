@@ -27,17 +27,105 @@ const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: 
 
 const TAB_PATHS = ["/", "/collection", "/ajouter", "/marche", "/historique"] as const;
 
+const AUTH_STATE_KEY = "pokevault_header_auth";
+
+export type PersistedAuthState = {
+  isSignedIn: boolean;
+  isPremium: boolean;
+  hasAvatar: boolean;
+  avatarInitial: string;
+  avatarImageUrl: string;
+};
+
+function getPersistedAuthState(): PersistedAuthState {
+  try {
+    const raw = typeof window !== "undefined" ? window.localStorage.getItem(AUTH_STATE_KEY) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw) as {
+        isSignedIn?: boolean;
+        isPremium?: boolean;
+        hasAvatar?: boolean;
+        avatarInitial?: string;
+        avatarImageUrl?: string;
+      };
+      if (typeof parsed.isSignedIn === "boolean" && typeof parsed.isPremium === "boolean") {
+        const avatarImageUrl =
+          typeof parsed.avatarImageUrl === "string" && parsed.avatarImageUrl.length > 0 && parsed.avatarImageUrl.startsWith("http")
+            ? parsed.avatarImageUrl
+            : "";
+        return {
+          isSignedIn: parsed.isSignedIn,
+          isPremium: parsed.isPremium,
+          hasAvatar: typeof parsed.hasAvatar === "boolean" ? parsed.hasAvatar : false,
+          avatarInitial:
+            typeof parsed.avatarInitial === "string" && parsed.avatarInitial.length <= 2
+              ? parsed.avatarInitial
+              : "",
+          avatarImageUrl,
+        };
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return { isSignedIn: false, isPremium: false, hasAvatar: false, avatarInitial: "", avatarImageUrl: "" };
+}
+
+function persistAuthState(state: PersistedAuthState) {
+  try {
+    window.localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
+}
+
 export const BottomNavLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded: isAuthLoaded } = useAuth();
   const { signOut } = useClerk();
   const { user } = useUser();
   const { theme } = useTheme();
-  const { isPremium } = usePremium();
+  const { isPremium, loading: premiumLoading } = usePremium();
+  const [lastKnownAuth, setLastKnownAuth] = useState(getPersistedAuthState);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  // Use persisted state until Clerk + subscription have confirmed — avoids flash to logged-out/free UI on load.
+  const subscriptionResolved = isAuthLoaded && !premiumLoading;
+  const displaySignedIn = subscriptionResolved ? isSignedIn : lastKnownAuth.isSignedIn;
+  const displayPremium = subscriptionResolved ? isPremium : lastKnownAuth.isPremium;
+
+  useEffect(() => {
+    if (!subscriptionResolved) return;
+    if (!isSignedIn) {
+      const next: PersistedAuthState = {
+        isSignedIn: false,
+        isPremium,
+        hasAvatar: false,
+        avatarInitial: "",
+        avatarImageUrl: "",
+      };
+      setLastKnownAuth(next);
+      persistAuthState(next);
+      return;
+    }
+    const u = user as { imageUrl?: string; firstName?: string; emailAddresses?: { emailAddress?: string }[] } | null;
+    const imageUrl = typeof u?.imageUrl === "string" ? u.imageUrl : "";
+    const hasAvatar = !!imageUrl;
+    const avatarInitial =
+      u?.firstName?.[0] ?? u?.emailAddresses?.[0]?.emailAddress?.[0] ?? "";
+    const next: PersistedAuthState = {
+      isSignedIn,
+      isPremium,
+      hasAvatar,
+      avatarInitial: String(avatarInitial).toUpperCase().slice(0, 1) || "",
+      avatarImageUrl: imageUrl,
+    };
+    setLastKnownAuth(next);
+    persistAuthState(next);
+  }, [subscriptionResolved, isSignedIn, isPremium, user]);
 
   const isLight = theme === "light";
   const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
@@ -51,11 +139,6 @@ export const BottomNavLayout = () => {
   const isOnTabRoute = TAB_PATHS.some(
     (p) => p === "/" ? location.pathname === "/" : location.pathname === p
   );
-
-  const activeTabIndex = navItems.findIndex((item) =>
-    item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to)
-  );
-  const pillIndex = activeTabIndex >= 0 ? activeTabIndex : 0;
 
   const goToTab = useCallback(
     (direction: "prev" | "next") => {
@@ -155,7 +238,7 @@ export const BottomNavLayout = () => {
                 flexShrink: 0,
               }}
             >
-              {isPremium ? (
+              {displayPremium ? (
                 <button
                   type="button"
                   onClick={() => navigate("/mon-abonnement")}
@@ -209,8 +292,8 @@ export const BottomNavLayout = () => {
               ) : null}
             </div>
             <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-              {isSignedIn ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 36 }}>
+              {displaySignedIn ? (
                 <button
                   type="button"
                   onClick={() => signOut()}
@@ -229,30 +312,72 @@ export const BottomNavLayout = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {user?.imageUrl ? (
-                    <img
-                      src={user.imageUrl}
-                      alt=""
-                      style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", cursor: "pointer" }}
-                    />
-                  ) : (
-                    <span
-                      style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "50%",
-                        background: "var(--bg-card)",
-                        color: "var(--text-secondary)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 14,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? "?"}
-                    </span>
-                  )}
+                  {(() => {
+                    const clerkImageUrl = (user as { imageUrl?: string })?.imageUrl;
+                    const avatarSrc = typeof clerkImageUrl === "string" && clerkImageUrl
+                      ? clerkImageUrl
+                      : (lastKnownAuth.avatarImageUrl || "");
+                    if (avatarSrc) {
+                      return (
+                        <img
+                          src={avatarSrc}
+                          alt=""
+                          style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", cursor: "pointer" }}
+                        />
+                      );
+                    }
+                    if (subscriptionResolved) {
+                      return (
+                        <span
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: "50%",
+                            background: "var(--bg-card)",
+                            color: "var(--text-secondary)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 14,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {(user as { firstName?: string; emailAddresses?: { emailAddress?: string }[] })?.firstName?.[0] ??
+                            (user as { emailAddresses?: { emailAddress?: string }[] })?.emailAddresses?.[0]?.emailAddress?.[0] ??
+                            "?"}
+                        </span>
+                      );
+                    }
+                    return lastKnownAuth.hasAvatar || !lastKnownAuth.avatarInitial ? (
+                      <span
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          background: "var(--bg-card)",
+                          display: "block",
+                        }}
+                        aria-hidden
+                      />
+                    ) : (
+                      <span
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          background: "var(--bg-card)",
+                          color: "var(--text-secondary)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 14,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {lastKnownAuth.avatarInitial}
+                      </span>
+                    );
+                  })()}
                 </button>
               ) : (
                 <>
@@ -352,22 +477,6 @@ export const BottomNavLayout = () => {
             marginTop: -8,
           }}
         >
-          {/* Sliding pill behind active tab — left-based for smooth slide on all tabs */}
-          <div
-            aria-hidden
-            style={{
-              position: "absolute",
-              left: `${(pillIndex / navItems.length) * 100}%`,
-              top: "50%",
-              width: `${100 / navItems.length}%`,
-              height: 52,
-              background: "rgba(128, 128, 128, 0.25)",
-              borderRadius: 12,
-              transform: "translateY(-50%)",
-              transition: "left 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              pointerEvents: "none",
-            }}
-          />
           {navItems.map((item) => {
             const isActive =
               item.to === "/"

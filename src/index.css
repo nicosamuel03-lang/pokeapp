@@ -1,10 +1,19 @@
 @import "tailwindcss";
 
+/* Top/status bar area: theme-matched background (set in index.html + ThemeContext) */
+html,
+body,
+#root {
+  min-height: 100%;
+}
+html.light, html.light body, html.light #root { background-color: #ffffff; }
+html.dark, html.dark body, html.dark #root { background-color: #000000; }
+
 /* ========== THEME: CSS Custom Properties ========== */
 :root,
 .dark {
-  --bg-color: #111111;
-  --bg-app: #111111;
+  --bg-color: #000000;
+  --bg-app: #000000;
   --card-color: #1e1e1e;
   --bg-card: #1e1e1e;
   --bg-card-elevated: #252525;
@@ -26,8 +35,8 @@
 }
 
 .light {
-  --bg-color: #f5f5f5;
-  --bg-app: #f5f5f5;
+  --bg-color: #ffffff;
+  --bg-app: #ffffff;
   --card-color: #ffffff;
   --bg-card: #ffffff;
   --bg-card-elevated: #ffffff;
@@ -74,14 +83,16 @@
   transform: scale(0.95);
 }
 
-/* Base styles - use variables; html background extends into status bar / safe area */
+/* Base styles - use variables; html/body background extends into status bar / safe area */
 html {
   background: var(--bg-app);
+  min-height: 100%;
   min-height: 100vh;
   min-height: 100dvh;
 }
 body {
   margin: 0;
+  min-height: 100%;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--bg-app);
@@ -90,6 +101,8 @@ body {
 }
 
 #root {
+  background: var(--bg-app);
+  min-height: 100%;
   min-height: 100vh;
 }
 

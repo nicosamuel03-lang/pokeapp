@@ -111,7 +111,7 @@ export const HomePage = () => {
   const isLight = theme === "light";
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, userProfile, refetchPremium } = usePremium();
+  const { isPremium, loading: isLoadingSubscription, userProfile, refetchPremium } = usePremium();
   const { pathname } = useLocation();
   const { sales, refreshSales } = useSalesHistory();
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
@@ -528,9 +528,10 @@ export const HomePage = () => {
                 style={{
                   position: "relative",
                   zIndex: 1,
-                  ...(userProfile?.is_premium ||
-                  (typeof window !== "undefined" &&
-                    window.localStorage.getItem("force_premium") === "true")
+                  ...(isLoadingSubscription ||
+                    userProfile?.is_premium ||
+                    (typeof window !== "undefined" &&
+                      window.localStorage.getItem("force_premium") === "true")
                     ? {}
                     : {
                         filter: "blur(12px) brightness(0.6)",
@@ -569,11 +570,12 @@ export const HomePage = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              {!(
-                userProfile?.is_premium ||
-                (typeof window !== "undefined" &&
-                  window.localStorage.getItem("force_premium") === "true")
-              ) && (
+              {!isLoadingSubscription &&
+                !(
+                  userProfile?.is_premium ||
+                  (typeof window !== "undefined" &&
+                    window.localStorage.getItem("force_premium") === "true")
+                ) && (
                 <div
                   style={{
                     position: "absolute",
@@ -776,9 +778,6 @@ export const HomePage = () => {
       </div>
 
       <section className="space-y-2">
-        <h2 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
-          Produits ({filtered.length})
-        </h2>
         <div className="grid grid-cols-2 gap-2">
           {categoryFiltered.map((product) => {
             const isVisible = !hasEraSubFilter || !selectedEra || product.set === selectedEra;
