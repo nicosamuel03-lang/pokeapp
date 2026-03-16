@@ -132,10 +132,6 @@ export const HomePage = () => {
   }, [pathname, refreshSales]);
 
   useEffect(() => {
-    if (pathname === "/") refetchPremium();
-  }, [pathname, refetchPremium]);
-
-  useEffect(() => {
     try {
       const returnTo = sessionStorage.getItem("returnTo");
       if (returnTo !== "/") return;

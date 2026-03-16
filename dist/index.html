@@ -1,13 +1,14 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <script>
-      (function(){
-        var c='#111111';
-        document.documentElement.style.backgroundColor=c;
-      })();
-    </script>
-    <style>html, body, #root { background-color: #111111 !important; min-height: 100%; }</style>
+    <meta charset="UTF-8" />
+    <title>PokéVault</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
     <script>
       (function(){
         var t=localStorage.getItem("pokevault-theme");
@@ -15,17 +16,11 @@
         var el=document.documentElement;
         el.classList.remove("light","dark");
         el.classList.add(isDark?"dark":"light");
-        var meta=document.querySelector('meta[name="theme-color"]');
-        if(meta) meta.setAttribute("content",isDark?"#0a0a0a":"#ffffff");
+        document.documentElement.style.backgroundColor=isDark?"#000000":"#ffffff";
+        document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute("content",isDark?"#000000":"#ffffff"); });
       })();
     </script>
-    <meta charset="UTF-8" />
-    <title>PokéVault</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    />
-    <meta name="theme-color" content="#0a0a0a" />
+    <style>html.light, html.light body, html.light #root { background-color: #ffffff !important; min-height: 100%; } html.dark, html.dark body, html.dark #root { background-color: #000000 !important; min-height: 100%; }</style>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -36,23 +31,11 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icon.png" />
     <link rel="apple-touch-icon" href="/icon.png" />
     <link rel="manifest" href="/manifest.json" />
-    <script type="module" crossorigin src="/assets/index-BYMBRFH6.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index--UngEQQv.css">
+    <script type="module" crossorigin src="/assets/index-DqOkITaP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CjVSiux5.css">
   </head>
   <body class="text-slate-50">
-    <script>document.body.style.backgroundColor='#111111';document.body.style.minHeight='100%';</script>
-    <div id="root"></div>
-    <script>
-      (function(){
-        function log(){
-          var body=document.body, root=document.getElementById('root');
-          var bodyBg=body?window.getComputedStyle(body).backgroundColor:'N/A';
-          var rootBg=root?window.getComputedStyle(root).backgroundColor:'N/A';
-          console.log('[PokéVault] body background:', bodyBg, '| #root background:', rootBg, '| expected: #111111 (rgb(17, 17, 17))');
-        }
-        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',log); else log();
-      })();
-    </script>
+    <div id="root"></div>
   </body>
   </html>
 

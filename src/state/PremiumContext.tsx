@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { useAuth, useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 import { useTheme } from "./ThemeContext";
@@ -74,7 +73,6 @@ async function fetchUserProfile(userId: string): Promise<UserProfile> {
 export function PremiumProvider({ children }: { children: React.ReactNode }) {
   const { isLoaded: isAuthLoaded } = useAuth();
   const { user } = useUser();
-  const location = useLocation();
   const [userProfile, setUserProfile] = useState<UserProfile>(null);
   const [subscriptionLoading, setSubscriptionLoading] = useState(true);
   const [refetchCount, setRefetchCount] = useState(0);
@@ -154,7 +152,7 @@ export function PremiumProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [isAuthLoaded, user?.id, location.pathname, refetchCount]);
+  }, [isAuthLoaded, user?.id, refetchCount]);
 
   // Realtime subscription on users table to keep premium status fresh
   useEffect(() => {
