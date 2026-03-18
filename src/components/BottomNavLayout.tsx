@@ -5,7 +5,7 @@ import { Home, Layers, Plus, LineChart, History, Settings } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
 import { useTheme } from "../state/ThemeContext";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 
 const SWIPE_MIN_DISTANCE = 90;
 const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
@@ -27,58 +27,6 @@ const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: 
 
 const TAB_PATHS = ["/", "/collection", "/ajouter", "/marche", "/historique"] as const;
 
-const AUTH_STATE_KEY = "pokevault_header_auth";
-
-export type PersistedAuthState = {
-  isSignedIn: boolean;
-  isPremium: boolean;
-  hasAvatar: boolean;
-  avatarInitial: string;
-  avatarImageUrl: string;
-};
-
-function getPersistedAuthState(): PersistedAuthState {
-  try {
-    const raw = typeof window !== "undefined" ? window.localStorage.getItem(AUTH_STATE_KEY) : null;
-    if (raw) {
-      const parsed = JSON.parse(raw) as {
-        isSignedIn?: boolean;
-        isPremium?: boolean;
-        hasAvatar?: boolean;
-        avatarInitial?: string;
-        avatarImageUrl?: string;
-      };
-      if (typeof parsed.isSignedIn === "boolean" && typeof parsed.isPremium === "boolean") {
-        const avatarImageUrl =
-          typeof parsed.avatarImageUrl === "string" && parsed.avatarImageUrl.length > 0 && parsed.avatarImageUrl.startsWith("http")
-            ? parsed.avatarImageUrl
-            : "";
-        return {
-          isSignedIn: parsed.isSignedIn,
-          isPremium: parsed.isPremium,
-          hasAvatar: typeof parsed.hasAvatar === "boolean" ? parsed.hasAvatar : false,
-          avatarInitial:
-            typeof parsed.avatarInitial === "string" && parsed.avatarInitial.length <= 2
-              ? parsed.avatarInitial
-              : "",
-          avatarImageUrl,
-        };
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-  return { isSignedIn: false, isPremium: false, hasAvatar: false, avatarInitial: "", avatarImageUrl: "" };
-}
-
-function persistAuthState(state: PersistedAuthState) {
-  try {
-    window.localStorage.setItem(AUTH_STATE_KEY, JSON.stringify(state));
-  } catch {
-    /* ignore */
-  }
-}
-
 export const BottomNavLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,46 +34,14 @@ export const BottomNavLayout = () => {
   const { signOut } = useClerk();
   const { user } = useUser();
   const { theme } = useTheme();
-  const { isPremium, loading: premiumLoading } = usePremium();
-  const [lastKnownAuth, setLastKnownAuth] = useState(getPersistedAuthState);
+  const { isPremium, isLoading } = useSubscription();
+  console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
-  // Use persisted state until Clerk + subscription have confirmed — avoids flash to logged-out/free UI on load.
-  const subscriptionResolved = isAuthLoaded && !premiumLoading;
-  const displaySignedIn = subscriptionResolved ? isSignedIn : lastKnownAuth.isSignedIn;
-  const displayPremium = subscriptionResolved ? isPremium : lastKnownAuth.isPremium;
-
-  useEffect(() => {
-    if (!subscriptionResolved) return;
-    if (!isSignedIn) {
-      const next: PersistedAuthState = {
-        isSignedIn: false,
-        isPremium,
-        hasAvatar: false,
-        avatarInitial: "",
-        avatarImageUrl: "",
-      };
-      setLastKnownAuth(next);
-      persistAuthState(next);
-      return;
-    }
-    const u = user as { imageUrl?: string; firstName?: string; emailAddresses?: { emailAddress?: string }[] } | null;
-    const imageUrl = typeof u?.imageUrl === "string" ? u.imageUrl : "";
-    const hasAvatar = !!imageUrl;
-    const avatarInitial =
-      u?.firstName?.[0] ?? u?.emailAddresses?.[0]?.emailAddress?.[0] ?? "";
-    const next: PersistedAuthState = {
-      isSignedIn,
-      isPremium,
-      hasAvatar,
-      avatarInitial: String(avatarInitial).toUpperCase().slice(0, 1) || "",
-      avatarImageUrl: imageUrl,
-    };
-    setLastKnownAuth(next);
-    persistAuthState(next);
-  }, [subscriptionResolved, isSignedIn, isPremium, user]);
+  // Pendant le chargement Clerk + abonnement : header placeholder (hauteur fixe), aucun contenu.
+  const headerLoading = !isAuthLoaded || isLoading;
 
   const isLight = theme === "light";
   const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
@@ -228,159 +144,131 @@ export const BottomNavLayout = () => {
               gap: 8,
               background: "var(--bg-app)",
               paddingBottom: 4,
+              minHeight: 44,
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                flexShrink: 0,
-              }}
-            >
-              {displayPremium ? (
-                <button
-                  type="button"
-                  onClick={() => navigate("/mon-abonnement")}
+            {headerLoading ? (
+              <div style={{ width: "100%", height: 44 }} aria-hidden />
+            ) : (
+              <>
+                <div
                   style={{
-                    border: `1px solid ${badgeBorder}`,
-                    borderRadius: 9999,
-                    padding: "6px 10px",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    background: `radial-gradient(circle at 0 0, ${badgeBgTint}, transparent 55%), var(--card-color)`,
-                    boxShadow: badgeShadow,
-                    cursor: "pointer",
-                  }}
-                >
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: 16,
-                      height: 16,
-                      borderRadius: "50%",
-                      overflow: "hidden",
-                      flexShrink: 0,
-                      border: `1.5px solid ${ballGold}`,
-                      boxShadow: ballGoldGlow,
-                      backgroundImage: `
-                        radial-gradient(circle at 50% 50%, ${ballGold} 0%, ${ballGold} 1.5px, transparent 1.5px),
-                        linear-gradient(180deg, transparent 49%, ${ballGold} 49%, ${ballGold} 51%, transparent 51%),
-                        linear-gradient(180deg, ${ballTopHalf} 0%, ${ballTopHalf} 50%, transparent 50%),
-                        linear-gradient(180deg, transparent 50%, ${ballGold} 50%, ${ballGold} 100%)
-                      `,
-                      backgroundSize: "100% 100%, 100% 100%, 100% 100%, 100% 100%",
-                      backgroundPosition: "0 0, 0 0, 0 0, 0 0",
-                      backgroundRepeat: "no-repeat",
-                    }}
-                    aria-hidden
-                  />
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: badgeTextColor,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Boss Access
-                  </span>
-                </button>
-              ) : null}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
-            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 36 }}>
-              {displaySignedIn ? (
-                <button
-                  type="button"
-                  onClick={() => signOut()}
-                  aria-label="Déconnexion"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    padding: 0,
-                    border: "none",
-                    cursor: "pointer",
-                    background: "transparent",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
+                    gap: 10,
+                    flexShrink: 0,
                   }}
                 >
-                  {(() => {
-                    const clerkImageUrl = (user as { imageUrl?: string })?.imageUrl;
-                    const avatarSrc = typeof clerkImageUrl === "string" && clerkImageUrl
-                      ? clerkImageUrl
-                      : (lastKnownAuth.avatarImageUrl || "");
-                    if (avatarSrc) {
-                      return (
-                        <img
-                          src={avatarSrc}
-                          alt=""
-                          style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", cursor: "pointer" }}
-                        />
-                      );
-                    }
-                    if (subscriptionResolved) {
-                      return (
-                        <span
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: "50%",
-                            background: "var(--bg-card)",
-                            color: "var(--text-secondary)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 14,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {(user as { firstName?: string; emailAddresses?: { emailAddress?: string }[] })?.firstName?.[0] ??
-                            (user as { emailAddresses?: { emailAddress?: string }[] })?.emailAddresses?.[0]?.emailAddress?.[0] ??
-                            "?"}
-                        </span>
-                      );
-                    }
-                    return lastKnownAuth.hasAvatar || !lastKnownAuth.avatarInitial ? (
+                  {isPremium ? (
+                    <button
+                      type="button"
+                      onClick={() => navigate("/mon-abonnement")}
+                      style={{
+                        border: `1px solid ${badgeBorder}`,
+                        borderRadius: 9999,
+                        padding: "6px 10px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        background: `radial-gradient(circle at 0 0, ${badgeBgTint}, transparent 55%), var(--card-color)`,
+                        boxShadow: badgeShadow,
+                        cursor: "pointer",
+                      }}
+                    >
                       <span
                         style={{
-                          width: 36,
-                          height: 36,
+                          display: "inline-block",
+                          width: 16,
+                          height: 16,
                           borderRadius: "50%",
-                          background: "var(--bg-card)",
-                          display: "block",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                          border: `1.5px solid ${ballGold}`,
+                          boxShadow: ballGoldGlow,
+                          backgroundImage: `
+                            radial-gradient(circle at 50% 50%, ${ballGold} 0%, ${ballGold} 1.5px, transparent 1.5px),
+                            linear-gradient(180deg, transparent 49%, ${ballGold} 49%, ${ballGold} 51%, transparent 51%),
+                            linear-gradient(180deg, ${ballTopHalf} 0%, ${ballTopHalf} 50%, transparent 50%),
+                            linear-gradient(180deg, transparent 50%, ${ballGold} 50%, ${ballGold} 100%)
+                          `,
+                          backgroundSize: "100% 100%, 100% 100%, 100% 100%, 100% 100%",
+                          backgroundPosition: "0 0, 0 0, 0 0, 0 0",
+                          backgroundRepeat: "no-repeat",
                         }}
                         aria-hidden
                       />
-                    ) : (
                       <span
                         style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: "50%",
-                          background: "var(--bg-card)",
-                          color: "var(--text-secondary)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 14,
-                          fontWeight: 600,
+                          fontSize: 11,
+                          fontWeight: 700,
+                          letterSpacing: "0.12em",
+                          textTransform: "uppercase",
+                          color: badgeTextColor,
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        {lastKnownAuth.avatarInitial}
+                        Boss Access
                       </span>
-                    );
-                  })()}
-                </button>
-              ) : (
-                <>
+                    </button>
+                  ) : null}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 36 }}>
+                  {isSignedIn ? (
+                    <button
+                      type="button"
+                      onClick={() => signOut()}
+                      aria-label="Déconnexion"
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        padding: 0,
+                        border: "none",
+                        cursor: "pointer",
+                        background: "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {(() => {
+                        const clerkImageUrl = (user as { imageUrl?: string })?.imageUrl;
+                        const avatarSrc = typeof clerkImageUrl === "string" && clerkImageUrl ? clerkImageUrl : "";
+                        if (avatarSrc) {
+                          return (
+                            <img
+                              src={avatarSrc}
+                              alt=""
+                              style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", cursor: "pointer" }}
+                            />
+                          );
+                        }
+                        return (
+                          <span
+                            style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: "50%",
+                              background: "var(--bg-card)",
+                              color: "var(--text-secondary)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: 14,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {(user as { firstName?: string; emailAddresses?: { emailAddress?: string }[] })?.firstName?.[0] ??
+                              (user as { emailAddresses?: { emailAddress?: string }[] })?.emailAddresses?.[0]?.emailAddress?.[0] ??
+                              "?"}
+                          </span>
+                        );
+                      })()}
+                    </button>
+                  ) : (
+                    <>
                   <button
                     type="button"
                     className="transition-opacity hover:opacity-90"
@@ -399,8 +287,8 @@ export const BottomNavLayout = () => {
                     Connexion
                   </button>
                   <ClerkSignInModal open={showSignInModal} onClose={() => setShowSignInModal(false)} />
-                </>
-              )}
+                    </>
+                  )}
               <button
                 type="button"
                 onClick={() => navigate("/settings")}
@@ -423,6 +311,8 @@ export const BottomNavLayout = () => {
                 <Settings size={18} strokeWidth={2} />
               </button>
             </div>
+              </>
+            )}
           </header>
           {location.pathname !== "/premium" &&
             location.pathname !== "/success" && <PremiumBanner />}

@@ -18,7 +18,7 @@ import { etbData } from "../data/etbData";
 import { ItemIcon } from "../components/ItemIcon";
 import { ChevronLeft } from "lucide-react";
 import { useUser } from "@clerk/react";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { supabase } from "../lib/supabase";
 /** Mock price history (60€ Jan → 75€) when product has no history. */
@@ -79,7 +79,8 @@ const ProductDetailPageInner = () => {
   const { products } = useProducts();
   const { items: collectionItems, removeFromCollection } = useCollection();
   const { user } = useUser();
-  const { isPremium, loading: premiumLoading, refetchPremium } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  console.log("[RENDER] ProductDetailPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const isLight = theme === "light";
@@ -440,7 +441,6 @@ const ProductDetailPageInner = () => {
       removeFromCollection(collectionMatch.id, "all");
 
       refreshSales();
-      refetchPremium();
       navigate("/collection");
     } catch (err) {
       console.error("SUPABASE_ERROR:", err);
@@ -610,7 +610,7 @@ const ProductDetailPageInner = () => {
           <div style={{ position: "relative" }}>
           <div
             style={
-              premiumLoading || isPremium
+              isPremium
                 ? {}
                 : {
                     filter: "blur(4px)",

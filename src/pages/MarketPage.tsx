@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { TrendingUp } from "lucide-react";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { NewsCarousel } from "../components/NewsCarousel";
 import { getEraBadge } from "../utils/eraBadge";
@@ -284,7 +284,8 @@ export const MarketPage = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, loading: premiumLoading } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  console.log("[RENDER] MarketPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const [mainTab, setMainTab] = useState<MainTab>("etb");
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   const triggerFilterPress = (key: string) => {
@@ -326,7 +327,7 @@ export const MarketPage = () => {
       <div
         className="space-y-6"
         style={
-          premiumLoading || isPremium
+          isPremium
             ? {}
             : {
                 filter: "blur(20px) brightness(0.4)",

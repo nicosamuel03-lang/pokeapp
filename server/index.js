@@ -42,32 +42,119 @@ app.post(
       console.error("Webhook signature verification failed:", err?.message);
       return res.status(400).send(`Webhook Error: ${err?.message}`);
     }
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      const clerkUserId = session.client_reference_id;
-      const subscriptionId = session.subscription || null;
-      if (clerkUserId && supabase) {
-        const { error } = await supabase
-          .from("users")
-          .upsert(
-            {
-              id: clerkUserId,
-              is_premium: true,
-              stripe_subscription_id: subscriptionId,
-            },
-            { onConflict: "id" }
+    const isActiveSubscriptionStatus = (status) =>
+      status === "active" || status === "trialing";
+
+    const upsertPremiumForUser = async ({
+      clerkUserId,
+      isPremium,
+      subscriptionId,
+      customerId,
+    }) => {
+      if (!clerkUserId || !supabase) return;
+      const payload = {
+        id: clerkUserId,
+        is_premium: !!isPremium,
+        ...(subscriptionId ? { stripe_subscription_id: subscriptionId } : {}),
+        ...(customerId ? { stripe_customer_id: customerId } : {}),
+      };
+      const { error } = await supabase
+        .from("users")
+        .upsert(payload, { onConflict: "id" });
+      if (error) throw error;
+    };
+
+    const updatePremiumBySubscriptionId = async ({
+      subscriptionId,
+      isPremium,
+    }) => {
+      if (!subscriptionId || !supabase) return false;
+      const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("stripe_subscription_id", subscriptionId)
+        .maybeSingle();
+      if (error || !data?.id) return false;
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({ is_premium: !!isPremium })
+        .eq("id", data.id);
+      if (updateError) throw updateError;
+      return true;
+    };
+
+    try {
+      if (event.type === "checkout.session.completed") {
+        const session = event.data.object;
+        const clerkUserId = session.client_reference_id;
+        const subscriptionId = session.subscription || null;
+        const customerId = session.customer || null;
+
+        if (clerkUserId) {
+          await upsertPremiumForUser({
+            clerkUserId,
+            isPremium: true,
+            subscriptionId,
+            customerId,
+          });
+          console.log(
+            "[stripe webhook] Premium activated for user:",
+            clerkUserId,
+            "subscription:",
+            subscriptionId
           );
-        if (error) {
-          console.error("Supabase upsert failed:", error);
-          return res.status(500).send("Failed to update premium status");
         }
-        console.log(
-          "Premium activated for user:",
-          clerkUserId,
-          "subscription:",
-          subscriptionId
-        );
       }
+
+      // Sync durable : si l'abonnement change côté Stripe (pause, cancel, fin de trial, etc.)
+      if (
+        event.type === "customer.subscription.updated" ||
+        event.type === "customer.subscription.deleted"
+      ) {
+        const sub = event.data.object;
+        const subscriptionId = sub.id;
+        const status = sub.status;
+        const customerId = sub.customer || null;
+        const clerkUserId =
+          sub?.metadata?.clerkUserId ||
+          sub?.metadata?.clerk_user_id ||
+          null;
+
+        const premiumNow = isActiveSubscriptionStatus(status);
+
+        if (clerkUserId) {
+          await upsertPremiumForUser({
+            clerkUserId,
+            isPremium: premiumNow,
+            subscriptionId,
+            customerId,
+          });
+          console.log(
+            "[stripe webhook] subscription sync via metadata for user:",
+            clerkUserId,
+            "status:",
+            status,
+            "=> premium:",
+            premiumNow
+          );
+        } else {
+          const updated = await updatePremiumBySubscriptionId({
+            subscriptionId,
+            isPremium: premiumNow,
+          });
+          console.log(
+            "[stripe webhook] subscription sync via stripe_subscription_id:",
+            subscriptionId,
+            "status:",
+            status,
+            "updatedRow:",
+            updated
+          );
+        }
+      }
+    } catch (err) {
+      console.error("[stripe webhook] handler error:", err);
+      return res.status(500).send("Webhook handler failed");
     }
     res.json({ received: true });
   }
@@ -190,7 +277,7 @@ app.post("/api/checkout", async (req, res) => {
       client_reference_id,
       subscription_data: {
         trial_period_days: 30,
-        metadata: { plan },
+        metadata: { plan, clerkUserId: client_reference_id || "" },
       },
     });
 
@@ -200,6 +287,33 @@ app.post("/api/checkout", async (req, res) => {
     return res
       .status(500)
       .json({ error: err?.message || "Unknown server error" });
+  }
+});
+
+// Fallback : vérifier directement sur Stripe si l'abonnement est actif (utile si webhook en retard)
+app.get("/api/check-subscription", async (req, res) => {
+  try {
+    const userId = req.headers["userid"] || req.headers["userId"] || req.headers["user-id"];
+    if (!userId) return res.status(400).json({ error: "Missing userId header" });
+    if (!supabase) return res.status(500).json({ error: "Supabase not configured" });
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("stripe_subscription_id")
+      .eq("id", String(userId))
+      .maybeSingle();
+    if (error) return res.status(500).json({ error: "Failed to load user row" });
+
+    const subscriptionId = data?.stripe_subscription_id || null;
+    if (!subscriptionId) return res.json({ isPremium: false, source: "no_subscription_id" });
+
+    const sub = await stripe.subscriptions.retrieve(subscriptionId);
+    const status = sub?.status;
+    const isPremium = status === "active" || status === "trialing";
+    return res.json({ isPremium, status, source: "stripe" });
+  } catch (err) {
+    console.error("[check-subscription] error:", err?.message || err);
+    return res.status(500).json({ error: "Failed to verify subscription" });
   }
 });
 

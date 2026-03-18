@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import type { SaleRecord } from "../utils/salesHistoryStorage";
 import { useSalesHistory } from "../hooks/useSalesHistory";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 
 function formatSaleDate(iso: string): string {
@@ -21,7 +21,8 @@ export const HistoriquePage = () => {
   const isLight = theme === "light";
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, loading: premiumLoading, userProfile } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  console.log("[RENDER] HistoriquePage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const {
     sales,
     updateSaleRecord,
@@ -83,7 +84,7 @@ export const HistoriquePage = () => {
     return { totalVentes, totalInvesti, gainTotal, perfMoyenne };
   }, [sales]);
 
-  const totalSalesCount = userProfile?.total_sales_count ?? 0;
+  const totalSalesCount = sales.length;
   const clampedSalesCount = Math.max(0, Math.min(10, totalSalesCount));
   const salesProgress = (Math.min(clampedSalesCount, 10) / 10) * 100;
   const salesLimitReached = clampedSalesCount >= 10;
@@ -258,7 +259,7 @@ export const HistoriquePage = () => {
               Détail des ventes ({sortedSales.length})
             </h3>
             <div className="space-y-3">
-              {(premiumLoading || isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
+              {(isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
                 const investi = sale.buyPrice * sale.quantity;
                 const perfPct = investi > 0 ? (sale.profit / investi) * 100 : 0;
                 const imageUrl = sale.image ?? sale.imageUrl ?? null;

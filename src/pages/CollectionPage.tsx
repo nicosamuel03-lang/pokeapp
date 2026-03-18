@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCollection } from "../state/CollectionContext";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { etbData } from "../data/etbData";
@@ -66,7 +66,8 @@ export const CollectionPage = () => {
   const isLight = theme === "light";
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, loading: premiumLoading } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  console.log("[RENDER] CollectionPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const { items, removeFromCollection, updateCollectionItem } = useCollection();
   const { pathname } = useLocation();
   const { sales, refreshSales } = useSalesHistory();

@@ -3,7 +3,7 @@ import { ChevronLeft, Sun, Moon, LogOut, Crown, ExternalLink, Bell, Mail, Star, 
 import { useNavigate } from "react-router-dom";
 import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 
 const NOTIFICATIONS_STORAGE_KEY = "pokevault_notifications_enabled";
 const API_BASE = "https://pokeapp-production-52e4.up.railway.app";
@@ -35,7 +35,8 @@ export function SettingsPage() {
   const isDark = theme === "dark";
   const isLight = theme === "light";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, loading: premiumLoading } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  console.log("[RENDER] SettingsPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelLinkHover, setCancelLinkHover] = useState(false);

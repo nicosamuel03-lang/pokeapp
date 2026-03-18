@@ -10,7 +10,7 @@ export function SuccessPage() {
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
 
   const handleAccess = () => {
-    // Force un reload complet pour que usePremium relise l'état à jour depuis Supabase
+    // Force un reload complet pour que l'app relise l'état à jour depuis Supabase
     window.location.href = "/";
   };
 

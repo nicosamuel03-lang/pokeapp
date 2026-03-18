@@ -1,15 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 
 export function PremiumBanner() {
   const navigate = useNavigate();
-  const { isPremium, loading: premiumLoading } = usePremium();
+  const { isPremium, isLoading } = useSubscription();
+  console.log("[RENDER] PremiumBanner", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const buttonBg = theme === "dark" ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)";
 
-  if (premiumLoading || isPremium) {
+  if (isLoading || isPremium) {
     return null;
   }
 

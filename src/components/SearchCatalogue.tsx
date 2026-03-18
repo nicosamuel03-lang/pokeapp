@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 import {
   pokemonCatalogue,
   searchPokemonCatalogue,
@@ -288,7 +288,8 @@ export const SearchCatalogue = () => {
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const { addProduct } = useProducts();
   const { items, addToCollection } = useCollection();
-  const { isPremium, loading: premiumLoading } = usePremium();
+  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  console.log("[RENDER] SearchCatalogue", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
 
   const totalQuantity = useMemo(
     () => items.reduce((sum, it) => sum + it.quantity, 0),

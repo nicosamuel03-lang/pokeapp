@@ -11,7 +11,7 @@ import { useSalesHistory } from "../hooks/useSalesHistory";
 import { getEraBadge, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
-import { usePremium } from "../hooks/usePremium";
+import { useSubscription } from "../state/SubscriptionContext";
 type HistPrix = { mois: string; prix: number | null }[] | undefined;
 
 function getLastNonNullPrice(hist: HistPrix): number {
@@ -111,7 +111,8 @@ export const HomePage = () => {
   const isLight = theme === "light";
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
-  const { isPremium, loading: isLoadingSubscription, userProfile, refetchPremium } = usePremium();
+  const { isPremium, isLoading: isLoadingSubscription } = useSubscription();
+  console.log("[RENDER] HomePage", "isPremium:", isPremium, "isLoading:", isLoadingSubscription, new Date().toISOString());
   const { pathname } = useLocation();
   const { sales, refreshSales } = useSalesHistory();
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
@@ -524,10 +525,7 @@ export const HomePage = () => {
                 style={{
                   position: "relative",
                   zIndex: 1,
-                  ...(isLoadingSubscription ||
-                    userProfile?.is_premium ||
-                    (typeof window !== "undefined" &&
-                      window.localStorage.getItem("force_premium") === "true")
+                  ...(isPremium
                     ? {}
                     : {
                         filter: "blur(12px) brightness(0.6)",
@@ -566,12 +564,7 @@ export const HomePage = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              {!isLoadingSubscription &&
-                !(
-                  userProfile?.is_premium ||
-                  (typeof window !== "undefined" &&
-                    window.localStorage.getItem("force_premium") === "true")
-                ) && (
+              {!isLoadingSubscription && !isPremium && (
                 <div
                   style={{
                     position: "absolute",

@@ -75,11 +75,10 @@ export function SubscriptionPage() {
         /* ignore */
       }
       try {
-        window.localStorage.setItem("pokevault_is_premium", "false");
       } catch {
         /* ignore */
       }
-      // Hard reload pour s'assurer que la home relit bien l'état à jour.
+      // Hard reload pour s'assurer que l'app relit bien l'état à jour.
       window.location.href = "/";
     } finally {
       setLoading(false);
