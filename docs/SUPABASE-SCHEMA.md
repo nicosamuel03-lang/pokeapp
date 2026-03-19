@@ -8,7 +8,7 @@ Vérifie dans ton **Dashboard Supabase** (Table Editor) que les noms de tables e
 |--------------------|--------|--------------------------------|
 | `id`               | text   | ID utilisateur (ex. Clerk)     |
 | `is_premium`       | boolean| Statut premium                 |
-| `total_sales_count`| integer| Nombre total de ventes (optionnel) |
+| `total_sales_count`| integer| **Cumul d’unités vendues** (quota free tier). **Monotone** : ne pas le diminuer quand une ligne est supprimée dans `sales` (pas de trigger `ON DELETE`, pas de mise à jour depuis l’app au delete). |
 
 ## Table `profiles` (optionnelle)
 

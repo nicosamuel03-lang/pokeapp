@@ -115,11 +115,63 @@ export async function updateSaleInSupabase(
   return true;
 }
 
+/**
+ * Supprime la ligne `sales` uniquement. Ne modifie pas `users.total_sales_count`
+ * (compteur free tier monotone côté app ; aucun trigger ne doit décrémenter en base).
+ */
 export async function deleteSaleInSupabase(userId: string, id: string): Promise<boolean> {
   const { error } = await supabase.from(TABLE).delete().eq("user_id", userId).eq("id", id);
   if (error) {
     console.warn("[salesSupabase] deleteSale error", error);
     return false;
   }
+  return true;
+}
+
+/**
+ * Incrémente `users.total_sales_count` (unités vendues cumulées, quota free tier).
+ * À appeler après chaque INSERT réussi dans `sales`. Ne décrémente pas à la suppression d’une ligne.
+ */
+export async function incrementUserTotalSalesCount(
+  userId: string,
+  quantityDelta: number
+): Promise<boolean> {
+  const delta = Math.floor(Number(quantityDelta)) || 0;
+  if (delta <= 0) return true;
+
+  const { data: row, error: selErr } = await supabase
+    .from("users")
+    .select("total_sales_count")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (selErr) {
+    console.error("SUPABASE_ERROR: incrementUserTotalSalesCount select", selErr);
+    return false;
+  }
+
+  const prev = Number((row as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0);
+  const next = prev + delta;
+
+  const { data: updated, error: updErr } = await supabase
+    .from("users")
+    .update({ total_sales_count: next })
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle();
+
+  if (updErr) {
+    console.error("SUPABASE_ERROR: incrementUserTotalSalesCount update", updErr);
+    return false;
+  }
+  if (!updated) {
+    console.error(
+      "SUPABASE_ERROR: incrementUserTotalSalesCount — aucune ligne users pour id=",
+      userId,
+      "(créez la ligne ou vérifiez RLS update sur users)"
+    );
+    return false;
+  }
+
   return true;
 }

@@ -9,7 +9,7 @@ import {
   YAxis,
   ReferenceLine,
 } from "recharts";
-import { useProducts } from "../state/ProductsContext";
+import { useProducts, type Product } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { setSalePrice } from "../utils/salesStorage";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
@@ -21,6 +21,8 @@ import { useUser } from "@clerk/react";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { supabase } from "../lib/supabase";
+import { incrementUserTotalSalesCount } from "../lib/salesSupabase";
+import { getGuestLifetimeSalesQuantity } from "../utils/salesHistoryStorage";
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
   { mois_court: "Jan", mois_label: "Janvier", prix: 55 },
@@ -38,6 +40,26 @@ const MOCK_CHART_DATA = [
 ];
 
 const FREE_SALE_LIMIT = 10;
+
+/** Message détaillé pour l’UI et le debug (erreurs PostgREST / Supabase). */
+function formatSupabaseInsertError(error: unknown): string {
+  if (error == null) return "Erreur inconnue (réponse vide).";
+  if (typeof error === "object" && error !== null) {
+    const e = error as {
+      message?: string;
+      code?: string;
+      details?: string;
+      hint?: string;
+    };
+    const parts: string[] = [];
+    if (e.message) parts.push(e.message);
+    if (e.code) parts.push(`code: ${e.code}`);
+    if (e.details) parts.push(`détails: ${e.details}`);
+    if (e.hint) parts.push(`indice: ${e.hint}`);
+    if (parts.length > 0) return parts.join(" · ");
+  }
+  return String(error);
+}
 
 /** Error Boundary: affiche "Produit non trouvé" et log l'erreur pour éviter l'écran noir. */
 class ProductDetailErrorBoundary extends Component<
@@ -77,9 +99,9 @@ const ProductDetailPageInner = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { products } = useProducts();
-  const { items: collectionItems, removeFromCollection } = useCollection();
+  const { items: collectionItems, removeFromCollection, updateCollectionItem } = useCollection();
   const { user } = useUser();
-  const { isPremium, isLoading: premiumLoading } = useSubscription();
+  const { authState, isPremium, isLoading: premiumLoading } = useSubscription();
   console.log("[RENDER] ProductDetailPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -87,54 +109,89 @@ const ProductDetailPageInner = () => {
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { addSaleRecord, refreshSales } = useSalesHistory();
   const [isSelling, setIsSelling] = useState(false);
+  const [saleError, setSaleError] = useState<string | null>(null);
+  const [saleLimitMessage, setSaleLimitMessage] = useState<string | null>(null);
 
-  const sid = (id ?? "").trim();
+  const sid = decodeURIComponent((id ?? "").trim());
   const sidLower = sid.toLowerCase();
 
-  const etb = useMemo(() => {
-    if (!sid) return undefined;
-    const etbIdParam = sidLower.replace(/^etb-/, "").replace(/^display-/, "");
-    return etbData.find((e) => e?.id?.toLowerCase() === etbIdParam);
-  }, [sid, sidLower]);
+  const collectionIdFromUrl = useMemo(
+    () => new URLSearchParams(location.search).get("collectionId"),
+    [location.search]
+  );
 
-  const product = useMemo(() => {
+  /** Ligne collection ciblée par l’URL (permet d’afficher le bon ETB si le segment :id est ambigu / ancien). */
+  const collectionLineForDetail = useMemo(() => {
+    if (!collectionIdFromUrl) return null;
+    return collectionItems.find((c) => c.id === collectionIdFromUrl) ?? null;
+  }, [collectionIdFromUrl, collectionItems]);
+
+  const product = useMemo((): Product | null => {
     const list = Array.isArray(products) ? products : [];
+
+    if (collectionLineForDetail?.product) {
+      const lineProduct = collectionLineForDetail.product;
+      const hit = list.find((p) => p.id === lineProduct.id);
+      if (hit) return hit;
+      return { ...lineProduct } as Product;
+    }
+
     const fromContext = list.find(
       (p) =>
         (p?.id?.toLowerCase() === sidLower) ||
         (p?.etbId?.toLowerCase() === sidLower)
     );
     if (fromContext) return fromContext;
-    if (etb) {
-      const pvc = etb.pvcSortie || 0;
-      const prixActuel = etb.prixActuel ?? pvc;
+
+    if (!sid) return null;
+    const etbIdParam = sidLower.replace(/^etb-/, "").replace(/^display-/, "");
+    const etbRow = etbData.find((e) => e?.id?.toLowerCase() === etbIdParam);
+    if (etbRow) {
+      const pvc = etbRow.pvcSortie || 0;
+      const prixActuel = etbRow.prixActuel ?? pvc;
       const change30dPercent = pvc > 0 ? ((prixActuel - pvc) / pvc) * 100 : 0;
       return {
-        id: etb.id,
-        name: `ETB ${etb.nom}`,
+        id: etbRow.id,
+        name: `ETB ${etbRow.nom}`,
         emoji: "🎴",
         category: "ETB" as const,
-        set: etb.bloc === "eb" ? "Épée & Bouclier" : etb.bloc === "ev" ? "Écarlate & Violet" : "Méga Évolution",
-        condition: etb.statut,
+        set: etbRow.bloc === "eb" ? "Épée & Bouclier" : etbRow.bloc === "ev" ? "Écarlate & Violet" : "Méga Évolution",
+        condition: etbRow.statut,
         currentPrice: prixActuel,
         change30dPercent,
-        badge: etb.statut,
+        badge: etbRow.statut,
         createdAt: Date.now(),
         quantite: 1,
-        prixAchat: collectionItems.find(it => it.product.etbId === etb.id || it.product.id === etb.id)?.buyPrice ?? pvc,
+        prixAchat:
+          collectionItems.find(
+            (it) => it.product.etbId === etbRow.id || it.product.id === etbRow.id
+          )?.buyPrice ?? pvc,
         prixMarcheActuel: prixActuel,
         prixVente: null as number | null,
-        historique_prix: etb.historique_prix,
-        etbId: etb.id,
-        imageUrl: etb.imageUrl ?? undefined,
-        dateSortie: etb.dateSortie,
+        historique_prix: etbRow.historique_prix,
+        etbId: etbRow.id,
+        imageUrl: etbRow.imageUrl ?? undefined,
+        dateSortie: etbRow.dateSortie,
       };
     }
     return null;
-  }, [products, sidLower, etb]);
+  }, [products, sidLower, sid, collectionItems, collectionLineForDetail]);
+
+  /** Ligne etbData alignée sur le produit résolu (pas seulement le segment d’URL). */
+  const etb = useMemo(() => {
+    if (product?.category === "ETB" && product?.etbId) {
+      const row = etbData.find((e) => e.id === product.etbId);
+      if (row) return row;
+    }
+    if (!sid) return undefined;
+    const etbIdParam = sidLower.replace(/^etb-/, "").replace(/^display-/, "");
+    return etbData.find((e) => e?.id?.toLowerCase() === etbIdParam);
+  }, [product?.category, product?.etbId, sid, sidLower]);
 
 
   const [saleInput, setSaleInput] = useState<string>("");
+  /** Quantité à vendre pour cette ligne (1 … quantité possédée). */
+  const [saleQuantityToSell, setSaleQuantityToSell] = useState(1);
   const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
   const [addBtnPressed, setAddBtnPressed] = useState(false);
   const triggerAddPress = () => {
@@ -163,6 +220,7 @@ const ProductDetailPageInner = () => {
 
   useEffect(() => {
     setSaleInput("");
+    setSaleQuantityToSell(1);
   }, [id]);
 
   /** Parse dateSortie to month key (YYYY-MM) for filtering. Supports DD/MM/YYYY (ETB) and YYYY-MM (Display). */
@@ -281,11 +339,33 @@ const ProductDetailPageInner = () => {
     }
   }, [chartPeriod, history2024, history2025, history2026, releaseMonthKey, product]);
 
-  const searchParams = useMemo(
-    () => new URLSearchParams(location.search),
-    [location.search]
-  );
-  const collectionId = searchParams.get("collectionId");
+  const collectionId = collectionIdFromUrl;
+
+  const collectionMatch = useMemo(() => {
+    if (!product) return null;
+    if (collectionIdFromUrl && collectionLineForDetail?.id === collectionIdFromUrl) {
+      return collectionLineForDetail;
+    }
+    const pid = product.etbId ?? product.id;
+    const matching = collectionItems.filter(
+      (it) =>
+        it.product.id === product.id ||
+        it.product.etbId === pid ||
+        it.product.id === pid
+    );
+    if (matching.length === 0) return null;
+    if (collectionIdFromUrl) {
+      const exact = matching.find((it) => it.id === collectionIdFromUrl);
+      if (exact) return exact;
+    }
+    return matching[0] ?? null;
+  }, [product, collectionItems, collectionIdFromUrl, collectionLineForDetail]);
+
+  useEffect(() => {
+    if (!collectionMatch) return;
+    const max = Math.max(1, collectionMatch.quantity);
+    setSaleQuantityToSell((q) => Math.min(Math.max(1, q), max));
+  }, [collectionMatch?.id, collectionMatch?.quantity]);
 
   if (!product) {
     return (
@@ -298,35 +378,28 @@ const ProductDetailPageInner = () => {
     );
   }
 
-  const collectionMatch = useMemo(() => {
-    if (!product) return null;
-    const pid = product.etbId ?? product.id;
-    const matching = collectionItems.filter(
-      (it) =>
-        it.product.id === product.id ||
-        it.product.etbId === pid ||
-        it.product.id === pid
-    );
-    if (matching.length === 0) return null;
-    if (collectionId) {
-      const exact = matching.find((it) => it.id === collectionId);
-      if (exact) return exact;
-    }
-    return matching[0] ?? null;
-  }, [product, collectionItems, collectionId]);
-
   const prixAchat =
     collectionMatch?.buyPrice ?? product.prixAchat ?? product.currentPrice;
   const quantite = collectionMatch?.quantity ?? product.quantite ?? 1;
+  /** Unités vendues sur cette opération (borné 1 … stock possédé). */
+  const qtyToSell = useMemo(() => {
+    const max = Math.max(1, quantite);
+    const raw = Math.floor(Number(saleQuantityToSell));
+    const q = !Number.isFinite(raw) || raw < 1 ? 1 : raw;
+    return Math.min(q, max);
+  }, [saleQuantityToSell, quantite]);
   const prixMarche = getPrixMarcheForProduct(product, etbData);
   const salePriceNumber = parseFloat(saleInput.replace(",", "."));
   const hasSale =
     saleInput.trim().length > 0 && !Number.isNaN(salePriceNumber);
 
-  const brut = hasSale ? (salePriceNumber - prixAchat) * quantite : 0;
-  const perfPct = hasSale
-    ? ((salePriceNumber - prixAchat) / prixAchat) * 100
-    : 0;
+  const totalBuyForSale = prixAchat * qtyToSell;
+  const totalSaleForSale = salePriceNumber * qtyToSell;
+  const brut = hasSale ? totalSaleForSale - totalBuyForSale : 0;
+  const perfPct =
+    hasSale && prixAchat > 0
+      ? ((salePriceNumber - prixAchat) / prixAchat) * 100
+      : 0;
   const isPositive = brut >= 0;
 
   const isInCollection = useMemo(() => !!collectionMatch, [collectionMatch]);
@@ -340,36 +413,44 @@ const ProductDetailPageInner = () => {
   const handleVendre = async () => {
     if (!hasSale || !product || !collectionMatch) return;
 
-    const totalQuantity = collectionMatch.quantity;
+    setSaleError(null);
+    setSaleLimitMessage(null);
+
     const userId = user?.id ?? null;
 
-    // Premium users bypass the 10-sale limit; skip check while subscription status is loading
-    if (!premiumLoading && !isPremium && userId) {
-      const { data: userRow, error } = await supabase
-        .from("users")
-        .select("total_sales_count")
-        .eq("id", userId)
-        .single();
-      if (error) {
-        console.error("SUPABASE_ERROR:", error);
+    // Limite free tier (10 unités vendues) : uniquement si compte résolu comme « free » (pas pendant loading → évite de bloquer un futur premium).
+    if (authState === "free") {
+      let currentCount = 0;
+      if (userId) {
+        const { data: userRow, error } = await supabase
+          .from("users")
+          .select("total_sales_count")
+          .eq("id", userId)
+          .single();
+        if (error) {
+          console.error("SUPABASE_ERROR:", error);
+        }
+        currentCount = Number(
+          (userRow as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0
+        );
+      } else {
+        currentCount = getGuestLifetimeSalesQuantity();
       }
-      const currentCount = Number(
-        (userRow as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0
-      );
-      const newTotal = currentCount + totalQuantity;
-      if (newTotal > 10) {
-        navigate("/premium");
+      const newTotal = currentCount + qtyToSell;
+      if (newTotal > FREE_SALE_LIMIT) {
+        setSaleLimitMessage(
+          `Limite gratuite : ${FREE_SALE_LIMIT} unités vendues max. Passez à Boss Access pour continuer à vendre.`
+        );
         return;
       }
-      (window as any).__pokevault_next_total_sales_count__ = newTotal;
     }
 
     setIsSelling(true);
     try {
       if (navigator.vibrate) navigator.vibrate(50);
 
-      const totalBuyCost = collectionMatch.buyPrice * collectionMatch.quantity;
-      const profit = salePriceNumber * totalQuantity - totalBuyCost;
+      const totalBuyCost = collectionMatch.buyPrice * qtyToSell;
+      const profit = salePriceNumber * qtyToSell - totalBuyCost;
       const today = new Date();
       const saleDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
@@ -386,9 +467,9 @@ const ProductDetailPageInner = () => {
         product_id: String(product.id),
         product_name: String(product.name ?? ""),
         image: imageToSave != null ? String(imageToSave) : null,
-        buy_price: Number(totalBuyCost / totalQuantity),
+        buy_price: Number(collectionMatch.buyPrice),
         sale_price: Number(salePriceNumber),
-        quantity: Math.floor(Number(totalQuantity)) || 1,
+        quantity: Math.floor(Number(qtyToSell)) || 1,
         sale_date: saleDate,
         profit: Number(profit),
       };
@@ -397,23 +478,17 @@ const ProductDetailPageInner = () => {
       if (userId) {
         const { error: insertError } = await supabase.from("sales").insert([row]).select("id").single();
         if (insertError) {
-          console.error("SUPABASE_ERROR:", insertError);
+          console.log(insertError);
+          console.error("SUPABASE sales insert failed:", insertError);
+          setSaleError(formatSupabaseInsertError(insertError));
           return;
         }
-        if (!premiumLoading && !isPremium) {
-          const nextTotal = (window as any).__pokevault_next_total_sales_count__;
-          if (typeof nextTotal === "number") {
-            const { error: updateErr } = await supabase
-              .from("users")
-              .update({ total_sales_count: nextTotal })
-              .eq("id", userId);
-            if (updateErr) console.error("SUPABASE_ERROR:", updateErr);
-          }
-          try {
-            delete (window as any).__pokevault_next_total_sales_count__;
-          } catch {
-            /* ignore */
-          }
+        // Compteur quota (users.total_sales_count) : toujours incrémenter après vente (free, premium, ou abonnement encore en « loading »).
+        const countOk = await incrementUserTotalSalesCount(userId, qtyToSell);
+        if (!countOk) {
+          setSaleError(
+            "Vente enregistrée, mais la mise à jour du compteur a échoué. Vérifiez les droits sur la table users (RLS) ou réessayez."
+          );
         }
         refreshSales();
       } else {
@@ -422,14 +497,17 @@ const ProductDetailPageInner = () => {
             productId: product.id,
             productName: product.name ?? "",
             image: imageToSave,
-            buyPrice: totalBuyCost / totalQuantity,
+            buyPrice: collectionMatch.buyPrice,
             salePrice: salePriceNumber,
-            quantity: totalQuantity,
+            quantity: qtyToSell,
             saleDate,
             profit,
           });
         } catch (err) {
           console.error("SUPABASE_ERROR:", err);
+          setSaleError(
+            "Impossible d'enregistrer la vente en local. Vérifiez l'espace de stockage du navigateur."
+          );
           return;
         }
         refreshSales();
@@ -437,8 +515,14 @@ const ProductDetailPageInner = () => {
 
       setSalePrice(product.id, salePriceNumber);
 
-      // Operation 2: DELETE from collection (remove item from local state + localStorage)
-      removeFromCollection(collectionMatch.id, "all");
+      // Operation 2: retirer uniquement la quantité vendue du stock collection
+      if (qtyToSell >= collectionMatch.quantity) {
+        removeFromCollection(collectionMatch.id, "all");
+      } else {
+        updateCollectionItem(collectionMatch.id, {
+          quantity: collectionMatch.quantity - qtyToSell,
+        });
+      }
 
       refreshSales();
       navigate("/collection");
@@ -855,6 +939,8 @@ const ProductDetailPageInner = () => {
                   placeholder="Saisir le prix de vente..."
                   value={saleInput}
                   onChange={(e) => {
+                    setSaleError(null);
+                    setSaleLimitMessage(null);
                     const value = e.target.value;
                     setSaleInput(value);
                     const parsed = parseFloat(value.replace(",", "."));
@@ -863,6 +949,40 @@ const ProductDetailPageInner = () => {
                     } else {
                       setSalePrice(product.id, null);
                     }
+                  }}
+                />
+              </div>
+            </div>
+
+            <label className="mb-1 mt-3 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+              Quantité à vendre{" "}
+              <span className="font-normal opacity-80">(max. {quantite})</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-full max-w-[120px] rounded-2xl px-3 py-2 text-sm focus-within:ring-1 focus-within:ring-[var(--text-secondary)]/30"
+                style={{ background: "var(--input-bg)" }}
+              >
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={quantite}
+                  className="w-full bg-transparent text-sm focus:outline-none"
+                  style={{ color: "var(--text-primary)" }}
+                  value={saleQuantityToSell}
+                  onChange={(e) => {
+                    setSaleError(null);
+                    setSaleLimitMessage(null);
+                    const raw = e.target.value;
+                    if (raw === "") {
+                      setSaleQuantityToSell(1);
+                      return;
+                    }
+                    const v = parseInt(raw, 10);
+                    if (!Number.isFinite(v)) return;
+                    const max = Math.max(1, quantite);
+                    setSaleQuantityToSell(Math.min(Math.max(1, v), max));
                   }}
                 />
               </div>
@@ -906,6 +1026,25 @@ const ProductDetailPageInner = () => {
                 </p>
               </div>
             </div>
+
+            {saleLimitMessage && (
+              <div className="mt-2 space-y-2 rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(239,68,68,0.12)", color: "var(--loss-red)" }}>
+                <p>{saleLimitMessage}</p>
+                <button
+                  type="button"
+                  className="font-semibold underline"
+                  style={{ color: accentGold, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  onClick={() => navigate("/premium")}
+                >
+                  Voir Boss Access
+                </button>
+              </div>
+            )}
+            {saleError && (
+              <p className="mt-2 text-xs" style={{ color: "var(--loss-red)" }}>
+                {saleError}
+              </p>
+            )}
 
             <button
               type="button"

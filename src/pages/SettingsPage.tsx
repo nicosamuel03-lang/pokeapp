@@ -220,9 +220,9 @@ export function SettingsPage() {
                 background: theme === "dark" ? "var(--bg-card-elevated)" : "#D4A757",
                 color: theme === "dark" ? "var(--text-secondary)" : "#111827",
                 border: "none",
-                cursor: premiumLoading || isPremium ? "pointer" : "not-allowed",
+                cursor: isPremium && !premiumLoading ? "pointer" : "not-allowed",
                 padding: 0,
-                opacity: premiumLoading || isPremium ? 1 : 0.4,
+                opacity: isPremium && !premiumLoading ? 1 : 0.4,
               }}
             >
               {theme === "dark" ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}

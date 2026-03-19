@@ -393,7 +393,9 @@ export const CollectionPage = () => {
             const gainPerItem = current - item.buyPrice;
             const totalGainItem = gainPerItem * item.quantity;
             const isUp = gainPerItem >= 0;
-            const detailUrl = `/produit/${item.product.etbId ?? item.product.id}?collectionId=${encodeURIComponent(item.id)}`;
+            /** Toujours router par `product.id` (unique : UUID ajout catalogue, ou id etbData). Ne pas préférer etbId : plusieurs ETB peuvent partager le même code (ex. ancien doublon ME01). */
+            const navProductId = encodeURIComponent(item.product.id);
+            const detailUrl = `/produit/${navProductId}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);
             const imageUrl = getProductImageUrl(item.product);
             console.log("Collection image debug:", {
@@ -408,6 +410,12 @@ export const CollectionPage = () => {
                 key={item.id}
                 to={detailUrl}
                 onClick={() => {
+                  console.log("[Collection] open product detail", {
+                    routeProductId: item.product.id,
+                    etbId: item.product.etbId,
+                    collectionLineId: item.id,
+                    detailUrl,
+                  });
                   sessionStorage.setItem(RETURN_TO_KEY, "/collection");
                   sessionStorage.setItem(
                     COLLECTION_FILTERS_KEY,

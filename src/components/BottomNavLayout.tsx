@@ -275,8 +275,9 @@ export const BottomNavLayout = () => {
                     style={{
                       padding: "6px 12px",
                       borderRadius: "9999px",
-                      background: isLight ? "#D4A757" : "#FBBF24",
-                      color: "#000",
+                      /* Toujours style « mode clair » : le thème sombre n’est pas actif sans premium */
+                      background: "#D4A757",
+                      color: "#111827",
                       border: "none",
                       cursor: "pointer",
                       fontSize: 12,
@@ -314,8 +315,13 @@ export const BottomNavLayout = () => {
               </>
             )}
           </header>
+          {/* Alignement horizontal avec les pages (-mx-3) ex. carte Portefeuille global */}
           {location.pathname !== "/premium" &&
-            location.pathname !== "/success" && <PremiumBanner />}
+            location.pathname !== "/success" && (
+              <div className="-mx-3">
+                <PremiumBanner />
+              </div>
+            )}
           <Outlet />
         </div>
       </main>

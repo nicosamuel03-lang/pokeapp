@@ -6,6 +6,10 @@ const config: CapacitorConfig = {
   appId: 'com.pokevault.app',
   appName: 'PokéVault',
   webDir: 'dist',
+  server: {
+    url: 'https://pokeapp-weld.vercel.app',
+    cleartext: true,
+  },
   plugins: {
     SplashScreen: {
       backgroundColor: APP_DARK_BG,

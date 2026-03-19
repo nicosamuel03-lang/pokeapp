@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useUser } from "@clerk/react";
 import type { SaleRecord } from "../utils/salesHistoryStorage";
+import { getGuestLifetimeSalesQuantity } from "../utils/salesHistoryStorage";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
+import { supabase } from "../lib/supabase";
 
 function formatSaleDate(iso: string): string {
   const [y, m, d] = iso.split("-");
@@ -22,6 +25,9 @@ export const HistoriquePage = () => {
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, isLoading: premiumLoading } = useSubscription();
+  const { user } = useUser();
+  /** Unités vendues comptées pour le quota free (monotone : pas lié au nombre de lignes restantes). */
+  const [freeTierQuotaUnits, setFreeTierQuotaUnits] = useState(0);
   console.log("[RENDER] HistoriquePage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const {
     sales,
@@ -36,6 +42,35 @@ export const HistoriquePage = () => {
       refreshSales();
     }
   }, [pathname, refreshSales]);
+
+  useEffect(() => {
+    if (pathname !== "/historique") return;
+    let cancelled = false;
+    const uid = user?.id ?? null;
+    if (!uid) {
+      setFreeTierQuotaUnits(getGuestLifetimeSalesQuantity());
+      return;
+    }
+    (async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("total_sales_count")
+        .eq("id", uid)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error) {
+        console.warn("[HistoriquePage] total_sales_count:", error);
+        setFreeTierQuotaUnits(0);
+        return;
+      }
+      setFreeTierQuotaUnits(
+        Number((data as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0)
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, user?.id, sales.length]); // sales.length → refetch après vente ; après delete, total_sales_count en base reste inchangé
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editBuyPrice, setEditBuyPrice] = useState("");
   const [editSalePrice, setEditSalePrice] = useState("");
@@ -84,8 +119,7 @@ export const HistoriquePage = () => {
     return { totalVentes, totalInvesti, gainTotal, perfMoyenne };
   }, [sales]);
 
-  const totalSalesCount = sales.length;
-  const clampedSalesCount = Math.max(0, Math.min(10, totalSalesCount));
+  const clampedSalesCount = Math.max(0, Math.min(10, freeTierQuotaUnits));
   const salesProgress = (Math.min(clampedSalesCount, 10) / 10) * 100;
   const salesLimitReached = clampedSalesCount >= 10;
 

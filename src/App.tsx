@@ -13,6 +13,7 @@ import { SignUpPage } from "./pages/SignUpPage";
 import { BottomNavLayout } from "./components/BottomNavLayout";
 import { TabSwitch } from "./components/TabSwitch";
 import { SubscriptionProvider, type AuthState } from "./state/SubscriptionContext";
+import { ThemeProvider } from "./state/ThemeContext";
 import { supabase } from "./lib/supabase";
 
 /** Remet le scroll en haut de page à chaque changement de route (ex. ouverture détail produit). */
@@ -109,23 +110,25 @@ const App = () => {
 
   return (
     <SubscriptionProvider value={{ authState, isPremium, isLoading }}>
-      <div className="min-h-screen" style={{ background: "var(--bg-app)", color: "var(--text-secondary)" }}>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-          <Route element={<BottomNavLayout />}>
-            <Route path="/produit/:id" element={<ProductDetailPage />} />
-            <Route path="/premium" element={<PremiumPage />} />
-            <Route path="/success" element={<SuccessPage />} />
-            <Route path="/mon-abonnement" element={<SubscriptionPage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/cgu" element={<CGUPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
-            <Route path="*" element={<TabSwitch />} />
-          </Route>
-        </Routes>
-      </div>
+      <ThemeProvider isPremium={isPremium}>
+        <div className="min-h-screen" style={{ background: "var(--bg-app)", color: "var(--text-secondary)" }}>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/sign-up" element={<SignUpPage />} />
+            <Route element={<BottomNavLayout />}>
+              <Route path="/produit/:id" element={<ProductDetailPage />} />
+              <Route path="/premium" element={<PremiumPage />} />
+              <Route path="/success" element={<SuccessPage />} />
+              <Route path="/mon-abonnement" element={<SubscriptionPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/cgu" element={<CGUPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="*" element={<TabSwitch />} />
+            </Route>
+          </Routes>
+        </div>
+      </ThemeProvider>
     </SubscriptionProvider>
   );
 };

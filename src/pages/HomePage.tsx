@@ -414,7 +414,8 @@ export const HomePage = () => {
         </div>
 
         <div className="w-full" style={{ minHeight: PORTFOLIO_CHART_HEIGHT, overflow: "hidden" }}>
-          {collectionItems.length === 0 ? (
+          {/* État « ajoutez des items » uniquement pour premium : les comptes free gardent toujours le graphique flouté + overlay (même collection vide après vente). */}
+          {collectionItems.length === 0 && isPremium === true ? (
             <div
               className="relative flex flex-col items-center justify-center rounded-xl py-12 text-center"
               style={{
@@ -525,7 +526,7 @@ export const HomePage = () => {
                 style={{
                   position: "relative",
                   zIndex: 1,
-                  ...(isPremium
+                  ...(isPremium === true
                     ? {}
                     : {
                         filter: "blur(12px) brightness(0.6)",
@@ -564,7 +565,7 @@ export const HomePage = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              {!isLoadingSubscription && !isPremium && (
+              {isPremium !== true && !isLoadingSubscription && (
                 <div
                   style={{
                     position: "absolute",

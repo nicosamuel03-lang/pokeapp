@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@clerk/react";
-import { type SaleRecord } from "../utils/salesHistoryStorage";
+import {
+  type SaleRecord,
+  getSalesHistory as getLocalSalesHistory,
+  addSaleRecord as addLocalSaleRecord,
+  updateSaleRecord as updateLocalSaleRecord,
+  deleteSaleRecord as deleteLocalSaleRecord,
+} from "../utils/salesHistoryStorage";
 import {
   fetchSalesByUserId,
   insertSale,
@@ -23,7 +29,7 @@ export function useSalesHistory(): {
 
   const refreshSales = useCallback(() => {
     if (!userId) {
-      setSales([]);
+      setSales(getLocalSalesHistory());
       setLoading(false);
       return;
     }
@@ -35,7 +41,7 @@ export function useSalesHistory(): {
 
   useEffect(() => {
     if (!userId) {
-      setSales([]);
+      setSales(getLocalSalesHistory());
       setLoading(false);
       return;
     }
@@ -47,7 +53,11 @@ export function useSalesHistory(): {
 
   const addSaleRecord = useCallback(
     async (record: Omit<SaleRecord, "id">) => {
-      if (!userId) return;
+      if (!userId) {
+        addLocalSaleRecord(record);
+        refreshSales();
+        return;
+      }
       await insertSale(userId, record);
       refreshSales();
     },
@@ -59,7 +69,11 @@ export function useSalesHistory(): {
       id: string,
       updates: { buyPrice?: number; salePrice?: number; saleDate?: string }
     ): Promise<boolean> => {
-      if (!userId) return false;
+      if (!userId) {
+        const ok = updateLocalSaleRecord(id, updates);
+        if (ok) refreshSales();
+        return ok;
+      }
       const ok = await updateSaleInSupabase(userId, id, updates);
       if (ok) refreshSales();
       return ok;
@@ -69,7 +83,11 @@ export function useSalesHistory(): {
 
   const deleteSaleRecord = useCallback(
     async (id: string): Promise<boolean> => {
-      if (!userId) return false;
+      if (!userId) {
+        const ok = deleteLocalSaleRecord(id);
+        if (ok) refreshSales();
+        return ok;
+      }
       const ok = await deleteSaleInSupabase(userId, id);
       if (ok) refreshSales();
       return ok;

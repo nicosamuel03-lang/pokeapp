@@ -15,14 +15,23 @@ function getStoredTheme(): Theme {
 }
 
 interface ThemeContextValue {
+  /** Thème effectivement appliqué (clair si l’utilisateur n’est pas premium). */
   theme: Theme;
   toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(getStoredTheme);
+export function ThemeProvider({
+  children,
+  isPremium,
+}: {
+  children: React.ReactNode;
+  /** Mode sombre réservé aux comptes Boss Access (premium). */
+  isPremium: boolean;
+}) {
+  const [preference, setPreference] = useState<Theme>(getStoredTheme);
+  const theme: Theme = isPremium ? preference : "light";
 
   useEffect(() => {
     const isDark = theme === "dark";
@@ -33,14 +42,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     metaThemeColor.forEach((meta) => meta.setAttribute("content", isDark ? "#000000" : "#ffffff"));
     if (document.body) document.body.style.backgroundColor = isDark ? "#000000" : "#ffffff";
     try {
-      localStorage.setItem(STORAGE_KEY, theme);
+      if (isPremium) {
+        localStorage.setItem(STORAGE_KEY, preference);
+      }
     } catch {
       /* ignore */
     }
-  }, [theme]);
+  }, [theme, preference, isPremium]);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    if (!isPremium) return;
+    setPreference((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
