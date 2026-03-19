@@ -62,6 +62,64 @@ export async function sumSoldQuantityByUserId(userId: string): Promise<number> {
   return rows.reduce((sum, row) => sum + Number(row.quantity ?? 0), 0);
 }
 
+const SALES_COUNTER_TABLE = "sales_counter";
+
+/** Nombre de lignes `sales` pour cet utilisateur (id Clerk) — affichage « ventes visibles ». */
+export async function countSalesRowsByUserId(userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from(TABLE)
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+  if (error) {
+    console.warn("[salesSupabase] countSalesRowsByUserId", error);
+    return 0;
+  }
+  return count ?? 0;
+}
+
+/** Compteur monotone quota free (`sales_counter.count`), jamais baissé au delete sur `sales`. */
+export async function fetchSalesCounterCount(userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from(SALES_COUNTER_TABLE)
+    .select("count")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) {
+    console.warn("[salesSupabase] fetchSalesCounterCount", error);
+    return 0;
+  }
+  return Number((data as { count?: number | null } | null)?.count ?? 0);
+}
+
+/**
+ * +1 sur `sales_counter` (upsert). Clé = user_id Clerk, pas la table `users`.
+ */
+export async function incrementSalesCounterByOne(userId: string): Promise<boolean> {
+  const { data: existing, error: selErr } = await supabase
+    .from(SALES_COUNTER_TABLE)
+    .select("count")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (selErr) {
+    console.error("SUPABASE_ERROR: incrementSalesCounterByOne select", selErr);
+    return false;
+  }
+
+  const prev = Number((existing as { count?: number | null } | null)?.count ?? 0);
+  const next = prev + 1;
+
+  const { error: upsertErr } = await supabase
+    .from(SALES_COUNTER_TABLE)
+    .upsert({ user_id: userId, count: next }, { onConflict: "user_id" });
+
+  if (upsertErr) {
+    console.error("SUPABASE_ERROR: incrementSalesCounterByOne upsert", upsertErr);
+    return false;
+  }
+  return true;
+}
+
 /** Row shape must match Supabase table 'sales' (snake_case columns). */
 export async function insertSale(
   userId: string,
@@ -82,6 +140,10 @@ export async function insertSale(
   if (error) {
     console.error("SUPABASE_ERROR:", error);
     throw error;
+  }
+  const ok = await incrementSalesCounterByOne(userId);
+  if (!ok) {
+    console.warn("[salesSupabase] insertSale: vente enregistrée mais sales_counter non incrémenté");
   }
   return { ...record, id: (data as { id: string }).id };
 }
@@ -115,63 +177,12 @@ export async function updateSaleInSupabase(
   return true;
 }
 
-/**
- * Supprime la ligne `sales` uniquement. Ne modifie pas `users.total_sales_count`
- * (compteur free tier monotone côté app ; aucun trigger ne doit décrémenter en base).
- */
+/** Supprime la ligne `sales` uniquement. */
 export async function deleteSaleInSupabase(userId: string, id: string): Promise<boolean> {
   const { error } = await supabase.from(TABLE).delete().eq("user_id", userId).eq("id", id);
   if (error) {
     console.warn("[salesSupabase] deleteSale error", error);
     return false;
   }
-  return true;
-}
-
-/**
- * Incrémente `users.total_sales_count` (unités vendues cumulées, quota free tier).
- * À appeler après chaque INSERT réussi dans `sales`. Ne décrémente pas à la suppression d’une ligne.
- */
-export async function incrementUserTotalSalesCount(
-  userId: string,
-  quantityDelta: number
-): Promise<boolean> {
-  const delta = Math.floor(Number(quantityDelta)) || 0;
-  if (delta <= 0) return true;
-
-  const { data: row, error: selErr } = await supabase
-    .from("users")
-    .select("total_sales_count")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (selErr) {
-    console.error("SUPABASE_ERROR: incrementUserTotalSalesCount select", selErr);
-    return false;
-  }
-
-  const prev = Number((row as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0);
-  const next = prev + delta;
-
-  const { data: updated, error: updErr } = await supabase
-    .from("users")
-    .update({ total_sales_count: next })
-    .eq("id", userId)
-    .select("id")
-    .maybeSingle();
-
-  if (updErr) {
-    console.error("SUPABASE_ERROR: incrementUserTotalSalesCount update", updErr);
-    return false;
-  }
-  if (!updated) {
-    console.error(
-      "SUPABASE_ERROR: incrementUserTotalSalesCount — aucune ligne users pour id=",
-      userId,
-      "(créez la ligne ou vérifiez RLS update sur users)"
-    );
-    return false;
-  }
-
   return true;
 }

@@ -616,7 +616,7 @@ export const etbData: ETBItem[] = [
     ]
   },
   {
-    "id": "MEG2",
+    "id": "ME01",
     "nom": "Méga Évolution 2",
     "bloc": "me",
     "dateSortie": "26/09/2025",

@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import type { SaleRecord } from "../utils/salesHistoryStorage";
-import { getGuestLifetimeSalesQuantity } from "../utils/salesHistoryStorage";
+import { getGuestSalesTransactionCount } from "../utils/salesHistoryStorage";
 import { useSalesHistory } from "../hooks/useSalesHistory";
+import { countSalesRowsByUserId, fetchSalesCounterCount } from "../lib/salesSupabase";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
-import { supabase } from "../lib/supabase";
 
 function formatSaleDate(iso: string): string {
   const [y, m, d] = iso.split("-");
@@ -20,14 +20,12 @@ function todayISO(): string {
 
 export const HistoriquePage = () => {
   const { pathname } = useLocation();
+  const { user } = useUser();
   const { theme } = useTheme();
   const isLight = theme === "light";
   const isDark = theme === "dark";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, isLoading: premiumLoading } = useSubscription();
-  const { user } = useUser();
-  /** Unités vendues comptées pour le quota free (monotone : pas lié au nombre de lignes restantes). */
-  const [freeTierQuotaUnits, setFreeTierQuotaUnits] = useState(0);
   console.log("[RENDER] HistoriquePage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const {
     sales,
@@ -35,6 +33,10 @@ export const HistoriquePage = () => {
     deleteSaleRecord,
     refreshSales,
   } = useSalesHistory();
+  /** Barre « Ventes utilisées » : `sales_counter.count` (connecté) ou compteur monotone invité — inchangé si on supprime une vente. */
+  const [ventesUtiliseesCount, setVentesUtiliseesCount] = useState(0);
+  /** Ventes actuellement en base / affichées (COUNT lignes `sales`). */
+  const [visibleSalesRowCount, setVisibleSalesRowCount] = useState(0);
   const [editId, setEditId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,33 +46,27 @@ export const HistoriquePage = () => {
   }, [pathname, refreshSales]);
 
   useEffect(() => {
-    if (pathname !== "/historique") return;
     let cancelled = false;
     const uid = user?.id ?? null;
     if (!uid) {
-      setFreeTierQuotaUnits(getGuestLifetimeSalesQuantity());
+      setVentesUtiliseesCount(getGuestSalesTransactionCount());
+      setVisibleSalesRowCount(sales.length);
       return;
     }
-    (async () => {
-      const { data, error } = await supabase
-        .from("users")
-        .select("total_sales_count")
-        .eq("id", uid)
-        .maybeSingle();
+    void (async () => {
+      const [quota, visible] = await Promise.all([
+        fetchSalesCounterCount(uid),
+        countSalesRowsByUserId(uid),
+      ]);
       if (cancelled) return;
-      if (error) {
-        console.warn("[HistoriquePage] total_sales_count:", error);
-        setFreeTierQuotaUnits(0);
-        return;
-      }
-      setFreeTierQuotaUnits(
-        Number((data as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0)
-      );
+      setVentesUtiliseesCount(quota);
+      setVisibleSalesRowCount(visible);
     })();
     return () => {
       cancelled = true;
     };
-  }, [pathname, user?.id, sales.length]); // sales.length → refetch après vente ; après delete, total_sales_count en base reste inchangé
+  }, [user?.id, sales.length]);
+
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editBuyPrice, setEditBuyPrice] = useState("");
   const [editSalePrice, setEditSalePrice] = useState("");
@@ -119,7 +115,7 @@ export const HistoriquePage = () => {
     return { totalVentes, totalInvesti, gainTotal, perfMoyenne };
   }, [sales]);
 
-  const clampedSalesCount = Math.max(0, Math.min(10, freeTierQuotaUnits));
+  const clampedSalesCount = Math.max(0, Math.min(10, ventesUtiliseesCount));
   const salesProgress = (Math.min(clampedSalesCount, 10) / 10) * 100;
   const salesLimitReached = clampedSalesCount >= 10;
 
@@ -200,6 +196,10 @@ export const HistoriquePage = () => {
                   }}
                 />
               </div>
+              <p className="text-[10px] mt-1.5" style={{ color: "var(--text-secondary)" }}>
+                Le quota ne baisse pas si vous supprimez une vente ·{" "}
+                {visibleSalesRowCount} ligne{visibleSalesRowCount !== 1 ? "s" : ""} actuellement dans l&apos;historique
+              </p>
             </section>
           )}
 

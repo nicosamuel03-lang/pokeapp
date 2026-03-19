@@ -21,8 +21,8 @@ import { useUser } from "@clerk/react";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { supabase } from "../lib/supabase";
-import { incrementUserTotalSalesCount } from "../lib/salesSupabase";
-import { getGuestLifetimeSalesQuantity } from "../utils/salesHistoryStorage";
+import { fetchSalesCounterCount, incrementSalesCounterByOne } from "../lib/salesSupabase";
+import { getGuestSalesTransactionCount } from "../utils/salesHistoryStorage";
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
   { mois_court: "Jan", mois_label: "Janvier", prix: 55 },
@@ -418,28 +418,14 @@ const ProductDetailPageInner = () => {
 
     const userId = user?.id ?? null;
 
-    // Limite free tier (10 unités vendues) : uniquement si compte résolu comme « free » (pas pendant loading → évite de bloquer un futur premium).
+    // Limite free : table `sales_counter` (+1 par vente, clé = Clerk id) ou compteur monotone invité.
     if (authState === "free") {
-      let currentCount = 0;
-      if (userId) {
-        const { data: userRow, error } = await supabase
-          .from("users")
-          .select("total_sales_count")
-          .eq("id", userId)
-          .single();
-        if (error) {
-          console.error("SUPABASE_ERROR:", error);
-        }
-        currentCount = Number(
-          (userRow as { total_sales_count?: number | null } | null)?.total_sales_count ?? 0
-        );
-      } else {
-        currentCount = getGuestLifetimeSalesQuantity();
-      }
-      const newTotal = currentCount + qtyToSell;
-      if (newTotal > FREE_SALE_LIMIT) {
+      const currentTxCount = userId
+        ? await fetchSalesCounterCount(userId)
+        : getGuestSalesTransactionCount();
+      if (currentTxCount + 1 > FREE_SALE_LIMIT) {
         setSaleLimitMessage(
-          `Limite gratuite : ${FREE_SALE_LIMIT} unités vendues max. Passez à Boss Access pour continuer à vendre.`
+          `Limite gratuite : ${FREE_SALE_LIMIT} ventes max. Passez à Boss Access pour continuer à vendre.`
         );
         return;
       }
@@ -483,11 +469,10 @@ const ProductDetailPageInner = () => {
           setSaleError(formatSupabaseInsertError(insertError));
           return;
         }
-        // Compteur quota (users.total_sales_count) : toujours incrémenter après vente (free, premium, ou abonnement encore en « loading »).
-        const countOk = await incrementUserTotalSalesCount(userId, qtyToSell);
+        const countOk = await incrementSalesCounterByOne(userId);
         if (!countOk) {
           setSaleError(
-            "Vente enregistrée, mais la mise à jour du compteur a échoué. Vérifiez les droits sur la table users (RLS) ou réessayez."
+            "Vente enregistrée, mais le compteur « Ventes utilisées » n’a pas pu être mis à jour (table sales_counter / RLS)."
           );
         }
         refreshSales();
@@ -642,6 +627,162 @@ const ProductDetailPageInner = () => {
           </div>
         </div>
       </div>
+
+      {isInCollection && (
+        <div
+          className="rounded-2xl px-2 py-3"
+          style={{
+            background: "var(--card-color)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+            ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
+          }}
+        >
+          <div
+            className="space-y-2"
+            style={{
+              background: "var(--card-color)",
+              border: "1px solid var(--border-color)",
+              borderRadius: 12,
+              padding: 16,
+            }}
+          >
+            <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+              Prix de vente final (€)
+            </label>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 rounded-2xl px-3 py-2 text-sm focus-within:ring-1 focus-within:ring-[var(--text-secondary)]/30" style={{ background: "var(--input-bg)" }}>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  className="w-full bg-transparent text-sm focus:outline-none"
+                  style={{ color: "var(--text-primary)" }}
+                  placeholder="Saisir le prix de vente..."
+                  value={saleInput}
+                  onChange={(e) => {
+                    setSaleError(null);
+                    setSaleLimitMessage(null);
+                    const value = e.target.value;
+                    setSaleInput(value);
+                    const parsed = parseFloat(value.replace(",", "."));
+                    if (!Number.isNaN(parsed)) {
+                      setSalePrice(product.id, parsed);
+                    } else {
+                      setSalePrice(product.id, null);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            <label className="mb-1 mt-3 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
+              Quantité à vendre{" "}
+              <span className="font-normal opacity-80">(max. {quantite})</span>
+            </label>
+            <div className="flex items-center gap-2">
+              <div
+                className="w-full max-w-[120px] rounded-2xl px-3 py-2 text-sm focus-within:ring-1 focus-within:ring-[var(--text-secondary)]/30"
+                style={{ background: "var(--input-bg)" }}
+              >
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={quantite}
+                  className="w-full bg-transparent text-sm focus:outline-none"
+                  style={{ color: "var(--text-primary)" }}
+                  value={saleQuantityToSell}
+                  onChange={(e) => {
+                    setSaleError(null);
+                    setSaleLimitMessage(null);
+                    const raw = e.target.value;
+                    if (raw === "") {
+                      setSaleQuantityToSell(1);
+                      return;
+                    }
+                    const v = parseInt(raw, 10);
+                    if (!Number.isFinite(v)) return;
+                    const max = Math.max(1, quantite);
+                    setSaleQuantityToSell(Math.min(Math.max(1, v), max));
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-2 grid grid-cols-2 gap-3 text-xs">
+              <div
+                style={{
+                  background: "var(--input-bg)",
+                  borderRadius: 8,
+                  padding: 12,
+                }}
+              >
+                <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Bénéfice brut</p>
+                <p
+                  className="mt-1 text-base font-semibold"
+                  style={{ color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)" }}
+                >
+                  {hasSale
+                    ? `${isPositive ? "+" : ""}${brut.toLocaleString("fr-FR", {
+                        style: "currency",
+                        currency: "EUR",
+                        maximumFractionDigits: 0
+                      })}`
+                    : "—"}
+                </p>
+              </div>
+              <div
+                style={{
+                  background: "var(--input-bg)",
+                  borderRadius: 8,
+                  padding: 12,
+                }}
+              >
+                <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Performance %</p>
+                <p
+                  className="mt-1 text-base font-semibold"
+                  style={{ color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)" }}
+                >
+                  {hasSale ? `${isPositive ? "+" : ""}${perfPct.toFixed(1)}%` : "—"}
+                </p>
+              </div>
+            </div>
+
+            {saleLimitMessage && (
+              <div className="mt-2 space-y-2 rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(239,68,68,0.12)", color: "var(--loss-red)" }}>
+                <p>{saleLimitMessage}</p>
+                <button
+                  type="button"
+                  className="font-semibold underline"
+                  style={{ color: accentGold, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                  onClick={() => navigate("/premium")}
+                >
+                  Voir Boss Access
+                </button>
+              </div>
+            )}
+            {saleError && (
+              <p className="mt-2 text-xs" style={{ color: "var(--loss-red)" }}>
+                {saleError}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleVendre}
+              disabled={!hasSale || isSelling}
+              className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm transition disabled:cursor-not-allowed"
+              style={{
+                background: hasSale && !isSelling ? accentGold : "var(--input-bg)",
+                color: hasSale && !isSelling ? "var(--text-primary)" : "var(--text-secondary)",
+                fontWeight: hasSale ? "bold" : "normal",
+                border: "1px solid var(--border-color)",
+              }}
+            >
+              {isSelling ? "Vente…" : "Vendre"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div
         className="rounded-2xl px-2 py-3"
@@ -915,152 +1056,6 @@ const ProductDetailPageInner = () => {
           >
             <span>Ajouter à ma collection</span>
           </button>
-        )}
-        {isInCollection && (
-          <div
-            className="space-y-2"
-            style={{
-              background: "var(--card-color)",
-              border: "1px solid var(--border-color)",
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
-            <label className="mb-1 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
-              Prix de vente final (€)
-            </label>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 rounded-2xl px-3 py-2 text-sm focus-within:ring-1 focus-within:ring-[var(--text-secondary)]/30" style={{ background: "var(--input-bg)" }}>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  className="w-full bg-transparent text-sm focus:outline-none"
-                  style={{ color: "var(--text-primary)" }}
-                  placeholder="Saisir le prix de vente..."
-                  value={saleInput}
-                  onChange={(e) => {
-                    setSaleError(null);
-                    setSaleLimitMessage(null);
-                    const value = e.target.value;
-                    setSaleInput(value);
-                    const parsed = parseFloat(value.replace(",", "."));
-                    if (!Number.isNaN(parsed)) {
-                      setSalePrice(product.id, parsed);
-                    } else {
-                      setSalePrice(product.id, null);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-
-            <label className="mb-1 mt-3 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
-              Quantité à vendre{" "}
-              <span className="font-normal opacity-80">(max. {quantite})</span>
-            </label>
-            <div className="flex items-center gap-2">
-              <div
-                className="w-full max-w-[120px] rounded-2xl px-3 py-2 text-sm focus-within:ring-1 focus-within:ring-[var(--text-secondary)]/30"
-                style={{ background: "var(--input-bg)" }}
-              >
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={quantite}
-                  className="w-full bg-transparent text-sm focus:outline-none"
-                  style={{ color: "var(--text-primary)" }}
-                  value={saleQuantityToSell}
-                  onChange={(e) => {
-                    setSaleError(null);
-                    setSaleLimitMessage(null);
-                    const raw = e.target.value;
-                    if (raw === "") {
-                      setSaleQuantityToSell(1);
-                      return;
-                    }
-                    const v = parseInt(raw, 10);
-                    if (!Number.isFinite(v)) return;
-                    const max = Math.max(1, quantite);
-                    setSaleQuantityToSell(Math.min(Math.max(1, v), max));
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="mt-2 grid grid-cols-2 gap-3 text-xs">
-              <div
-                style={{
-                  background: "var(--input-bg)",
-                  borderRadius: 8,
-                  padding: 12,
-                }}
-              >
-                <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Bénéfice brut</p>
-                <p
-                  className="mt-1 text-base font-semibold"
-                  style={{ color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)" }}
-                >
-                  {hasSale
-                    ? `${isPositive ? "+" : ""}${brut.toLocaleString("fr-FR", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0
-                      })}`
-                    : "—"}
-                </p>
-              </div>
-              <div
-                style={{
-                  background: "var(--input-bg)",
-                  borderRadius: 8,
-                  padding: 12,
-                }}
-              >
-                <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Performance %</p>
-                <p
-                  className="mt-1 text-base font-semibold"
-                  style={{ color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)" }}
-                >
-                  {hasSale ? `${isPositive ? "+" : ""}${perfPct.toFixed(1)}%` : "—"}
-                </p>
-              </div>
-            </div>
-
-            {saleLimitMessage && (
-              <div className="mt-2 space-y-2 rounded-lg px-3 py-2 text-xs" style={{ background: "rgba(239,68,68,0.12)", color: "var(--loss-red)" }}>
-                <p>{saleLimitMessage}</p>
-                <button
-                  type="button"
-                  className="font-semibold underline"
-                  style={{ color: accentGold, background: "none", border: "none", cursor: "pointer", padding: 0 }}
-                  onClick={() => navigate("/premium")}
-                >
-                  Voir Boss Access
-                </button>
-              </div>
-            )}
-            {saleError && (
-              <p className="mt-2 text-xs" style={{ color: "var(--loss-red)" }}>
-                {saleError}
-              </p>
-            )}
-
-            <button
-              type="button"
-              onClick={handleVendre}
-              disabled={!hasSale || isSelling}
-              className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm transition disabled:cursor-not-allowed"
-              style={{
-                background: hasSale && !isSelling ? accentGold : "var(--input-bg)",
-                color: hasSale && !isSelling ? "var(--text-primary)" : "var(--text-secondary)",
-                fontWeight: hasSale ? "bold" : "normal",
-                border: "1px solid var(--border-color)",
-              }}
-            >
-              {isSelling ? "Vente…" : "Vendre"}
-            </button>
-          </div>
         )}
         </div>
       </div>

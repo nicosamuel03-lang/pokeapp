@@ -14,13 +14,13 @@ export interface SaleRecord {
 }
 
 const STORAGE_KEY = "pokevault_guest_sales_v1";
-/** Unités vendues « à vie » en mode invité : n’est jamais diminué quand une vente est supprimée (anti-abus). */
-const LIFETIME_SALES_QTY_KEY = "pokevault_guest_lifetime_sales_qty_v1";
+/** Nombre de ventes enregistrées « à vie » (invité) : +1 par vente, jamais diminué à la suppression (aligné sur users.total_sales_count). */
+const GUEST_SALES_TX_COUNT_KEY = "pokevault_guest_sale_transactions_v1";
 
-function readLifetimeQtyRaw(): number | null {
+function readGuestTxCountRaw(): number | null {
   if (typeof window === "undefined") return null;
   try {
-    const v = localStorage.getItem(LIFETIME_SALES_QTY_KEY);
+    const v = localStorage.getItem(GUEST_SALES_TX_COUNT_KEY);
     if (v == null) return null;
     const n = parseInt(v, 10);
     return Number.isFinite(n) && n >= 0 ? n : 0;
@@ -29,10 +29,10 @@ function readLifetimeQtyRaw(): number | null {
   }
 }
 
-function writeLifetimeQty(n: number): void {
+function writeGuestTxCount(n: number): void {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(LIFETIME_SALES_QTY_KEY, String(Math.max(0, Math.floor(n))));
+    localStorage.setItem(GUEST_SALES_TX_COUNT_KEY, String(Math.max(0, Math.floor(n))));
   } catch {
     /* ignore */
   }
@@ -78,15 +78,20 @@ export function getTotalGuestSoldQuantity(): number {
 }
 
 /**
- * Unités vendues comptées pour le quota free invité : monotone (ne baisse pas si l’utilisateur supprime une vente).
- * À la première utilisation, initialisation depuis l’historique actuel si la clé n’existait pas.
+ * Nombre de ventes comptées pour le quota free invité : monotone (ne baisse pas si une ligne est supprimée).
+ * Si la clé n’existe pas, initialisation sur le nombre de lignes d’historique actuelles.
  */
-export function getGuestLifetimeSalesQuantity(): number {
-  const stored = readLifetimeQtyRaw();
+export function getGuestSalesTransactionCount(): number {
+  const stored = readGuestTxCountRaw();
   if (stored !== null) return stored;
-  const fromRows = getTotalGuestSoldQuantity();
-  writeLifetimeQty(fromRows);
+  const fromRows = loadRaw().length;
+  writeGuestTxCount(fromRows);
   return fromRows;
+}
+
+/** @deprecated Utiliser getGuestSalesTransactionCount */
+export function getGuestLifetimeSalesQuantity(): number {
+  return getGuestSalesTransactionCount();
 }
 
 export function getTotalRealizedGain(): number {
@@ -96,13 +101,11 @@ export function getTotalRealizedGain(): number {
 export function addSaleRecord(record: Omit<SaleRecord, "id">): SaleRecord {
   const id = newId();
   const row: SaleRecord = { ...record, id };
-  const qty = Math.max(1, Math.floor(Number(record.quantity)) || 1);
-  const prevStored = readLifetimeQtyRaw();
-  const base =
-    prevStored !== null ? prevStored : getTotalGuestSoldQuantity();
   const next = [...loadRaw(), row];
   saveRaw(next);
-  writeLifetimeQty(base + qty);
+  const rawTx = readGuestTxCountRaw();
+  const afterLen = loadRaw().length;
+  writeGuestTxCount(rawTx !== null ? rawTx + 1 : afterLen);
   return row;
 }
 

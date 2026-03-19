@@ -8,7 +8,16 @@ Vérifie dans ton **Dashboard Supabase** (Table Editor) que les noms de tables e
 |--------------------|--------|--------------------------------|
 | `id`               | text   | ID utilisateur (ex. Clerk)     |
 | `is_premium`       | boolean| Statut premium                 |
-| `total_sales_count`| integer| **Cumul d’unités vendues** (quota free tier). **Monotone** : ne pas le diminuer quand une ligne est supprimée dans `sales` (pas de trigger `ON DELETE`, pas de mise à jour depuis l’app au delete). |
+| `total_sales_count`| integer| Optionnel / legacy ; la jauge free tier utilise **`sales_counter`** (voir ci-dessous). |
+
+## Table `sales_counter`
+
+| Colonne   | Type    | Description |
+|-----------|---------|-------------|
+| `user_id` | text PK | ID Clerk (même valeur que `sales.user_id`) |
+| `count`   | integer | **+1** à chaque vente enregistrée ; **jamais** décrémenté quand une ligne est supprimée dans `sales`. La jauge « Ventes utilisées » et la limite à 10 s’appuient sur ce compteur. |
+
+Appliquer la migration `supabase/migrations/20250228180000_sales_counter.sql` (RLS permissives par défaut, à resserrer en prod si besoin).
 
 ## Table `profiles` (optionnelle)
 
