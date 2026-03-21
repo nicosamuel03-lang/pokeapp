@@ -65,12 +65,7 @@ app.post(
     const isActiveSubscriptionStatus = (status) =>
       status === "active" || status === "trialing";
 
-    const upsertPremiumForUser = async ({
-      clerkUserId,
-      isPremium,
-      subscriptionId,
-      customerId,
-    }) => {
+    const upsertPremiumForUser = async ({ clerkUserId, isPremium }) => {
       console.log("[stripe webhook] upsertPremiumForUser — clerkUserId:", clerkUserId, "isPremium:", isPremium);
       if (!clerkUserId) {
         console.warn("[stripe webhook] upsertPremiumForUser — SKIP (no clerkUserId)");
@@ -80,41 +75,18 @@ app.post(
         console.error("[stripe webhook] upsertPremiumForUser — SKIP (Supabase client missing: set SUPABASE_SERVICE_KEY)");
         return;
       }
-      const payload = {
-        id: clerkUserId,
-        is_premium: !!isPremium,
-        ...(subscriptionId ? { stripe_subscription_id: subscriptionId } : {}),
-        ...(customerId ? { stripe_customer_id: customerId } : {}),
-      };
-      console.log("[stripe webhook] Supabase upsert payload:", JSON.stringify(payload));
       const { error, data } = await supabase
         .from("users")
-        .upsert(payload, { onConflict: "id" })
+        .upsert(
+          { id: clerkUserId, is_premium: !!isPremium },
+          { onConflict: "id" }
+        )
         .select();
       if (error) {
         console.error("[stripe webhook] Supabase upsert error:", error);
         throw error;
       }
       console.log("[stripe webhook] Supabase upsert OK — rows:", data?.length ?? 0, data);
-    };
-
-    const updatePremiumBySubscriptionId = async ({
-      subscriptionId,
-      isPremium,
-    }) => {
-      if (!subscriptionId || !supabase) return false;
-      const { data, error } = await supabase
-        .from("users")
-        .select("id")
-        .eq("stripe_subscription_id", subscriptionId)
-        .maybeSingle();
-      if (error || !data?.id) return false;
-      const { error: updateError } = await supabase
-        .from("users")
-        .update({ is_premium: !!isPremium })
-        .eq("id", data.id);
-      if (updateError) throw updateError;
-      return true;
     };
 
     try {
@@ -170,16 +142,15 @@ app.post(
           await upsertPremiumForUser({
             clerkUserId,
             isPremium: true,
-            subscriptionId,
-            customerId,
           });
           console.log(
-            "[stripe webhook] checkout.session.completed — Premium activated for:",
+            "[stripe webhook] checkout.session.completed — Premium activated (id + is_premium only) for:",
             clerkUserId,
-            "subscription:",
+            "| session subscription:",
             subscriptionId,
             "customer:",
-            customerId
+            customerId,
+            "(Stripe ids not written to Supabase on this event)"
           );
         } else {
           console.error(
@@ -196,7 +167,6 @@ app.post(
         const sub = event.data.object;
         const subscriptionId = sub.id;
         const status = sub.status;
-        const customerId = sub.customer || null;
         const clerkUserId =
           sub?.metadata?.clerkUserId ||
           sub?.metadata?.clerk_user_id ||
@@ -208,8 +178,6 @@ app.post(
           await upsertPremiumForUser({
             clerkUserId,
             isPremium: premiumNow,
-            subscriptionId,
-            customerId,
           });
           console.log(
             "[stripe webhook] subscription sync via metadata for user:",
@@ -220,17 +188,9 @@ app.post(
             premiumNow
           );
         } else {
-          const updated = await updatePremiumBySubscriptionId({
-            subscriptionId,
-            isPremium: premiumNow,
-          });
-          console.log(
-            "[stripe webhook] subscription sync via stripe_subscription_id:",
-            subscriptionId,
-            "status:",
-            status,
-            "updatedRow:",
-            updated
+          console.warn(
+            "[stripe webhook] customer.subscription — no clerkUserId in subscription metadata; cannot upsert is_premium. subscription:",
+            subscriptionId
           );
         }
       }
