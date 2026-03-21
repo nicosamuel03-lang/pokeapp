@@ -12,6 +12,31 @@ create table if not exists public.users (
 alter table public.users
   add column if not exists stripe_subscription_id text;
 
--- Optional: enable RLS and allow read for authenticated users (adjust to your auth strategy)
--- alter table public.users enable row level security;
--- create policy "Users can read own row" on public.users for select using (auth.uid()::text = id);
+-- RLS + Clerk : le front utilise la clé ANON (pas Supabase Auth → auth.uid() est NULL).
+-- Exécuter aussi les migrations dans supabase/migrations/20250228190000_* et 20250228190100_*
+-- ou coller ci-dessous dans SQL Editor.
+
+alter table public.users enable row level security;
+
+drop policy if exists "Users can read own data" on public.users;
+create policy "Users can read own data"
+  on public.users
+  for select
+  to anon
+  using (true);
+
+drop policy if exists "Allow anon insert users" on public.users;
+drop policy if exists "Allow anon update users" on public.users;
+
+create policy "Allow anon insert users"
+  on public.users
+  for insert
+  to anon
+  with check (true);
+
+create policy "Allow anon update users"
+  on public.users
+  for update
+  to anon
+  using (true)
+  with check (true);

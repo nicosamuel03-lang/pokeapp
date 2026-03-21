@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useAuth, useUser } from "@clerk/react";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
@@ -25,15 +25,28 @@ function ScrollToTop() {
   return null;
 }
 
-async function checkSubscription(userId: string): Promise<boolean> {
+/**
+ * Lit toujours `users.is_premium` depuis Supabase (pas de cache localStorage / pas de fallback API).
+ * Log explicite pour debug après webhook Stripe.
+ */
+async function fetchIsPremiumFromSupabase(userId: string): Promise<boolean> {
   const { data, error } = await supabase
     .from("users")
     .select("is_premium")
     .eq("id", userId)
     .maybeSingle();
 
+  const rawPremium = data != null ? (data as { is_premium?: boolean | null }).is_premium : null;
+  console.log(
+    "[subscription] Fresh Supabase fetch — user id:",
+    userId,
+    "| users.is_premium:",
+    rawPremium,
+    "| error:",
+    error?.message ?? null
+  );
+
   if (error || !data) {
-    // PGRST116 = no rows found; on crée une ligne par défaut.
     const code = (error as { code?: string } | null)?.code;
     if (code === "PGRST116" || (!data && !error)) {
       try {
@@ -45,29 +58,38 @@ async function checkSubscription(userId: string): Promise<boolean> {
     return false;
   }
 
-  const isPremiumDb = (data as { is_premium?: boolean | null }).is_premium === true;
-  if (isPremiumDb) return true;
-
-  // If Supabase says not premium, verify with backend (webhook sync can lag)
-  try {
-    const API_BASE = import.meta.env.VITE_API_URL || "https://pokeapp-production-52e4.up.railway.app";
-    const response = await fetch(`${API_BASE}/api/check-subscription`, {
-      headers: { userId },
-    });
-    if (!response.ok) return false;
-    const json = (await response.json()) as { isPremium?: boolean };
-    return json?.isPremium === true;
-  } catch {
-    return false;
-  }
+  return rawPremium === true;
 }
 
 const App = () => {
+  const { pathname } = useLocation();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
+  // Incrémenté à chaque navigation ou retour sur l’onglet → nouveau fetch Supabase (évite l’état free obsolète après paiement).
+  const [premiumFetchNonce, setPremiumFetchNonce] = useState(0);
+  const refreshSubscription = useCallback(() => {
+    setPremiumFetchNonce((n) => n + 1);
+  }, []);
+
   // En cas de non-auth (Clerk user null/undefined), on se comporte comme free immédiatement.
-  // On évite de laisser un état "loading" afficher du contenu premium tant que l'utilisateur n'est pas confirmé.
   const [authState, setAuthState] = useState<AuthState>(() => (isSignedIn === true ? "loading" : "free"));
+
+  // Retour sur l’onglet après Stripe (ou autre) : refetch même si l’URL n’a pas changé.
+  useEffect(() => {
+    let wasHidden = document.visibilityState === "hidden";
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        wasHidden = true;
+        return;
+      }
+      if (document.visibilityState === "visible" && wasHidden) {
+        wasHidden = false;
+        setPremiumFetchNonce((n) => n + 1);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,9 +106,8 @@ const App = () => {
       return;
     }
 
-    // Only set loading if we don't already have a resolved state
-    setAuthState((current) => (current === "loading" ? "loading" : current));
-    checkSubscription(userId)
+    setAuthState("loading");
+    fetchIsPremiumFromSupabase(userId)
       .then((premium) => {
         if (cancelled) return;
         setAuthState(premium ? "premium" : "free");
@@ -99,7 +120,7 @@ const App = () => {
     return () => {
       cancelled = true;
     };
-  }, [isLoaded, isSignedIn, user?.id]);
+  }, [isLoaded, isSignedIn, user?.id, pathname, premiumFetchNonce]);
 
   useEffect(() => {
     console.log("[AUTH] authState changed:", authState, new Date().toISOString());
@@ -109,8 +130,8 @@ const App = () => {
   const isLoading = authState === "loading";
 
   return (
-    <SubscriptionProvider value={{ authState, isPremium, isLoading }}>
-      <ThemeProvider isPremium={isPremium}>
+    <SubscriptionProvider value={{ authState, isPremium, isLoading, refreshSubscription }}>
+      <ThemeProvider isPremium={isPremium} subscriptionLoading={isLoading}>
         <div className="min-h-screen" style={{ background: "var(--bg-app)", color: "var(--text-secondary)" }}>
           <ScrollToTop />
           <Routes>

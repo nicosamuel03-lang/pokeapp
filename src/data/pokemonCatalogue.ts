@@ -1,5 +1,8 @@
 import { etbData, type EtbBloc } from "./etbData";
 import { displayData } from "./displayData";
+import { removeAccents } from "../utils/textNormalize";
+
+export { removeAccents } from "../utils/textNormalize";
 
 export type ModernBlock = "Méga Évolution" | "Écarlate & Violet" | "Épée & Bouclier";
 
@@ -48,9 +51,19 @@ function excelDateToRelease(dateSortie: string): string {
   return "2020-01";
 }
 
+/** Slug stable par nom d’ETB : plusieurs lignes peuvent partager le même code set (ex. EV04 + EV04 « 2 »). */
+function slugifyEtbNom(nom: string): string {
+  const s = removeAccents(nom)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return s || "item";
+}
+
 // ETB catalogue: single source of truth from etbData.ts (same as home page)
 const autoEtbItems: PokemonCatalogueItem[] = etbData.map((etb) => ({
-  id: `etb-${etb.id}`,
+  /** Id unique par produit (évite d’écraser Faille Paradoxe / Faille Paradoxe 2 au dédoublonnage). */
+  id: `etb-${etb.id}-${slugifyEtbNom(etb.nom)}`,
   name: `ETB ${etb.nom}`,
     block: BLOC_LABEL[etb.bloc],
     type: "ETB",
@@ -120,31 +133,46 @@ const FULL_CATALOGUE: PokemonCatalogueItem[] = resolveDisplayImageUrls([
   ...autoUpcItems,
 ]);
 
-/** Normalise pour recherche : accents puis casse ignorés (ep / epe / EPE → Épée) */
-function normalizeForSearch(s: string): string {
-  return s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
+console.log(
+  "Display items sample:",
+  FULL_CATALOGUE.filter((i) => JSON.stringify(i).toLowerCase().includes("display")).slice(0, 3)
+);
+
+function dedupeCatalogueById(items: PokemonCatalogueItem[]): PokemonCatalogueItem[] {
+  return Array.from(new Map(items.map((item) => [item.id, item])).values());
 }
 
-/** Recherche dans tout le catalogue (items manuels + ETB auto) : insensible à la casse et aux accents. Chaque terme du query doit apparaître. */
+/**
+ * Recherche : texte agrégé (nom, type, bloc, id) — les Displays n’ont souvent pas « Display » dans le nom (ex. « EV03 Flammes… »), mais `type` vaut « Display ».
+ * 1 mot → sous-chaîne ; plusieurs mots → chaque mot doit apparaître dans ce texte.
+ * Déduplication par `id`. Le tri pour l’affichage est fait dans `SearchCatalogue` après filtrage.
+ */
+type SearchableCatalogueFields = PokemonCatalogueItem &
+  Partial<{ title: string; label: string; category: string }>;
+
 export const searchPokemonCatalogue = (query: string): PokemonCatalogueItem[] => {
   const trimmed = query.trim();
-  if (!trimmed) return FULL_CATALOGUE;
-  const terms = trimmed
-    .split(/\s+/)
-    .map((t) => normalizeForSearch(t))
-    .filter((t) => t.length > 0);
-  if (terms.length === 0) return FULL_CATALOGUE;
-  return FULL_CATALOGUE.filter((item) => {
-    const base =
-      normalizeForSearch(item.name) +
-      " " +
-      normalizeForSearch(item.block) +
-      " " +
-      normalizeForSearch(item.type);
-    return terms.every((term) => base.includes(term));
+  if (!trimmed) return dedupeCatalogueById(FULL_CATALOGUE);
+
+  const normalizedQuery = removeAccents(query.toLowerCase().trim());
+  const queryWords = normalizedQuery.split(/\s+/).filter((w) => w.length > 0);
+  if (queryWords.length === 0) return dedupeCatalogueById(FULL_CATALOGUE);
+
+  const filtered = FULL_CATALOGUE.filter((raw) => {
+    const item = raw as SearchableCatalogueFields;
+    const searchableText = removeAccents(
+      [item.name, item.title, item.label, item.type, item.category, item.block, item.id]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+    );
+
+    if (queryWords.length === 1) {
+      return searchableText.includes(queryWords[0]);
+    }
+    return queryWords.every((word) => searchableText.includes(word));
   });
+
+  return Array.from(new Map(filtered.map((item) => [item.id, item])).values());
 };
 

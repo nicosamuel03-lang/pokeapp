@@ -1,17 +1,21 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { CheckCircle2 } from "lucide-react";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 import { useTheme } from "../state/ThemeContext";
+import { useSubscription } from "../state/SubscriptionContext";
 
 export function SuccessPage() {
+  const navigate = useNavigate();
   const { user } = useUser();
+  const { refreshSubscription } = useSubscription();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
 
   const handleAccess = () => {
-    // Force un reload complet pour que l'app relise l'état à jour depuis Supabase
-    window.location.href = "/";
+    refreshSubscription();
+    navigate("/", { replace: true });
   };
 
   useEffect(() => {
@@ -22,27 +26,25 @@ export function SuccessPage() {
     (async () => {
       const uid = user.id;
 
-      console.log("Activating premium for userId:", uid);
+      console.log("[SuccessPage] Sync premium row for userId:", uid);
 
-      // 1. Mise à jour directe du profil dans Supabase sur la table réellement utilisée : `users`
       const { error } = await supabase
         .from("users")
         .update({ is_premium: true })
         .eq("id", uid);
       if (error) {
-        console.error("Premium Activation Error:", error);
+        console.error("[SuccessPage] Premium update error:", error);
         return;
       }
 
       if (cancelled) return;
-
-      // On laisse l'utilisateur voir la page de succès ; le bouton permettra de revenir à l'accueil.
+      refreshSubscription();
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [user?.id]);
+  }, [user?.id, refreshSubscription]);
 
   return (
     <div

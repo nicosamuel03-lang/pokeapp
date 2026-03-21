@@ -3,21 +3,20 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { useSubscription } from "../state/SubscriptionContext";
-import {
-  pokemonCatalogue,
-  searchPokemonCatalogue,
-  type PokemonCatalogueItem,
-} from "../data/pokemonCatalogue";
+import { removeAccents, searchPokemonCatalogue, type PokemonCatalogueItem } from "../data/pokemonCatalogue";
 import { etbData } from "../data/etbData";
 import { getLastPrixFromHistorique } from "../utils/prixMarche";
 import { getDisplayImageUrlForCatalogueItem } from "../utils/displayImage";
 import { getEraBadgeForCatalogueItem } from "../utils/eraBadge";
 import { formatDisplayProductName, formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
+import { CatalogueSearchResultRow } from "./CatalogueSearchResultRow";
 
 function getMarchéActuel(item: PokemonCatalogueItem): number {
   if (item.etbId) {
-    const etb = etbData.find((e) => e.id === item.etbId);
+    const etb =
+      etbData.find((e) => e.id === item.etbId && item.name === `ETB ${e.nom}`) ??
+      etbData.find((e) => e.id === item.etbId);
     if (etb?.prixActuel != null && etb.prixActuel > 0) return etb.prixActuel;
     if (etb?.historique_prix?.length) {
       const p = getLastPrixFromHistorique(etb.historique_prix);
@@ -297,8 +296,8 @@ export const SearchCatalogue = () => {
   );
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<PokemonCatalogueItem[]>(() => searchPokemonCatalogue("") ?? []);
-  const [open, setOpen] = useState(true);
+  const [results, setResults] = useState<PokemonCatalogueItem[]>([]);
+  const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<PokemonCatalogueItem | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -324,9 +323,31 @@ export const SearchCatalogue = () => {
   }, [itemParam, setSearchParams]);
 
   useEffect(() => {
-    const found = searchPokemonCatalogue(query) ?? [];
-    setResults(found);
-    setOpen(found.length > 0);
+    const q = query.trim();
+    if (q.length < 1) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
+    const matches = searchPokemonCatalogue(q) ?? [];
+    const normalizedQuerySort = removeAccents(q.toLowerCase());
+    const sorted = [...matches].sort((a, b) => {
+      const nameA = (a.name || "").toLowerCase();
+      const nameB = (b.name || "").toLowerCase();
+      const aStarts = removeAccents(nameA).startsWith(normalizedQuerySort);
+      const bStarts = removeAccents(nameB).startsWith(normalizedQuerySort);
+      if (aStarts && !bStarts) return -1;
+      if (!aStarts && bStarts) return 1;
+      /* Si les deux commencent par la requête (ex. « e ») : ETB avant Display/UPC — sinon « EB01… » gagne sur « ETB… » via localeCompare. */
+      if (aStarts && bStarts) {
+        const typeRank = (t: PokemonCatalogueItem["type"]) => (t === "ETB" ? 0 : t === "Display" ? 1 : 2);
+        const tr = typeRank(a.type) - typeRank(b.type);
+        if (tr !== 0) return tr;
+      }
+      return nameA.localeCompare(nameB);
+    });
+    setResults(sorted);
+    setOpen(true);
   }, [query]);
 
   useEffect(() => {
@@ -373,10 +394,7 @@ export const SearchCatalogue = () => {
     navigate("/collection");
   };
 
-  // Suggestions populaires quand la barre est vide
-  const popularItems = searchPokemonCatalogue("").filter((i) =>
-    i.type === "Display" && ["display-EB01", "display-EB06", "display-EV01", "display-EV03", "display-EV05", "display-ME01"].includes(i.id ?? "")
-  );
+  const hasSearchQuery = query.trim().length >= 1;
 
   return (
     <div ref={containerRef} className="relative">
@@ -404,7 +422,9 @@ export const SearchCatalogue = () => {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length >= 2 && setOpen(true)}
+          onFocus={() => {
+            if (query.trim().length >= 1) setOpen(true);
+          }}
           placeholder="Rechercher un item (ex: ETB 151, Display EV, Coffret 151…)"
           className="flex-1 bg-transparent text-sm focus:outline-none"
           style={{ color: "var(--text-primary)" }}
@@ -413,7 +433,8 @@ export const SearchCatalogue = () => {
           <button
             onClick={() => {
               setQuery("");
-              setOpen(true);
+              setResults([]);
+              setOpen(false);
               inputRef.current?.focus();
             }}
             className="shrink-0 hover:opacity-80"
@@ -424,145 +445,56 @@ export const SearchCatalogue = () => {
         )}
       </div>
 
-      {/* Dropdown résultats */}
-      {open && Array.isArray(results) && results.length > 0 && (
+      {/* État vide : aucune saisie */}
+      {!hasSearchQuery && (
+        <div className="mt-10 px-2 text-center text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+          Commencez à taper pour rechercher un produit…
+        </div>
+      )}
+
+      {/* Dropdown résultats (au moins 1 caractère) */}
+      {hasSearchQuery && open && Array.isArray(results) && results.length > 0 && (
         <div
           className="absolute left-0 right-0 z-40 mt-1.5 overflow-hidden rounded-2xl"
           style={{ background: "var(--card-color)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
         >
-          {results.map((item, i) => (
-            <button
-              key={item?.id ?? `result-${i}`}
-              onClick={() => {
-                setSelected(item);
-              }}
-              className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition ${
-                i < results.length - 1 ? "border-b border-[var(--border-color)]" : ""
-              }`}
-            >
-              {(() => {
-                const imgUrl = getProductImageUrlForCatalogueItem(item);
-                const eraBadge = getEraBadgeForCatalogueItem(item);
-                const placeholderBg =
-                  (item.type === "Display" || item.type === "UPC") && eraBadge ? eraBadge.bg : "var(--placeholder-bg)";
-                return (
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl"
-                    style={{ height: "48px", minHeight: "48px", background: "var(--img-container-bg)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
-                  >
-                    {imgUrl ? (
-                      <img
-                        src={imgUrl || ""}
-                        alt={formatDisplayProductName(item.name, item.type === "Display" || item.type === "UPC")}
-                        loading="eager"
-                        width={48}
-                        height={48}
-                        className="h-full w-full object-contain"
-                        style={{ objectFit: "contain" }}
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          const placeholder = e.currentTarget.nextElementSibling as HTMLElement | null;
-                          if (placeholder) {
-                            placeholder.style.display = "block";
-                            placeholder.style.background = placeholderBg;
-                          }
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      className="h-full w-full"
-                      style={{
-                        display: imgUrl ? "none" : "block",
-                        background: placeholderBg,
-                      }}
-                      aria-hidden
-                    />
-                  </div>
-                );
-              })()}
-                <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5">
-                  {(() => {
-                    const eraBadge = getEraBadgeForCatalogueItem(item);
-                    return eraBadge ? (
-                      <span
-                        className="shrink-0 whitespace-nowrap font-medium"
-                        style={{
-                          fontSize: "9px",
-                          padding: "2px 5px",
-                          borderRadius: "4px",
-                          background: eraBadge.bg,
-                          color: eraBadge.color,
-                        }}
-                      >
-                        {eraBadge.label}
-                      </span>
-                    ) : null;
-                  })()}
-                </div>
-                <div className="mt-0.5 flex items-center gap-1.5">
-                  <p className="app-heading truncate text-[13px]" style={{ color: "var(--text-primary)" }}>
-                    {formatProductNameWithSetCode(
-                      item.name,
-                      getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
-                      item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
-                    )}
-                  </p>
-                  {item.block === "Méga Évolution" && (
-                    <span className="rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide" style={{ color: "var(--gain-green)", background: "rgba(34,197,94,0.15)" }}>
-                      NEW
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className="shrink-0 text-right">
-                <p className="text-[13px] font-semibold" style={{ color: accentGold }}>
-                  {getMarchéActuel(item).toLocaleString("fr-FR", {
-                    style: "currency",
-                    currency: "EUR",
-                    maximumFractionDigits: 0,
-                  })}
-                </p>
-                <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                  Retail {item.msrp}€
-                </p>
-              </div>
-            </button>
-          ))}
+          {results.map((item, i) => {
+            const imgUrl = getProductImageUrlForCatalogueItem(item);
+            const eraBadge = getEraBadgeForCatalogueItem(item);
+            const placeholderBg =
+              (item.type === "Display" || item.type === "UPC") && eraBadge ? eraBadge.bg : "var(--placeholder-bg)";
+            return (
+              <CatalogueSearchResultRow
+                key={item?.id ?? `result-${i}`}
+                mode="button"
+                onPress={() => setSelected(item)}
+                accentGold={accentGold}
+                imageUrl={imgUrl}
+                nameForAlt={item.name}
+                isDisplayOrUpc={item.type === "Display" || item.type === "UPC"}
+                placeholderBg={placeholderBg}
+                eraBadge={eraBadge}
+                title={formatProductNameWithSetCode(
+                  item.name,
+                  getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
+                  item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
+                )}
+                showNewBadge={item.block === "Méga Évolution"}
+                marketPrice={getMarchéActuel(item)}
+                retailPrice={item.msrp}
+                showBottomBorder={i < results.length - 1}
+              />
+            );
+          })}
         </div>
       )}
 
-      {open && results.length === 0 && (
+      {hasSearchQuery && open && results.length === 0 && (
         <div
           className="absolute left-0 right-0 z-40 mt-1.5 rounded-2xl px-3 py-3 text-sm"
           style={{ background: "var(--card-color)", color: "var(--text-secondary)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
         >
-          No items found
-        </div>
-      )}
-
-      {/* Produits populaires — texte uniquement, minimaliste */}
-      {!query && (
-        <div className="mt-3">
-          <p className="app-heading mb-2 text-[11px] uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
-            Produits populaires
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {popularItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setSelected(item)}
-                className="rounded-xl px-2.5 py-1.5 text-[12px] font-medium transition hover:opacity-90"
-                style={{ background: "var(--card-color)", color: "var(--text-secondary)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
-              >
-                <span className="truncate max-w-[130px]">{formatProductNameWithSetCode(
-                  item.name,
-                  getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
-                  item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
-                )}</span>
-              </button>
-            ))}
-          </div>
+          Aucun produit trouvé
         </div>
       )}
 
@@ -572,7 +504,7 @@ export const SearchCatalogue = () => {
           item={selected}
           onClose={() => {
             setSelected(null);
-            setOpen(true);
+            setOpen(query.trim().length >= 1);
           }}
           onAdd={handleAdd}
         />

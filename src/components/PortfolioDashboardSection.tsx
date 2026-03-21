@@ -1,9 +1,13 @@
-import { type CSSProperties, useEffect, useState } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Wallet, BarChart2, Package, TrendingUp, ChevronRight } from "lucide-react";
-import { PortfolioCategoryDonut, CATEGORY_DONUT_COLORS } from "./PortfolioCategoryDonut";
-import { PortfolioEraDonut, ERA_DONUT_COLORS } from "./PortfolioEraDonut";
+import { Line, LineChart as RechartsLineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Wallet, LineChart, Package, TrendingUp, ChevronRight } from "lucide-react";
+import {
+  PortfolioCategoryDonut,
+  CATEGORY_DONUT_COLORS,
+  getCategoryRepartitionRows,
+} from "./PortfolioCategoryDonut";
+import { PortfolioEraDonut, ERA_DONUT_COLORS, getEraRepartitionRows } from "./PortfolioEraDonut";
 import {
   PORTFOLIO_CHART_HEIGHT,
   buildPortfolioChartData,
@@ -56,18 +60,11 @@ export function PortfolioDashboardSection({
   const chartData = buildPortfolioChartData(collectionLines, chartPeriod, totalInvesti);
   const portfolio = computePortfolioStats(collectionLines, sales);
 
+  const categoryRepartitionRows = useMemo(() => getCategoryRepartitionRows(collectionLines), [collectionLines]);
+  const eraRepartitionRows = useMemo(() => getEraRepartitionRows(collectionLines), [collectionLines]);
+
   const lineMarketColor = isDark ? EMERALD : accentGold;
   const plusPositive = portfolio.plusValueTotale >= 0;
-
-  /** Donuts plus petits sur mobile pour éviter le chevauchement avec le montant. */
-  const [donutSize, setDonutSize] = useState(55);
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 640px)");
-    const sync = () => setDonutSize(mq.matches ? 75 : 55);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
 
   const mainCardStyle: CSSProperties = isDark
     ? { background: DARK_MAIN, boxShadow: "none" }
@@ -197,7 +194,7 @@ export function PortfolioDashboardSection({
                 }}
               >
                 <ResponsiveContainer width="100%" height={PORTFOLIO_CHART_HEIGHT}>
-                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <RechartsLineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                     <XAxis
                       dataKey="mois"
                       tick={{ fill: isDark ? LABEL_GRAY : "var(--text-secondary)", fontSize: 10 }}
@@ -257,7 +254,7 @@ export function PortfolioDashboardSection({
                       dot={false}
                       connectNulls={true}
                     />
-                  </LineChart>
+                  </RechartsLineChart>
                 </ResponsiveContainer>
               </div>
               {isPremium !== true && !isLoadingSubscription && (
@@ -323,12 +320,140 @@ export function PortfolioDashboardSection({
             </div>
           )}
         </div>
+
+        {collectionLines.length > 0 ? (
+          <div className="mt-3 px-3 pb-2">
+            <p className="mb-2 text-xs font-medium" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
+              Répartition détaillée
+            </p>
+            <div className="flex w-full min-w-0 flex-row justify-between gap-4">
+              <div
+                className="flex min-w-0 flex-1 flex-col gap-1 leading-tight"
+                style={{ fontSize: 11 }}
+                aria-label="Répartition par catégorie (quantités et pourcentages)"
+              >
+                {categoryRepartitionRows.length === 0 ? (
+                  <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>Aucune donnée</span>
+                ) : (
+                  categoryRepartitionRows.map((row) => (
+                    <div key={row.label} className="flex w-full min-w-0 items-center gap-1">
+                      <div
+                        className="flex min-w-0 flex-1 items-center justify-end gap-1.5 font-medium"
+                        style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}
+                      >
+                        <span
+                          className="inline-block h-2 w-2 shrink-0 rounded-full"
+                          style={{ background: row.color }}
+                          aria-hidden
+                        />
+                        <span className="truncate text-right">{row.label}</span>
+                      </div>
+                      <span
+                        className="shrink-0 text-right tabular-nums"
+                        style={{ color: isDark ? "#e5e7eb" : "#374151", minWidth: "2.85rem" }}
+                      >
+                        {row.count} · {row.pct.toFixed(1)}%
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div
+                className="flex min-w-0 flex-1 flex-col gap-1 leading-tight"
+                style={{ fontSize: 11 }}
+                aria-label="Répartition par ère (quantités et pourcentages)"
+              >
+                {eraRepartitionRows.length === 0 ? (
+                  <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>Aucune donnée</span>
+                ) : (
+                  eraRepartitionRows.map((row) => (
+                    <div key={row.label} className="flex w-full min-w-0 items-center gap-1">
+                      <div
+                        className="flex min-w-0 flex-1 items-center justify-end gap-1.5 font-medium"
+                        style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}
+                      >
+                        <span
+                          className="inline-block h-2 w-2 shrink-0 rounded-full"
+                          style={{ background: row.color }}
+                          aria-hidden
+                        />
+                        <span className="truncate text-right">{row.label}</span>
+                      </div>
+                      <span
+                        className="shrink-0 text-right tabular-nums"
+                        style={{ color: isDark ? "#e5e7eb" : "#374151", minWidth: "2.85rem" }}
+                      >
+                        {row.count} · {row.pct.toFixed(1)}%
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </section>
     );
   }
 
   /* mode === "summary" — pas de graphique sur l’accueil */
-  const leftColumnContent = (
+  const mainCardShellClass = "flex w-full min-w-0 flex-col rounded-2xl px-4 py-4 text-left";
+
+  const REPARTITION_DONUT_SIZE = 120;
+
+  /** Même fond que Investi / Performance : gris clair / grille sombre. */
+  const repartitionCardStyle: CSSProperties = isDark
+    ? { background: DARK_GRID, boxShadow: "none" }
+    : {
+        background: "#f3f4f6",
+        ...(isLight && { border: "1px solid var(--border-color)" }),
+      };
+
+  const repartitionLegendMuted = isDark ? LABEL_GRAY : "#6b7280";
+
+  const categorySimpleLegend = (
+    <div
+      className="flex min-w-0 flex-col items-start justify-center gap-0.5 leading-tight"
+      style={{ fontSize: 10, color: repartitionLegendMuted }}
+      aria-label="Légende catégories"
+    >
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_DONUT_COLORS.ETB }} aria-hidden />
+        ETB
+      </span>
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_DONUT_COLORS.UPC }} aria-hidden />
+        UPC
+      </span>
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_DONUT_COLORS.Displays }} aria-hidden />
+        Displays
+      </span>
+    </div>
+  );
+
+  const eraSimpleLegend = (
+    <div
+      className="flex min-w-0 flex-col items-start justify-center gap-0.5 leading-tight"
+      style={{ fontSize: 10, color: repartitionLegendMuted }}
+      aria-label="Légende des ères"
+    >
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Méga Évolution"] }} aria-hidden />
+        Méga Évo
+      </span>
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Épée & Bouclier"] }} aria-hidden />
+        Épée&amp;B
+      </span>
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Écarlate & Violet"] }} aria-hidden />
+        Écar&amp;V
+      </span>
+    </div>
+  );
+
+  const portfolioValueBlock = (
     <>
       <p className="text-xs font-medium mb-1" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
         Valeur du portefeuille
@@ -373,101 +498,93 @@ export function PortfolioDashboardSection({
     </>
   );
 
-  const mainCardShellClassNoLink =
-    "flex w-full min-w-0 flex-row flex-nowrap items-center justify-between gap-3 rounded-2xl px-4 py-4 text-left";
+  const portfolioMainCardInner = (opts: { showLinks: boolean; to?: string }) => {
+    const { showLinks, to } = opts;
+    const chevron =
+      showLinks && to ? (
+        <Link
+          to={to}
+          className="portfolio-summary-card-link flex shrink-0 items-center justify-center rounded-lg p-1.5 no-underline cursor-pointer"
+          style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}
+          aria-label="Aller à la collection"
+        >
+          <ChevronRight className="portfolio-summary-card-chevron" size={24} strokeWidth={2} aria-hidden />
+        </Link>
+      ) : null;
+
+    return (
+      <div className="flex w-full min-w-0 flex-row items-center justify-between gap-3">
+        {showLinks && to ? (
+          <Link
+            to={to}
+            className="portfolio-summary-card-link min-w-0 flex-1 basis-0 text-left no-underline cursor-pointer"
+            style={{ color: "inherit" }}
+            aria-label="Voir le graphique du portefeuille et la collection"
+          >
+            {portfolioValueBlock}
+          </Link>
+        ) : (
+          <div className="min-w-0 flex-1 basis-0 text-left">{portfolioValueBlock}</div>
+        )}
+        {chevron}
+      </div>
+    );
+  };
+
+  const repartitionCard = (
+    <div className="rounded-2xl px-4 py-2 text-left" style={repartitionCardStyle}>
+      <p className="mb-1 text-xs font-medium" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
+        Répartition
+      </p>
+      <div className="flex w-full min-w-0 flex-row items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 flex-row items-center justify-center gap-1.5">
+          <div className="shrink-0 leading-none" title="Catégories (ETB, UPC, Displays)">
+            <PortfolioCategoryDonut
+              collectionLines={collectionLines}
+              isDark={isDark}
+              size={REPARTITION_DONUT_SIZE}
+              showTooltip={false}
+            />
+          </div>
+          {categorySimpleLegend}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-row items-center justify-center gap-1.5">
+          <div className="shrink-0 leading-none" title="Ères">
+            <PortfolioEraDonut collectionLines={collectionLines} isDark={isDark} size={REPARTITION_DONUT_SIZE} showTooltip={false} />
+          </div>
+          {eraSimpleLegend}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <section className="space-y-3">
       {summaryMainCardTo ? (
         <div
-          className={mainCardShellClassNoLink}
+          className={mainCardShellClass}
           style={{
             ...mainCardStyle,
             border: isDark ? "none" : undefined,
             color: "inherit",
           }}
         >
-          <Link
-            to={summaryMainCardTo}
-            className="portfolio-summary-card-link min-w-0 flex-1 basis-0 shrink text-left no-underline cursor-pointer pr-1"
-            style={{ color: "inherit" }}
-            aria-label="Voir le graphique du portefeuille et la collection"
-          >
-            {leftColumnContent}
-          </Link>
-          <div className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-2">
-            <div
-              className="flex shrink-0 flex-col items-end justify-center gap-0.5"
-              role="group"
-              aria-label="Répartition de la collection par catégorie et par ère"
-            >
-              <div className="flex flex-row items-center justify-end gap-1 sm:gap-1.5">
-                <div className="shrink-0" title="Catégories (ETB, UPC, Displays)">
-                  <PortfolioCategoryDonut collectionLines={collectionLines} isDark={isDark} size={donutSize} />
-                </div>
-                <div className="shrink-0" title="Ères (Méga Évolution, Épée & Bouclier, Écarlate & Violet)">
-                  <PortfolioEraDonut collectionLines={collectionLines} isDark={isDark} size={donutSize} />
-                </div>
-              </div>
-              <div
-                className="mt-0.5 flex max-w-[min(100vw-8rem,11rem)] flex-col items-end gap-0.5 text-right leading-tight sm:max-w-[200px]"
-                style={{
-                  fontSize: 10,
-                  color: isDark ? LABEL_GRAY : "#6b7280",
-                }}
-              >
-                <div className="flex flex-wrap justify-end gap-x-2 gap-y-0">
-                  <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
-                    <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_DONUT_COLORS.ETB }} aria-hidden />
-                    ETB
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
-                    <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_DONUT_COLORS.UPC }} aria-hidden />
-                    UPC
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
-                    <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: CATEGORY_DONUT_COLORS.Displays }} aria-hidden />
-                    Displays
-                  </span>
-                </div>
-                <div className="flex flex-wrap justify-end gap-x-2 gap-y-0">
-                  <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
-                    <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Méga Évolution"] }} aria-hidden />
-                    Méga Évo
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
-                    <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Épée & Bouclier"] }} aria-hidden />
-                    Épée&amp;B
-                  </span>
-                  <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
-                    <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Écarlate & Violet"] }} aria-hidden />
-                    Écar&amp;V
-                  </span>
-                </div>
-              </div>
-            </div>
-            <Link
-              to={summaryMainCardTo}
-              className="portfolio-summary-card-link flex shrink-0 self-center rounded-lg p-1.5 no-underline cursor-pointer"
-              style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}
-              aria-label="Aller à la collection"
-            >
-              <ChevronRight className="portfolio-summary-card-chevron" size={24} strokeWidth={2} aria-hidden />
-            </Link>
-          </div>
+          {portfolioMainCardInner({ showLinks: true, to: summaryMainCardTo })}
         </div>
       ) : null}
       {!summaryMainCardTo ? (
         <div
-          className={`${mainCardShellClassNoLink} items-stretch`}
+          className={mainCardShellClass}
           style={{
             ...mainCardStyle,
             border: isDark ? "none" : undefined,
           }}
         >
-          <div className="min-w-0 flex-1 text-left">{leftColumnContent}</div>
+          {portfolioMainCardInner({ showLinks: false })}
         </div>
       ) : null}
+
+      {repartitionCard}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl px-3 py-3 text-left" style={statCardStyle}>
@@ -485,7 +602,7 @@ export function PortfolioDashboardSection({
         </div>
         <div className="rounded-2xl px-3 py-3 text-left" style={statCardStyle}>
           <div className="flex items-center gap-2 mb-2" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
-            <BarChart2 size={16} strokeWidth={2} aria-hidden />
+            <LineChart size={16} strokeWidth={2} aria-hidden />
             <span className="text-[11px] font-medium">Performance</span>
           </div>
           <p className="text-sm font-semibold tabular-nums" style={{ color: isDark ? EMERALD : portfolio.perfGlobale >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>

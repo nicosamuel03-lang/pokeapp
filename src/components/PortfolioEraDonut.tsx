@@ -28,6 +28,13 @@ type SliceRow = {
   pct: number;
 };
 
+export type EraRepartitionRow = {
+  label: string;
+  count: number;
+  pct: number;
+  color: string;
+};
+
 function aggregateByEra(lines: CollectionLineForChart[]) {
   let mega = 0;
   let eb = 0;
@@ -99,6 +106,39 @@ function buildSlices(lines: CollectionLineForChart[], isDark: boolean): { rows: 
   return { rows, total };
 }
 
+/** Libellés courts comme sur la carte Répartition (Méga Évo, Épée&B, Écar&V). */
+export function getEraRepartitionRows(lines: CollectionLineForChart[]): EraRepartitionRow[] {
+  const { mega, eb, ev, autres } = aggregateByEra(lines);
+  const total = mega + eb + ev + autres;
+  if (total === 0) return [];
+  const rows: EraRepartitionRow[] = [];
+  const push = (label: string, count: number, color: string) => {
+    if (count <= 0) return;
+    rows.push({ label, count, pct: (count / total) * 100, color });
+  };
+  push("Méga Évo", mega, ERA_DONUT_COLORS[LABEL_MEGA]);
+  push("Épée&B", eb, ERA_DONUT_COLORS[LABEL_EB]);
+  push("Écar&V", ev, ERA_DONUT_COLORS[LABEL_EV]);
+  push("Autres", autres, ERA_DONUT_COLORS.Autres);
+  return rows;
+}
+
+/** Blocs nommés complets pour « Répartition détaillée » (Méga / EB / EV uniquement, sans « Autres »). */
+export function getBlocRepartitionDetailRows(lines: CollectionLineForChart[]): EraRepartitionRow[] {
+  const { mega, eb, ev, autres } = aggregateByEra(lines);
+  const total = mega + eb + ev + autres;
+  if (total === 0) return [];
+  const rows: EraRepartitionRow[] = [];
+  const push = (label: string, count: number, color: string) => {
+    if (count <= 0) return;
+    rows.push({ label, count, pct: (count / total) * 100, color });
+  };
+  push(LABEL_MEGA, mega, ERA_DONUT_COLORS[LABEL_MEGA]);
+  push(LABEL_EB, eb, ERA_DONUT_COLORS[LABEL_EB]);
+  push(LABEL_EV, ev, ERA_DONUT_COLORS[LABEL_EV]);
+  return rows;
+}
+
 function EraTooltipBody({
   breakdown,
   isDark,
@@ -138,10 +178,13 @@ export function PortfolioEraDonut({
   collectionLines,
   isDark,
   size = DEFAULT_SIZE,
+  showTooltip = true,
 }: {
   collectionLines: CollectionLineForChart[];
   isDark: boolean;
   size?: number;
+  /** Si false, pas d’infobulle au survol / au clic (ex. carte Répartition). */
+  showTooltip?: boolean;
 }) {
   const breakdown = useMemo(() => aggregateByEra(collectionLines), [collectionLines]);
   const { rows, total } = useMemo(() => buildSlices(collectionLines, isDark), [collectionLines, isDark]);
@@ -175,24 +218,26 @@ export function PortfolioEraDonut({
             <Cell key={entry.key} fill={entry.fill} stroke="none" />
           ))}
         </Pie>
-        <Tooltip
-          allowEscapeViewBox={{ x: true, y: true }}
-          content={({ active }) => {
-            if (!active) return null;
-            return (
-              <div
-                className="rounded-lg px-2.5 py-2 shadow-lg"
-                style={{
-                  background: tooltipBg,
-                  border: `1px solid ${tooltipBorder}`,
-                  maxWidth: 220,
-                }}
-              >
-                <EraTooltipBody breakdown={{ ...breakdown, total }} isDark={isDark} />
-              </div>
-            );
-          }}
-        />
+        {showTooltip ? (
+          <Tooltip
+            allowEscapeViewBox={{ x: true, y: true }}
+            content={({ active }) => {
+              if (!active) return null;
+              return (
+                <div
+                  className="rounded-lg px-2.5 py-2 shadow-lg"
+                  style={{
+                    background: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
+                    maxWidth: 220,
+                  }}
+                >
+                  <EraTooltipBody breakdown={{ ...breakdown, total }} isDark={isDark} />
+                </div>
+              );
+            }}
+          />
+        ) : null}
       </PieChart>
     </div>
   );

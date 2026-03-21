@@ -1,7 +1,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, useClerk, useUser } from "@clerk/react";
-import { Home, Layers, Plus, LineChart, History, Settings } from "lucide-react";
+import { Home, Plus, LineChart, History, Settings } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
 import { useTheme } from "../state/ThemeContext";
@@ -17,15 +17,15 @@ const ICON_PLUS_SIZE = 14;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
 const LETTER_SPACING = "0.025em";
 
+/** Onglets visibles dans la barre du bas (la collection est accessible via la carte portefeuille sur l’accueil). */
+const BOTTOM_NAV_PATHS = ["/", "/ajouter", "/marche", "/historique"] as const;
+
 const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; iconSize: number }[] = [
   { to: "/", label: "Accueil", Icon: Home, iconSize: ICON_SIZE },
-  { to: "/collection", label: "Collection", Icon: Layers, iconSize: ICON_SIZE },
   { to: "/ajouter", label: "Ajouter", Icon: Plus, iconSize: ICON_PLUS_SIZE },
   { to: "/marche", label: "Marché", Icon: LineChart, iconSize: ICON_SIZE },
   { to: "/historique", label: "Historique", Icon: History, iconSize: ICON_SIZE },
 ];
-
-const TAB_PATHS = ["/", "/collection", "/ajouter", "/marche", "/historique"] as const;
 
 export const BottomNavLayout = () => {
   const location = useLocation();
@@ -52,19 +52,20 @@ export const BottomNavLayout = () => {
   const ballGold = badgeTextColor;
   const ballGoldGlow = isLight ? "0 0 4px rgba(139, 105, 20, 0.5)" : "0 0 4px rgba(251, 191, 36, 0.5)";
 
-  const isOnTabRoute = TAB_PATHS.some(
-    (p) => p === "/" ? location.pathname === "/" : location.pathname === p
-  );
+  const isOnTabRoute =
+    BOTTOM_NAV_PATHS.some((p) =>
+      p === "/" ? location.pathname === "/" : location.pathname === p
+    ) || location.pathname === "/collection";
 
   const goToTab = useCallback(
     (direction: "prev" | "next") => {
-      const idx = TAB_PATHS.findIndex(
-        (p) => p === "/" ? location.pathname === "/" : location.pathname === p
+      const idx = BOTTOM_NAV_PATHS.findIndex((p) =>
+        p === "/" ? location.pathname === "/" : location.pathname === p
       );
       if (idx < 0) return;
       const nextIdx = direction === "next" ? idx + 1 : idx - 1;
-      if (nextIdx >= 0 && nextIdx < TAB_PATHS.length) {
-        navigate(TAB_PATHS[nextIdx]);
+      if (nextIdx >= 0 && nextIdx < BOTTOM_NAV_PATHS.length) {
+        navigate(BOTTOM_NAV_PATHS[nextIdx]);
       }
     },
     [location.pathname, navigate]

@@ -6,6 +6,8 @@ type SubscriptionContextValue = {
   authState: AuthState;
   isPremium: boolean;
   isLoading: boolean;
+  /** Force un nouveau fetch Supabase `users.is_premium` (ex. après paiement Stripe). */
+  refreshSubscription: () => void;
 };
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null);

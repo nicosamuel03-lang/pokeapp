@@ -12,6 +12,9 @@ import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct 
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
+import { CatalogueStyleSearchBar } from "../components/CatalogueStyleSearchBar";
+import { CatalogueSearchResultRow } from "../components/CatalogueSearchResultRow";
+import { filterHomeProductsBySearch, sortHomeProductsBySearch } from "../utils/homeProductSearch";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
   { key: "ETB", label: "ETB" },
@@ -48,6 +51,7 @@ export const HomePage = () => {
   );
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
+  const [homeSearchQuery, setHomeSearchQuery] = useState("");
   const triggerFilterPress = (key: string) => {
     setPressedFilterKey(key);
     setTimeout(() => setPressedFilterKey(null), 150);
@@ -208,15 +212,10 @@ export const HomePage = () => {
     console.log("[HomePage] collection product categories:", collectionCategories);
   }, [databaseProducts, collectionItems]);
 
-  const normalizeCategory = (value: string): string =>
-    value.trim().toLowerCase().replace(/s\b/, ""); // ex: Displays → display
-
+  /** Comparaison stricte sur le type Category (évite les bugs de normalisation / regexp). */
   const categoryFiltered = useMemo(() => {
     if (selectedCategory === "Tous") return databaseProducts;
-    const target = normalizeCategory(selectedCategory);
-    return databaseProducts.filter(
-      (p) => normalizeCategory(String(p.category)) === target
-    );
+    return databaseProducts.filter((p) => p.category === selectedCategory);
   }, [databaseProducts, selectedCategory]);
 
   const hasEraSubFilter = selectedCategory === "ETB" || selectedCategory === "Displays" || selectedCategory === "UPC";
@@ -234,6 +233,14 @@ export const HomePage = () => {
     if (!hasEraSubFilter || !selectedEra) return categoryFiltered;
     return categoryFiltered.filter((p) => p.set === selectedEra);
   }, [categoryFiltered, hasEraSubFilter, selectedEra]);
+
+  const filteredForGrid = useMemo(() => {
+    const base = filtered ?? [];
+    const matched = filterHomeProductsBySearch(base, homeSearchQuery ?? "");
+    return sortHomeProductsBySearch(matched, homeSearchQuery ?? "");
+  }, [filtered, homeSearchQuery]);
+
+  const isHomeSearchActive = homeSearchQuery.trim() !== "";
 
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
@@ -260,6 +267,16 @@ export const HomePage = () => {
         summaryMainCardTo="/collection"
       />
 
+      <div className="px-3">
+        <CatalogueStyleSearchBar
+          id="home-collection-search"
+          value={homeSearchQuery}
+          onChange={setHomeSearchQuery}
+          placeholder="Rechercher un produit sur l'accueil…"
+        />
+      </div>
+
+      {!isHomeSearchActive && (
       <div>
         <p className="app-heading mb-2 text-xs pl-3" style={{ color: "var(--text-secondary)" }}>
           Catégories
@@ -269,7 +286,11 @@ export const HomePage = () => {
             type="button"
             className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Tous")}
-            onClick={() => handleCategoryChange("Tous")}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleCategoryChange("Tous");
+            }}
             style={selectedCategory === "Tous" ? filterChipActive : filterChipInactive}
           >
             Tous
@@ -280,7 +301,11 @@ export const HomePage = () => {
               key={cat.key}
               className={`filter-btn ${pressedFilterKey === `cat-${cat.key}` ? "filter-btn-press" : ""}`}
               onPointerDown={() => triggerFilterPress(`cat-${cat.key}`)}
-              onClick={() => handleCategoryChange(cat.key)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCategoryChange(cat.key);
+              }}
               style={selectedCategory === cat.key ? filterChipActive : filterChipInactive}
             >
               {cat.label}
@@ -331,11 +356,61 @@ export const HomePage = () => {
           </div>
         )}
       </div>
+      )}
 
       <section className="space-y-2">
+        {isHomeSearchActive ? (
+          <div
+            className="mx-3 overflow-hidden rounded-2xl"
+            style={{ background: "var(--card-color)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
+          >
+            {filteredForGrid.map((product, i) => {
+              const eraBadge =
+                product.category === "ETB" || product.category === "Displays" || product.category === "UPC"
+                  ? getEraBadge(product.id, product.set) ??
+                    (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)
+                  : null;
+              const placeholderBg =
+                (product.category === "Displays" || product.category === "UPC") && eraBadge
+                  ? eraBadge.bg
+                  : "var(--placeholder-bg)";
+              const catForTitle =
+                product.category === "Displays" ? "Displays" : product.category === "UPC" ? "UPC" : "ETB";
+              return (
+                <CatalogueSearchResultRow
+                  key={`${product.id}-${product.name}`}
+                  mode="link"
+                  to={`/produit/${product.id}`}
+                  onNavigate={() => {
+                    sessionStorage.setItem("returnTo", "/");
+                    sessionStorage.setItem(
+                      "collectionFilters",
+                      JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
+                    );
+                  }}
+                  accentGold={accentGold}
+                  imageUrl={product.imageUrl ?? null}
+                  nameForAlt={product.name}
+                  isDisplayOrUpc={product.category === "Displays" || product.category === "UPC"}
+                  placeholderBg={placeholderBg}
+                  eraBadge={eraBadge}
+                  title={formatProductNameWithSetCode(product.name, getSetCodeFromProduct(product), catForTitle)}
+                  showNewBadge={product.set === "Méga Évolution"}
+                  marketPrice={product.currentPrice}
+                  retailPrice={product.prixAchat}
+                  showBottomBorder={i < filteredForGrid.length - 1}
+                />
+              );
+            })}
+            {filteredForGrid.length === 0 && (
+              <p className="px-3 py-4 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
+                Aucun résultat pour cette recherche.
+              </p>
+            )}
+          </div>
+        ) : (
         <div className="grid grid-cols-2 gap-2">
-          {categoryFiltered.map((product) => {
-            const isVisible = !hasEraSubFilter || !selectedEra || product.set === selectedEra;
+          {filteredForGrid.map((product) => {
             const perfPct = product.change30dPercent;
             const isUp = perfPct >= 0;
             const eraBadge = (product.category === "ETB" || product.category === "Displays" || product.category === "UPC") ? (getEraBadge(product.id, product.set) ?? (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)) : null;
@@ -347,7 +422,6 @@ export const HomePage = () => {
             return (
               <div
                 key={`${product.id}-${product.name}`}
-                style={{ display: isVisible ? "block" : "none" }}
               >
                 <Link
                   to={`/produit/${product.id}`}
@@ -478,7 +552,7 @@ export const HomePage = () => {
               </div>
             );
           })}
-          {filtered.length === 0 && (
+          {filteredForGrid.length === 0 && (
             <p
               className="col-span-2 rounded-2xl p-4 text-center text-xs"
               style={{
@@ -487,10 +561,13 @@ export const HomePage = () => {
                 boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
               }}
             >
-              Aucun produit dans cette catégorie.
+              {filtered.length === 0
+                ? "Aucun produit dans cette catégorie."
+                : "Aucun résultat pour cette recherche."}
             </p>
           )}
         </div>
+        )}
       </section>
     </div>
   );

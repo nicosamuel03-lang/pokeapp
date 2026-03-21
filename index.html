@@ -2,6 +2,23 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <!-- 1er script du document : thème avant React / avant tout autre script (évite flash) -->
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("pokevault-theme");
+          var el = document.documentElement;
+          el.classList.remove("light", "dark");
+          if (theme === "dark") {
+            el.classList.add("dark");
+            el.style.backgroundColor = "#0a0a0a";
+          } else {
+            el.classList.add("light");
+            el.style.backgroundColor = "#ffffff";
+          }
+        } catch (e) {}
+      })();
+    </script>
     <title>PokéVault</title>
     <meta
       name="viewport"
@@ -10,14 +27,14 @@
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
     <script>
-      (function(){
-        var t=localStorage.getItem("pokevault-theme");
-        var isDark=t!=="light";
-        var el=document.documentElement;
-        el.classList.remove("light","dark");
-        el.classList.add(isDark?"dark":"light");
-        document.documentElement.style.backgroundColor=isDark?"#0a0a0a":"#ffffff";
-        document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute("content",isDark?"#0a0a0a":"#ffffff"); });
+      (function () {
+        try {
+          var theme = localStorage.getItem("pokevault-theme");
+          var isDark = theme === "dark";
+          document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+            m.setAttribute("content", isDark ? "#0a0a0a" : "#ffffff");
+          });
+        } catch (e) {}
       })();
     </script>
     <style>html.light, html.light body, html.light #root { background-color: #ffffff !important; min-height: 100%; } html.dark, html.dark body, html.dark #root { background-color: #0a0a0a !important; min-height: 100%; }</style>

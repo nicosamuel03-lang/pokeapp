@@ -28,6 +28,13 @@ type SliceRow = {
   pct: number;
 };
 
+export type CategoryRepartitionRow = {
+  label: string;
+  count: number;
+  pct: number;
+  color: string;
+};
+
 function aggregateByCategory(lines: CollectionLineForChart[]) {
   let etb = 0;
   let upc = 0;
@@ -101,6 +108,23 @@ function buildSlices(lines: CollectionLineForChart[], isDark: boolean): { rows: 
   return { rows, total, isEmpty: false };
 }
 
+/** Lignes pour affichage sous le donut (quantités + % du total). */
+export function getCategoryRepartitionRows(lines: CollectionLineForChart[]): CategoryRepartitionRow[] {
+  const { etb, upc, displays, autres } = aggregateByCategory(lines);
+  const total = etb + upc + displays + autres;
+  if (total === 0) return [];
+  const rows: CategoryRepartitionRow[] = [];
+  const push = (label: string, count: number, color: string) => {
+    if (count <= 0) return;
+    rows.push({ label, count, pct: (count / total) * 100, color });
+  };
+  push("ETB", etb, COLOR_ETB);
+  push("UPC", upc, COLOR_UPC);
+  push("Displays", displays, COLOR_DISPLAYS);
+  push("Autres", autres, COLOR_AUTRES);
+  return rows;
+}
+
 function DonutTooltipBody({
   breakdown,
   isDark,
@@ -140,11 +164,14 @@ export function PortfolioCategoryDonut({
   collectionLines,
   isDark,
   size = DEFAULT_SIZE,
+  showTooltip = true,
 }: {
   collectionLines: CollectionLineForChart[];
   isDark: boolean;
   /** Largeur/hauteur du graphique (défaut 75). Ex. 55 sur mobile. */
   size?: number;
+  /** Si false, pas d’infobulle au survol / au clic (ex. carte Répartition). */
+  showTooltip?: boolean;
 }) {
   const breakdown = useMemo(() => aggregateByCategory(collectionLines), [collectionLines]);
   const { rows, total } = useMemo(() => buildSlices(collectionLines, isDark), [collectionLines, isDark]);
@@ -181,27 +208,29 @@ export function PortfolioCategoryDonut({
             <Cell key={entry.key} fill={entry.fill} stroke="none" />
           ))}
         </Pie>
-        <Tooltip
-          allowEscapeViewBox={{ x: true, y: true }}
-          content={({ active }) => {
-            if (!active) return null;
-            return (
-              <div
-                className="rounded-lg px-2.5 py-2 shadow-lg"
-                style={{
-                  background: tooltipBg,
-                  border: `1px solid ${tooltipBorder}`,
-                  maxWidth: 200,
-                }}
-              >
-                <DonutTooltipBody
-                  breakdown={{ ...breakdown, total }}
-                  isDark={isDark}
-                />
-              </div>
-            );
-          }}
-        />
+        {showTooltip ? (
+          <Tooltip
+            allowEscapeViewBox={{ x: true, y: true }}
+            content={({ active }) => {
+              if (!active) return null;
+              return (
+                <div
+                  className="rounded-lg px-2.5 py-2 shadow-lg"
+                  style={{
+                    background: tooltipBg,
+                    border: `1px solid ${tooltipBorder}`,
+                    maxWidth: 200,
+                  }}
+                >
+                  <DonutTooltipBody
+                    breakdown={{ ...breakdown, total }}
+                    isDark={isDark}
+                  />
+                </div>
+              );
+            }}
+          />
+        ) : null}
       </PieChart>
     </div>
   );
