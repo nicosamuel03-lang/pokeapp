@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { useAuth, useClerk, useSignIn, useSignUp } from "@clerk/react";
+import { useAuth, useClerk, useSignUp } from "@clerk/react";
+/** Hook classique : `setActive` + `signIn.create({ strategy, identifier, password })` (l’export principal n’expose pas `setActive`). */
+import { useSignIn } from "@clerk/react/legacy";
 
 /** Overlay plein écran : au-dessus de tout le layout, scroll iOS, safe area PWA. */
 const OVERLAY_STYLE: CSSProperties = {
@@ -85,8 +87,8 @@ type Props = {
 /** Modale connexion / inscription headless (sans <SignIn /> Clerk) — meilleure compat iOS PWA. */
 export function ClerkSignInModal({ open, onClose }: Props) {
   const { isSignedIn, isLoaded } = useAuth();
-  const { setActive } = useClerk();
-  const { signIn } = useSignIn();
+  const { setActive: setActiveForSignUp } = useClerk();
+  const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
   const { signUp } = useSignUp();
 
   const [tab, setTab] = useState<Tab>("connexion");
@@ -115,7 +117,7 @@ export function ClerkSignInModal({ open, onClose }: Props) {
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
-      if (!signIn) {
+      if (!signInLoaded || !signIn) {
         setError("Connexion indisponible, réessayez.");
         return;
       }
@@ -126,23 +128,27 @@ export function ClerkSignInModal({ open, onClose }: Props) {
       }
       setLoading(true);
       try {
-        // Clerk v6 (future) : mot de passe via signIn.password (pas signIn.create avec password).
-        const { error: pwErr } = await signIn.password({ identifier: id, password });
-        if (pwErr) {
-          setError(clerkErrMessage(pwErr));
-          return;
-        }
-        const { error: finErr } = await signIn.finalize();
-        if (finErr) {
-          setError(clerkErrMessage(finErr));
+        const result = await signIn.create({
+          strategy: "password",
+          identifier: id,
+          password,
+        });
+        if (result.status === "complete" && result.createdSessionId) {
+          await setActive({ session: result.createdSessionId });
+          onClose();
+        } else {
+          setError(
+            "Étape supplémentaire requise : " + (result.status ?? "inconnue")
+          );
         }
       } catch (err) {
-        setError(clerkErrMessage(err));
+        const e = err as { errors?: { message?: string }[] };
+        setError(e?.errors?.[0]?.message ?? "E-mail ou mot de passe incorrect");
       } finally {
         setLoading(false);
       }
     },
-    [signIn, email, password]
+    [signIn, signInLoaded, email, password, setActive, onClose]
   );
 
   /** Étape 1 : création du compte + envoi du code e-mail (Clerk v6 : sendEmailCode ≈ prepareEmailAddressVerification email_code). */
@@ -209,7 +215,7 @@ export function ClerkSignInModal({ open, onClose }: Props) {
           return;
         }
         if (signUp.status === "complete" && signUp.createdSessionId) {
-          await setActive({ session: signUp.createdSessionId });
+          await setActiveForSignUp({ session: signUp.createdSessionId });
           onClose();
           return;
         }
@@ -225,36 +231,33 @@ export function ClerkSignInModal({ open, onClose }: Props) {
         setLoading(false);
       }
     },
-    [signUp, code, setActive, onClose]
+    [signUp, code, setActiveForSignUp, onClose]
   );
 
   const handleGoogle = useCallback(async () => {
     setError(null);
-    if (!signIn) {
+    if (!signInLoaded || !signIn) {
       setError("Connexion indisponible, réessayez.");
       return;
     }
     const origin = window.location.origin;
     setOauthLoading(true);
     try {
-      const { error: ssoErr } = await signIn.sso({
+      await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: `${origin}/sso-callback`,
-        redirectCallbackUrl: `${origin}/`,
+        redirectUrlComplete: `${origin}/`,
       });
-      if (ssoErr) {
-        setError(clerkErrMessage(ssoErr));
-      }
     } catch (err) {
-      setError(clerkErrMessage(err));
+      setError(clerkApiErr(err));
     } finally {
       setOauthLoading(false);
     }
-  }, [signIn]);
+  }, [signIn, signInLoaded]);
 
   if (!open) return null;
 
-  const busy = loading || oauthLoading || !isLoaded;
+  const busy = loading || oauthLoading || !isLoaded || !signInLoaded;
   const tabBtn = (id: Tab, label: string) => (
     <button
       type="button"
