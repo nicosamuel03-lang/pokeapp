@@ -10,6 +10,7 @@ import { CGUPage } from "./pages/CGUPage";
 import { PrivacyPage } from "./pages/PrivacyPage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
+import { SsoCallbackPage } from "./pages/SsoCallbackPage";
 import { BottomNavLayout } from "./components/BottomNavLayout";
 import { TabSwitch } from "./components/TabSwitch";
 import { SubscriptionProvider, type AuthState } from "./state/SubscriptionContext";
@@ -136,7 +137,11 @@ const App = () => {
           <ScrollToTop />
           <Routes>
             <Route path="/sign-in" element={<SignInPage />} />
+            <Route path="/sign-in/*" element={<SignInPage />} />
             <Route path="/sign-up" element={<SignUpPage />} />
+            <Route path="/sign-up/*" element={<SignUpPage />} />
+            <Route path="/sso-callback" element={<SsoCallbackPage />} />
+            <Route path="/sso-callback/*" element={<SsoCallbackPage />} />
             <Route element={<BottomNavLayout />}>
               <Route path="/produit/:id" element={<ProductDetailPage />} />
               <Route path="/premium" element={<PremiumPage />} />

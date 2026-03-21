@@ -2,5 +2,19 @@ import { SignUp } from "@clerk/react";
 
 /** Dedicated sign-up page. Standard Clerk layout. */
 export const SignUpPage = () => (
-  <SignUp fallbackRedirectUrl="/" signInUrl="/sign-in" />
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      minHeight: "100vh",
+    }}
+  >
+    <SignUp
+      signInUrl="/sign-in"
+      fallbackRedirectUrl="/"
+      signInFallbackRedirectUrl="/"
+      routing="hash"
+    />
+  </div>
 );

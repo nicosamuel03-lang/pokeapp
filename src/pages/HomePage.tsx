@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Category } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { Link, useLocation } from "react-router-dom";
@@ -51,7 +51,10 @@ export const HomePage = () => {
   );
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
-  const [homeSearchQuery, setHomeSearchQuery] = useState("");
+  /** Recherche accueil : input non contrôlé (ref) pour stabilité clavier iOS / PWA ; seul le tableau de résultats est en state. */
+  const homeSearchInputRef = useRef<HTMLInputElement>(null);
+  const [homeSearchResults, setHomeSearchResults] = useState<HomeProduct[]>([]);
+  const [isHomeSearchMode, setIsHomeSearchMode] = useState(false);
   const triggerFilterPress = (key: string) => {
     setPressedFilterKey(key);
     setTimeout(() => setPressedFilterKey(null), 150);
@@ -234,13 +237,42 @@ export const HomePage = () => {
     return categoryFiltered.filter((p) => p.set === selectedEra);
   }, [categoryFiltered, hasEraSubFilter, selectedEra]);
 
-  const filteredForGrid = useMemo(() => {
+  /** Grille (pas de texte de recherche) : même jeu que filtre catégorie / ère uniquement. */
+  const gridProducts = useMemo(() => {
     const base = filtered ?? [];
-    const matched = filterHomeProductsBySearch(base, homeSearchQuery ?? "");
-    return sortHomeProductsBySearch(matched, homeSearchQuery ?? "");
-  }, [filtered, homeSearchQuery]);
+    return sortHomeProductsBySearch(filterHomeProductsBySearch(base, ""), "");
+  }, [filtered]);
 
-  const isHomeSearchActive = homeSearchQuery.trim() !== "";
+  const applyHomeSearchFromValue = useCallback(
+    (val: string) => {
+      const base = filtered ?? [];
+      const matched = filterHomeProductsBySearch(base, val);
+      setHomeSearchResults(sortHomeProductsBySearch(matched, val));
+      setIsHomeSearchMode(val.trim() !== "");
+    },
+    [filtered]
+  );
+
+  const handleHomeSearchClear = useCallback(() => {
+    const el = homeSearchInputRef.current;
+    if (el) el.value = "";
+    setHomeSearchResults([]);
+    setIsHomeSearchMode(false);
+    homeSearchInputRef.current?.focus();
+  }, []);
+
+  /** Si le filtre catégorie / ère change pendant que du texte est saisi, recalculer les résultats. */
+  useEffect(() => {
+    const el = homeSearchInputRef.current;
+    if (!el) return;
+    const val = el.value;
+    if (val.trim() === "") {
+      setHomeSearchResults([]);
+      setIsHomeSearchMode(false);
+      return;
+    }
+    applyHomeSearchFromValue(val);
+  }, [filtered, applyHomeSearchFromValue]);
 
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
@@ -267,16 +299,77 @@ export const HomePage = () => {
         summaryMainCardTo="/collection"
       />
 
-      <div className="px-3">
+      <div className="px-3" style={{ position: "relative", zIndex: 50 }}>
         <CatalogueStyleSearchBar
+          uncontrolled
           id="home-collection-search"
-          value={homeSearchQuery}
-          onChange={setHomeSearchQuery}
+          inputKey="home-search-input"
+          inputRef={homeSearchInputRef}
+          onInputChange={applyHomeSearchFromValue}
+          showClearButton={isHomeSearchMode}
+          onClear={handleHomeSearchClear}
           placeholder="Rechercher un produit sur l'accueil…"
         />
+        {isHomeSearchMode ? (
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              zIndex: 50,
+              backgroundColor: "#111",
+              borderRadius: "12px",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+          >
+            {homeSearchResults.length > 0 ? (
+              homeSearchResults.map((product, i) => {
+                const eraBadge =
+                  product.category === "ETB" || product.category === "Displays" || product.category === "UPC"
+                    ? getEraBadge(product.id, product.set) ??
+                      (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)
+                    : null;
+                const placeholderBg =
+                  (product.category === "Displays" || product.category === "UPC") && eraBadge
+                    ? eraBadge.bg
+                    : "var(--placeholder-bg)";
+                const catForTitle =
+                  product.category === "Displays" ? "Displays" : product.category === "UPC" ? "UPC" : "ETB";
+                return (
+                  <CatalogueSearchResultRow
+                    key={`${product.id}-${product.name}`}
+                    mode="link"
+                    to={`/produit/${product.id}`}
+                    onNavigate={() => {
+                      sessionStorage.setItem("returnTo", "/");
+                      sessionStorage.setItem(
+                        "collectionFilters",
+                        JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
+                      );
+                    }}
+                    accentGold={accentGold}
+                    imageUrl={product.imageUrl ?? null}
+                    nameForAlt={product.name}
+                    isDisplayOrUpc={product.category === "Displays" || product.category === "UPC"}
+                    placeholderBg={placeholderBg}
+                    eraBadge={eraBadge}
+                    title={formatProductNameWithSetCode(product.name, getSetCodeFromProduct(product), catForTitle)}
+                    showNewBadge={product.set === "Méga Évolution"}
+                    marketPrice={product.currentPrice}
+                    retailPrice={product.prixAchat}
+                    showBottomBorder={i < homeSearchResults.length - 1}
+                  />
+                );
+              })
+            ) : homeSearchInputRef.current?.value ? (
+              <p style={{ padding: "16px", color: "#888" }}>Aucun résultat pour cette recherche.</p>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
-      {!isHomeSearchActive && (
       <div>
         <p className="app-heading mb-2 text-xs pl-3" style={{ color: "var(--text-secondary)" }}>
           Catégories
@@ -356,61 +449,10 @@ export const HomePage = () => {
           </div>
         )}
       </div>
-      )}
 
       <section className="space-y-2">
-        {isHomeSearchActive ? (
-          <div
-            className="mx-3 overflow-hidden rounded-2xl"
-            style={{ background: "var(--card-color)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
-          >
-            {filteredForGrid.map((product, i) => {
-              const eraBadge =
-                product.category === "ETB" || product.category === "Displays" || product.category === "UPC"
-                  ? getEraBadge(product.id, product.set) ??
-                    (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)
-                  : null;
-              const placeholderBg =
-                (product.category === "Displays" || product.category === "UPC") && eraBadge
-                  ? eraBadge.bg
-                  : "var(--placeholder-bg)";
-              const catForTitle =
-                product.category === "Displays" ? "Displays" : product.category === "UPC" ? "UPC" : "ETB";
-              return (
-                <CatalogueSearchResultRow
-                  key={`${product.id}-${product.name}`}
-                  mode="link"
-                  to={`/produit/${product.id}`}
-                  onNavigate={() => {
-                    sessionStorage.setItem("returnTo", "/");
-                    sessionStorage.setItem(
-                      "collectionFilters",
-                      JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
-                    );
-                  }}
-                  accentGold={accentGold}
-                  imageUrl={product.imageUrl ?? null}
-                  nameForAlt={product.name}
-                  isDisplayOrUpc={product.category === "Displays" || product.category === "UPC"}
-                  placeholderBg={placeholderBg}
-                  eraBadge={eraBadge}
-                  title={formatProductNameWithSetCode(product.name, getSetCodeFromProduct(product), catForTitle)}
-                  showNewBadge={product.set === "Méga Évolution"}
-                  marketPrice={product.currentPrice}
-                  retailPrice={product.prixAchat}
-                  showBottomBorder={i < filteredForGrid.length - 1}
-                />
-              );
-            })}
-            {filteredForGrid.length === 0 && (
-              <p className="px-3 py-4 text-center text-sm" style={{ color: "var(--text-secondary)" }}>
-                Aucun résultat pour cette recherche.
-              </p>
-            )}
-          </div>
-        ) : (
         <div className="grid grid-cols-2 gap-2">
-          {filteredForGrid.map((product) => {
+          {gridProducts.map((product) => {
             const perfPct = product.change30dPercent;
             const isUp = perfPct >= 0;
             const eraBadge = (product.category === "ETB" || product.category === "Displays" || product.category === "UPC") ? (getEraBadge(product.id, product.set) ?? (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)) : null;
@@ -552,7 +594,7 @@ export const HomePage = () => {
               </div>
             );
           })}
-          {filteredForGrid.length === 0 && (
+          {gridProducts.length === 0 && (
             <p
               className="col-span-2 rounded-2xl p-4 text-center text-xs"
               style={{
@@ -567,7 +609,6 @@ export const HomePage = () => {
             </p>
           )}
         </div>
-        )}
       </section>
     </div>
   );
