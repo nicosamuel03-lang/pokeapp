@@ -2,7 +2,6 @@ import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/react";
 import { Home, Plus, LineChart, History, Settings } from "lucide-react";
-import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -35,7 +34,6 @@ export const BottomNavLayout = () => {
   const { theme } = useTheme();
   const { isPremium, isLoading } = useSubscription();
   console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
@@ -219,7 +217,7 @@ export const BottomNavLayout = () => {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setShowAuthModal(true)}
+                      onClick={() => navigate("/sign-in")}
                       style={{
                         backgroundColor: "#FBBF24",
                         color: "#000",
@@ -254,7 +252,6 @@ export const BottomNavLayout = () => {
               >
                 <Settings size={18} strokeWidth={2} />
               </button>
-              <ClerkSignInModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
             </div>
               </>
           </header>
