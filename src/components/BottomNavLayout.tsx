@@ -1,6 +1,6 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { useClerk, useUser } from "@clerk/react";
+import { useAuth, useClerk, useUser } from "@clerk/react";
 import { Home, Plus, LineChart, History, Settings } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
@@ -30,14 +30,18 @@ const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: 
 export const BottomNavLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isSignedIn, isLoaded: isAuthLoaded } = useAuth();
   const { signOut } = useClerk();
-  const { isSignedIn, user } = useUser();
+  const { user } = useUser();
   const { theme } = useTheme();
   const { isPremium, isLoading } = useSubscription();
   console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showSignInModal, setShowSignInModal] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
+
+  // Pendant le chargement Clerk + abonnement : header placeholder (hauteur fixe), aucun contenu.
+  const headerLoading = !isAuthLoaded || isLoading;
 
   const isLight = theme === "light";
   const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
@@ -144,6 +148,9 @@ export const BottomNavLayout = () => {
               minHeight: 44,
             }}
           >
+            {headerLoading ? (
+              <div style={{ width: "100%", height: 44 }} aria-hidden />
+            ) : (
               <>
                 <div
                   style={{
@@ -208,30 +215,81 @@ export const BottomNavLayout = () => {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 36 }}>
-                  {/* useUser : @clerk/react (équivalent @clerk/clerk-react) — afficher Connexion si pas de session utilisateur exploitable */}
-                  {isSignedIn && user ? (
-                    <img
-                      src={user.imageUrl}
-                      alt=""
-                      onClick={() => void signOut()}
-                      style={{ width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
-                    />
-                  ) : (
+                  {isSignedIn ? (
                     <button
                       type="button"
-                      onClick={() => setShowAuthModal(true)}
+                      onClick={() => signOut()}
+                      aria-label="Déconnexion"
                       style={{
-                        backgroundColor: "#FBBF24",
-                        color: "#000",
-                        borderRadius: "999px",
-                        padding: "8px 18px",
-                        fontWeight: "bold",
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        padding: 0,
                         border: "none",
                         cursor: "pointer",
+                        background: "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
                       }}
                     >
-                      Connexion
+                      {(() => {
+                        const clerkImageUrl = (user as { imageUrl?: string })?.imageUrl;
+                        const avatarSrc = typeof clerkImageUrl === "string" && clerkImageUrl ? clerkImageUrl : "";
+                        if (avatarSrc) {
+                          return (
+                            <img
+                              src={avatarSrc}
+                              alt=""
+                              style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", cursor: "pointer" }}
+                            />
+                          );
+                        }
+                        return (
+                          <span
+                            style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: "50%",
+                              background: "var(--bg-card)",
+                              color: "var(--text-secondary)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: 14,
+                              fontWeight: 600,
+                            }}
+                          >
+                            {(user as { firstName?: string; emailAddresses?: { emailAddress?: string }[] })?.firstName?.[0] ??
+                              (user as { emailAddresses?: { emailAddress?: string }[] })?.emailAddresses?.[0]?.emailAddress?.[0] ??
+                              "?"}
+                          </span>
+                        );
+                      })()}
                     </button>
+                  ) : (
+                    <>
+                  <button
+                    type="button"
+                    className="transition-opacity hover:opacity-90"
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "9999px",
+                      /* Toujours style « mode clair » : le thème sombre n’est pas actif sans premium */
+                      background: "#D4A757",
+                      color: "#111827",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                    onClick={() => setShowSignInModal(true)}
+                  >
+                    Connexion
+                  </button>
+                  <ClerkSignInModal open={showSignInModal} onClose={() => setShowSignInModal(false)} />
+                    </>
                   )}
               <button
                 type="button"
@@ -254,9 +312,9 @@ export const BottomNavLayout = () => {
               >
                 <Settings size={18} strokeWidth={2} />
               </button>
-              <ClerkSignInModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
             </div>
               </>
+            )}
           </header>
           {/* Alignement horizontal avec les pages (-mx-3) ex. carte Portefeuille global */}
           {location.pathname !== "/premium" &&
