@@ -208,44 +208,30 @@ export const BottomNavLayout = () => {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 36 }}>
-                  {isSignedIn ? (
+                  {/* useUser : @clerk/react (équivalent @clerk/clerk-react) — afficher Connexion si pas de session utilisateur exploitable */}
+                  {isSignedIn && user ? (
+                    <img
+                      src={user.imageUrl}
+                      alt=""
+                      onClick={() => void signOut()}
+                      style={{ width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+                    />
+                  ) : (
                     <button
                       type="button"
-                      onClick={() => signOut()}
-                      aria-label="Déconnexion"
+                      onClick={() => setShowAuthModal(true)}
                       style={{
-                        padding: 0,
+                        backgroundColor: "#FBBF24",
+                        color: "#000",
+                        borderRadius: "999px",
+                        padding: "8px 18px",
+                        fontWeight: "bold",
                         border: "none",
-                        background: "transparent",
                         cursor: "pointer",
-                        lineHeight: 0,
                       }}
                     >
-                      <img
-                        src={user?.imageUrl ?? ""}
-                        alt=""
-                        style={{ width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
-                      />
+                      Connexion
                     </button>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => setShowAuthModal(true)}
-                        style={{
-                          backgroundColor: "#FBBF24",
-                          color: "#000",
-                          borderRadius: "999px",
-                          padding: "8px 18px",
-                          fontWeight: "bold",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Connexion
-                      </button>
-                      <ClerkSignInModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
-                    </>
                   )}
               <button
                 type="button"
@@ -268,6 +254,7 @@ export const BottomNavLayout = () => {
               >
                 <Settings size={18} strokeWidth={2} />
               </button>
+              <ClerkSignInModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
             </div>
               </>
           </header>
