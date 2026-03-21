@@ -1,6 +1,6 @@
 import { SignIn } from "@clerk/react";
 
-/** Page dédiée connexion (remplace l’ancienne modale). */
+/** Dedicated sign-in page (e.g. from email link). Standard Clerk layout. */
 export const SignInPage = () => (
   <div
     style={{
@@ -8,15 +8,13 @@ export const SignInPage = () => (
       justifyContent: "center",
       alignItems: "center",
       minHeight: "100vh",
-      backgroundColor: "#000",
     }}
   >
     <SignIn
-      path="/sign-in"
-      routing="path"
       signUpUrl="/sign-up"
       fallbackRedirectUrl="/"
       signUpFallbackRedirectUrl="/"
+      routing="hash"
     />
   </div>
 );

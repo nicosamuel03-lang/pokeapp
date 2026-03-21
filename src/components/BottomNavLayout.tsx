@@ -2,6 +2,7 @@ import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/react";
 import { Home, Plus, LineChart, History, Settings } from "lucide-react";
+import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -34,6 +35,7 @@ export const BottomNavLayout = () => {
   const { theme } = useTheme();
   const { isPremium, isLoading } = useSubscription();
   console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
@@ -206,30 +208,44 @@ export const BottomNavLayout = () => {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, minHeight: 36 }}>
-                  {/* useUser : @clerk/react (équivalent @clerk/clerk-react) — afficher Connexion si pas de session utilisateur exploitable */}
-                  {isSignedIn && user ? (
-                    <img
-                      src={user.imageUrl}
-                      alt=""
-                      onClick={() => void signOut()}
-                      style={{ width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
-                    />
-                  ) : (
+                  {isSignedIn ? (
                     <button
                       type="button"
-                      onClick={() => navigate("/sign-in")}
+                      onClick={() => signOut()}
+                      aria-label="Déconnexion"
                       style={{
-                        backgroundColor: "#FBBF24",
-                        color: "#000",
-                        borderRadius: "999px",
-                        padding: "8px 18px",
-                        fontWeight: "bold",
+                        padding: 0,
                         border: "none",
+                        background: "transparent",
                         cursor: "pointer",
+                        lineHeight: 0,
                       }}
                     >
-                      Connexion
+                      <img
+                        src={user?.imageUrl ?? ""}
+                        alt=""
+                        style={{ width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+                      />
                     </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setShowAuthModal(true)}
+                        style={{
+                          backgroundColor: "#FBBF24",
+                          color: "#000",
+                          borderRadius: "999px",
+                          padding: "8px 18px",
+                          fontWeight: "bold",
+                          border: "none",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Connexion
+                      </button>
+                      <ClerkSignInModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+                    </>
                   )}
               <button
                 type="button"
