@@ -57,6 +57,10 @@ export function PremiumPage() {
     setLoading(true);
     setError(null);
     try {
+      if (!user?.id) {
+        setError("Connectez-vous pour souscrire — compte requis pour lier l’abonnement.");
+        return;
+      }
       const checkoutUrl = CHECKOUT_URL;
       console.log("[Premium checkout] Calling exact URL:", checkoutUrl, "| VITE_API_URL:", import.meta.env.VITE_API_URL ?? "(not set)");
       const baseUrl = window.location.origin;
@@ -67,11 +71,19 @@ export function PremiumPage() {
       const payload = {
         success_url: `${baseUrl}/success`,
         cancel_url: `${baseUrl}/premium?canceled=1`,
-        client_reference_id: user?.id ?? null,
+        client_reference_id: user.id,
+        userId: user.id,
         plan,
         ...(priceId && { priceId }),
       };
-      console.log("[Premium checkout] plan:", plan, "priceId sent to server:", priceId ?? "(none – server will use env)");
+      console.log(
+        "[Premium checkout] plan:",
+        plan,
+        "Clerk userId:",
+        user.id,
+        "priceId sent to server:",
+        priceId ?? "(none – server will use env)"
+      );
       const res = await fetch(checkoutUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -313,10 +325,15 @@ export function PremiumPage() {
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {!user?.id && (
+          <p style={{ fontSize: 12, color: "var(--loss-red)", textAlign: "center", marginBottom: 8 }}>
+            Connectez-vous pour souscrire — votre compte lie l’abonnement Premium.
+          </p>
+        )}
         <button
           type="button"
           onClick={handleSubscribe}
-          disabled={loading}
+          disabled={loading || !user?.id}
           style={{
             width: "100%",
             padding: "14px 24px",

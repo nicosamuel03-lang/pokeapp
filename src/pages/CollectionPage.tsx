@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useCollection } from "../state/CollectionContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -10,6 +10,7 @@ import { ItemIcon } from "../components/ItemIcon";
 import { getEraBadge, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
+import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
 
 const COLLECTION_FILTERS_KEY = "collectionFilters";
 const RETURN_TO_KEY = "returnTo";
@@ -79,6 +80,7 @@ export const CollectionPage = () => {
   const [editDateInput, setEditDateInput] = useState<string>("");
   const [editQuantityInput, setEditQuantityInput] = useState<string>("");
   const [editQuantityWarning, setEditQuantityWarning] = useState<string | null>(null);
+  const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   const triggerFilterPress = (key: string) => {
     setPressedFilterKey(key);
@@ -158,112 +160,40 @@ export const CollectionPage = () => {
 
   const atFreeLimit = !premiumLoading && !isPremium && totalQuantity >= FREE_COLLECTION_LIMIT;
 
-  const { totalValue, totalInvested, unrealizedGain } = items.reduce(
-    (acc, item) => {
-      const value = getPrixMarcheForProduct(item.product, etbData) * item.quantity;
-      const invested = item.buyPrice * item.quantity;
-      acc.totalValue += value;
-      acc.totalInvested += invested;
-      acc.unrealizedGain += value - invested;
-      return acc;
-    },
-    { totalValue: 0, totalInvested: 0, unrealizedGain: 0 }
+  const collectionLines = useMemo(
+    () =>
+      items.map((it) => ({
+        quantity: it.quantity,
+        buyPrice: it.buyPrice,
+        product: it.product,
+      })),
+    [items]
   );
 
-  const realizedGain = useMemo(
-    () => sales.reduce((sum, r) => sum + (r.profit ?? 0), 0),
-    [sales]
-  );
-  const totalGain = unrealizedGain + realizedGain;
-  const computedPerf = totalInvested > 0 ? (totalGain / totalInvested) * 100 : 0;
+  const EMERALD = "#10b981";
+  const LABEL_MUTED = "#888888";
+
+  const filterChipActive: CSSProperties = isDark
+    ? { backgroundColor: "#ffffff", color: "#000000", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13, border: "none" }
+    : { backgroundColor: accentGold, color: "black", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13 };
+  const filterChipInactive: CSSProperties = isDark
+    ? { backgroundColor: "transparent", color: "#ffffff", borderRadius: "999px", padding: "2px 12px", border: "1px solid #444444", fontSize: 13 }
+    : { backgroundColor: "transparent", color: "inherit", borderRadius: "999px", padding: "2px 12px", border: "1px solid gray", fontSize: 13 };
 
   return (
     <div className="space-y-4 -mx-3">
-      {/* Carte Synthèse de portefeuille */}
-      <section
-        className="rounded-2xl px-2 py-4"
-        style={{
-          background: "var(--card-color)",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
-        }}
-      >
-        <h2 className="title-section mb-3" style={{ color: "var(--text-primary)" }}>
-          Synthèse de portefeuille
-        </h2>
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div
-            className="rounded-2xl p-3"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Valeur actuelle</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: accentGold }}>
-              {totalValue.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            </p>
-          </div>
-          <div
-            className="rounded-2xl p-3"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total investi</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-              {totalInvested.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            </p>
-          </div>
-          <div
-            className="rounded-2xl p-3"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Gain / Perte</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: totalGain >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
-              {totalGain >= 0 ? "+" : ""}
-              {totalGain.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            </p>
-          </div>
-          <div
-            className="rounded-2xl p-3"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Performance</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: computedPerf >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
-              {computedPerf >= 0 ? "+" : ""}
-              {computedPerf.toFixed(1)}%
-            </p>
-          </div>
-          {realizedGain !== 0 && (
-            <div
-              className="col-span-2 rounded-2xl p-3"
-              style={{
-                background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-                ...(isLight && { border: "1px solid var(--border-color)" }),
-              }}
-            >
-              <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Gain réalisé (ventes)</p>
-              <p className="mt-1 text-sm font-semibold" style={{ color: realizedGain >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
-                {realizedGain >= 0 ? "+" : ""}
-                {realizedGain.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-              </p>
-            </div>
-          )}
-        </div>
-        <p className="mt-3 text-[11px]" style={{ color: "var(--text-secondary)" }}>
-          {items.length === 0
-            ? "Ajoutez un produit depuis sa fiche pour commencer votre collection."
-            : `${items.length} ligne(s) dans votre collection.`}
-        </p>
-      </section>
+      <PortfolioDashboardSection
+        mode="chartOnly"
+        collectionLines={collectionLines}
+        sales={sales}
+        isPremium={isPremium}
+        isLoadingSubscription={premiumLoading}
+        isLight={isLight}
+        isDark={isDark}
+        accentGold={accentGold}
+        chartPeriod={chartPeriod}
+        setChartPeriod={setChartPeriod}
+      />
 
       {/* Filtres type + ère */}
       <div>
@@ -276,7 +206,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Tous")}
             onClick={() => handleCategoryChange("Tous")}
-            style={selectedCategory === "Tous" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Tous" ? filterChipActive : filterChipInactive}
           >
             Tous
           </button>
@@ -285,7 +215,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Displays" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Displays")}
             onClick={() => handleCategoryChange("Displays")}
-            style={selectedCategory === "Displays" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Displays" ? filterChipActive : filterChipInactive}
           >
             Displays
           </button>
@@ -294,7 +224,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-ETB" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-ETB")}
             onClick={() => handleCategoryChange("ETB")}
-            style={selectedCategory === "ETB" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "ETB" ? filterChipActive : filterChipInactive}
           >
             ETB
           </button>
@@ -303,7 +233,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-UPC" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-UPC")}
             onClick={() => handleCategoryChange("UPC")}
-            style={selectedCategory === "UPC" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "UPC" ? filterChipActive : filterChipInactive}
           >
             UPC
           </button>
@@ -390,32 +320,18 @@ export const CollectionPage = () => {
         <div className="grid grid-cols-2 gap-3">
           {displayedItems.map((item) => {
             const current = getPrixMarcheForProduct(item.product, etbData);
-            const gainPerItem = current - item.buyPrice;
-            const totalGainItem = gainPerItem * item.quantity;
-            const isUp = gainPerItem >= 0;
-            /** Toujours router par `product.id` (unique : UUID ajout catalogue, ou id etbData). Ne pas préférer etbId : plusieurs ETB peuvent partager le même code (ex. ancien doublon ME01). */
+            const perfPct = item.buyPrice > 0 ? ((current - item.buyPrice) / item.buyPrice) * 100 : 0;
+            const isUp = perfPct >= 0;
             const navProductId = encodeURIComponent(item.product.id);
             const detailUrl = `/produit/${navProductId}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);
             const imageUrl = getProductImageUrl(item.product);
-            console.log("Collection image debug:", {
-              collectionItemId: item.id,
-              productId: item.product.id,
-              etbId: item.product.etbId,
-              category: item.product.category,
-              imageUrl,
-            });
+            const categoryPillLabel = eraBadge?.label ?? item.product.set ?? item.product.badge;
             return (
               <Link
                 key={item.id}
                 to={detailUrl}
                 onClick={() => {
-                  console.log("[Collection] open product detail", {
-                    routeProductId: item.product.id,
-                    etbId: item.product.etbId,
-                    collectionLineId: item.id,
-                    detailUrl,
-                  });
                   sessionStorage.setItem(RETURN_TO_KEY, "/collection");
                   sessionStorage.setItem(
                     COLLECTION_FILTERS_KEY,
@@ -423,7 +339,10 @@ export const CollectionPage = () => {
                   );
                 }}
                 className="relative flex flex-col rounded-2xl cursor-pointer block overflow-hidden h-[255px]"
-                style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+                style={{
+                  background: isDark ? "#111111" : "var(--card-color)",
+                  boxShadow: isDark ? "none" : "0 2px 12px rgba(0,0,0,0.12)",
+                }}
               >
                 <button
                   type="button"
@@ -461,14 +380,14 @@ export const CollectionPage = () => {
                   style={{
                     width: "100%",
                     height: "160px",
-                    background: "var(--img-container-bg)",
-                    borderRadius: "12px 12px 0 0",
+                    background: isDark ? "#141414" : "var(--img-container-bg)",
+                    borderRadius: "16px 16px 0 0",
                     willChange: "transform",
                   }}
                 >
-                  {getProductImageUrl(item.product) ? (
+                  {imageUrl ? (
                     <img
-                      src={imageUrl!}
+                      src={imageUrl}
                       alt={item.product.name}
                       loading="eager"
                       width={144}
@@ -492,66 +411,81 @@ export const CollectionPage = () => {
                       className="opacity-60"
                     />
                   )}
-                  {eraBadge && (
+                  {isDark ? (
                     <span
-                      className="absolute right-[40px] top-[6px] shrink-0 whitespace-nowrap text-[9px] font-medium"
+                      className="absolute left-[6px] top-[6px] shrink-0 max-w-[min(100%-40px,140px)] truncate text-[9px] font-semibold z-[5]"
                       style={{
-                        background: eraBadge.bg,
-                        color: eraBadge.color,
-                        padding: "2px 5px",
-                        borderRadius: "4px",
+                        background: EMERALD,
+                        color: "#0a0a0a",
+                        padding: "3px 8px",
+                        borderRadius: 9999,
                       }}
                     >
-                      {eraBadge.label}
+                      {categoryPillLabel}
                     </span>
+                  ) : (
+                    eraBadge && (
+                      <span
+                        className="absolute right-[40px] top-[6px] shrink-0 whitespace-nowrap text-[9px] font-medium z-[5]"
+                        style={{
+                          background: eraBadge.bg,
+                          color: eraBadge.color,
+                          padding: "2px 5px",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        {eraBadge.label}
+                      </span>
+                    )
                   )}
                   <span
-                    className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] font-medium"
+                    className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] font-medium z-[5]"
                     style={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
                   >
                     x{item.quantity}
                   </span>
                 </div>
                 <div
-                  className="flex flex-1 flex-col min-h-0 p-3 pt-0"
-                  style={{ display: "flex", flexDirection: "column", height: "95px", background: "var(--card-color)" }}
+                  className="flex flex-1 flex-col min-h-0 p-3 pt-2"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "95px",
+                    background: isDark ? "#111111" : "var(--card-color)",
+                  }}
                 >
-                <p className="app-heading text-xs shrink-0 line-clamp-2" style={{ marginTop: "12px", color: "var(--text-primary)" }}>
-                  {formatProductNameWithSetCode(
-                    item.product.name,
-                    getSetCodeFromProduct(item.product),
-                    item.product.category as "ETB" | "Displays"
-                  )}
-                </p>
-                <div className="flex-1 min-h-0 overflow-hidden space-y-0.5 mt-1">
-                  <p className="flex items-center gap-1 text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                    <span>
-                      Achat{" "}
-                      <span className="font-medium" style={{ color: accentGold }}>
-                        {item.buyPrice.toLocaleString("fr-FR", {
-                          style: "currency",
-                          currency: "EUR",
-                          maximumFractionDigits: 0,
-                        })}
-                      </span>
-                    </span>
+                  <p
+                    className="text-xs font-semibold shrink-0 line-clamp-1 overflow-hidden text-ellipsis"
+                    style={{
+                      marginTop: 0,
+                      color: isDark ? "#ffffff" : "var(--text-primary)",
+                      fontFamily: '"Inter", system-ui, sans-serif',
+                    }}
+                  >
+                    {formatProductNameWithSetCode(
+                      item.product.name,
+                      getSetCodeFromProduct(item.product),
+                      item.product.category as "ETB" | "Displays"
+                    )}
                   </p>
-                  <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                    Date {formatPurchaseDate(item.purchaseDate)}
+                  <p className="text-[11px] mt-1 shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
+                    {formatPurchaseDate(item.purchaseDate)}
                   </p>
-                  <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                    Actuel{" "}
-                    <span className="font-medium" style={{ color: accentGold }}>
+                  <div className="mt-auto flex justify-between items-baseline gap-2 shrink-0 pt-1">
+                    <p
+                      className="text-sm font-semibold tabular-nums truncate min-w-0"
+                      style={{ color: isDark ? EMERALD : accentGold }}
+                    >
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-                    </span>
-                  </p>
-                </div>
-                <div className="mt-auto flex justify-between items-center shrink-0">
-                  <p className="text-[11px] font-semibold" style={{ color: isUp ? "var(--gain-green)" : "var(--loss-red)" }}>
-                    {isUp ? "+" : ""}
-                    {totalGainItem.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-                  </p>
-                </div>
+                    </p>
+                    <p
+                      className="text-[11px] font-semibold tabular-nums shrink-0"
+                      style={{ color: isDark ? EMERALD : isUp ? "var(--gain-green)" : "var(--loss-red)" }}
+                    >
+                      {isUp ? "+" : ""}
+                      {perfPct.toFixed(1)}%
+                    </p>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -561,9 +495,9 @@ export const CollectionPage = () => {
                     position: "absolute",
                     bottom: "12px",
                     right: "12px",
-                    background: "rgba(250,204,21,0.12)",
-                    color: accentGold,
-                    borderColor: "rgba(250,204,21,0.5)",
+                    background: isDark ? "rgba(16,185,129,0.15)" : "rgba(250,204,21,0.12)",
+                    color: isDark ? EMERALD : accentGold,
+                    borderColor: isDark ? "rgba(16,185,129,0.45)" : "rgba(250,204,21,0.5)",
                     zIndex: 10,
                   }}
                   onClick={(e) => {

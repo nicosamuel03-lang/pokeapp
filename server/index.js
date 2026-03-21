@@ -15,6 +15,14 @@ const supabase =
   );
 
 const app = express();
+
+/** Masque le secret webhook pour les logs (Railway / debug). */
+function maskSecret(value) {
+  if (!value || typeof value !== "string") return "(absent)";
+  if (value.length <= 8) return `set (len=${value.length})`;
+  return `set (len=${value.length}, …${value.slice(-4)})`;
+}
+
 // CORS doit être le premier middleware pour autoriser le front
 app.use(
   cors({
@@ -29,17 +37,29 @@ app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
   async (req, res) => {
+    console.log("[stripe webhook] POST /webhook — incoming request");
     const sig = req.headers["stripe-signature"];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    console.log(
+      "[stripe webhook] STRIPE_WEBHOOK_SECRET:",
+      maskSecret(webhookSecret),
+      "| stripe-signature header:",
+      sig ? "present" : "MISSING"
+    );
     if (!webhookSecret) {
-      console.error("STRIPE_WEBHOOK_SECRET is not set");
+      console.error("[stripe webhook] STRIPE_WEBHOOK_SECRET is not set — set it in Railway to match Stripe Dashboard → Webhooks → signing secret");
       return res.status(500).send("Webhook secret missing");
     }
     let event;
     try {
+      console.log("[stripe webhook] Verifying signature with constructEvent…");
       event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+      console.log("[stripe webhook] Signature OK — event.type:", event.type, "event.id:", event.id);
     } catch (err) {
-      console.error("Webhook signature verification failed:", err?.message);
+      console.error(
+        "[stripe webhook] Signature verification FAILED (wrong STRIPE_WEBHOOK_SECRET or body parsed as JSON?):",
+        err?.message
+      );
       return res.status(400).send(`Webhook Error: ${err?.message}`);
     }
     const isActiveSubscriptionStatus = (status) =>
@@ -51,17 +71,31 @@ app.post(
       subscriptionId,
       customerId,
     }) => {
-      if (!clerkUserId || !supabase) return;
+      console.log("[stripe webhook] upsertPremiumForUser — clerkUserId:", clerkUserId, "isPremium:", isPremium);
+      if (!clerkUserId) {
+        console.warn("[stripe webhook] upsertPremiumForUser — SKIP (no clerkUserId)");
+        return;
+      }
+      if (!supabase) {
+        console.error("[stripe webhook] upsertPremiumForUser — SKIP (Supabase client missing: set SUPABASE_SERVICE_KEY)");
+        return;
+      }
       const payload = {
         id: clerkUserId,
         is_premium: !!isPremium,
         ...(subscriptionId ? { stripe_subscription_id: subscriptionId } : {}),
         ...(customerId ? { stripe_customer_id: customerId } : {}),
       };
-      const { error } = await supabase
+      console.log("[stripe webhook] Supabase upsert payload:", JSON.stringify(payload));
+      const { error, data } = await supabase
         .from("users")
-        .upsert(payload, { onConflict: "id" });
-      if (error) throw error;
+        .upsert(payload, { onConflict: "id" })
+        .select();
+      if (error) {
+        console.error("[stripe webhook] Supabase upsert error:", error);
+        throw error;
+      }
+      console.log("[stripe webhook] Supabase upsert OK — rows:", data?.length ?? 0, data);
     };
 
     const updatePremiumBySubscriptionId = async ({
@@ -86,9 +120,51 @@ app.post(
     try {
       if (event.type === "checkout.session.completed") {
         const session = event.data.object;
-        const clerkUserId = session.client_reference_id;
-        const subscriptionId = session.subscription || null;
-        const customerId = session.customer || null;
+        console.log(
+          "[stripe webhook] checkout.session.completed — FULL session object (JSON):",
+          JSON.stringify(session, null, 2)
+        );
+        console.log(
+          "[stripe webhook] checkout.session.completed — session.id:",
+          session.id,
+          "mode:",
+          session.mode
+        );
+        console.log(
+          "[stripe webhook] session.metadata:",
+          JSON.stringify(session.metadata || {}),
+          "| client_reference_id:",
+          session.client_reference_id ?? "(null)"
+        );
+
+        const fromMetaUserId = session.metadata?.userId || session.metadata?.user_id;
+        const fromMetaClerk = session.metadata?.clerkUserId || session.metadata?.clerk_user_id;
+        const fromClientRef = session.client_reference_id;
+        const clerkUserId =
+          (fromMetaUserId && String(fromMetaUserId).trim()) ||
+          (fromMetaClerk && String(fromMetaClerk).trim()) ||
+          (fromClientRef && String(fromClientRef).trim()) ||
+          null;
+
+        console.log(
+          "[stripe webhook] Resolved Clerk user id — metadata.userId:",
+          fromMetaUserId ?? "(none)",
+          "| metadata.clerkUserId:",
+          fromMetaClerk ?? "(none)",
+          "| client_reference_id:",
+          fromClientRef ?? "(none)",
+          "=> using:",
+          clerkUserId ?? "NONE — cannot set premium"
+        );
+
+        const subscriptionId =
+          typeof session.subscription === "string"
+            ? session.subscription
+            : session.subscription?.id || null;
+        const customerId =
+          typeof session.customer === "string"
+            ? session.customer
+            : session.customer?.id || null;
 
         if (clerkUserId) {
           await upsertPremiumForUser({
@@ -98,10 +174,16 @@ app.post(
             customerId,
           });
           console.log(
-            "[stripe webhook] Premium activated for user:",
+            "[stripe webhook] checkout.session.completed — Premium activated for:",
             clerkUserId,
             "subscription:",
-            subscriptionId
+            subscriptionId,
+            "customer:",
+            customerId
+          );
+        } else {
+          console.error(
+            "[stripe webhook] checkout.session.completed — NO USER ID: fix /api/checkout to send metadata.userId + client_reference_id (Clerk id)"
           );
         }
       }
@@ -228,6 +310,11 @@ console.log(
   process.env.STRIPE_SECRET_KEY ? "Key is loaded" : "KEY IS MISSING"
 );
 console.log("SERVER STARTING - Keys loaded:", !!process.env.STRIPE_SECRET_KEY);
+console.log(
+  "[stripe] STRIPE_WEBHOOK_SECRET for /webhook:",
+  maskSecret(process.env.STRIPE_WEBHOOK_SECRET),
+  "— must match Stripe Dashboard → Developers → Webhooks → [endpoint] → Signing secret"
+);
 console.log("✅ Stripe Server is ready with Secret Key");
 
 app.get("/api/debug-stripe", async (req, res) => {
@@ -238,16 +325,33 @@ app.get("/api/debug-stripe", async (req, res) => {
 });
 
 app.post("/api/checkout", async (req, res) => {
-  console.log("FRONTEND IS CALLING ME!", req.body);
+  console.log("[checkout] POST /api/checkout — body:", JSON.stringify(req.body));
   try {
     const baseUrl = req.body.base_url || "http://localhost:5173";
     const {
       success_url: bodySuccessUrl,
       cancel_url: bodyCancelUrl,
       client_reference_id,
+      userId: bodyUserId,
       plan,
       priceId: bodyPriceId,
     } = req.body;
+
+    const clerkUserId = [client_reference_id, bodyUserId]
+      .map((v) => (v != null && String(v).trim() ? String(v).trim() : ""))
+      .find(Boolean);
+
+    if (!clerkUserId) {
+      console.error(
+        "[checkout] REJECTED — missing Clerk user id (need client_reference_id or userId in JSON body)"
+      );
+      return res.status(400).json({
+        error:
+          "Missing user id: sign in and retry, or pass client_reference_id / userId (Clerk user_…)",
+      });
+    }
+
+    console.log("[checkout] Clerk user id for Stripe session:", clerkUserId);
 
     const success_url = bodySuccessUrl || `${baseUrl}/success`;
     const cancel_url =
@@ -263,7 +367,7 @@ app.post("/api/checkout", async (req, res) => {
 
     console.log("[checkout] plan:", plan, "isAnnual:", isAnnual, "priceId:", priceId, "source:", bodyPriceId ? "frontend" : "server env");
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams = {
       payment_method_types: ["card"],
       mode: "subscription",
       line_items: [
@@ -274,12 +378,25 @@ app.post("/api/checkout", async (req, res) => {
       ],
       success_url,
       cancel_url,
-      client_reference_id,
+      client_reference_id: clerkUserId,
+      metadata: {
+        userId: clerkUserId,
+      },
       subscription_data: {
         trial_period_days: 30,
-        metadata: { plan, clerkUserId: client_reference_id || "" },
+        metadata: {
+          plan: plan || "",
+          clerkUserId,
+        },
       },
-    });
+    };
+    console.log("[checkout] stripe.checkout.sessions.create params (metadata + client_reference_id set):", JSON.stringify({
+      ...sessionParams,
+      line_items: sessionParams.line_items,
+    }));
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+    console.log("[checkout] Session created:", session.id, "url present:", !!session.url);
 
     return res.json({ url: session.url });
   } catch (err) {

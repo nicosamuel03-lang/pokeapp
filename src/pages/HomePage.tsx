@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Category } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { Link, useLocation } from "react-router-dom";
@@ -12,79 +11,7 @@ import { getEraBadge, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
-type HistPrix = { mois: string; prix: number | null }[] | undefined;
-
-function getLastNonNullPrice(hist: HistPrix): number {
-  if (!hist?.length) return 0;
-  for (let i = hist.length - 1; i >= 0; i--) {
-    const p = hist[i].prix;
-    if (p != null && !Number.isNaN(p)) return p;
-  }
-  return 0;
-}
-
-function getPriceAtMonthCarryForward(hist: HistPrix, monthKey: string): number {
-  if (!hist?.length) return 0;
-  let last = 0;
-  for (const point of hist) {
-    if (point.mois <= monthKey && point.prix != null && !Number.isNaN(point.prix)) last = point.prix;
-    if (point.mois === monthKey) return point.prix != null && !Number.isNaN(point.prix) ? point.prix : last;
-  }
-  return last;
-}
-
-function getHistoriquePrix(item: { product: { id: string; etbId?: string; historique_prix?: HistPrix } }): HistPrix {
-  if (item.product.historique_prix?.length) return item.product.historique_prix;
-  const etb = getEtbForItem(item);
-  return etb?.historique_prix;
-}
-
-function getEtbForItem(item: { product: { id: string; etbId?: string } }): (typeof etbData)[number] | undefined {
-  return item.product.etbId
-    ? etbData.find((e) => e.id === item.product.etbId)
-    : etbData.find((e) => e.id === item.product.id || item.product.id.startsWith(e.id));
-}
-
-/** Mois de sortie (YYYY-MM) pour filtrer les données avant release. ETB: dateSortie DD/MM/YYYY, Display: releaseDate YYYY-MM. */
-function getReleaseMonthKeyForItem(item: { product: { id: string; etbId?: string; category?: string } }): string | null {
-  const etb = getEtbForItem(item);
-  if (etb?.dateSortie) {
-    const parts = String(etb.dateSortie).trim().split("/");
-    if (parts.length === 3) {
-      const [, m, y] = parts;
-      const month = String(m ?? "").padStart(2, "0");
-      const year = String(y ?? "").trim();
-      if (month && year) return `${year}-${month}`;
-    }
-  }
-  const displayId = item.product.id.replace(/^display-/, "").replace(/^upc-/, "");
-  const display = displayData.find((d) => d.id === displayId || d.id === item.product.etbId);
-  if (display?.releaseDate) {
-    const d = display.releaseDate;
-    return d.length >= 7 ? d.slice(0, 7) : null;
-  }
-  return null;
-}
-
-/** Prix pour un mois donné : 2024 → historique_prix_2024, 2025 → historique_prix_2025, 2026 → historique_prix. */
-function getPriceAtMonthForItem(
-  item: { product: { id: string; etbId?: string; historique_prix?: HistPrix } },
-  moisKey: string
-): number {
-  const etb = getEtbForItem(item);
-  const hist =
-    moisKey.startsWith("2024-")
-      ? etb?.historique_prix_2024
-      : moisKey.startsWith("2025-")
-        ? etb?.historique_prix_2025
-        : getHistoriquePrix(item);
-  let price = getPriceAtMonthCarryForward(hist, moisKey);
-  if (price === 0 && !hist?.length) {
-    price = getPrixMarcheForProduct(item.product, etbData);
-  }
-  return price;
-}
-
+import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
   { key: "ETB", label: "ETB" },
@@ -103,6 +30,7 @@ interface HomeProduct {
   prixAchat: number;
   change30dPercent: number;
   badge: string;
+  etbId?: string;
 }
 
 export const HomePage = () => {
@@ -119,7 +47,6 @@ export const HomePage = () => {
     "Tous"
   );
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
-  const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   const triggerFilterPress = (key: string) => {
     setPressedFilterKey(key);
@@ -162,78 +89,15 @@ export const HomePage = () => {
     if (cat !== "ETB" && cat !== "Displays" && cat !== "UPC") setSelectedEra(null);
   };
 
-  const PORTFOLIO_CHART_HEIGHT = 300;
-
-  /* 1 an = Fév 2025 → Fév 2026 (13 points). 2 ans = Fév 2024 → Fév 2026 (25 points). */
-  const MOIS_KEYS_1AN = [
-    "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
-    "2026-01", "2026-02",
-  ];
-  const MOIS_LABELS_1AN = ["Fév 25", "Mar 25", "Avr 25", "Mai 25", "Juin 25", "Juil 25", "Août 25", "Sept 25", "Oct 25", "Nov 25", "Déc 25", "Jan 26", "Fév 26"];
-  const MOIS_KEYS_2ANS = [
-    "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12",
-    "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
-    "2026-01", "2026-02",
-  ];
-  const MOIS_LABELS_2ANS = [
-    "Fév 24", "Mar 24", "Avr 24", "Mai 24", "Juin 24", "Juil 24", "Août 24", "Sept 24", "Oct 24", "Nov 24", "Déc 24",
-    "Jan 25", "Fév 25", "Mar 25", "Avr 25", "Mai 25", "Juin 25", "Juil 25", "Août 25", "Sept 25", "Oct 25", "Nov 25", "Déc 25",
-    "Jan 26", "Fév 26",
-  ];
-
-  const totalInvesti = collectionItems.reduce((sum, item) => {
-    return sum + (Number(item.buyPrice ?? item.product.prixAchat ?? 0) * Number(item.quantity));
-  }, 0);
-
-  const totalMarche = collectionItems.reduce(
-    (sum, item) =>
-      sum + getPrixMarcheForProduct(item.product, etbData) * Number(item.quantity),
-    0
+  const collectionLines = useMemo(
+    () =>
+      collectionItems.map((it) => ({
+        quantity: it.quantity,
+        buyPrice: it.buyPrice,
+        product: it.product,
+      })),
+    [collectionItems]
   );
-
-  const chartData = useMemo(() => {
-    const keys = chartPeriod === "1an" ? MOIS_KEYS_1AN : MOIS_KEYS_2ANS;
-    const labels = chartPeriod === "1an" ? [...MOIS_LABELS_1AN] : MOIS_LABELS_2ANS;
-    return keys.map((moisKey, index) => {
-      let sum = 0;
-      collectionItems.forEach((item) => {
-        const releaseMonth = getReleaseMonthKeyForItem(item);
-        if (releaseMonth && moisKey < releaseMonth) {
-          return;
-        }
-        sum += getPriceAtMonthForItem(item, moisKey) * Number(item.quantity);
-      });
-      const valeurMarche = Math.round(sum * 100) / 100;
-      return {
-        mois: labels[index],
-        investissement: totalInvesti,
-        valeurMarche,
-      };
-    });
-  }, [chartPeriod, collectionItems, totalInvesti]);
-
-  const portfolio = useMemo(() => {
-    let totalInvestiP = 0;
-    let totalMarcheP = 0;
-    collectionItems.forEach((item) => {
-      const qty = Number(item.quantity);
-      const prixAchat = item.buyPrice ?? item.product.prixAchat ?? 0;
-      totalInvestiP += prixAchat * qty;
-      totalMarcheP += getPrixMarcheForProduct(item.product, etbData) * qty;
-    });
-    const plusValueLatente = totalMarcheP - totalInvestiP;
-    const gainRealise = sales.reduce((sum, r) => sum + (r.profit ?? 0), 0);
-    const plusValueTotale = plusValueLatente + gainRealise;
-    const perfGlobale = totalInvestiP > 0 ? (plusValueTotale / totalInvestiP) * 100 : 0;
-    return {
-      totalInvesti: totalInvestiP,
-      totalMarche: totalMarcheP,
-      plusValueLatente,
-      gainRealise,
-      plusValueTotale,
-      perfGlobale,
-    };
-  }, [collectionItems, sales]);
 
   const databaseProducts: HomeProduct[] = useMemo(() => {
     const etbProducts: HomeProduct[] = etbData.map((item, index) => {
@@ -248,6 +112,7 @@ export const HomePage = () => {
           : "Méga Évolution";
       return {
         id: item.id,
+        etbId: item.id,
         name: `ETB ${item.nom}`,
         emoji: "🎴",
         category: "ETB",
@@ -270,6 +135,7 @@ export const HomePage = () => {
         }
         return {
           id: `display-${d.id}`,
+          etbId: d.id,
           name: d.name,
           emoji: "📦",
           category: "Displays",
@@ -287,6 +153,7 @@ export const HomePage = () => {
       .filter((d) => d.category === "UPC")
       .map((d) => ({
         id: `upc-${d.id}`,
+        etbId: d.id,
         name: d.name,
         emoji: "🎁",
         category: "UPC",
@@ -368,332 +235,30 @@ export const HomePage = () => {
     return categoryFiltered.filter((p) => p.set === selectedEra);
   }, [categoryFiltered, hasEraSubFilter, selectedEra]);
 
+  const EMERALD = "#10b981";
+  const LABEL_MUTED = "#888888";
+
+  const filterChipActive = isDark
+    ? { backgroundColor: "#ffffff", color: "#000000", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13, border: "none" as const }
+    : { backgroundColor: accentGold, color: "black", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13 };
+  const filterChipInactive = isDark
+    ? { backgroundColor: "transparent", color: "#ffffff", borderRadius: "999px", padding: "2px 12px", border: "1px solid #444444", fontSize: 13 }
+    : { backgroundColor: "transparent", color: "inherit", borderRadius: "999px", padding: "2px 12px", border: "1px solid gray", fontSize: 13 };
+
   return (
     <div className="space-y-4 -mx-3">
-      {/* Carte Portefeuille global */}
-      <section
-        className="rounded-2xl px-2 py-3"
-        style={{
-          background: "var(--card-color)",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
-        }}
-      >
-        <div className="mb-2 flex items-center justify-between">
-          <div>
-            <p className="title-section" style={{ color: "var(--text-primary)" }}>
-              Portefeuille global
-            </p>
-            <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-              Valeur de votre collection
-            </p>
-          </div>
-          <div
-            className="rounded-full px-3 py-1 text-[11px]"
-            style={{ background: "var(--bg-card-elevated)", color: "var(--text-secondary)" }}
-          >
-            {collectionItems.length} item{collectionItems.length !== 1 ? "s" : ""}
-          </div>
-        </div>
-
-        <div className="mb-2 flex gap-2">
-          <button
-            type="button"
-            onClick={() => setChartPeriod("1an")}
-            style={chartPeriod === "1an" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '4px 16px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '4px 16px', border: '1px solid gray', fontSize: 13 }}
-          >
-            1 an
-          </button>
-          <button
-            type="button"
-            onClick={() => setChartPeriod("2ans")}
-            style={chartPeriod === "2ans" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '4px 16px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '4px 16px', border: '1px solid gray', fontSize: 13 }}
-          >
-            2 ans
-          </button>
-        </div>
-
-        <div className="w-full" style={{ minHeight: PORTFOLIO_CHART_HEIGHT, overflow: "hidden" }}>
-          {/* État « ajoutez des items » uniquement pour premium : les comptes free gardent toujours le graphique flouté + overlay (même collection vide après vente). */}
-          {collectionItems.length === 0 && isPremium === true ? (
-            <div
-              className="relative flex flex-col items-center justify-center rounded-xl py-12 text-center"
-              style={{
-                height: PORTFOLIO_CHART_HEIGHT,
-                background: "var(--bg-card-elevated)",
-                overflow: "hidden",
-              }}
-            >
-              {/* Mewtwo prominent in center when chart is empty (no items in collection) */}
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 0,
-                  backgroundImage: `url(${isLight ? "/images/fond%20graphique/mewtwoo_gris.png" : "/images/fond%20graphique/mewtwoo.png?v=2"})`,
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  opacity: 0.85,
-                  pointerEvents: "none",
-                }}
-              />
-              {/* Ghost watermarks: Charizard, Celebi, Arceus */}
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  top: "8%",
-                  left: "5%",
-                  width: "28%",
-                  height: "40%",
-                  backgroundImage: "url(/images/hero/watermarks/charizard.png)",
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  opacity: 0.1,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  top: "12%",
-                  right: "8%",
-                  width: "22%",
-                  height: "35%",
-                  backgroundImage: "url(/images/hero/watermarks/celebi.png)",
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  opacity: 0.1,
-                  pointerEvents: "none",
-                }}
-              />
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  bottom: "15%",
-                  left: "10%",
-                  width: "25%",
-                  height: "38%",
-                  backgroundImage: "url(/images/hero/watermarks/arceus.png)",
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  opacity: 0.1,
-                  pointerEvents: "none",
-                }}
-              />
-              <Link
-                to="/ajouter"
-                className="absolute right-3 bottom-3 flex h-8 w-8 items-center justify-center rounded-full text-lg font-medium transition hover:opacity-80"
-                style={{
-                  background: "var(--border-color)",
-                  color: "var(--text-secondary)",
-                }}
-                aria-label="Ajouter un item"
-              >
-                +
-              </Link>
-              <p className="text-sm mt-2 relative z-10" style={{ color: "var(--text-secondary)" }}>
-                Ajoutez des items pour voir l&apos;évolution
-              </p>
-            </div>
-          ) : (
-            <div style={{ position: "relative", background: "var(--card-color)" }}>
-              {/* Mewtwo hidden when chart has data; only shown when empty (see empty state below) */}
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 0,
-                  backgroundImage: `url(${isLight ? "/images/fond%20graphique/mewtwoo_gris.png" : "/images/fond%20graphique/mewtwoo.png?v=2"})`,
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  opacity: 0,
-                  pointerEvents: "none",
-                  visibility: "hidden",
-                }}
-              />
-              {/* Chart layer: all data and lines on top */}
-              <div
-                style={{
-                  position: "relative",
-                  zIndex: 1,
-                  ...(isPremium === true
-                    ? {}
-                    : {
-                        filter: "blur(12px) brightness(0.6)",
-                        pointerEvents: "none",
-                        userSelect: "none",
-                      }),
-                }}
-              >
-                <ResponsiveContainer width="100%" height={PORTFOLIO_CHART_HEIGHT}>
-                  <LineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                    <XAxis
-                      dataKey="mois"
-                      tick={{ fill: "var(--text-secondary)", fontSize: 10 }}
-                      interval={chartPeriod === "1an" ? 1 : 2}
-                    />
-                    <YAxis tick={{ fill: "var(--text-secondary)", fontSize: 10 }} width={45} />
-                    <Tooltip
-                      contentStyle={{ background: "var(--card-color)", borderRadius: 8, color: "var(--text-primary)", boxShadow: "0 4px 24px rgba(0,0,0,0.25)" }}
-                      content={({ active, payload, label }) => {
-                        if (!active || !payload?.length) return null;
-                        const sorted = [...payload].sort((a, b) => (a.dataKey === "valeurMarche" ? -1 : b.dataKey === "valeurMarche" ? 1 : 0));
-                        return (
-                          <div className="rounded-lg px-3 py-2" style={{ background: "var(--card-color)", color: "var(--text-primary)" }}>
-                            <p className="text-[10px] mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
-                            {sorted.map((entry) => (
-                              <p key={String(entry.dataKey)} className="text-xs" style={{ color: entry.color }}>
-                                {entry.dataKey === "investissement" ? "Investi" : "Marché"}: {typeof entry.value === "number" ? `${entry.value} €` : entry.value}
-                              </p>
-                            ))}
-                          </div>
-                        );
-                      }}
-                    />
-                    <Line type="monotone" dataKey="valeurMarche" name="Marché" stroke={accentGold} strokeWidth={2} dot={false} connectNulls={true} />
-                    <Line type="monotone" dataKey="investissement" name="Investi" stroke="var(--text-primary)" strokeWidth={2} strokeDasharray="5 5" dot={false} connectNulls={true} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              {isPremium !== true && !isLoadingSubscription && (
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                  }}
-                >
-                  <div
-                    style={{
-                      pointerEvents: "auto",
-                      textAlign: "center",
-                      padding: "12px 16px",
-                      borderRadius: 16,
-                      background: "rgba(0,0,0,0.65)",
-                      color: "var(--text-primary)",
-                      maxWidth: 260,
-                    }}
-                  >
-                    <div style={{ marginBottom: 6 }}>
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={accentGold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ filter: "drop-shadow(0 2px 4px rgba(212,167,87,0.4))" }}>
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                      </svg>
-                    </div>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        marginBottom: 10,
-                        color: "#FFFFFF",
-                      }}
-                    >
-                      Fonctionnalité réservée aux membres Boss Access
-                    </p>
-                    <a
-                      href="/premium"
-                      style={{
-                        display: "inline-block",
-                        padding: "6px 14px",
-                        borderRadius: 9999,
-                        background: accentGold,
-                        color: "#000",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        textDecoration: "none",
-                      }}
-                    >
-                      S&apos;abonner
-                    </a>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Quatre blocs synthèse — rectangles gris distincts */}
-        <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-          <div
-            className="rounded-2xl px-3 py-2"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Total investi</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
-              {portfolio.totalInvesti.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            </p>
-          </div>
-          <div
-            className="rounded-2xl px-3 py-2"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Valeur marché</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: accentGold }}>
-              {portfolio.totalMarche.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            </p>
-          </div>
-          <div
-            className="rounded-2xl px-3 py-2"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Plus-value totale</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: portfolio.plusValueTotale >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
-              {portfolio.plusValueTotale >= 0 ? "+" : ""}
-              {portfolio.plusValueTotale.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-            </p>
-          </div>
-          <div
-            className="rounded-2xl px-3 py-2"
-            style={{
-              background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-              ...(isLight && { border: "1px solid var(--border-color)" }),
-            }}
-          >
-            <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Performance globale</p>
-            <p className="mt-1 text-sm font-semibold" style={{ color: portfolio.perfGlobale >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
-              {portfolio.perfGlobale >= 0 ? "+" : ""}
-              {portfolio.perfGlobale.toFixed(1)}%
-            </p>
-          </div>
-          {portfolio.gainRealise !== 0 && (
-            <div
-              className="col-span-2 rounded-2xl px-3 py-2"
-              style={{
-                background: isLight ? "var(--input-bg)" : "var(--bg-card-elevated)",
-                ...(isLight && { border: "1px solid var(--border-color)" }),
-              }}
-            >
-              <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Gain réalisé (ventes)</p>
-              <p className="mt-1 text-sm font-semibold" style={{ color: portfolio.gainRealise >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
-                {portfolio.gainRealise >= 0 ? "+" : ""}
-                {portfolio.gainRealise.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
+      <PortfolioDashboardSection
+        mode="summary"
+        collectionLines={collectionLines}
+        sales={sales}
+        isPremium={isPremium}
+        isLoadingSubscription={isLoadingSubscription}
+        isLight={isLight}
+        isDark={isDark}
+        accentGold={accentGold}
+        produitsCount={collectionItems.length}
+        summaryMainCardTo="/collection"
+      />
 
       <div>
         <p className="app-heading mb-2 text-xs pl-3" style={{ color: "var(--text-secondary)" }}>
@@ -705,7 +270,7 @@ export const HomePage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Tous")}
             onClick={() => handleCategoryChange("Tous")}
-            style={selectedCategory === "Tous" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            style={selectedCategory === "Tous" ? filterChipActive : filterChipInactive}
           >
             Tous
           </button>
@@ -716,7 +281,7 @@ export const HomePage = () => {
               className={`filter-btn ${pressedFilterKey === `cat-${cat.key}` ? "filter-btn-press" : ""}`}
               onPointerDown={() => triggerFilterPress(`cat-${cat.key}`)}
               onClick={() => handleCategoryChange(cat.key)}
-              style={selectedCategory === cat.key ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+              style={selectedCategory === cat.key ? filterChipActive : filterChipInactive}
             >
               {cat.label}
             </button>
@@ -774,6 +339,11 @@ export const HomePage = () => {
             const perfPct = product.change30dPercent;
             const isUp = perfPct >= 0;
             const eraBadge = (product.category === "ETB" || product.category === "Displays" || product.category === "UPC") ? (getEraBadge(product.id, product.set) ?? (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)) : null;
+            const categoryPillLabel = eraBadge?.label ?? product.set ?? product.badge;
+            const dateLine =
+              (product.category === "ETB" || product.category === "UPC" || product.category === "Displays") && product.dateSortie
+                ? formatReleaseDate(product.dateSortie)
+                : null;
             return (
               <div
                 key={`${product.id}-${product.name}`}
@@ -789,15 +359,18 @@ export const HomePage = () => {
                     );
                   }}
                   className="flex flex-col rounded-2xl overflow-hidden transition hover:opacity-95 h-[255px]"
-                  style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
+                  style={{
+                    background: isDark ? "#111111" : "var(--card-color)",
+                    boxShadow: isDark ? "none" : "0 2px 12px rgba(0,0,0,0.12)",
+                  }}
                 >
                 <div
                   className="relative flex items-center justify-center overflow-hidden shrink-0"
                   style={{
                     width: "100%",
                     height: "160px",
-                    background: "var(--img-container-bg)",
-                    borderRadius: "12px 12px 0 0",
+                    background: isDark ? "#141414" : "var(--img-container-bg)",
+                    borderRadius: "16px 16px 0 0",
                     willChange: "transform",
                   }}
                 >
@@ -827,7 +400,19 @@ export const HomePage = () => {
                       className="opacity-60"
                     />
                   )}
-                  {eraBadge ? (
+                  {isDark ? (
+                    <span
+                      className="absolute right-[6px] top-[6px] shrink-0 max-w-[calc(100%-12px)] truncate text-[9px] font-semibold"
+                      style={{
+                        background: EMERALD,
+                        color: "#0a0a0a",
+                        padding: "3px 8px",
+                        borderRadius: 9999,
+                      }}
+                    >
+                      {categoryPillLabel}
+                    </span>
+                  ) : eraBadge ? (
                     <span
                       className="absolute right-[6px] top-[6px] shrink-0 whitespace-nowrap text-[9px] font-medium"
                       style={{
@@ -850,31 +435,30 @@ export const HomePage = () => {
                 </div>
                 <div
                   className="flex flex-1 flex-col min-h-0 p-3"
-                  style={{ display: "flex", flexDirection: "column", height: "95px" }}
+                  style={{ display: "flex", flexDirection: "column", height: "95px", background: isDark ? "#111111" : undefined }}
                 >
-                <p className="app-heading text-xs shrink-0 line-clamp-2" style={{ color: "var(--text-primary)" }}>
+                <p
+                  className="text-xs font-semibold shrink-0 line-clamp-1 overflow-hidden text-ellipsis"
+                  style={{ color: isDark ? "#ffffff" : "var(--text-primary)", fontFamily: '"Inter", system-ui, sans-serif' }}
+                >
                   {formatProductNameWithSetCode(
                     product.name,
                     getSetCodeFromProduct(product),
                     product.category as "ETB" | "Displays"
                   )}
                 </p>
-                <div className="mt-1 space-y-1 flex-1 min-h-0 overflow-hidden">
-                  {(product.category === "ETB" || product.category === "UPC") && product.dateSortie && (
-                    <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
-                      {formatReleaseDate(product.dateSortie)}
-                    </p>
-                  )}
-                  {product.category === "Displays" && product.dateSortie && (
-                    <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
-                      {formatReleaseDate(product.dateSortie)}
+                <div className="mt-1 flex-1 min-h-0 overflow-hidden">
+                  {dateLine && (
+                    <p className="text-[11px]" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
+                      {dateLine}
                     </p>
                   )}
                 </div>
-                <div
-                  className="mt-auto flex justify-between items-center shrink-0"
-                >
-                  <p className="text-sm font-semibold" style={{ color: accentGold }}>
+                <div className="mt-auto flex justify-between items-baseline gap-2 shrink-0">
+                  <p
+                    className="text-sm font-semibold tabular-nums truncate min-w-0"
+                    style={{ color: isDark ? EMERALD : accentGold }}
+                  >
                     {product.currentPrice.toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",
@@ -882,8 +466,8 @@ export const HomePage = () => {
                     })}
                   </p>
                   <p
-                    className="text-[11px] font-medium"
-                    style={{ color: isUp ? "var(--gain-green)" : "var(--loss-red)" }}
+                    className="text-[11px] font-semibold tabular-nums shrink-0"
+                    style={{ color: isDark ? EMERALD : isUp ? "var(--gain-green)" : "var(--loss-red)" }}
                   >
                     {isUp ? "+" : ""}
                     {perfPct.toFixed(1)}%

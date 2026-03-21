@@ -37,10 +37,10 @@ export function ThemeProvider({
     const isDark = theme === "dark";
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(theme);
-    document.documentElement.style.backgroundColor = isDark ? "#000000" : "#ffffff";
+    document.documentElement.style.backgroundColor = isDark ? "#0a0a0a" : "#ffffff";
     const metaThemeColor = document.querySelectorAll('meta[name="theme-color"]');
-    metaThemeColor.forEach((meta) => meta.setAttribute("content", isDark ? "#000000" : "#ffffff"));
-    if (document.body) document.body.style.backgroundColor = isDark ? "#000000" : "#ffffff";
+    metaThemeColor.forEach((meta) => meta.setAttribute("content", isDark ? "#0a0a0a" : "#ffffff"));
+    if (document.body) document.body.style.backgroundColor = isDark ? "#0a0a0a" : "#ffffff";
     try {
       if (isPremium) {
         localStorage.setItem(STORAGE_KEY, preference);
