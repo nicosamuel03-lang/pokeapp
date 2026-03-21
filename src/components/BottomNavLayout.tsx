@@ -31,16 +31,13 @@ export const BottomNavLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut } = useClerk();
-  const { isSignedIn, user, isLoaded } = useUser();
+  const { isSignedIn, user } = useUser();
   const { theme } = useTheme();
   const { isPremium, isLoading } = useSubscription();
   console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
-
-  // Header dès que Clerk est prêt (Connexion / avatar / réglages). Ne pas attendre l’abonnement Supabase — sinon le header reste vide trop longtemps.
-  const headerLoading = !isLoaded;
 
   const isLight = theme === "light";
   const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
@@ -147,9 +144,6 @@ export const BottomNavLayout = () => {
               minHeight: 44,
             }}
           >
-            {headerLoading ? (
-              <div style={{ width: "100%", height: 44 }} aria-hidden />
-            ) : (
               <>
                 <div
                   style={{
@@ -220,43 +214,18 @@ export const BottomNavLayout = () => {
                       onClick={() => signOut()}
                       aria-label="Déconnexion"
                       style={{
-                        width: 36,
-                        height: 36,
-                        borderRadius: "50%",
                         padding: 0,
                         border: "none",
-                        cursor: "pointer",
                         background: "transparent",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        overflow: "hidden",
+                        cursor: "pointer",
+                        lineHeight: 0,
                       }}
                     >
-                      {user?.imageUrl ? (
-                        <img
-                          src={user.imageUrl}
-                          alt=""
-                          style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover" }}
-                        />
-                      ) : (
-                        <span
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: "50%",
-                            background: "var(--bg-card)",
-                            color: "var(--text-secondary)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 14,
-                            fontWeight: 600,
-                          }}
-                        >
-                          {user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? "?"}
-                        </span>
-                      )}
+                      <img
+                        src={user?.imageUrl ?? ""}
+                        alt=""
+                        style={{ width: 36, height: 36, borderRadius: "50%", cursor: "pointer" }}
+                      />
                     </button>
                   ) : (
                     <>
@@ -301,7 +270,6 @@ export const BottomNavLayout = () => {
               </button>
             </div>
               </>
-            )}
           </header>
           {/* Alignement horizontal avec les pages (-mx-3) ex. carte Portefeuille global */}
           {location.pathname !== "/premium" &&
