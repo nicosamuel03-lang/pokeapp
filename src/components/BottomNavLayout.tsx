@@ -40,8 +40,8 @@ export const BottomNavLayout = () => {
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
-  // Pendant le chargement Clerk + abonnement : header placeholder (hauteur fixe), aucun contenu.
-  const headerLoading = !isAuthLoaded || isLoading;
+  // Header dès que Clerk est prêt (Connexion / avatar / réglages). Ne pas attendre l’abonnement Supabase — sinon le header reste vide trop longtemps.
+  const headerLoading = !isAuthLoaded;
 
   const isLight = theme === "light";
   const badgeBorder = isLight ? "#B8860B" : "rgba(212, 167, 87, 0.6)";
