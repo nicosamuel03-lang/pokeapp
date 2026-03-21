@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { useAuth, useSignIn, useSignUp } from "@clerk/react";
+import { useAuth, useClerk, useSignIn, useSignUp } from "@clerk/react";
 
 /** Overlay plein écran : au-dessus de tout le layout, scroll iOS, safe area PWA. */
 const OVERLAY_STYLE: CSSProperties = {
@@ -62,6 +62,21 @@ function clerkErrMessage(err: unknown): string {
   return "Une erreur est survenue.";
 }
 
+/** Erreurs Clerk (API classique ou réponses JSON). */
+function clerkApiErr(err: unknown): string {
+  if (
+    err &&
+    typeof err === "object" &&
+    "errors" in err &&
+    Array.isArray((err as { errors: { message?: string }[] }).errors) &&
+    (err as { errors: { message?: string }[] }).errors.length > 0
+  ) {
+    const first = (err as { errors: { message?: string }[] }).errors[0];
+    if (first?.message) return first.message;
+  }
+  return clerkErrMessage(err);
+}
+
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -70,10 +85,13 @@ type Props = {
 /** Modale connexion / inscription headless (sans <SignIn /> Clerk) — meilleure compat iOS PWA. */
 export function ClerkSignInModal({ open, onClose }: Props) {
   const { isSignedIn, isLoaded } = useAuth();
+  const { setActive } = useClerk();
   const { signIn } = useSignIn();
   const { signUp } = useSignUp();
 
   const [tab, setTab] = useState<Tab>("connexion");
+  const [signUpStep, setSignUpStep] = useState<"form" | "verify">("form");
+  const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -88,6 +106,8 @@ export function ClerkSignInModal({ open, onClose }: Props) {
       setError(null);
       setLoading(false);
       setOauthLoading(false);
+      setSignUpStep("form");
+      setCode("");
     }
   }, [open]);
 
@@ -125,7 +145,8 @@ export function ClerkSignInModal({ open, onClose }: Props) {
     [signIn, email, password]
   );
 
-  const handleInscription = useCallback(
+  /** Étape 1 : création du compte + envoi du code e-mail (Clerk v6 : sendEmailCode ≈ prepareEmailAddressVerification email_code). */
+  const handleSignUp = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       setError(null);
@@ -140,22 +161,71 @@ export function ClerkSignInModal({ open, onClose }: Props) {
       }
       setLoading(true);
       try {
-        const { error: suErr } = await signUp.password({ emailAddress: em, password });
-        if (suErr) {
-          setError(clerkErrMessage(suErr));
+        // Types v6 : create n’inclut pas le mot de passe → create (email) puis password (email + mot de passe).
+        const { error: createErr } = await signUp.create({ emailAddress: em });
+        if (createErr) {
+          setError(clerkErrMessage(createErr));
           return;
         }
-        const { error: finErr } = await signUp.finalize();
-        if (finErr) {
-          setError(clerkErrMessage(finErr));
+        const { error: pwErr } = await signUp.password({ emailAddress: em, password });
+        if (pwErr) {
+          setError(clerkErrMessage(pwErr));
+          return;
         }
+        const { error: sendErr } = await signUp.verifications.sendEmailCode();
+        if (sendErr) {
+          setError(clerkErrMessage(sendErr));
+          return;
+        }
+        setSignUpStep("verify");
       } catch (err) {
-        setError(clerkErrMessage(err));
+        setError(clerkApiErr(err));
       } finally {
         setLoading(false);
       }
     },
     [signUp, email, password]
+  );
+
+  /** Étape 2 : vérification du code puis session active. */
+  const handleVerify = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError(null);
+      if (!signUp) {
+        setError("Inscription indisponible, réessayez.");
+        return;
+      }
+      const trimmed = code.trim();
+      if (!trimmed) {
+        setError("Entrez le code reçu par e-mail.");
+        return;
+      }
+      setLoading(true);
+      try {
+        const { error: verErr } = await signUp.verifications.verifyEmailCode({ code: trimmed });
+        if (verErr) {
+          setError(clerkErrMessage(verErr));
+          return;
+        }
+        if (signUp.status === "complete" && signUp.createdSessionId) {
+          await setActive({ session: signUp.createdSessionId });
+          onClose();
+          return;
+        }
+        const { error: finErr } = await signUp.finalize();
+        if (finErr) {
+          setError(clerkErrMessage(finErr));
+          return;
+        }
+        onClose();
+      } catch (err) {
+        setError(clerkApiErr(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [signUp, code, setActive, onClose]
   );
 
   const handleGoogle = useCallback(async () => {
@@ -191,6 +261,8 @@ export function ClerkSignInModal({ open, onClose }: Props) {
       onClick={() => {
         setTab(id);
         setError(null);
+        setSignUpStep("form");
+        setCode("");
       }}
       style={{
         flex: 1,
@@ -271,8 +343,8 @@ export function ClerkSignInModal({ open, onClose }: Props) {
           </form>
         )}
 
-        {isLoaded && tab === "inscription" && (
-          <form onSubmit={handleInscription}>
+        {isLoaded && tab === "inscription" && signUpStep === "form" && (
+          <form onSubmit={handleSignUp}>
             <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>E-mail</label>
             <input
               type="email"
@@ -292,27 +364,75 @@ export function ClerkSignInModal({ open, onClose }: Props) {
               disabled={busy}
             />
             <button type="submit" style={GOLD_BTN} disabled={busy}>
-              {loading ? "Inscription…" : "Créer un compte"}
+              {loading ? "Envoi du code…" : "Créer un compte"}
             </button>
           </form>
         )}
 
-        <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #eee" }}>
-          <button
-            type="button"
-            onClick={handleGoogle}
-            disabled={busy}
-            style={{
-              ...GOLD_BTN,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-            }}
-          >
-            {oauthLoading ? "Redirection…" : "Continuer avec Google"}
-          </button>
-        </div>
+        {isLoaded && tab === "inscription" && signUpStep === "verify" && (
+          <form onSubmit={handleVerify}>
+            <p style={{ margin: "0 0 16px", color: "#333", fontSize: 15, lineHeight: 1.45 }}>
+              Un code de vérification a été envoyé à votre e-mail.
+            </p>
+            <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>Code à 6 chiffres</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              style={{ ...INPUT_STYLE, marginBottom: 16 }}
+              disabled={busy}
+              placeholder="123456"
+            />
+            <button type="submit" style={GOLD_BTN} disabled={busy}>
+              {loading ? "Vérification…" : "Vérifier"}
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (signUp) {
+                  await signUp.reset();
+                }
+                setSignUpStep("form");
+                setCode("");
+                setError(null);
+              }}
+              disabled={busy}
+              style={{
+                marginTop: 12,
+                width: "100%",
+                padding: "10px",
+                border: "none",
+                background: "transparent",
+                color: "#666",
+                cursor: busy ? "not-allowed" : "pointer",
+                fontSize: 14,
+              }}
+            >
+              Modifier l’e-mail ou le mot de passe
+            </button>
+          </form>
+        )}
+
+        {isLoaded && !(tab === "inscription" && signUpStep === "verify") && (
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #eee" }}>
+            <button
+              type="button"
+              onClick={handleGoogle}
+              disabled={busy}
+              style={{
+                ...GOLD_BTN,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+              }}
+            >
+              {oauthLoading ? "Redirection…" : "Continuer avec Google"}
+            </button>
+          </div>
+        )}
 
         {error && (
           <p role="alert" style={{ marginTop: 12, color: "#b00020", fontSize: 14 }}>
