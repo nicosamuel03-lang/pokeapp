@@ -302,16 +302,19 @@ export const CollectionPage = () => {
           </button>
         </div>
         {hasEraSubFilter && (
-          <div className="mt-2 flex flex-wrap gap-1.5 pl-3">
+          <div className="generation-filters mt-2 flex flex-wrap gap-1.5 pl-3">
             {HOME_ERA_OPTIONS.map((era) => {
               const isSelected = selectedEra === era;
               return (
                 <button
                   type="button"
                   key={era}
-                  className={`filter-btn rounded-full font-medium shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
-                  onPointerDown={() => triggerFilterPress(`era-${era}`)}
-                  onClick={() => setSelectedEra((current) => (current === era ? null : era))}
+                  className="filter-btn rounded-full font-medium shrink-0"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSelectedEra((current) => (current === era ? null : era));
+                  }}
                   style={{
                     ...filterRow2Base,
                     whiteSpace: "nowrap",
@@ -319,7 +322,7 @@ export const CollectionPage = () => {
                     color: "#ffffff",
                     ...(isSelected
                       ? GENERATION_SELECTED_GLOW[era]
-                      : { border: "none", boxShadow: "none" }),
+                      : { border: "1px solid transparent", boxShadow: "none" }),
                   }}
                 >
                   {era}
@@ -364,7 +367,7 @@ export const CollectionPage = () => {
         <h3 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
           Détail des produits ({displayedQuantity} items)
         </h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
             const current = getPrixMarcheForProduct(item.product, etbData);
             const navProductId = encodeURIComponent(item.product.id);
@@ -382,7 +385,7 @@ export const CollectionPage = () => {
                     JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
                   );
                 }}
-                className="relative flex flex-col rounded-2xl cursor-pointer block overflow-hidden h-[255px]"
+                className="relative flex flex-col rounded-2xl cursor-pointer block overflow-hidden h-[264px]"
                 style={{
                   background: isDark ? "#111111" : "var(--card-color)",
                   boxShadow: isDark ? "none" : "0 2px 12px rgba(0,0,0,0.12)",
@@ -422,6 +425,7 @@ export const CollectionPage = () => {
                 <div
                   className="relative flex items-center justify-center overflow-hidden shrink-0"
                   style={{
+                    position: "relative",
                     width: "100%",
                     height: "160px",
                     background: isDark ? "#141414" : "var(--img-container-bg)",
@@ -463,18 +467,36 @@ export const CollectionPage = () => {
                   </span>
                 </div>
                 <div
-                  className="flex flex-1 flex-col min-h-0 p-3 pt-2"
+                  className="flex flex-1 flex-col min-h-0"
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    height: "95px",
+                    height: "104px",
+                    paddingTop: "6px",
+                    paddingLeft: "8px",
+                    paddingRight: "8px",
+                    paddingBottom: "8px",
                     background: isDark ? "#111111" : "var(--card-color)",
                   }}
                 >
+                  <div className="shrink-0 flex justify-start items-start self-start w-full min-h-0">
+                    {eraBadge ? (
+                      <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                        {eraBadge.label}
+                      </span>
+                    ) : (
+                      <span
+                        className="shrink-0 whitespace-nowrap text-[9px] font-medium uppercase"
+                        style={{ background: "rgba(255,255,255,0.12)", color: "var(--text-primary)", padding: "2px 5px", borderRadius: "4px" }}
+                      >
+                        {item.product.badge}
+                      </span>
+                    )}
+                  </div>
                   <p
                     className="text-xs font-semibold shrink-0 line-clamp-1 overflow-hidden text-ellipsis"
                     style={{
-                      marginTop: 0,
+                      marginTop: "6px",
                       color: isDark ? "#ffffff" : "var(--text-primary)",
                       fontFamily: '"Inter", system-ui, sans-serif',
                     }}
@@ -488,25 +510,13 @@ export const CollectionPage = () => {
                   <p className="text-[11px] mt-1 shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
                     {formatPurchaseDate(item.purchaseDate)}
                   </p>
-                  <div className="mt-auto flex justify-between items-baseline gap-2 shrink-0 pt-1">
+                  <div className="flex w-full shrink-0 justify-end items-baseline" style={{ marginTop: "4px" }}>
                     <p
-                      className="text-sm font-semibold tabular-nums truncate min-w-0"
+                      className="text-sm font-semibold tabular-nums truncate max-w-full text-right"
                       style={{ color: isDark ? EMERALD : accentGold }}
                     >
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </p>
-                    {eraBadge ? (
-                      <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
-                        {eraBadge.label}
-                      </span>
-                    ) : (
-                      <span
-                        className="shrink-0 whitespace-nowrap text-[9px] font-medium uppercase"
-                        style={{ background: "rgba(255,255,255,0.12)", color: "var(--text-primary)", padding: "2px 5px", borderRadius: "4px" }}
-                      >
-                        {item.product.badge}
-                      </span>
-                    )}
                   </div>
                 </div>
                 <button

@@ -287,12 +287,12 @@ export const HomePage = () => {
 
   const applyHomeSearchFromValue = useCallback(
     (val: string) => {
-      const base = filtered;
+      const base = databaseProducts;
       const matched = filterHomeProductsBySearch(base, val);
       setHomeSearchResults(sortHomeProductsBySearch(matched, val));
       setIsHomeSearchMode(val.trim() !== "");
     },
-    [filtered]
+    [databaseProducts]
   );
 
   const handleHomeSearchClear = useCallback(() => {
@@ -303,7 +303,7 @@ export const HomePage = () => {
     homeSearchInputRef.current?.focus();
   }, []);
 
-  /** Si le filtre catégorie / ère change pendant que du texte est saisi, recalculer les résultats. */
+  /** Recalcul si le catalogue change pendant une recherche (filtres ignorés pendant la saisie). */
   useEffect(() => {
     const el = homeSearchInputRef.current;
     if (!el) return;
@@ -314,7 +314,7 @@ export const HomePage = () => {
       return;
     }
     applyHomeSearchFromValue(val);
-  }, [filtered, applyHomeSearchFromValue]);
+  }, [applyHomeSearchFromValue]);
 
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
@@ -483,9 +483,10 @@ export const HomePage = () => {
                   <button
                     type="button"
                     key={era}
-                    className={`filter-btn shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
-                    onClick={() => {
-                      triggerFilterPress(`era-${era}`);
+                    className="filter-btn shrink-0"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       setSelectedEra((current) => (current === era ? null : era));
                     }}
                     style={{
@@ -495,7 +496,7 @@ export const HomePage = () => {
                       color: "#ffffff",
                       ...(isSelected
                         ? GENERATION_SELECTED_GLOW[era]
-                        : { border: "none", boxShadow: "none" }),
+                        : { border: "1px solid transparent", boxShadow: "none" }),
                     }}
                   >
                     {era}
@@ -507,7 +508,7 @@ export const HomePage = () => {
       </div>
 
       <section className="space-y-2">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2" style={{ minHeight: "600px" }}>
           {gridProducts.map((product) => {
             const eraBadge = (product.category === "ETB" || product.category === "Displays" || product.category === "UPC") ? (getEraBadge(product.id, product.set) ?? (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)) : null;
             const dateLine =
@@ -527,14 +528,14 @@ export const HomePage = () => {
                       JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
                     );
                   }}
-                  className="flex flex-col rounded-2xl overflow-hidden transition hover:opacity-95 h-[255px]"
+                  className="flex flex-col rounded-2xl overflow-hidden transition hover:opacity-95 h-[264px]"
                   style={{
                     background: isDark ? "#111111" : "var(--card-color)",
                     boxShadow: isDark ? "none" : "0 2px 12px rgba(0,0,0,0.12)",
                   }}
                 >
                 <div
-                  className="relative flex items-center justify-center overflow-hidden shrink-0"
+                  className="flex items-center justify-center overflow-hidden shrink-0"
                   style={{
                     width: "100%",
                     height: "160px",
@@ -571,37 +572,19 @@ export const HomePage = () => {
                   )}
                 </div>
                 <div
-                  className="flex flex-1 flex-col min-h-0 p-3"
-                  style={{ display: "flex", flexDirection: "column", height: "95px", background: isDark ? "#111111" : undefined }}
+                  className="flex flex-1 flex-col min-h-0"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "104px",
+                    paddingTop: "6px",
+                    paddingLeft: "8px",
+                    paddingRight: "8px",
+                    paddingBottom: "8px",
+                    background: isDark ? "#111111" : undefined,
+                  }}
                 >
-                <p
-                  className="text-xs font-semibold shrink-0 line-clamp-1 overflow-hidden text-ellipsis"
-                  style={{ color: isDark ? "#ffffff" : "var(--text-primary)", fontFamily: '"Inter", system-ui, sans-serif' }}
-                >
-                  {formatProductNameWithSetCode(
-                    product.name,
-                    getSetCodeFromProduct(product),
-                    product.category as "ETB" | "Displays"
-                  )}
-                </p>
-                <div className="mt-1 flex-1 min-h-0 overflow-hidden">
-                  {dateLine && (
-                    <p className="text-[11px]" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
-                      {dateLine}
-                    </p>
-                  )}
-                </div>
-                <div className="mt-auto flex justify-between items-baseline gap-2 shrink-0">
-                  <p
-                    className="text-sm font-semibold tabular-nums truncate min-w-0"
-                    style={{ color: isDark ? EMERALD : accentGold }}
-                  >
-                    {product.currentPrice.toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
+                <div className="shrink-0 flex justify-start items-start self-start w-full min-h-0">
                   {eraBadge ? (
                     <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
                       {eraBadge.label}
@@ -614,6 +597,35 @@ export const HomePage = () => {
                       {product.badge}
                     </span>
                   )}
+                </div>
+                <p
+                  className="text-xs font-semibold shrink-0 line-clamp-1 overflow-hidden text-ellipsis"
+                  style={{ marginTop: "6px", color: isDark ? "#ffffff" : "var(--text-primary)", fontFamily: '"Inter", system-ui, sans-serif' }}
+                >
+                  {formatProductNameWithSetCode(
+                    product.name,
+                    getSetCodeFromProduct(product),
+                    product.category as "ETB" | "Displays"
+                  )}
+                </p>
+                <div className="mt-1 shrink-0 flex flex-col justify-start">
+                  {dateLine && (
+                    <p className="text-[11px] shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
+                      {dateLine}
+                    </p>
+                  )}
+                </div>
+                <div className="flex w-full shrink-0 justify-end items-baseline" style={{ marginTop: "4px" }}>
+                  <p
+                    className="text-sm font-semibold tabular-nums truncate max-w-full text-right"
+                    style={{ color: isDark ? EMERALD : accentGold }}
+                  >
+                    {product.currentPrice.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 0,
+                    })}
+                  </p>
                 </div>
                 </div>
               </Link>

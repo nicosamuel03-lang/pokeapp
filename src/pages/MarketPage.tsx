@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
-import { TrendingUp } from "lucide-react";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { NewsCarousel } from "../components/NewsCarousel";
@@ -12,6 +12,54 @@ import { etbData } from "../data/etbData";
 
 
 type MainTab = "etb" | "displays" | "upc";
+
+const TYPE_ROW_DARK_BG = "#111111";
+
+const MARKET_TAB_SELECTED_GLOW: Record<
+  MainTab,
+  Pick<CSSProperties, "border" | "boxShadow">
+> = {
+  etb: {
+    border: "1px solid #EF4444",
+    boxShadow: "0 0 4px #EF444480",
+  },
+  displays: {
+    border: "1px solid #3B82F6",
+    boxShadow: "0 0 4px #3B82F680",
+  },
+  upc: {
+    border: "1px solid #F59E0B",
+    boxShadow: "0 0 4px #F59E0B80",
+  },
+};
+
+const marketFilterRowBase: CSSProperties = {
+  padding: "6px 16px",
+  fontSize: "13px",
+  fontWeight: 500,
+  borderRadius: "999px",
+  minHeight: "unset",
+  height: "auto",
+  touchAction: "manipulation",
+  cursor: "pointer",
+};
+
+function marketTabStyle(tab: MainTab, selected: boolean): CSSProperties {
+  return selected
+    ? {
+        ...marketFilterRowBase,
+        backgroundColor: TYPE_ROW_DARK_BG,
+        color: "#ffffff",
+        ...MARKET_TAB_SELECTED_GLOW[tab],
+      }
+    : {
+        ...marketFilterRowBase,
+        backgroundColor: TYPE_ROW_DARK_BG,
+        color: "#ffffff",
+        border: "none",
+        boxShadow: "none",
+      };
+}
 
 /** Price history shape for getPerformanceForPeriod. */
 type HistPoint = { mois?: string; prix?: number | null };
@@ -85,7 +133,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
             #{rank}
           </span>
           <div
-            className="relative shrink-0 w-24 h-24 rounded-lg overflow-hidden flex items-center justify-center p-2"
+            className="shrink-0 w-24 h-24 rounded-lg overflow-hidden flex items-center justify-center p-2"
             style={{ background: "var(--img-container-bg)" }}
           >
             {product.imageUrl ? (
@@ -100,24 +148,24 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
             )}
           </div>
           <div className="flex-1 min-w-0 flex flex-col justify-between gap-1">
-            <div>
+            <div className="min-w-0">
+              {eraBadge ? (
+                <span className="inline-block shrink-0 max-w-[120px] truncate font-medium rounded-full" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                  {eraBadge.label}
+                </span>
+              ) : null}
               <p className="text-sm font-medium leading-tight break-words" style={{ color: "var(--text-primary)" }}>
                 {displayName}
               </p>
             </div>
-            <div className="flex items-center justify-between gap-2 mt-1">
-              <p className="text-sm font-semibold shrink-0 min-w-0 truncate" style={{ color: accentGold }}>
+            <div className="mt-1 flex w-full items-center justify-end">
+              <p className="text-sm font-semibold shrink-0 min-w-0 truncate text-right" style={{ color: accentGold }}>
                 {product.currentPrice.toLocaleString("fr-FR", {
                   style: "currency",
                   currency: "EUR",
                   maximumFractionDigits: 0,
                 })}
               </p>
-              {eraBadge ? (
-                <span className="shrink-0 font-medium rounded-full max-w-[120px] truncate" style={getEraNeonBadgeStyle(eraBadge.label)}>
-                  {eraBadge.label}
-                </span>
-              ) : null}
             </div>
           </div>
         </div>
@@ -138,7 +186,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
         #{rank}
       </span>
       <div
-        className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center"
+        className="shrink-0 w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center"
         style={{ background: "var(--img-container-bg)" }}
       >
         {product.imageUrl ? (
@@ -148,6 +196,14 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
         )}
       </div>
       <div className="flex-1 min-w-0 flex flex-col gap-0.5 justify-center min-h-0">
+        {eraBadge ? (
+          <span
+            className="inline-block shrink-0 self-start max-w-[100px] truncate font-medium rounded-full whitespace-nowrap"
+            style={getEraNeonBadgeStyle(eraBadge.label)}
+          >
+            {eraBadge.label}
+          </span>
+        ) : null}
         <p className="text-sm font-medium break-words leading-snug" style={{ color: "var(--text-primary)" }}>{displayName}</p>
       </div>
       <div className="shrink-0 flex flex-col items-end gap-1 justify-center">
@@ -158,14 +214,6 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
             maximumFractionDigits: 0,
           })}
         </p>
-        {eraBadge ? (
-          <span
-            className="inline-block shrink-0 whitespace-nowrap font-medium rounded-full w-fit max-w-[100px] truncate"
-            style={getEraNeonBadgeStyle(eraBadge.label)}
-          >
-            {eraBadge.label}
-          </span>
-        ) : null}
       </div>
     </Link>
   );
@@ -329,53 +377,70 @@ export const MarketPage = () => {
         </div>
 
         <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
-          <div
-            className="flex items-center justify-center gap-1.5 rounded-full w-fit"
-            style={{
-              padding: "6px 16px",
-              background: isDark ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
-              color: "#FFFFFF",
-              fontWeight: 700,
-              fontSize: 12,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              boxShadow: "0 2px 4px rgba(212, 167, 87, 0.2)",
-              overflow: "hidden",
-              isolation: "isolate",
-              contain: "paint",
-              transform: "translateZ(0)",
-            }}
-          >
-            <TrendingUp size={14} strokeWidth={2.5} className="shrink-0" style={{ color: "#FFFFFF" }} />
-            <span>Top de la semaine !</span>
-          </div>
+          <h3 style={{ margin: 0, width: "100%", maxWidth: "600px" }}>
+            <svg viewBox="0 0 600 80" style={{ width: "100%", maxWidth: "600px", overflow: "visible", display: "block" }}>
+              <defs>
+                <filter id="neon">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <text
+                x="50%"
+                y="65"
+                textAnchor="middle"
+                fontFamily="Inter, Arial Black, sans-serif"
+                fontWeight="900"
+                fontSize="52"
+                letterSpacing="3"
+                fill="#000000"
+                stroke="#FBBF24"
+                strokeWidth="1"
+                paintOrder="stroke"
+                filter="url(#neon)"
+                style={{ filter: "drop-shadow(0 0 8px #FBBF24) drop-shadow(0 0 16px #FBBF2488)" }}
+              >
+                TOP DE LA SEMAINE !
+              </text>
+            </svg>
+          </h3>
         </div>
 
         <div style={{ marginTop: 18, display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8 }}>
           <button
             type="button"
             className={`filter-btn ${pressedFilterKey === "tab-etb" ? "filter-btn-press" : ""}`}
-            onPointerDown={() => triggerFilterPress("tab-etb")}
-            onClick={() => setMainTab("etb")}
-            style={mainTab === "etb" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            onClick={() => {
+              triggerFilterPress("tab-etb");
+              setMainTab("etb");
+            }}
+            style={marketTabStyle("etb", mainTab === "etb")}
           >
             ETB
           </button>
           <button
             type="button"
             className={`filter-btn ${pressedFilterKey === "tab-displays" ? "filter-btn-press" : ""}`}
-            onPointerDown={() => triggerFilterPress("tab-displays")}
-            onClick={() => setMainTab("displays")}
-            style={mainTab === "displays" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            onClick={() => {
+              triggerFilterPress("tab-displays");
+              setMainTab("displays");
+            }}
+            style={marketTabStyle("displays", mainTab === "displays")}
           >
             Displays
           </button>
           <button
             type="button"
             className={`filter-btn ${pressedFilterKey === "tab-upc" ? "filter-btn-press" : ""}`}
-            onPointerDown={() => triggerFilterPress("tab-upc")}
-            onClick={() => setMainTab("upc")}
-            style={mainTab === "upc" ? { backgroundColor: accentGold, color: 'black', borderRadius: '999px', padding: '2px 12px', fontWeight: 600, fontSize: 13 } : { backgroundColor: 'transparent', color: 'inherit', borderRadius: '999px', padding: '2px 12px', border: '1px solid gray', fontSize: 13 }}
+            onClick={() => {
+              triggerFilterPress("tab-upc");
+              setMainTab("upc");
+            }}
+            style={marketTabStyle("upc", mainTab === "upc")}
           >
             UPC
           </button>

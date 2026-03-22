@@ -1,7 +1,7 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, useClerk, useUser } from "@clerk/react";
-import { Home, Plus, LineChart, History, Settings } from "lucide-react";
+import { Home, LineChart, History, Settings } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
 import { useTheme } from "../state/ThemeContext";
@@ -13,16 +13,14 @@ const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
 const NAV_HEIGHT = 78;
 const MAIN_PADDING_BOTTOM = NAV_HEIGHT + 16;
 const ICON_SIZE = 12;
-const ICON_PLUS_SIZE = 14;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
 const LETTER_SPACING = "0.025em";
 
 /** Onglets visibles dans la barre du bas (la collection est accessible via la carte portefeuille sur l’accueil). */
-const BOTTOM_NAV_PATHS = ["/", "/ajouter", "/marche", "/historique"] as const;
+const BOTTOM_NAV_PATHS = ["/", "/marche", "/historique"] as const;
 
 const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; iconSize: number }[] = [
   { to: "/", label: "Accueil", Icon: Home, iconSize: ICON_SIZE },
-  { to: "/ajouter", label: "Ajouter", Icon: Plus, iconSize: ICON_PLUS_SIZE },
   { to: "/marche", label: "Marché", Icon: LineChart, iconSize: ICON_SIZE },
   { to: "/historique", label: "Historique", Icon: History, iconSize: ICON_SIZE },
 ];
@@ -37,6 +35,7 @@ export const BottomNavLayout = () => {
   const { isPremium, isLoading } = useSubscription();
   console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
@@ -218,7 +217,7 @@ export const BottomNavLayout = () => {
                   {isSignedIn ? (
                     <button
                       type="button"
-                      onClick={() => signOut()}
+                      onClick={() => setShowSignOutConfirm(true)}
                       aria-label="Déconnexion"
                       style={{
                         width: 36,
@@ -432,6 +431,87 @@ export const BottomNavLayout = () => {
           })}
         </div>
       </div>
+
+      {showSignOutConfirm ? (
+        <div
+          role="presentation"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 20000,
+            background: "rgba(0, 0, 0, 0.55)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sign-out-confirm-title"
+            style={{
+              background: "#1a1a1a",
+              borderRadius: "16px",
+              padding: "20px 20px 18px",
+              maxWidth: 320,
+              width: "100%",
+              color: "#ffffff",
+              boxSizing: "border-box",
+            }}
+          >
+            <p
+              id="sign-out-confirm-title"
+              style={{
+                margin: "0 0 20px",
+                fontSize: 15,
+                lineHeight: 1.45,
+                fontWeight: 500,
+                color: "#ffffff",
+              }}
+            >
+              Êtes-vous sûr de vouloir vous déconnecter ?
+            </p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={() => setShowSignOutConfirm(false)}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "12px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: "transparent",
+                  color: "#ffffff",
+                  border: "1px solid rgba(255, 255, 255, 0.35)",
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowSignOutConfirm(false);
+                  await signOut();
+                }}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "12px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: "#EF4444",
+                  color: "#ffffff",
+                  border: "none",
+                }}
+              >
+                Se déconnecter
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 };

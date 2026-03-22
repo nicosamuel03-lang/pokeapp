@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap");
 @import "tailwindcss";
 
 /* Top/status bar area: theme-matched background (set in index.html + ThemeContext) */
@@ -86,12 +87,23 @@ html.dark, html.dark body, html.dark #root { background-color: #0a0a0a; }
   transition: transform 150ms ease;
 }
 
-/* Filter button press animation (scale down then return) */
+/* Filter button press animation (scale down then return) — hors filtres génération */
 .filter-btn {
   transition: transform 150ms ease;
 }
+.generation-filters .filter-btn {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transform: none;
+}
+.generation-filters .filter-btn:active,
+.generation-filters .filter-btn:focus-visible {
+  transform: none;
+}
 .filter-btn-press {
   transform: scale(0.85);
+}
+.generation-filters .filter-btn.filter-btn-press {
+  transform: none;
 }
 
 /* Button press animation (softer scale for action buttons) */
