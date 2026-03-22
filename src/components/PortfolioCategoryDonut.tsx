@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { CollectionLineForChart } from "../utils/portfolioChartData";
 import { getDonutLayout } from "../utils/donutChartLayout";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 export const CATEGORY_DONUT_COLORS = {
   ETB: "#ef4444",
@@ -144,7 +145,7 @@ function DonutTooltipBody({
           <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
           {label}
         </span>
-        <span className="tabular-nums font-normal" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+        <span className={STAT_CARD_VALUE_CLASS} style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
           {count} · {pct.toFixed(1)}%
         </span>
       </div>

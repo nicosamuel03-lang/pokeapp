@@ -11,6 +11,7 @@ import { getEraBadgeForCatalogueItem } from "../utils/eraBadge";
 import { formatDisplayProductName, formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { CatalogueSearchResultRow } from "./CatalogueSearchResultRow";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 function getMarchéActuel(item: PokemonCatalogueItem): number {
   if (item.etbId) {
@@ -169,11 +170,13 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   </p>
                   <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>
                     {item.block} · Sortie{" "}
-                    {(item.releaseDate ?? "").slice(0, 7).replace("-", "/")}
+                    <span className={STAT_CARD_VALUE_CLASS}>
+                      {(item.releaseDate ?? "").slice(0, 7).replace("-", "/")}
+                    </span>
                   </p>
                   <p className="mt-0.5 text-xs font-medium">
                     <span style={{ color: accentGold }}>Marché actuel :</span>{" "}
-                    <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                    <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
                       {getMarchéActuel(item).toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",
@@ -192,7 +195,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   <input
                     type="number"
                     inputMode="decimal"
-                    className="w-full rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]"
+                    className={`${STAT_CARD_VALUE_CLASS} w-full rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]`}
                     style={{
                       background: "var(--input-bg)",
                       color: "var(--text-primary)",
@@ -208,7 +211,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   </label>
                   <input
                     type="date"
-                    className="w-full rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]"
+                    className={`${STAT_CARD_VALUE_CLASS} w-full rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]`}
                     style={{
                       background: "var(--input-bg)",
                       color: "var(--text-primary)",
@@ -225,7 +228,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                     type="number"
                     inputMode="numeric"
                     min={1}
-                    className="w-full rounded-2xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]"
+                    className={`${STAT_CARD_VALUE_CLASS} w-full rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2D2D2D]`}
                     style={{
                       background: "var(--input-bg)",
                       color: "var(--text-primary)",

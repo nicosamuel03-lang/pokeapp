@@ -16,6 +16,7 @@ import {
   type CollectionLineForChart,
   type SaleLike,
 } from "../utils/portfolioChartData";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 export type PortfolioSectionMode = "summary" | "chartOnly";
 
@@ -197,11 +198,19 @@ export function PortfolioDashboardSection({
                   <RechartsLineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                     <XAxis
                       dataKey="mois"
-                      tick={{ fill: isDark ? LABEL_GRAY : "var(--text-secondary)", fontSize: 10 }}
+                      tick={{
+                        fill: isDark ? LABEL_GRAY : "var(--text-secondary)",
+                        fontSize: 14,
+                        className: STAT_CARD_VALUE_CLASS,
+                      }}
                       interval={chartPeriod === "1an" ? 1 : 2}
                     />
                     <YAxis
-                      tick={{ fill: isDark ? LABEL_GRAY : "var(--text-secondary)", fontSize: 10 }}
+                      tick={{
+                        fill: isDark ? LABEL_GRAY : "var(--text-secondary)",
+                        fontSize: 14,
+                        className: STAT_CARD_VALUE_CLASS,
+                      }}
                       width={45}
                     />
                     <Tooltip
@@ -231,7 +240,11 @@ export function PortfolioDashboardSection({
                             {sorted.map((entry) => (
                               <p key={String(entry.dataKey)} className="text-xs" style={{ color: entry.color }}>
                                 {entry.dataKey === "investissement" ? "Investi" : "Marché"}:{" "}
-                                {typeof entry.value === "number" ? `${entry.value} €` : entry.value}
+                                {typeof entry.value === "number" ? (
+                                  <span className={STAT_CARD_VALUE_CLASS}>{`${entry.value} €`}</span>
+                                ) : (
+                                  entry.value
+                                )}
                               </p>
                             ))}
                           </div>
@@ -361,7 +374,7 @@ export function PortfolioDashboardSection({
                         <span className="font-medium" style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>
                           {row.label} ·{" "}
                         </span>
-                        <span className="font-normal" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+                        <span className={STAT_CARD_VALUE_CLASS} style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
                           {row.pct.toFixed(1)}%
                         </span>
                       </span>
@@ -388,7 +401,7 @@ export function PortfolioDashboardSection({
                         <span className="font-medium" style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>
                           {row.label} ·{" "}
                         </span>
-                        <span className="font-normal" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+                        <span className={STAT_CARD_VALUE_CLASS} style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
                           {row.pct.toFixed(1)}%
                         </span>
                       </span>
@@ -491,7 +504,7 @@ export function PortfolioDashboardSection({
         ) : (
           <TrendingUp className="shrink-0 rotate-180" size={18} strokeWidth={2.5} aria-hidden />
         )}
-        <span className="tabular-nums font-normal">
+        <span className={STAT_CARD_VALUE_CLASS}>
           {plusPositive ? "+" : ""}
           {portfolio.plusValueTotale.toLocaleString("fr-FR", {
             style: "currency",
@@ -600,7 +613,7 @@ export function PortfolioDashboardSection({
             <span className="text-[11px] font-medium">Investi</span>
           </div>
           <p
-            className="text-sm tabular-nums font-normal"
+            className={STAT_CARD_VALUE_CLASS}
             style={{
               color: isDark ? "#ffffff" : "var(--text-primary)",
             }}
@@ -618,7 +631,7 @@ export function PortfolioDashboardSection({
             <span className="text-[11px] font-medium">Performance</span>
           </div>
           <p
-            className="text-sm tabular-nums font-normal"
+            className={STAT_CARD_VALUE_CLASS}
             style={{
               color: isDark ? EMERALD : portfolio.perfGlobale >= 0 ? "var(--gain-green)" : "var(--loss-red)",
             }}
@@ -633,7 +646,7 @@ export function PortfolioDashboardSection({
             <span className="text-[11px] font-medium">Produits</span>
           </div>
           <p
-            className="text-sm tabular-nums font-normal"
+            className={STAT_CARD_VALUE_CLASS}
             style={{
               color: isDark ? "#ffffff" : "var(--text-primary)",
             }}
@@ -647,7 +660,7 @@ export function PortfolioDashboardSection({
             <span className="text-[11px] font-medium">Plus-value</span>
           </div>
           <p
-            className="text-sm tabular-nums font-normal"
+            className={STAT_CARD_VALUE_CLASS}
             style={{
               color: isDark ? EMERALD : portfolio.plusValueTotale >= 0 ? "var(--gain-green)" : "var(--loss-red)",
             }}
@@ -666,7 +679,7 @@ export function PortfolioDashboardSection({
               Gain réalisé (ventes)
             </p>
             <p
-              className="mt-1 text-sm tabular-nums font-normal"
+              className={`${STAT_CARD_VALUE_CLASS} mt-1`}
               style={{
                 color: isDark ? EMERALD : portfolio.gainRealise >= 0 ? "var(--gain-green)" : "var(--loss-red)",
               }}

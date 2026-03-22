@@ -11,6 +11,7 @@ import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 const COLLECTION_FILTERS_KEY = "collectionFilters";
 const RETURN_TO_KEY = "returnTo";
@@ -366,7 +367,7 @@ export const CollectionPage = () => {
       <section className="space-y-2">
         <h3 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
           Détail des produits (
-          <span className="font-normal">
+          <span className={STAT_CARD_VALUE_CLASS}>
             {displayedQuantity}
           </span>{" "}
           items)
@@ -471,7 +472,7 @@ export const CollectionPage = () => {
                     className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] font-medium z-[5]"
                     style={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
                   >
-                    x<span className="font-normal">{item.quantity}</span>
+                    x<span className={STAT_CARD_VALUE_CLASS}>{item.quantity}</span>
                   </span>
                 </div>
                 <div
@@ -515,21 +516,21 @@ export const CollectionPage = () => {
                     )}
                   </p>
                   <p className="text-[11px] mt-1 shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
-                    {formatPurchaseDate(item.purchaseDate)}
+                    <span className={STAT_CARD_VALUE_CLASS}>{formatPurchaseDate(item.purchaseDate)}</span>
                   </p>
                   <div
                     className="flex w-full shrink-0 flex-wrap justify-end items-baseline gap-1.5"
                     style={{ marginTop: "4px" }}
                   >
                     <p
-                      className="text-sm tabular-nums font-normal truncate max-w-full text-right"
+                      className={`${STAT_CARD_VALUE_CLASS} truncate max-w-full text-right`}
                       style={{ color: isDark ? EMERALD : accentGold }}
                     >
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </p>
                     {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
                       <span
-                        className="text-xs tabular-nums font-normal shrink-0"
+                        className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
                         style={{
                           color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                         }}
@@ -597,11 +598,11 @@ export const CollectionPage = () => {
               <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
                 {hasMultiple ? (
                   <>
-                    Vous avez x<span>{item.quantity}</span> exemplaires de &quot;{item.product.name}&quot;.
+                    Vous avez x<span className={STAT_CARD_VALUE_CLASS}>{item.quantity}</span> exemplaires de &quot;{item.product.name}&quot;.
                   </>
                 ) : (
                   <>
-                    Vous avez <span>1</span> exemplaire de &quot;{item.product.name}&quot;.
+                    Vous avez <span className={STAT_CARD_VALUE_CLASS}>1</span> exemplaire de &quot;{item.product.name}&quot;.
                   </>
                 )}
               </p>
@@ -674,7 +675,7 @@ export const CollectionPage = () => {
                   <input
                     type="text"
                     inputMode="decimal"
-                    className={`w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
+                    className={`${STAT_CARD_VALUE_CLASS} w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
                     style={{
                       boxSizing: "border-box",
                       background: "var(--input-bg)",
@@ -695,7 +696,7 @@ export const CollectionPage = () => {
                   </label>
                   <input
                     type="date"
-                    className={`w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
+                    className={`${STAT_CARD_VALUE_CLASS} w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
                     style={{
                       boxSizing: "border-box",
                       background: "var(--input-bg)",
@@ -718,7 +719,7 @@ export const CollectionPage = () => {
                     type="number"
                     min={1}
                     inputMode="numeric"
-                    className={`w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
+                    className={`${STAT_CARD_VALUE_CLASS} w-full focus:outline-none focus:ring-1 ${isDark ? "focus:ring-[#FBBF24]" : "focus:ring-[#D4A757]"}`}
                     style={{
                       boxSizing: "border-box",
                       background: "var(--input-bg)",

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { formatDisplayProductName } from "../utils/formatProduct";
 import { getEraNeonBadgeStyle } from "../utils/eraBadge";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 export type CatalogueSearchResultRowEraBadge = { label: string; bg: string; color: string };
 
@@ -119,7 +120,7 @@ export function CatalogueSearchResultRow(props: CatalogueSearchResultRowProps) {
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-[13px] tabular-nums font-normal" style={{ color: accentGold }}>
+        <p className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
           {marketPrice.toLocaleString("fr-FR", {
             style: "currency",
             currency: "EUR",
@@ -127,7 +128,7 @@ export function CatalogueSearchResultRow(props: CatalogueSearchResultRowProps) {
           })}
         </p>
         <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-          Retail {retailPrice}€
+          Retail <span className={STAT_CARD_VALUE_CLASS}>{retailPrice}€</span>
         </p>
       </div>
     </>

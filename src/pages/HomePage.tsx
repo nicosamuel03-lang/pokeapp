@@ -16,6 +16,7 @@ import { PortfolioDashboardSection } from "../components/PortfolioDashboardSecti
 import { CatalogueStyleSearchBar } from "../components/CatalogueStyleSearchBar";
 import { CatalogueSearchResultRow } from "../components/CatalogueSearchResultRow";
 import { filterHomeProductsBySearch, sortHomeProductsBySearch } from "../utils/homeProductSearch";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
   { key: "ETB", label: "ETB" },
@@ -611,7 +612,7 @@ export const HomePage = () => {
                 <div className="mt-1 shrink-0 flex flex-col justify-start">
                   {dateLine && (
                     <p className="text-[11px] shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
-                      {dateLine}
+                      <span className={STAT_CARD_VALUE_CLASS}>{dateLine}</span>
                     </p>
                   )}
                 </div>
@@ -620,7 +621,7 @@ export const HomePage = () => {
                   style={{ marginTop: "4px" }}
                 >
                   <p
-                    className="text-sm tabular-nums font-normal truncate max-w-full text-right"
+                    className={`${STAT_CARD_VALUE_CLASS} truncate max-w-full text-right`}
                     style={{ color: isDark ? EMERALD : accentGold }}
                   >
                     {product.currentPrice.toLocaleString("fr-FR", {
@@ -631,7 +632,7 @@ export const HomePage = () => {
                   </p>
                   {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) ? (
                     <span
-                      className="text-xs tabular-nums font-normal shrink-0"
+                      className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
                       style={{
                         color:
                           product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",

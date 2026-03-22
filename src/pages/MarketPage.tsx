@@ -9,6 +9,7 @@ import { getPerformanceForPeriod } from "../utils/marketPerformance";
 import { formatProductNameWithSetCode } from "../utils/formatProduct";
 import { displayData } from "../data/displayData";
 import { etbData } from "../data/etbData";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 type MainTab = "etb" | "displays" | "upc";
 
 const TYPE_ROW_DARK_BG = "#111111";
@@ -128,7 +129,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
       >
         <div className="flex flex-row items-center gap-4 w-full min-w-0">
           <span
-            className="shrink-0 text-base tabular-nums font-normal flex items-center justify-center min-w-[2rem]"
+            className={`${STAT_CARD_VALUE_CLASS} shrink-0 flex items-center justify-center min-w-[2rem]`}
             style={{
               color: rankColor,
               WebkitFontSmoothing: "antialiased" as const,
@@ -164,7 +165,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
             </div>
             <div className="mt-1 flex w-full flex-wrap items-baseline justify-end gap-1.5">
               <p
-                className="text-sm shrink-0 min-w-0 truncate text-right tabular-nums font-normal"
+                className={`${STAT_CARD_VALUE_CLASS} shrink-0 min-w-0 truncate text-right`}
                 style={{ color: accentGold }}
               >
                 {product.currentPrice.toLocaleString("fr-FR", {
@@ -175,7 +176,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
               </p>
               {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
                 <span
-                  className="text-xs tabular-nums font-normal shrink-0"
+                  className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
                   style={{
                     color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                   }}
@@ -198,7 +199,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
       style={{ width: "100%", margin: 0, padding: "0 4px", ...cardStyle }}
     >
       <span
-        className="shrink-0 text-sm tabular-nums font-normal w-8 flex items-center justify-center"
+        className={`${STAT_CARD_VALUE_CLASS} shrink-0 w-8 flex items-center justify-center`}
         style={{
           color: "var(--text-primary)",
           WebkitFontSmoothing: "antialiased" as const,
@@ -229,7 +230,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
       </div>
       <div className="shrink-0 flex flex-col items-end gap-1 justify-center">
         <div className="flex flex-wrap items-baseline justify-end gap-1.5">
-          <p className="text-sm tabular-nums font-normal" style={{ color: accentGold }}>
+          <p className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
             {product.currentPrice.toLocaleString("fr-FR", {
               style: "currency",
               currency: "EUR",
@@ -238,7 +239,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
           </p>
           {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
             <span
-              className="text-xs tabular-nums font-normal shrink-0"
+              className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
               style={{
                 color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
               }}

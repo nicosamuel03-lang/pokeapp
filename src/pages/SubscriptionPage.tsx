@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 import { useTheme } from "../state/ThemeContext";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 const features = [
   {
@@ -130,7 +131,7 @@ export function SubscriptionPage() {
         BOSS ACCESS
       </h1>
       <p
-        className="font-normal tabular-nums"
+        className={STAT_CARD_VALUE_CLASS}
         style={{
           fontSize: 16,
           color: "var(--text-primary)",

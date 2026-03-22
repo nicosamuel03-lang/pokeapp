@@ -7,6 +7,7 @@ import { useSalesHistory } from "../hooks/useSalesHistory";
 import { countSalesRowsByUserId, fetchSalesCounterCount } from "../lib/salesSupabase";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 function formatSaleDate(iso: string): string {
   const [y, m, d] = iso.split("-");
@@ -173,7 +174,9 @@ export const HistoriquePage = () => {
                     fontWeight: 600,
                   }}
                 >
-                  {clampedSalesCount} / 10
+                  <span className={STAT_CARD_VALUE_CLASS}>
+                    {clampedSalesCount} / 10
+                  </span>
                 </span>
               </div>
               <div
@@ -198,7 +201,7 @@ export const HistoriquePage = () => {
               </div>
               <p className="text-[10px] mt-1.5" style={{ color: "var(--text-secondary)" }}>
                 Le quota ne baisse pas si vous supprimez une vente ·{" "}
-                <span>{visibleSalesRowCount}</span> ligne
+                <span className={STAT_CARD_VALUE_CLASS}>{visibleSalesRowCount}</span> ligne
                 {visibleSalesRowCount !== 1 ? "s" : ""} actuellement dans l&apos;historique
               </p>
             </section>
@@ -222,7 +225,7 @@ export const HistoriquePage = () => {
                 }
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total des ventes</p>
-                <p className="mt-1 text-sm tabular-nums font-normal" style={{ color: accentGold }}>
+                <p className={`${STAT_CARD_VALUE_CLASS} mt-1`} style={{ color: accentGold }}>
                   {summary.totalVentes.toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",
@@ -239,7 +242,7 @@ export const HistoriquePage = () => {
                 }
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total investi</p>
-                <p className="mt-1 text-sm tabular-nums font-normal" style={{ color: "var(--text-primary)" }}>
+                <p className={`${STAT_CARD_VALUE_CLASS} mt-1`} style={{ color: "var(--text-primary)" }}>
                   {summary.totalInvesti.toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",
@@ -257,7 +260,7 @@ export const HistoriquePage = () => {
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Gain total réalisé</p>
                 <p
-                  className="mt-1 text-sm font-semibold"
+                  className={`${STAT_CARD_VALUE_CLASS} mt-1`}
                   style={{
                     color: summary.gainTotal >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                   }}
@@ -280,7 +283,7 @@ export const HistoriquePage = () => {
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Performance moyenne</p>
                 <p
-                  className="mt-1 text-sm tabular-nums font-normal"
+                  className={`${STAT_CARD_VALUE_CLASS} mt-1`}
                   style={{
                     color: summary.perfMoyenne >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                   }}
@@ -296,7 +299,7 @@ export const HistoriquePage = () => {
           <section className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
               Détail des ventes (
-              <span className="font-normal">
+              <span className={STAT_CARD_VALUE_CLASS}>
                 {sortedSales.length}
               </span>
               )
@@ -361,18 +364,19 @@ export const HistoriquePage = () => {
                           {displayName}
                         </p>
                         <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                          Vendu le {formatSaleDate(sale.saleDate)}
+                          Vendu le{" "}
+                          <span className={STAT_CARD_VALUE_CLASS}>{formatSaleDate(sale.saleDate)}</span>
                           {sale.quantity > 1 && (
                             <>
                               {" "}
-                              · x<span className="font-normal">{sale.quantity}</span>
+                              · x<span className={STAT_CARD_VALUE_CLASS}>{sale.quantity}</span>
                             </>
                           )}
                         </p>
                         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
                           <span style={{ color: "var(--text-secondary)" }}>
                             Achat:{" "}
-                            <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                            <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
                               {sale.buyPrice.toLocaleString("fr-FR", {
                                 style: "currency",
                                 currency: "EUR",
@@ -382,7 +386,7 @@ export const HistoriquePage = () => {
                           </span>
                           <span style={{ color: "var(--text-secondary)" }}>
                             Vente:{" "}
-                            <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                            <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
                               {sale.salePrice.toLocaleString("fr-FR", {
                                 style: "currency",
                                 currency: "EUR",
@@ -393,7 +397,7 @@ export const HistoriquePage = () => {
                           <span style={{ color: "var(--text-secondary)" }}>
                             Bénéfice:{" "}
                             <span
-                              className="font-normal tabular-nums"
+                              className={STAT_CARD_VALUE_CLASS}
                               style={{
                                 color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                               }}
@@ -409,7 +413,7 @@ export const HistoriquePage = () => {
                           <span style={{ color: "var(--text-secondary)" }}>
                             Perf:{" "}
                             <span
-                              className="font-normal tabular-nums"
+                              className={STAT_CARD_VALUE_CLASS}
                               style={{
                                 color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                               }}
@@ -482,31 +486,32 @@ export const HistoriquePage = () => {
                             <div className="min-w-0 flex-1">
                               <p className="app-heading line-clamp-2 text-xs" style={{ color: "var(--text-primary)" }}>{displayName}</p>
                               <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                                Vendu le {formatSaleDate(sale.saleDate)}
+                                Vendu le{" "}
+                                <span className={STAT_CARD_VALUE_CLASS}>{formatSaleDate(sale.saleDate)}</span>
                                 {sale.quantity > 1 && (
                                   <>
                                     {" "}
-                                    · x<span className="font-normal">{sale.quantity}</span>
+                                    · x<span className={STAT_CARD_VALUE_CLASS}>{sale.quantity}</span>
                                   </>
                                 )}
                               </p>
                               <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
                                 <span style={{ color: "var(--text-secondary)" }}>
                                   Achat:{" "}
-                                  <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                                  <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
                                     {sale.buyPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                                   </span>
                                 </span>
                                 <span style={{ color: "var(--text-secondary)" }}>
                                   Vente:{" "}
-                                  <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                                  <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
                                     {sale.salePrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                                   </span>
                                 </span>
                                 <span style={{ color: "var(--text-secondary)" }}>
                                   Bénéfice:{" "}
                                   <span
-                                    className="font-normal tabular-nums"
+                                    className={STAT_CARD_VALUE_CLASS}
                                     style={{
                                       color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                                     }}
@@ -518,7 +523,7 @@ export const HistoriquePage = () => {
                                 <span style={{ color: "var(--text-secondary)" }}>
                                   Perf:{" "}
                                   <span
-                                    className="font-normal tabular-nums"
+                                    className={STAT_CARD_VALUE_CLASS}
                                     style={{
                                       color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                                     }}
@@ -610,7 +615,7 @@ export const HistoriquePage = () => {
                   inputMode="decimal"
                   value={editBuyPrice}
                   onChange={(e) => setEditBuyPrice(e.target.value)}
-                  className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50"
+                  className={`${STAT_CARD_VALUE_CLASS} w-full rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50`}
                   style={{ background: "var(--input-bg)", color: "var(--text-primary)" }}
                 />
               </div>
@@ -621,7 +626,7 @@ export const HistoriquePage = () => {
                   inputMode="decimal"
                   value={editSalePrice}
                   onChange={(e) => setEditSalePrice(e.target.value)}
-                  className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50"
+                  className={`${STAT_CARD_VALUE_CLASS} w-full rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50`}
                   style={{ background: "var(--input-bg)", color: "var(--text-primary)" }}
                 />
               </div>
@@ -631,7 +636,7 @@ export const HistoriquePage = () => {
                   type="date"
                   value={editDate}
                   onChange={(e) => setEditDate(e.target.value)}
-                  className="w-full rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50"
+                  className={`${STAT_CARD_VALUE_CLASS} w-full rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[var(--text-secondary)]/50`}
                   style={{ background: "var(--input-bg)", color: "var(--text-primary)" }}
                 />
               </div>

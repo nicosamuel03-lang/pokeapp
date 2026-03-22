@@ -130,6 +130,18 @@ body {
   font-family: system-ui, ui-sans-serif, sans-serif;
 }
 
+/* Chiffres : Inter + système (sauf la grande valeur portefeuille, gérée à part) — medium par défaut */
+.app-numeric {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em;
+}
+
+/* Les 4 cartes stats accueil (Investi, Performance, Produits, Plus-value) : semibold */
+.app-numeric.app-numeric--stats {
+  font-weight: 600 !important;
+}
+
 #root {
   background: var(--bg-app);
   min-height: 100%;

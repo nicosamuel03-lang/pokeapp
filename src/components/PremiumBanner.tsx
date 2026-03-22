@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 export function PremiumBanner() {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export function PremiumBanner() {
             whiteSpace: "nowrap",
           }}
         >
-          <span className="font-normal">
+          <span className={STAT_CARD_VALUE_CLASS}>
             3.99€
           </span>{" "}
           / mois

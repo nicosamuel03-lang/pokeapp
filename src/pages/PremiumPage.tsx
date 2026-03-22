@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
 import { useTheme } from "../state/ThemeContext";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 const CHECKOUT_URL = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL}/api/checkout`
@@ -222,7 +223,7 @@ export function PremiumPage() {
             }}
           >
             Mensuel ·{" "}
-            <span className="font-normal">
+            <span className={STAT_CARD_VALUE_CLASS}>
               3,99 € / mois
             </span>
           </button>
@@ -246,7 +247,7 @@ export function PremiumPage() {
             }}
           >
             Annuel ·{" "}
-            <span className="font-normal">
+            <span className={STAT_CARD_VALUE_CLASS}>
               39,99 € / an
             </span>
             <span
@@ -328,7 +329,7 @@ export function PremiumPage() {
       >
         Essai gratuit de 30 jours. Résiliable à tout moment sans frais. Le prélèvement
         commencera à la fin de l&apos;essai, à hauteur de{" "}
-        <span className="font-normal">
+        <span className={STAT_CARD_VALUE_CLASS}>
           {selectedPriceLabel}
         </span>
         .

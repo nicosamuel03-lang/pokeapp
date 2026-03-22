@@ -23,6 +23,7 @@ import { useTheme } from "../state/ThemeContext";
 import { supabase } from "../lib/supabase";
 import { fetchSalesCounterCount, incrementSalesCounterByOne } from "../lib/salesSupabase";
 import { getGuestSalesTransactionCount } from "../utils/salesHistoryStorage";
+import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
   { mois_court: "Jan", mois_label: "Janvier", prix: 55 },
@@ -598,7 +599,7 @@ const ProductDetailPageInner = () => {
                   Prix actuel
                 </p>
                 <div className="mt-0 flex flex-wrap items-baseline gap-2">
-                  <p className="text-2xl tabular-nums font-normal" style={{ color: accentGold }}>
+                  <p className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
                     {prixMarche.toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",
@@ -607,7 +608,7 @@ const ProductDetailPageInner = () => {
                   </p>
                   {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) && (
                     <span
-                      className="text-sm tabular-nums font-normal"
+                      className={STAT_CARD_VALUE_CLASS}
                       style={{
                         color:
                           product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
@@ -621,14 +622,14 @@ const ProductDetailPageInner = () => {
                 {isInCollection && (
                   <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
                     Achat{" "}
-                    <span className="font-normal" style={{ color: "var(--text-primary)" }}>
+                    <span className={STAT_CARD_VALUE_CLASS} style={{ color: "var(--text-primary)" }}>
                       {prixAchat.toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",
                         maximumFractionDigits: 0
                       })}
                     </span>{" "}
-                    • ×<span className="font-normal">{quantite}</span>
+                    • ×<span className={STAT_CARD_VALUE_CLASS}>{quantite}</span>
                   </p>
                 )}
               </div>
@@ -668,7 +669,7 @@ const ProductDetailPageInner = () => {
                 <input
                   type="number"
                   inputMode="decimal"
-                  className="w-full bg-transparent text-sm focus:outline-none"
+                  className={`${STAT_CARD_VALUE_CLASS} w-full bg-transparent focus:outline-none`}
                   style={{ color: "var(--text-primary)" }}
                   placeholder="Saisir le prix de vente..."
                   value={saleInput}
@@ -691,7 +692,7 @@ const ProductDetailPageInner = () => {
             <label className="mb-1 mt-3 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
               Quantité à vendre{" "}
               <span className="font-normal opacity-80">
-                (max. <span>{quantite}</span>)
+                (max. <span className={STAT_CARD_VALUE_CLASS}>{quantite}</span>)
               </span>
             </label>
             <div className="flex items-center gap-2">
@@ -704,7 +705,7 @@ const ProductDetailPageInner = () => {
                   inputMode="numeric"
                   min={1}
                   max={quantite}
-                  className="w-full bg-transparent text-sm focus:outline-none"
+                  className={`${STAT_CARD_VALUE_CLASS} w-full bg-transparent focus:outline-none`}
                   style={{ color: "var(--text-primary)" }}
                   value={saleQuantityToSell}
                   onChange={(e) => {
@@ -734,7 +735,7 @@ const ProductDetailPageInner = () => {
               >
                 <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Bénéfice brut</p>
                 <p
-                  className="mt-1 text-base tabular-nums font-normal"
+                  className={`${STAT_CARD_VALUE_CLASS} mt-1`}
                   style={{
                     color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)",
                   }}
@@ -757,7 +758,7 @@ const ProductDetailPageInner = () => {
               >
                 <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Performance %</p>
                 <p
-                  className="mt-1 text-base tabular-nums font-normal"
+                  className={`${STAT_CARD_VALUE_CLASS} mt-1`}
                   style={{
                     color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)",
                   }}
@@ -903,7 +904,7 @@ const ProductDetailPageInner = () => {
                 </defs>
                 <XAxis
                   dataKey="mois_court"
-                  tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                  tick={{ fontSize: 14, fill: "#9CA3AF", className: STAT_CARD_VALUE_CLASS }}
                   tickLine={false}
                   axisLine={false}
                   interval={chartData.length > 0 ? xAxisInterval : 1}
@@ -911,8 +912,9 @@ const ProductDetailPageInner = () => {
                 <YAxis
                   tickFormatter={(v) => `${v}€`}
                   tick={{
-                    fontSize: 9,
+                    fontSize: 14,
                     fill: "#9CA3AF",
+                    className: STAT_CARD_VALUE_CLASS,
                   }}
                   tickLine={false}
                   axisLine={false}
@@ -935,7 +937,7 @@ const ProductDetailPageInner = () => {
                           boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
                         }}
                       >
-                        {label} : {prixStr}
+                        {label} : <span className={STAT_CARD_VALUE_CLASS}>{prixStr}</span>
                       </div>
                     );
                   }}
@@ -989,7 +991,7 @@ const ProductDetailPageInner = () => {
                       <tr key={p?.mois ? String(p.mois) : `row-${idx}`} className="border-b" style={{ borderColor: "var(--card-color)" }}>
                         <td className="py-2 pl-3" style={{ color: "var(--text-secondary)" }}>{p?.mois_label ?? "—"}</td>
                         <td
-                          className="py-2 pr-3 text-right tabular-nums font-normal"
+                          className={`${STAT_CARD_VALUE_CLASS} py-2 pr-3 text-right`}
                           style={{
                             color: p?.prix != null && !Number.isNaN(Number(p?.prix)) ? accentGold : "var(--text-secondary)",
                           }}
