@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import type { Category } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { Link, useLocation } from "react-router-dom";
@@ -7,7 +8,7 @@ import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { useSalesHistory } from "../hooks/useSalesHistory";
-import { getEraBadge, getEraStyle } from "../utils/eraBadge";
+import { getEraBadge, getEraNeonBadgeStyle, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -20,6 +21,51 @@ const categories: { key: Category; label: string }[] = [
   { key: "ETB", label: "ETB" },
   { key: "UPC", label: "UPC" },
 ];
+
+/** Filtres d’ère fixes (alignés sur `product.set` / blocs données). */
+const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier"] as const;
+
+const TYPE_SELECTED_GLOW: Record<
+  "Tous" | Category,
+  Pick<CSSProperties, "border" | "boxShadow">
+> = {
+  Tous: {
+    border: "1px solid #ffffff",
+    boxShadow: "0 0 4px #ffffff80",
+  },
+  Displays: {
+    border: "1px solid #3B82F6",
+    boxShadow: "0 0 4px #3B82F680",
+  },
+  ETB: {
+    border: "1px solid #EF4444",
+    boxShadow: "0 0 4px #EF444480",
+  },
+  UPC: {
+    border: "1px solid #F59E0B",
+    boxShadow: "0 0 4px #F59E0B80",
+  },
+};
+
+const TYPE_ROW_DARK_BG = "#111111";
+
+const GENERATION_SELECTED_GLOW: Record<
+  (typeof HOME_ERA_OPTIONS)[number],
+  Pick<CSSProperties, "border" | "boxShadow">
+> = {
+  "Méga Évolution": {
+    border: "1px solid #F97316",
+    boxShadow: "0 0 4px #F9731680",
+  },
+  "Écarlate & Violet": {
+    border: "1px solid #A855F7",
+    boxShadow: "0 0 4px #A855F780",
+  },
+  "Épée & Bouclier": {
+    border: "1px solid #22C55E",
+    boxShadow: "0 0 4px #22C55E80",
+  },
+};
 
 interface HomeProduct {
   id: string;
@@ -49,6 +95,7 @@ export const HomePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
     "Tous"
   );
+  /** `null` = « Tous » sur la ligne génération. */
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   /** Recherche accueil : input non contrôlé (ref) pour stabilité clavier iOS / PWA ; seul le tableau de résultats est en state. */
@@ -74,14 +121,19 @@ export const HomePage = () => {
       if (filters && typeof filters === "string") {
         const parsed = JSON.parse(filters) as {
           typeFilter?: Category | "Tous";
-          eraFilter?: string | null;
           selectedCategory?: Category | "Tous";
+          eraFilter?: string | null;
           selectedEra?: string | null;
         };
         const cat = parsed.typeFilter ?? parsed.selectedCategory;
-        const era = parsed.eraFilter ?? parsed.selectedEra;
         if (cat) setSelectedCategory(cat);
-        if (era !== undefined) setSelectedEra(era ?? null);
+        const era = parsed.eraFilter ?? parsed.selectedEra;
+        if (era !== undefined) {
+          const e = era ?? null;
+          if (e === null || (HOME_ERA_OPTIONS as readonly string[]).includes(e)) {
+            setSelectedEra(e);
+          }
+        }
       }
     } catch {
       /* ignore parse errors */
@@ -93,7 +145,7 @@ export const HomePage = () => {
 
   const handleCategoryChange = (cat: Category | "Tous") => {
     setSelectedCategory(cat);
-    if (cat !== "ETB" && cat !== "Displays" && cat !== "UPC") setSelectedEra(null);
+    if (cat === "Tous") setSelectedEra(null);
   };
 
   const collectionLines = useMemo(
@@ -221,31 +273,21 @@ export const HomePage = () => {
     return databaseProducts.filter((p) => p.category === selectedCategory);
   }, [databaseProducts, selectedCategory]);
 
-  const hasEraSubFilter = selectedCategory === "ETB" || selectedCategory === "Displays" || selectedCategory === "UPC";
-
-  const eras = useMemo(() => {
-    if (!hasEraSubFilter) return [];
-    const sets = new Set<string>();
-    categoryFiltered.forEach((p) => {
-      if ((p.category === "ETB" || p.category === "Displays" || p.category === "UPC") && p.set) sets.add(p.set);
-    });
-    return Array.from(sets).sort();
-  }, [hasEraSubFilter, categoryFiltered]);
-
+  /** Type (ligne 1) + génération (ligne 2, masquée si « Tous ») : ET logique. */
   const filtered = useMemo(() => {
-    if (!hasEraSubFilter || !selectedEra) return categoryFiltered;
+    if (selectedCategory === "Tous" || !selectedEra) return categoryFiltered;
     return categoryFiltered.filter((p) => p.set === selectedEra);
-  }, [categoryFiltered, hasEraSubFilter, selectedEra]);
+  }, [categoryFiltered, selectedCategory, selectedEra]);
 
-  /** Grille (pas de texte de recherche) : même jeu que filtre catégorie / ère uniquement. */
+  /** Grille (pas de texte de recherche) : résultat des filtres combinés. */
   const gridProducts = useMemo(() => {
-    const base = filtered ?? [];
+    const base = filtered;
     return sortHomeProductsBySearch(filterHomeProductsBySearch(base, ""), "");
   }, [filtered]);
 
   const applyHomeSearchFromValue = useCallback(
     (val: string) => {
-      const base = filtered ?? [];
+      const base = filtered;
       const matched = filterHomeProductsBySearch(base, val);
       setHomeSearchResults(sortHomeProductsBySearch(matched, val));
       setIsHomeSearchMode(val.trim() !== "");
@@ -277,12 +319,41 @@ export const HomePage = () => {
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
 
-  const filterChipActive = isDark
-    ? { backgroundColor: "#ffffff", color: "#000000", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13, border: "none" as const }
-    : { backgroundColor: accentGold, color: "black", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13 };
-  const filterChipInactive = isDark
-    ? { backgroundColor: "transparent", color: "#ffffff", borderRadius: "999px", padding: "2px 12px", border: "1px solid #444444", fontSize: 13 }
-    : { backgroundColor: "transparent", color: "inherit", borderRadius: "999px", padding: "2px 12px", border: "1px solid gray", fontSize: 13 };
+  const filterRow1Base: CSSProperties = {
+    padding: "6px 16px",
+    fontSize: "13px",
+    fontWeight: 500,
+    borderRadius: "999px",
+    minHeight: "unset",
+    height: "auto",
+    touchAction: "manipulation",
+    cursor: "pointer",
+  };
+  const filterRow2Base: CSSProperties = {
+    padding: "3px 10px",
+    fontSize: "11px",
+    fontWeight: 500,
+    borderRadius: "999px",
+    minHeight: "unset",
+    height: "auto",
+    touchAction: "manipulation",
+    cursor: "pointer",
+  };
+  const typeRowStyle = (key: "Tous" | Category, selected: boolean): CSSProperties =>
+    selected
+      ? {
+          ...filterRow1Base,
+          backgroundColor: TYPE_ROW_DARK_BG,
+          color: "#ffffff",
+          ...TYPE_SELECTED_GLOW[key],
+        }
+      : {
+          ...filterRow1Base,
+          backgroundColor: TYPE_ROW_DARK_BG,
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "none",
+        };
 
   return (
     <div className="space-y-4 -mx-3">
@@ -374,17 +445,15 @@ export const HomePage = () => {
         <p className="app-heading mb-2 text-xs pl-3" style={{ color: "var(--text-secondary)" }}>
           Catégories
         </p>
-        <div className="flex flex-wrap gap-2 pl-3">
+        <div className="flex flex-wrap gap-2 pl-3" style={{ overflow: "visible" }}>
           <button
             type="button"
             className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
-            onPointerDown={() => triggerFilterPress("cat-Tous")}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
+            onClick={() => {
+              triggerFilterPress("cat-Tous");
               handleCategoryChange("Tous");
             }}
-            style={selectedCategory === "Tous" ? filterChipActive : filterChipInactive}
+            style={typeRowStyle("Tous", selectedCategory === "Tous")}
           >
             Tous
           </button>
@@ -393,59 +462,46 @@ export const HomePage = () => {
               type="button"
               key={cat.key}
               className={`filter-btn ${pressedFilterKey === `cat-${cat.key}` ? "filter-btn-press" : ""}`}
-              onPointerDown={() => triggerFilterPress(`cat-${cat.key}`)}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
+              onClick={() => {
+                triggerFilterPress(`cat-${cat.key}`);
                 handleCategoryChange(cat.key);
               }}
-              style={selectedCategory === cat.key ? filterChipActive : filterChipInactive}
+              style={typeRowStyle(cat.key, selectedCategory === cat.key)}
             >
               {cat.label}
             </button>
           ))}
         </div>
-        {hasEraSubFilter && eras.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5 pl-3">
-            <button
-              type="button"
-              className={`filter-btn rounded-full font-bold shrink-0 ${pressedFilterKey === "era-null" ? "filter-btn-press" : ""}`}
-              onPointerDown={() => triggerFilterPress("era-null")}
-              onClick={() => setSelectedEra(null)}
-              style={{
-                fontSize: "11px",
-                padding: "4px 8px",
-                whiteSpace: "nowrap",
-                color: "var(--text-primary)",
-                background: selectedEra === null ? "var(--bg-card-elevated)" : "var(--card-color)",
-                border: selectedEra === null ? "2px solid var(--text-primary)" : "2px solid transparent",
-              }}
-            >
-              Tous
-            </button>
-            {eras.map((era) => {
-              const isSelected = selectedEra === era;
-              const { bg, color } = getEraStyle(era);
-              return (
-                <button
-                  type="button"
-                  key={era}
-                  className={`filter-btn rounded-full font-medium shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
-                  onPointerDown={() => triggerFilterPress(`era-${era}`)}
-                  onClick={() => setSelectedEra(era)}
-                  style={{
-                    fontSize: "10px",
-                    padding: "2px 6px",
-                    whiteSpace: "nowrap",
-                    color,
-                    background: bg,
-                    border: isSelected ? "2px solid var(--text-primary)" : "2px solid transparent",
-                  }}
-                >
-                  {era}
-                </button>
-              );
-            })}
+        {selectedCategory !== "Tous" && (
+          <div
+            className="generation-filters mt-1 flex flex-wrap gap-2 pl-3"
+            style={{ overflow: "visible" }}
+          >
+              {HOME_ERA_OPTIONS.map((era) => {
+                const isSelected = selectedEra === era;
+                return (
+                  <button
+                    type="button"
+                    key={era}
+                    className={`filter-btn shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
+                    onClick={() => {
+                      triggerFilterPress(`era-${era}`);
+                      setSelectedEra((current) => (current === era ? null : era));
+                    }}
+                    style={{
+                      ...filterRow2Base,
+                      whiteSpace: "nowrap",
+                      backgroundColor: TYPE_ROW_DARK_BG,
+                      color: "#ffffff",
+                      ...(isSelected
+                        ? GENERATION_SELECTED_GLOW[era]
+                        : { border: "none", boxShadow: "none" }),
+                    }}
+                  >
+                    {era}
+                  </button>
+                );
+              })}
           </div>
         )}
       </div>
@@ -453,10 +509,7 @@ export const HomePage = () => {
       <section className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
           {gridProducts.map((product) => {
-            const perfPct = product.change30dPercent;
-            const isUp = perfPct >= 0;
             const eraBadge = (product.category === "ETB" || product.category === "Displays" || product.category === "UPC") ? (getEraBadge(product.id, product.set) ?? (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)) : null;
-            const categoryPillLabel = eraBadge?.label ?? product.set ?? product.badge;
             const dateLine =
               (product.category === "ETB" || product.category === "UPC" || product.category === "Displays") && product.dateSortie
                 ? formatReleaseDate(product.dateSortie)
@@ -516,38 +569,6 @@ export const HomePage = () => {
                       className="opacity-60"
                     />
                   )}
-                  {isDark ? (
-                    <span
-                      className="absolute right-[6px] top-[6px] shrink-0 max-w-[calc(100%-12px)] truncate text-[9px] font-semibold"
-                      style={{
-                        background: EMERALD,
-                        color: "#0a0a0a",
-                        padding: "3px 8px",
-                        borderRadius: 9999,
-                      }}
-                    >
-                      {categoryPillLabel}
-                    </span>
-                  ) : eraBadge ? (
-                    <span
-                      className="absolute right-[6px] top-[6px] shrink-0 whitespace-nowrap text-[9px] font-medium"
-                      style={{
-                        background: eraBadge.bg,
-                        color: eraBadge.color,
-                        padding: "2px 5px",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      {eraBadge.label}
-                    </span>
-                  ) : (
-                    <span
-                      className="absolute right-[6px] top-[6px] shrink-0 whitespace-nowrap text-[9px] font-medium uppercase"
-                      style={{ background: "rgba(255,255,255,0.12)", color: "var(--text-primary)", padding: "2px 5px", borderRadius: "4px" }}
-                    >
-                      {product.badge}
-                    </span>
-                  )}
                 </div>
                 <div
                   className="flex flex-1 flex-col min-h-0 p-3"
@@ -581,13 +602,18 @@ export const HomePage = () => {
                       maximumFractionDigits: 0,
                     })}
                   </p>
-                  <p
-                    className="text-[11px] font-semibold tabular-nums shrink-0"
-                    style={{ color: isDark ? EMERALD : isUp ? "var(--gain-green)" : "var(--loss-red)" }}
-                  >
-                    {isUp ? "+" : ""}
-                    {perfPct.toFixed(1)}%
-                  </p>
+                  {eraBadge ? (
+                    <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                      {eraBadge.label}
+                    </span>
+                  ) : (
+                    <span
+                      className="shrink-0 whitespace-nowrap text-[9px] font-medium uppercase"
+                      style={{ background: "rgba(255,255,255,0.12)", color: "var(--text-primary)", padding: "2px 5px", borderRadius: "4px" }}
+                    >
+                      {product.badge}
+                    </span>
+                  )}
                 </div>
                 </div>
               </Link>
@@ -603,9 +629,9 @@ export const HomePage = () => {
                 boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
               }}
             >
-              {filtered.length === 0
+              {categoryFiltered.length === 0
                 ? "Aucun produit dans cette catégorie."
-                : "Aucun résultat pour cette recherche."}
+                : "Aucun produit pour cette génération."}
             </p>
           )}
         </div>

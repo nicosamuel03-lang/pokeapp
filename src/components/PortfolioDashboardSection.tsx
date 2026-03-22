@@ -322,68 +322,64 @@ export function PortfolioDashboardSection({
         </div>
 
         {collectionLines.length > 0 ? (
-          <div className="mt-3 px-3 pb-2">
-            <p className="mb-2 text-xs font-medium" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
+          <div className="mt-3 px-3 pb-2" style={{ textAlign: "left" }}>
+            <p
+              className="mb-2 text-xs font-medium"
+              style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)", textAlign: "left" }}
+            >
               Répartition détaillée
             </p>
-            <div className="flex w-full min-w-0 flex-row justify-between gap-4">
+            <div
+              className="w-full min-w-0"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "8px 16px",
+                textAlign: "left",
+                alignItems: "start",
+              }}
+            >
               <div
-                className="flex min-w-0 flex-1 flex-col gap-1 leading-tight"
+                className="flex min-w-0 flex-col gap-1 leading-tight"
                 style={{ fontSize: 11 }}
-                aria-label="Répartition par catégorie (quantités et pourcentages)"
+                aria-label="Répartition par catégorie (pourcentages)"
               >
                 {categoryRepartitionRows.length === 0 ? (
                   <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>Aucune donnée</span>
                 ) : (
                   categoryRepartitionRows.map((row) => (
-                    <div key={row.label} className="flex w-full min-w-0 items-center gap-1">
-                      <div
-                        className="flex min-w-0 flex-1 items-center justify-end gap-1.5 font-medium"
-                        style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}
-                      >
-                        <span
-                          className="inline-block h-2 w-2 shrink-0 rounded-full"
-                          style={{ background: row.color }}
-                          aria-hidden
-                        />
-                        <span className="truncate text-right">{row.label}</span>
-                      </div>
+                    <div key={row.label} className="flex w-full min-w-0 items-center justify-start gap-1.5">
                       <span
-                        className="shrink-0 text-right tabular-nums"
-                        style={{ color: isDark ? "#e5e7eb" : "#374151", minWidth: "2.85rem" }}
-                      >
-                        {row.count} · {row.pct.toFixed(1)}%
+                        className="inline-block h-2 w-2 shrink-0 rounded-full"
+                        style={{ background: row.color }}
+                        aria-hidden
+                      />
+                      <span className="min-w-0 truncate text-left tabular-nums font-medium">
+                        <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>{row.label} · </span>
+                        <span style={{ color: isDark ? "#e5e7eb" : "#374151" }}>{row.pct.toFixed(1)}%</span>
                       </span>
                     </div>
                   ))
                 )}
               </div>
               <div
-                className="flex min-w-0 flex-1 flex-col gap-1 leading-tight"
+                className="flex min-w-0 flex-col gap-1 leading-tight"
                 style={{ fontSize: 11 }}
-                aria-label="Répartition par ère (quantités et pourcentages)"
+                aria-label="Répartition par ère (pourcentages)"
               >
                 {eraRepartitionRows.length === 0 ? (
                   <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>Aucune donnée</span>
                 ) : (
                   eraRepartitionRows.map((row) => (
-                    <div key={row.label} className="flex w-full min-w-0 items-center gap-1">
-                      <div
-                        className="flex min-w-0 flex-1 items-center justify-end gap-1.5 font-medium"
-                        style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}
-                      >
-                        <span
-                          className="inline-block h-2 w-2 shrink-0 rounded-full"
-                          style={{ background: row.color }}
-                          aria-hidden
-                        />
-                        <span className="truncate text-right">{row.label}</span>
-                      </div>
+                    <div key={row.label} className="flex w-full min-w-0 items-center justify-start gap-1.5">
                       <span
-                        className="shrink-0 text-right tabular-nums"
-                        style={{ color: isDark ? "#e5e7eb" : "#374151", minWidth: "2.85rem" }}
-                      >
-                        {row.count} · {row.pct.toFixed(1)}%
+                        className="inline-block h-2 w-2 shrink-0 rounded-full"
+                        style={{ background: row.color }}
+                        aria-hidden
+                      />
+                      <span className="min-w-0 truncate text-left tabular-nums font-medium">
+                        <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>{row.label} · </span>
+                        <span style={{ color: isDark ? "#e5e7eb" : "#374151" }}>{row.pct.toFixed(1)}%</span>
                       </span>
                     </div>
                   ))

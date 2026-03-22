@@ -4,7 +4,7 @@ import { TrendingUp } from "lucide-react";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { NewsCarousel } from "../components/NewsCarousel";
-import { getEraBadge } from "../utils/eraBadge";
+import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { getPerformanceForPeriod } from "../utils/marketPerformance";
 import { formatProductNameWithSetCode } from "../utils/formatProduct";
 import { displayData } from "../data/displayData";
@@ -43,14 +43,12 @@ const DEFAULT_PERIOD = "tout" as const;
 interface ProductCardProps {
   product: MarketProduct;
   rank: number;
-  perf: { percent: number };
   variant: "top3" | "rest";
 }
 
-function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
+function ProductCard({ product, rank, variant }: ProductCardProps) {
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
-  const isUp = perf.percent >= 0;
   const rawId = product.etbId ?? product.id.replace(/^display-/, "").replace(/^upc-/, "");
   const eraBadge = getEraBadge(rawId, product.block);
   const displayName = product.name;
@@ -87,7 +85,7 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
             #{rank}
           </span>
           <div
-            className="shrink-0 w-24 h-24 rounded-lg overflow-hidden flex items-center justify-center p-2"
+            className="relative shrink-0 w-24 h-24 rounded-lg overflow-hidden flex items-center justify-center p-2"
             style={{ background: "var(--img-container-bg)" }}
           >
             {product.imageUrl ? (
@@ -106,31 +104,20 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
               <p className="text-sm font-medium leading-tight break-words" style={{ color: "var(--text-primary)" }}>
                 {displayName}
               </p>
-              {eraBadge && (
-                <span
-                  className="inline-block mt-1 shrink-0 whitespace-nowrap font-medium rounded"
-                  style={{
-                    fontSize: "9px",
-                    padding: "2px 4px",
-                    background: eraBadge.bg,
-                    color: eraBadge.color,
-                  }}
-                >
-                  {eraBadge.label}
-                </span>
-              )}
             </div>
             <div className="flex items-center justify-between gap-2 mt-1">
-              <p className="text-sm font-semibold shrink-0" style={{ color: accentGold }}>
+              <p className="text-sm font-semibold shrink-0 min-w-0 truncate" style={{ color: accentGold }}>
                 {product.currentPrice.toLocaleString("fr-FR", {
                   style: "currency",
                   currency: "EUR",
                   maximumFractionDigits: 0,
                 })}
               </p>
-              <span className="text-xs font-semibold shrink-0" style={{ color: isUp ? "var(--gain-green)" : "var(--loss-red)" }}>
-                {isUp ? "▲" : "▼"} {perf.percent.toFixed(1)}%
-              </span>
+              {eraBadge ? (
+                <span className="shrink-0 font-medium rounded-full max-w-[120px] truncate" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                  {eraBadge.label}
+                </span>
+              ) : null}
             </div>
           </div>
         </div>
@@ -151,7 +138,7 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
         #{rank}
       </span>
       <div
-        className="shrink-0 w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center"
+        className="relative shrink-0 w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center"
         style={{ background: "var(--img-container-bg)" }}
       >
         {product.imageUrl ? (
@@ -160,23 +147,10 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
           <span className="text-lg opacity-60">{product.emoji}</span>
         )}
       </div>
-      <div className="flex-1 min-w-0 flex flex-col gap-0.5 justify-center">
+      <div className="flex-1 min-w-0 flex flex-col gap-0.5 justify-center min-h-0">
         <p className="text-sm font-medium break-words leading-snug" style={{ color: "var(--text-primary)" }}>{displayName}</p>
-        {eraBadge && (
-          <span
-            className="inline-block shrink-0 whitespace-nowrap font-medium rounded w-fit"
-            style={{
-              fontSize: "9px",
-              padding: "2px 4px",
-              background: eraBadge.bg,
-              color: eraBadge.color,
-            }}
-          >
-            {eraBadge.label}
-          </span>
-        )}
       </div>
-      <div className="shrink-0 flex flex-col items-end gap-0.5">
+      <div className="shrink-0 flex flex-col items-end gap-1 justify-center">
         <p className="text-sm font-semibold" style={{ color: accentGold }}>
           {product.currentPrice.toLocaleString("fr-FR", {
             style: "currency",
@@ -184,9 +158,14 @@ function ProductCard({ product, rank, perf, variant }: ProductCardProps) {
             maximumFractionDigits: 0,
           })}
         </p>
-        <span className="text-[10px] font-semibold" style={{ color: isUp ? "var(--gain-green)" : "var(--loss-red)" }}>
-          {isUp ? "▲" : "▼"} {perf.percent.toFixed(1)}%
-        </span>
+        {eraBadge ? (
+          <span
+            className="inline-block shrink-0 whitespace-nowrap font-medium rounded-full w-fit max-w-[100px] truncate"
+            style={getEraNeonBadgeStyle(eraBadge.label)}
+          >
+            {eraBadge.label}
+          </span>
+        ) : null}
       </div>
     </Link>
   );
@@ -206,7 +185,6 @@ function RankingSection({ products }: { products: MarketProduct[] }) {
               key={`top3-${product.id}`}
               product={product}
               rank={i + 1}
-              perf={getPerformanceForPeriod(product, DEFAULT_PERIOD)}
               variant="top3"
             />
           ))}
@@ -220,7 +198,6 @@ function RankingSection({ products }: { products: MarketProduct[] }) {
               key={product.id}
               product={product}
               rank={top3.length + i + 1}
-              perf={getPerformanceForPeriod(product, DEFAULT_PERIOD)}
               variant="rest"
             />
           ))}

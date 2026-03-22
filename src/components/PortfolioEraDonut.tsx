@@ -4,9 +4,9 @@ import type { CollectionLineForChart } from "../utils/portfolioChartData";
 import { getDonutLayout } from "../utils/donutChartLayout";
 
 export const ERA_DONUT_COLORS = {
-  "Méga Évolution": "#a855f7",
+  "Méga Évolution": "#f97316",
   "Épée & Bouclier": "#10b981",
-  "Écarlate & Violet": "#f97316",
+  "Écarlate & Violet": "#a855f7",
   Autres: "#94a3b8",
 } as const;
 

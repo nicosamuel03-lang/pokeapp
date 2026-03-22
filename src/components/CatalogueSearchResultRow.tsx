@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { formatDisplayProductName } from "../utils/formatProduct";
+import { getEraNeonBadgeStyle } from "../utils/eraBadge";
 
 export type CatalogueSearchResultRowEraBadge = { label: string; bg: string; color: string };
 
@@ -97,13 +98,7 @@ export function CatalogueSearchResultRow(props: CatalogueSearchResultRowProps) {
           {eraBadge ? (
             <span
               className="shrink-0 whitespace-nowrap font-medium"
-              style={{
-                fontSize: "9px",
-                padding: "2px 5px",
-                borderRadius: "4px",
-                background: eraBadge.bg,
-                color: eraBadge.color,
-              }}
+              style={getEraNeonBadgeStyle(eraBadge.label)}
             >
               {eraBadge.label}
             </span>

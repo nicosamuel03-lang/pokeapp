@@ -597,13 +597,27 @@ const ProductDetailPageInner = () => {
                 <p className="text-[11px] uppercase tracking-wide mt-2 mb-0" style={{ color: "var(--text-secondary)" }}>
                   Prix actuel
                 </p>
-                <p className="text-2xl font-semibold mt-0" style={{ color: accentGold }}>
-                  {prixMarche.toLocaleString("fr-FR", {
-                    style: "currency",
-                    currency: "EUR",
-                    maximumFractionDigits: 0
-                  })}
-                </p>
+                <div className="mt-0 flex flex-wrap items-baseline gap-2">
+                  <p className="text-2xl font-semibold" style={{ color: accentGold }}>
+                    {prixMarche.toLocaleString("fr-FR", {
+                      style: "currency",
+                      currency: "EUR",
+                      maximumFractionDigits: 0
+                    })}
+                  </p>
+                  {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) && (
+                    <span
+                      className="text-sm font-semibold tabular-nums"
+                      style={{
+                        color:
+                          product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                      }}
+                    >
+                      {product.change30dPercent >= 0 ? "+" : ""}
+                      {product.change30dPercent.toFixed(1)}%
+                    </span>
+                  )}
+                </div>
                 {isInCollection && (
                   <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
                     Achat{" "}

@@ -7,7 +7,7 @@ import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
 import { ItemIcon } from "../components/ItemIcon";
-import { getEraBadge, getEraStyle } from "../utils/eraBadge";
+import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
@@ -16,6 +16,50 @@ const COLLECTION_FILTERS_KEY = "collectionFilters";
 const RETURN_TO_KEY = "returnTo";
 
 type CategoryFilter = "Tous" | "Displays" | "ETB" | "UPC";
+
+const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier"] as const;
+
+const TYPE_SELECTED_GLOW: Record<
+  CategoryFilter,
+  Pick<CSSProperties, "border" | "boxShadow">
+> = {
+  Tous: {
+    border: "1px solid #ffffff",
+    boxShadow: "0 0 4px #ffffff80",
+  },
+  Displays: {
+    border: "1px solid #3B82F6",
+    boxShadow: "0 0 4px #3B82F680",
+  },
+  ETB: {
+    border: "1px solid #EF4444",
+    boxShadow: "0 0 4px #EF444480",
+  },
+  UPC: {
+    border: "1px solid #F59E0B",
+    boxShadow: "0 0 4px #F59E0B80",
+  },
+};
+
+const TYPE_ROW_DARK_BG = "#111111";
+
+const GENERATION_SELECTED_GLOW: Record<
+  (typeof HOME_ERA_OPTIONS)[number],
+  Pick<CSSProperties, "border" | "boxShadow">
+> = {
+  "Méga Évolution": {
+    border: "1px solid #F97316",
+    boxShadow: "0 0 4px #F9731680",
+  },
+  "Écarlate & Violet": {
+    border: "1px solid #A855F7",
+    boxShadow: "0 0 4px #A855F780",
+  },
+  "Épée & Bouclier": {
+    border: "1px solid #22C55E",
+    boxShadow: "0 0 4px #22C55E80",
+  },
+};
 
 function formatPurchaseDate(iso?: string): string {
   if (!iso) return "—";
@@ -123,16 +167,6 @@ export const CollectionPage = () => {
     if (cat !== "ETB" && cat !== "Displays" && cat !== "UPC") setSelectedEra(null);
   };
 
-  const eras = useMemo(() => {
-    const sets = new Set<string>();
-    items.forEach((it) => {
-      if ((it.product.category === "ETB" || it.product.category === "Displays" || it.product.category === "UPC") && it.product.set) {
-        sets.add(it.product.set);
-      }
-    });
-    return Array.from(sets).sort();
-  }, [items]);
-
   const hasEraSubFilter = selectedCategory === "ETB" || selectedCategory === "Displays" || selectedCategory === "UPC";
   const filteredItems = useMemo(() => {
     let list = items;
@@ -173,12 +207,41 @@ export const CollectionPage = () => {
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
 
-  const filterChipActive: CSSProperties = isDark
-    ? { backgroundColor: "#ffffff", color: "#000000", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13, border: "none" }
-    : { backgroundColor: accentGold, color: "black", borderRadius: "999px", padding: "2px 12px", fontWeight: 600, fontSize: 13 };
-  const filterChipInactive: CSSProperties = isDark
-    ? { backgroundColor: "transparent", color: "#ffffff", borderRadius: "999px", padding: "2px 12px", border: "1px solid #444444", fontSize: 13 }
-    : { backgroundColor: "transparent", color: "inherit", borderRadius: "999px", padding: "2px 12px", border: "1px solid gray", fontSize: 13 };
+  const filterRow1Base: CSSProperties = {
+    padding: "6px 16px",
+    fontSize: "13px",
+    fontWeight: 500,
+    borderRadius: "999px",
+    minHeight: "unset",
+    height: "auto",
+    touchAction: "manipulation",
+    cursor: "pointer",
+  };
+  const filterRow2Base: CSSProperties = {
+    padding: "3px 10px",
+    fontSize: "11px",
+    fontWeight: 500,
+    borderRadius: "999px",
+    minHeight: "unset",
+    height: "auto",
+    touchAction: "manipulation",
+    cursor: "pointer",
+  };
+  const typeRowStyle = (key: CategoryFilter, selected: boolean): CSSProperties =>
+    selected
+      ? {
+          ...filterRow1Base,
+          backgroundColor: TYPE_ROW_DARK_BG,
+          color: "#ffffff",
+          ...TYPE_SELECTED_GLOW[key],
+        }
+      : {
+          ...filterRow1Base,
+          backgroundColor: TYPE_ROW_DARK_BG,
+          color: "#ffffff",
+          border: "none",
+          boxShadow: "none",
+        };
 
   return (
     <div className="space-y-4 -mx-3">
@@ -206,7 +269,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Tous" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Tous")}
             onClick={() => handleCategoryChange("Tous")}
-            style={selectedCategory === "Tous" ? filterChipActive : filterChipInactive}
+            style={typeRowStyle("Tous", selectedCategory === "Tous")}
           >
             Tous
           </button>
@@ -215,7 +278,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-Displays" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-Displays")}
             onClick={() => handleCategoryChange("Displays")}
-            style={selectedCategory === "Displays" ? filterChipActive : filterChipInactive}
+            style={typeRowStyle("Displays", selectedCategory === "Displays")}
           >
             Displays
           </button>
@@ -224,7 +287,7 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-ETB" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-ETB")}
             onClick={() => handleCategoryChange("ETB")}
-            style={selectedCategory === "ETB" ? filterChipActive : filterChipInactive}
+            style={typeRowStyle("ETB", selectedCategory === "ETB")}
           >
             ETB
           </button>
@@ -233,46 +296,30 @@ export const CollectionPage = () => {
             className={`filter-btn ${pressedFilterKey === "cat-UPC" ? "filter-btn-press" : ""}`}
             onPointerDown={() => triggerFilterPress("cat-UPC")}
             onClick={() => handleCategoryChange("UPC")}
-            style={selectedCategory === "UPC" ? filterChipActive : filterChipInactive}
+            style={typeRowStyle("UPC", selectedCategory === "UPC")}
           >
             UPC
           </button>
         </div>
-        {hasEraSubFilter && eras.length > 0 && (
+        {hasEraSubFilter && (
           <div className="mt-2 flex flex-wrap gap-1.5 pl-3">
-            <button
-              type="button"
-              className={`filter-btn rounded-full font-bold shrink-0 ${pressedFilterKey === "era-null" ? "filter-btn-press" : ""}`}
-              onPointerDown={() => triggerFilterPress("era-null")}
-              onClick={() => setSelectedEra(null)}
-              style={{
-                fontSize: "11px",
-                padding: "4px 8px",
-                whiteSpace: "nowrap",
-                color: "var(--text-primary)",
-                background: selectedEra === null ? "var(--bg-card-elevated)" : "var(--card-color)",
-                border: selectedEra === null ? "2px solid var(--text-primary)" : "2px solid transparent",
-              }}
-            >
-              Tous
-            </button>
-            {eras.map((era) => {
+            {HOME_ERA_OPTIONS.map((era) => {
               const isSelected = selectedEra === era;
-              const { bg, color } = getEraStyle(era);
               return (
                 <button
                   type="button"
                   key={era}
                   className={`filter-btn rounded-full font-medium shrink-0 ${pressedFilterKey === `era-${era}` ? "filter-btn-press" : ""}`}
                   onPointerDown={() => triggerFilterPress(`era-${era}`)}
-                  onClick={() => setSelectedEra(era)}
+                  onClick={() => setSelectedEra((current) => (current === era ? null : era))}
                   style={{
-                    fontSize: "10px",
-                    padding: "2px 6px",
+                    ...filterRow2Base,
                     whiteSpace: "nowrap",
-                    color,
-                    background: bg,
-                    border: isSelected ? "2px solid var(--text-primary)" : "2px solid transparent",
+                    backgroundColor: TYPE_ROW_DARK_BG,
+                    color: "#ffffff",
+                    ...(isSelected
+                      ? GENERATION_SELECTED_GLOW[era]
+                      : { border: "none", boxShadow: "none" }),
                   }}
                 >
                   {era}
@@ -320,13 +367,10 @@ export const CollectionPage = () => {
         <div className="grid grid-cols-2 gap-3">
           {displayedItems.map((item) => {
             const current = getPrixMarcheForProduct(item.product, etbData);
-            const perfPct = item.buyPrice > 0 ? ((current - item.buyPrice) / item.buyPrice) * 100 : 0;
-            const isUp = perfPct >= 0;
             const navProductId = encodeURIComponent(item.product.id);
             const detailUrl = `/produit/${navProductId}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);
             const imageUrl = getProductImageUrl(item.product);
-            const categoryPillLabel = eraBadge?.label ?? item.product.set ?? item.product.badge;
             return (
               <Link
                 key={item.id}
@@ -411,33 +455,6 @@ export const CollectionPage = () => {
                       className="opacity-60"
                     />
                   )}
-                  {isDark ? (
-                    <span
-                      className="absolute left-[6px] top-[6px] shrink-0 max-w-[min(100%-40px,140px)] truncate text-[9px] font-semibold z-[5]"
-                      style={{
-                        background: EMERALD,
-                        color: "#0a0a0a",
-                        padding: "3px 8px",
-                        borderRadius: 9999,
-                      }}
-                    >
-                      {categoryPillLabel}
-                    </span>
-                  ) : (
-                    eraBadge && (
-                      <span
-                        className="absolute right-[40px] top-[6px] shrink-0 whitespace-nowrap text-[9px] font-medium z-[5]"
-                        style={{
-                          background: eraBadge.bg,
-                          color: eraBadge.color,
-                          padding: "2px 5px",
-                          borderRadius: "4px",
-                        }}
-                      >
-                        {eraBadge.label}
-                      </span>
-                    )
-                  )}
                   <span
                     className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] font-medium z-[5]"
                     style={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
@@ -478,13 +495,18 @@ export const CollectionPage = () => {
                     >
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </p>
-                    <p
-                      className="text-[11px] font-semibold tabular-nums shrink-0"
-                      style={{ color: isDark ? EMERALD : isUp ? "var(--gain-green)" : "var(--loss-red)" }}
-                    >
-                      {isUp ? "+" : ""}
-                      {perfPct.toFixed(1)}%
-                    </p>
+                    {eraBadge ? (
+                      <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                        {eraBadge.label}
+                      </span>
+                    ) : (
+                      <span
+                        className="shrink-0 whitespace-nowrap text-[9px] font-medium uppercase"
+                        style={{ background: "rgba(255,255,255,0.12)", color: "var(--text-primary)", padding: "2px 5px", borderRadius: "4px" }}
+                      >
+                        {item.product.badge}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <button

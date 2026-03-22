@@ -1,3 +1,50 @@
+import type { CSSProperties } from "react";
+
+/** Style badge ère (cartes produit) : fond semi-transparent + bordure néon alignée filtres / donut. */
+const ERA_NEON_CARD_BADGE: Record<string, CSSProperties> = {
+  "Méga Évolution": {
+    fontSize: "10px",
+    padding: "2px 8px",
+    borderRadius: "999px",
+    background: "rgba(0, 0, 0, 0.6)",
+    border: "1px solid #F97316",
+    boxShadow: "0 0 4px #F9731680",
+    color: "#F97316",
+  },
+  "Écarlate & Violet": {
+    fontSize: "10px",
+    padding: "2px 8px",
+    borderRadius: "999px",
+    background: "rgba(0, 0, 0, 0.6)",
+    border: "1px solid #A855F7",
+    boxShadow: "0 0 4px #A855F780",
+    color: "#A855F7",
+  },
+  "Épée & Bouclier": {
+    fontSize: "10px",
+    padding: "2px 8px",
+    borderRadius: "999px",
+    background: "rgba(0, 0, 0, 0.6)",
+    border: "1px solid #22C55E",
+    boxShadow: "0 0 4px #22C55E80",
+    color: "#22C55E",
+  },
+};
+
+export function getEraNeonBadgeStyle(eraLabel: string): CSSProperties {
+  const base = ERA_NEON_CARD_BADGE[eraLabel];
+  if (base) return { ...base };
+  return {
+    fontSize: "10px",
+    padding: "2px 8px",
+    borderRadius: "999px",
+    background: "rgba(255, 255, 255, 0.08)",
+    border: "1px solid rgba(148, 163, 184, 0.45)",
+    boxShadow: "0 0 4px #94a3b880",
+    color: "var(--text-primary)",
+  };
+}
+
 const ERA_STYLES: Record<string, { bg: string; color: string }> = {
   "Épée & Bouclier": { bg: "#2E5FA3", color: "#FFFFFF" },
   "Écarlate & Violet": { bg: "#6B3A9E", color: "#FFFFFF" },
