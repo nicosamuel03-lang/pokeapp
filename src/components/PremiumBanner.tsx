@@ -61,7 +61,10 @@ export function PremiumBanner() {
             whiteSpace: "nowrap",
           }}
         >
-          3.99€ / mois
+          <span className="font-normal">
+            3.99€
+          </span>{" "}
+          / mois
         </span>
       </div>
       <button

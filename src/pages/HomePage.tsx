@@ -600,7 +600,7 @@ export const HomePage = () => {
                 </div>
                 <p
                   className="text-xs font-semibold shrink-0 line-clamp-1 overflow-hidden text-ellipsis"
-                  style={{ marginTop: "6px", color: isDark ? "#ffffff" : "var(--text-primary)", fontFamily: '"Inter", system-ui, sans-serif' }}
+                  style={{ marginTop: "6px", color: isDark ? "#ffffff" : "var(--text-primary)" }}
                 >
                   {formatProductNameWithSetCode(
                     product.name,
@@ -615,9 +615,12 @@ export const HomePage = () => {
                     </p>
                   )}
                 </div>
-                <div className="flex w-full shrink-0 justify-end items-baseline" style={{ marginTop: "4px" }}>
+                <div
+                  className="flex w-full shrink-0 flex-wrap justify-end items-baseline gap-1.5"
+                  style={{ marginTop: "4px" }}
+                >
                   <p
-                    className="text-sm font-semibold tabular-nums truncate max-w-full text-right"
+                    className="text-sm tabular-nums font-normal truncate max-w-full text-right"
                     style={{ color: isDark ? EMERALD : accentGold }}
                   >
                     {product.currentPrice.toLocaleString("fr-FR", {
@@ -626,6 +629,18 @@ export const HomePage = () => {
                       maximumFractionDigits: 0,
                     })}
                   </p>
+                  {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) ? (
+                    <span
+                      className="text-xs tabular-nums font-normal shrink-0"
+                      style={{
+                        color:
+                          product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                      }}
+                    >
+                      {product.change30dPercent >= 0 ? "+" : ""}
+                      {product.change30dPercent.toFixed(1)}%
+                    </span>
+                  ) : null}
                 </div>
                 </div>
               </Link>

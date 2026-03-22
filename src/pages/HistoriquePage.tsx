@@ -198,7 +198,8 @@ export const HistoriquePage = () => {
               </div>
               <p className="text-[10px] mt-1.5" style={{ color: "var(--text-secondary)" }}>
                 Le quota ne baisse pas si vous supprimez une vente ·{" "}
-                {visibleSalesRowCount} ligne{visibleSalesRowCount !== 1 ? "s" : ""} actuellement dans l&apos;historique
+                <span>{visibleSalesRowCount}</span> ligne
+                {visibleSalesRowCount !== 1 ? "s" : ""} actuellement dans l&apos;historique
               </p>
             </section>
           )}
@@ -221,7 +222,7 @@ export const HistoriquePage = () => {
                 }
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total des ventes</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: accentGold }}>
+                <p className="mt-1 text-sm tabular-nums font-normal" style={{ color: accentGold }}>
                   {summary.totalVentes.toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",
@@ -238,7 +239,7 @@ export const HistoriquePage = () => {
                 }
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Total investi</p>
-                <p className="mt-1 text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                <p className="mt-1 text-sm tabular-nums font-normal" style={{ color: "var(--text-primary)" }}>
                   {summary.totalInvesti.toLocaleString("fr-FR", {
                     style: "currency",
                     currency: "EUR",
@@ -257,7 +258,9 @@ export const HistoriquePage = () => {
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Gain total réalisé</p>
                 <p
                   className="mt-1 text-sm font-semibold"
-                  style={{ color: summary.gainTotal >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                  style={{
+                    color: summary.gainTotal >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                  }}
                 >
                   {summary.gainTotal >= 0 ? "+" : ""}
                   {summary.gainTotal.toLocaleString("fr-FR", {
@@ -277,8 +280,10 @@ export const HistoriquePage = () => {
               >
                 <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>Performance moyenne</p>
                 <p
-                  className="mt-1 text-sm font-semibold"
-                  style={{ color: summary.perfMoyenne >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                  className="mt-1 text-sm tabular-nums font-normal"
+                  style={{
+                    color: summary.perfMoyenne >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                  }}
                 >
                   {summary.perfMoyenne >= 0 ? "+" : ""}
                   {summary.perfMoyenne.toFixed(1)}%
@@ -290,7 +295,11 @@ export const HistoriquePage = () => {
           {/* Liste des ventes */}
           <section className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
-              Détail des ventes ({sortedSales.length})
+              Détail des ventes (
+              <span className="font-normal">
+                {sortedSales.length}
+              </span>
+              )
             </h3>
             <div className="space-y-3">
               {(isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
@@ -353,12 +362,17 @@ export const HistoriquePage = () => {
                         </p>
                         <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
                           Vendu le {formatSaleDate(sale.saleDate)}
-                          {sale.quantity > 1 && ` · x${sale.quantity}`}
+                          {sale.quantity > 1 && (
+                            <>
+                              {" "}
+                              · x<span className="font-normal">{sale.quantity}</span>
+                            </>
+                          )}
                         </p>
                         <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
                           <span style={{ color: "var(--text-secondary)" }}>
                             Achat:{" "}
-                            <span className="font-medium" style={{ color: accentGold }}>
+                            <span className="font-normal tabular-nums" style={{ color: accentGold }}>
                               {sale.buyPrice.toLocaleString("fr-FR", {
                                 style: "currency",
                                 currency: "EUR",
@@ -368,7 +382,7 @@ export const HistoriquePage = () => {
                           </span>
                           <span style={{ color: "var(--text-secondary)" }}>
                             Vente:{" "}
-                            <span className="font-medium" style={{ color: accentGold }}>
+                            <span className="font-normal tabular-nums" style={{ color: accentGold }}>
                               {sale.salePrice.toLocaleString("fr-FR", {
                                 style: "currency",
                                 currency: "EUR",
@@ -379,8 +393,10 @@ export const HistoriquePage = () => {
                           <span style={{ color: "var(--text-secondary)" }}>
                             Bénéfice:{" "}
                             <span
-                              className="font-semibold"
-                              style={{ color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                              className="font-normal tabular-nums"
+                              style={{
+                                color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                              }}
                             >
                               {sale.profit >= 0 ? "+" : ""}
                               {sale.profit.toLocaleString("fr-FR", {
@@ -393,8 +409,10 @@ export const HistoriquePage = () => {
                           <span style={{ color: "var(--text-secondary)" }}>
                             Perf:{" "}
                             <span
-                              className="font-semibold"
-                              style={{ color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+                              className="font-normal tabular-nums"
+                              style={{
+                                color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                              }}
                             >
                               {perfPct >= 0 ? "+" : ""}
                               {perfPct.toFixed(1)}%
@@ -465,13 +483,50 @@ export const HistoriquePage = () => {
                               <p className="app-heading line-clamp-2 text-xs" style={{ color: "var(--text-primary)" }}>{displayName}</p>
                               <p className="mt-0.5 text-[10px]" style={{ color: "var(--text-secondary)" }}>
                                 Vendu le {formatSaleDate(sale.saleDate)}
-                                {sale.quantity > 1 && ` · x${sale.quantity}`}
+                                {sale.quantity > 1 && (
+                                  <>
+                                    {" "}
+                                    · x<span className="font-normal">{sale.quantity}</span>
+                                  </>
+                                )}
                               </p>
                               <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[10px]">
-                                <span style={{ color: "var(--text-secondary)" }}>Achat: <span className="font-medium" style={{ color: accentGold }}>{sale.buyPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
-                                <span style={{ color: "var(--text-secondary)" }}>Vente: <span className="font-medium" style={{ color: accentGold }}>{sale.salePrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
-                                <span style={{ color: "var(--text-secondary)" }}>Bénéfice: <span className="font-semibold" style={{ color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>{sale.profit >= 0 ? "+" : ""}{sale.profit.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span></span>
-                                <span style={{ color: "var(--text-secondary)" }}>Perf: <span className="font-semibold" style={{ color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>{perfPct >= 0 ? "+" : ""}{perfPct.toFixed(1)}%</span></span>
+                                <span style={{ color: "var(--text-secondary)" }}>
+                                  Achat:{" "}
+                                  <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                                    {sale.buyPrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
+                                  </span>
+                                </span>
+                                <span style={{ color: "var(--text-secondary)" }}>
+                                  Vente:{" "}
+                                  <span className="font-normal tabular-nums" style={{ color: accentGold }}>
+                                    {sale.salePrice.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
+                                  </span>
+                                </span>
+                                <span style={{ color: "var(--text-secondary)" }}>
+                                  Bénéfice:{" "}
+                                  <span
+                                    className="font-normal tabular-nums"
+                                    style={{
+                                      color: sale.profit >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                                    }}
+                                  >
+                                    {sale.profit >= 0 ? "+" : ""}
+                                    {sale.profit.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
+                                  </span>
+                                </span>
+                                <span style={{ color: "var(--text-secondary)" }}>
+                                  Perf:{" "}
+                                  <span
+                                    className="font-normal tabular-nums"
+                                    style={{
+                                      color: perfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                                    }}
+                                  >
+                                    {perfPct >= 0 ? "+" : ""}
+                                    {perfPct.toFixed(1)}%
+                                  </span>
+                                </span>
                               </div>
                             </div>
                           </div>

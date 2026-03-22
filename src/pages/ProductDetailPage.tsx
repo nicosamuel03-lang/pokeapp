@@ -598,7 +598,7 @@ const ProductDetailPageInner = () => {
                   Prix actuel
                 </p>
                 <div className="mt-0 flex flex-wrap items-baseline gap-2">
-                  <p className="text-2xl font-semibold" style={{ color: accentGold }}>
+                  <p className="text-2xl tabular-nums font-normal" style={{ color: accentGold }}>
                     {prixMarche.toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",
@@ -607,7 +607,7 @@ const ProductDetailPageInner = () => {
                   </p>
                   {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) && (
                     <span
-                      className="text-sm font-semibold tabular-nums"
+                      className="text-sm tabular-nums font-normal"
                       style={{
                         color:
                           product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
@@ -621,14 +621,14 @@ const ProductDetailPageInner = () => {
                 {isInCollection && (
                   <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
                     Achat{" "}
-                    <span className="font-medium" style={{ color: "var(--text-primary)" }}>
+                    <span className="font-normal" style={{ color: "var(--text-primary)" }}>
                       {prixAchat.toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",
                         maximumFractionDigits: 0
                       })}
                     </span>{" "}
-                    • ×{quantite}
+                    • ×<span className="font-normal">{quantite}</span>
                   </p>
                 )}
               </div>
@@ -690,7 +690,9 @@ const ProductDetailPageInner = () => {
 
             <label className="mb-1 mt-3 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
               Quantité à vendre{" "}
-              <span className="font-normal opacity-80">(max. {quantite})</span>
+              <span className="font-normal opacity-80">
+                (max. <span>{quantite}</span>)
+              </span>
             </label>
             <div className="flex items-center gap-2">
               <div
@@ -732,8 +734,10 @@ const ProductDetailPageInner = () => {
               >
                 <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Bénéfice brut</p>
                 <p
-                  className="mt-1 text-base font-semibold"
-                  style={{ color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)" }}
+                  className="mt-1 text-base tabular-nums font-normal"
+                  style={{
+                    color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)",
+                  }}
                 >
                   {hasSale
                     ? `${isPositive ? "+" : ""}${brut.toLocaleString("fr-FR", {
@@ -753,8 +757,10 @@ const ProductDetailPageInner = () => {
               >
                 <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>Performance %</p>
                 <p
-                  className="mt-1 text-base font-semibold"
-                  style={{ color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)" }}
+                  className="mt-1 text-base tabular-nums font-normal"
+                  style={{
+                    color: hasSale ? (isPositive ? "var(--gain-green)" : "var(--loss-red)") : "var(--text-secondary)",
+                  }}
                 >
                   {hasSale ? `${isPositive ? "+" : ""}${perfPct.toFixed(1)}%` : "—"}
                 </p>
@@ -904,7 +910,10 @@ const ProductDetailPageInner = () => {
                 />
                 <YAxis
                   tickFormatter={(v) => `${v}€`}
-                  tick={{ fontSize: 9, fill: "#9CA3AF" }}
+                  tick={{
+                    fontSize: 9,
+                    fill: "#9CA3AF",
+                  }}
                   tickLine={false}
                   axisLine={false}
                   width={32}
@@ -980,7 +989,7 @@ const ProductDetailPageInner = () => {
                       <tr key={p?.mois ? String(p.mois) : `row-${idx}`} className="border-b" style={{ borderColor: "var(--card-color)" }}>
                         <td className="py-2 pl-3" style={{ color: "var(--text-secondary)" }}>{p?.mois_label ?? "—"}</td>
                         <td
-                          className="py-2 pr-3 text-right font-medium"
+                          className="py-2 pr-3 text-right tabular-nums font-normal"
                           style={{
                             color: p?.prix != null && !Number.isNaN(Number(p?.prix)) ? accentGold : "var(--text-secondary)",
                           }}

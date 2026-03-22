@@ -200,7 +200,10 @@ export function PortfolioDashboardSection({
                       tick={{ fill: isDark ? LABEL_GRAY : "var(--text-secondary)", fontSize: 10 }}
                       interval={chartPeriod === "1an" ? 1 : 2}
                     />
-                    <YAxis tick={{ fill: isDark ? LABEL_GRAY : "var(--text-secondary)", fontSize: 10 }} width={45} />
+                    <YAxis
+                      tick={{ fill: isDark ? LABEL_GRAY : "var(--text-secondary)", fontSize: 10 }}
+                      width={45}
+                    />
                     <Tooltip
                       contentStyle={{
                         background: isDark ? DARK_GRID : "var(--card-color)",
@@ -354,9 +357,13 @@ export function PortfolioDashboardSection({
                         style={{ background: row.color }}
                         aria-hidden
                       />
-                      <span className="min-w-0 truncate text-left tabular-nums font-medium">
-                        <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>{row.label} · </span>
-                        <span style={{ color: isDark ? "#e5e7eb" : "#374151" }}>{row.pct.toFixed(1)}%</span>
+                      <span className="min-w-0 truncate text-left tabular-nums">
+                        <span className="font-medium" style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>
+                          {row.label} ·{" "}
+                        </span>
+                        <span className="font-normal" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+                          {row.pct.toFixed(1)}%
+                        </span>
                       </span>
                     </div>
                   ))
@@ -377,9 +384,13 @@ export function PortfolioDashboardSection({
                         style={{ background: row.color }}
                         aria-hidden
                       />
-                      <span className="min-w-0 truncate text-left tabular-nums font-medium">
-                        <span style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>{row.label} · </span>
-                        <span style={{ color: isDark ? "#e5e7eb" : "#374151" }}>{row.pct.toFixed(1)}%</span>
+                      <span className="min-w-0 truncate text-left tabular-nums">
+                        <span className="font-medium" style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>
+                          {row.label} ·{" "}
+                        </span>
+                        <span className="font-normal" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+                          {row.pct.toFixed(1)}%
+                        </span>
                       </span>
                     </div>
                   ))
@@ -392,7 +403,7 @@ export function PortfolioDashboardSection({
     );
   }
 
-  /* mode === "summary" — pas de graphique sur l’accueil */
+  /* mode === "summary" — pas de graphique sur l’accueil (utilisé uniquement par la page Accueil) */
   const mainCardShellClass = "flex w-full min-w-0 flex-col rounded-2xl px-4 py-4 text-left";
 
   const REPARTITION_DONUT_SIZE = 120;
@@ -458,8 +469,8 @@ export function PortfolioDashboardSection({
         className="text-white tabular-nums tracking-tight"
         style={{
           color: isDark ? "#ffffff" : "var(--text-primary)",
-          fontFamily: '"Inter", system-ui, sans-serif',
-          fontWeight: 800,
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: "800",
           fontSize: "2.5rem",
           lineHeight: 1.1,
         }}
@@ -472,7 +483,7 @@ export function PortfolioDashboardSection({
         })}
       </p>
       <div
-        className="mt-2 flex flex-wrap items-center gap-1.5 text-sm font-medium"
+        className="mt-2 flex flex-wrap items-center gap-1.5 text-sm"
         style={{ color: isDark ? EMERALD : plusPositive ? "var(--gain-green)" : "var(--loss-red)" }}
       >
         {plusPositive ? (
@@ -480,7 +491,7 @@ export function PortfolioDashboardSection({
         ) : (
           <TrendingUp className="shrink-0 rotate-180" size={18} strokeWidth={2.5} aria-hidden />
         )}
-        <span>
+        <span className="tabular-nums font-normal">
           {plusPositive ? "+" : ""}
           {portfolio.plusValueTotale.toLocaleString("fr-FR", {
             style: "currency",
@@ -588,7 +599,12 @@ export function PortfolioDashboardSection({
             <Wallet size={16} strokeWidth={2} aria-hidden />
             <span className="text-[11px] font-medium">Investi</span>
           </div>
-          <p className="text-sm font-semibold tabular-nums" style={{ color: isDark ? "#ffffff" : "var(--text-primary)" }}>
+          <p
+            className="text-sm tabular-nums font-normal"
+            style={{
+              color: isDark ? "#ffffff" : "var(--text-primary)",
+            }}
+          >
             {portfolio.totalInvesti.toLocaleString("fr-FR", {
               style: "currency",
               currency: "EUR",
@@ -601,7 +617,12 @@ export function PortfolioDashboardSection({
             <LineChart size={16} strokeWidth={2} aria-hidden />
             <span className="text-[11px] font-medium">Performance</span>
           </div>
-          <p className="text-sm font-semibold tabular-nums" style={{ color: isDark ? EMERALD : portfolio.perfGlobale >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
+          <p
+            className="text-sm tabular-nums font-normal"
+            style={{
+              color: isDark ? EMERALD : portfolio.perfGlobale >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+            }}
+          >
             {portfolio.perfGlobale >= 0 ? "+" : ""}
             {portfolio.perfGlobale.toFixed(1)}%
           </p>
@@ -611,7 +632,12 @@ export function PortfolioDashboardSection({
             <Package size={16} strokeWidth={2} aria-hidden />
             <span className="text-[11px] font-medium">Produits</span>
           </div>
-          <p className="text-sm font-semibold tabular-nums" style={{ color: isDark ? "#ffffff" : "var(--text-primary)" }}>
+          <p
+            className="text-sm tabular-nums font-normal"
+            style={{
+              color: isDark ? "#ffffff" : "var(--text-primary)",
+            }}
+          >
             {produitsCount}
           </p>
         </div>
@@ -620,7 +646,12 @@ export function PortfolioDashboardSection({
             <TrendingUp size={16} strokeWidth={2} aria-hidden />
             <span className="text-[11px] font-medium">Plus-value</span>
           </div>
-          <p className="text-sm font-semibold tabular-nums" style={{ color: isDark ? EMERALD : portfolio.plusValueTotale >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}>
+          <p
+            className="text-sm tabular-nums font-normal"
+            style={{
+              color: isDark ? EMERALD : portfolio.plusValueTotale >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+            }}
+          >
             {portfolio.plusValueTotale >= 0 ? "+" : ""}
             {portfolio.plusValueTotale.toLocaleString("fr-FR", {
               style: "currency",
@@ -635,8 +666,10 @@ export function PortfolioDashboardSection({
               Gain réalisé (ventes)
             </p>
             <p
-              className="mt-1 text-sm font-semibold"
-              style={{ color: isDark ? EMERALD : portfolio.gainRealise >= 0 ? "var(--gain-green)" : "var(--loss-red)" }}
+              className="mt-1 text-sm tabular-nums font-normal"
+              style={{
+                color: isDark ? EMERALD : portfolio.gainRealise >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+              }}
             >
               {portfolio.gainRealise >= 0 ? "+" : ""}
               {portfolio.gainRealise.toLocaleString("fr-FR", {

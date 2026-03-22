@@ -144,7 +144,7 @@ function DonutTooltipBody({
           <span className="inline-block h-2 w-2 shrink-0 rounded-full" style={{ background: color }} />
           {label}
         </span>
-        <span className="tabular-nums" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+        <span className="tabular-nums font-normal" style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
           {count} · {pct.toFixed(1)}%
         </span>
       </div>

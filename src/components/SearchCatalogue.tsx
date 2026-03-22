@@ -173,7 +173,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   </p>
                   <p className="mt-0.5 text-xs font-medium">
                     <span style={{ color: accentGold }}>Marché actuel :</span>{" "}
-                    <span style={{ color: accentGold }}>
+                    <span className="font-normal tabular-nums" style={{ color: accentGold }}>
                       {getMarchéActuel(item).toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",

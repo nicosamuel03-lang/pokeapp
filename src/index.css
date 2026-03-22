@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap");
 @import "tailwindcss";
 
 /* Top/status bar area: theme-matched background (set in index.html + ThemeContext) */
@@ -128,7 +127,7 @@ body {
   min-height: 100dvh;
   background: var(--bg-app);
   color: var(--text-secondary);
-  font-family: "Inter", system-ui, ui-sans-serif, sans-serif;
+  font-family: system-ui, ui-sans-serif, sans-serif;
 }
 
 #root {
@@ -140,14 +139,14 @@ body {
 /* Source: PORTEFEUILLE GLOBAL — font-family, weight 700 (Bold), letter-spacing 0.025em */
 h1, h2, h3,
 .app-heading {
-  font-family: "Inter", system-ui, ui-sans-serif, sans-serif;
+  font-family: system-ui, ui-sans-serif, sans-serif;
   font-weight: 700;
   letter-spacing: 0.025em;
 }
 
 /* Exact section title style (Portefeuille global / Produits): 11px, uppercase, same font */
 .title-section {
-  font-family: "Inter", system-ui, ui-sans-serif, sans-serif !important;
+  font-family: system-ui, ui-sans-serif, sans-serif !important;
   font-weight: 700 !important;
   font-size: 11px !important;
   letter-spacing: 0.025em !important;
@@ -166,7 +165,7 @@ h1, h2, h3,
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
   opacity: 1 !important;
-  font-family: "Inter", system-ui, ui-sans-serif, sans-serif !important;
+  font-family: system-ui, ui-sans-serif, sans-serif !important;
   font-weight: 700 !important;
   font-size: 9px !important;
   letter-spacing: 0.025em !important;
@@ -177,7 +176,7 @@ h1, h2, h3,
 #app-bottom-nav a:link,
 #app-bottom-nav a:visited,
 #app-bottom-nav span {
-  font-family: "Inter", system-ui, ui-sans-serif, sans-serif !important;
+  font-family: system-ui, ui-sans-serif, sans-serif !important;
   letter-spacing: 0.025em !important;
 }
 #app-bottom-nav a.nav-label-active,

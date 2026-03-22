@@ -365,11 +365,19 @@ export const CollectionPage = () => {
       {/* Détail des produits — grille 2 colonnes comme Accueil */}
       <section className="space-y-2">
         <h3 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
-          Détail des produits ({displayedQuantity} items)
+          Détail des produits (
+          <span className="font-normal">
+            {displayedQuantity}
+          </span>{" "}
+          items)
         </h3>
         <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
             const current = getPrixMarcheForProduct(item.product, etbData);
+            const cardPerfPct =
+              item.buyPrice > 0 && Number.isFinite(current)
+                ? ((current - item.buyPrice) / item.buyPrice) * 100
+                : null;
             const navProductId = encodeURIComponent(item.product.id);
             const detailUrl = `/produit/${navProductId}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);
@@ -463,7 +471,7 @@ export const CollectionPage = () => {
                     className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] font-medium z-[5]"
                     style={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
                   >
-                    x{item.quantity}
+                    x<span className="font-normal">{item.quantity}</span>
                   </span>
                 </div>
                 <div
@@ -498,7 +506,6 @@ export const CollectionPage = () => {
                     style={{
                       marginTop: "6px",
                       color: isDark ? "#ffffff" : "var(--text-primary)",
-                      fontFamily: '"Inter", system-ui, sans-serif',
                     }}
                   >
                     {formatProductNameWithSetCode(
@@ -510,13 +517,27 @@ export const CollectionPage = () => {
                   <p className="text-[11px] mt-1 shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
                     {formatPurchaseDate(item.purchaseDate)}
                   </p>
-                  <div className="flex w-full shrink-0 justify-end items-baseline" style={{ marginTop: "4px" }}>
+                  <div
+                    className="flex w-full shrink-0 flex-wrap justify-end items-baseline gap-1.5"
+                    style={{ marginTop: "4px" }}
+                  >
                     <p
-                      className="text-sm font-semibold tabular-nums truncate max-w-full text-right"
+                      className="text-sm tabular-nums font-normal truncate max-w-full text-right"
                       style={{ color: isDark ? EMERALD : accentGold }}
                     >
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </p>
+                    {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
+                      <span
+                        className="text-xs tabular-nums font-normal shrink-0"
+                        style={{
+                          color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                        }}
+                      >
+                        {cardPerfPct >= 0 ? "+" : ""}
+                        {cardPerfPct.toFixed(1)}%
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <button
@@ -574,9 +595,15 @@ export const CollectionPage = () => {
                 Voulez-vous vraiment retirer cet élément de votre collection ?
               </p>
               <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
-                {hasMultiple
-                  ? `Vous avez x${item.quantity} exemplaires de "${item.product.name}".`
-                  : `Vous avez 1 exemplaire de "${item.product.name}".`}
+                {hasMultiple ? (
+                  <>
+                    Vous avez x<span>{item.quantity}</span> exemplaires de &quot;{item.product.name}&quot;.
+                  </>
+                ) : (
+                  <>
+                    Vous avez <span>1</span> exemplaire de &quot;{item.product.name}&quot;.
+                  </>
+                )}
               </p>
               <div className="flex gap-2 pt-1">
                 <button

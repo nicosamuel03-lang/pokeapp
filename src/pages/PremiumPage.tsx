@@ -221,7 +221,10 @@ export function PremiumPage() {
               boxShadow: !isAnnual ? "0 1px 4px rgba(201,168,76,0.4)" : "none",
             }}
           >
-            Mensuel · 3,99 € / mois
+            Mensuel ·{" "}
+            <span className="font-normal">
+              3,99 € / mois
+            </span>
           </button>
           <button
             type="button"
@@ -242,7 +245,10 @@ export function PremiumPage() {
               position: "relative",
             }}
           >
-            Annuel · 39,99 € / an
+            Annuel ·{" "}
+            <span className="font-normal">
+              39,99 € / an
+            </span>
             <span
               style={{
                 position: "absolute",
@@ -321,7 +327,11 @@ export function PremiumPage() {
         }}
       >
         Essai gratuit de 30 jours. Résiliable à tout moment sans frais. Le prélèvement
-        commencera à la fin de l&apos;essai, à hauteur de {selectedPriceLabel}.
+        commencera à la fin de l&apos;essai, à hauteur de{" "}
+        <span className="font-normal">
+          {selectedPriceLabel}
+        </span>
+        .
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

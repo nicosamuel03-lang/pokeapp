@@ -119,7 +119,7 @@ export function CatalogueSearchResultRow(props: CatalogueSearchResultRowProps) {
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-[13px] font-semibold tabular-nums" style={{ color: accentGold }}>
+        <p className="text-[13px] tabular-nums font-normal" style={{ color: accentGold }}>
           {marketPrice.toLocaleString("fr-FR", {
             style: "currency",
             currency: "EUR",

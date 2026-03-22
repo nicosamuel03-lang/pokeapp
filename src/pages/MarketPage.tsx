@@ -9,8 +9,6 @@ import { getPerformanceForPeriod } from "../utils/marketPerformance";
 import { formatProductNameWithSetCode } from "../utils/formatProduct";
 import { displayData } from "../data/displayData";
 import { etbData } from "../data/etbData";
-
-
 type MainTab = "etb" | "displays" | "upc";
 
 const TYPE_ROW_DARK_BG = "#111111";
@@ -102,6 +100,11 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
   const displayName = product.name;
   const medalColor = rank <= 3 ? MEDAL_COLORS[rank] : undefined;
   const borderColor = rank <= 3 ? MEDAL_COLORS[rank] : undefined;
+  const refPrice = product.prixAchat;
+  const cardPerfPct =
+    refPrice != null && refPrice > 0 && Number.isFinite(product.currentPrice)
+      ? ((product.currentPrice - refPrice) / refPrice) * 100
+      : null;
 
   const baseStyle: React.CSSProperties = {
     background: "var(--card-color)",
@@ -114,9 +117,7 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
     ? { ...baseStyle, border: `2px solid ${borderColor}`, boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }
       : baseStyle;
 
-  const rankStyle: React.CSSProperties = medalColor
-    ? { color: medalColor, fontWeight: 800 }
-    : { color: "var(--text-primary)", fontWeight: 800 };
+  const rankColor = medalColor ?? "var(--text-primary)";
 
   if (variant === "top3") {
     return (
@@ -127,8 +128,11 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
       >
         <div className="flex flex-row items-center gap-4 w-full min-w-0">
           <span
-            className="shrink-0 text-base font-extrabold flex items-center justify-center min-w-[2rem]"
-            style={{ ...rankStyle, WebkitFontSmoothing: "antialiased" as const }}
+            className="shrink-0 text-base tabular-nums font-normal flex items-center justify-center min-w-[2rem]"
+            style={{
+              color: rankColor,
+              WebkitFontSmoothing: "antialiased" as const,
+            }}
           >
             #{rank}
           </span>
@@ -158,14 +162,28 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
                 {displayName}
               </p>
             </div>
-            <div className="mt-1 flex w-full items-center justify-end">
-              <p className="text-sm font-semibold shrink-0 min-w-0 truncate text-right" style={{ color: accentGold }}>
+            <div className="mt-1 flex w-full flex-wrap items-baseline justify-end gap-1.5">
+              <p
+                className="text-sm shrink-0 min-w-0 truncate text-right tabular-nums font-normal"
+                style={{ color: accentGold }}
+              >
                 {product.currentPrice.toLocaleString("fr-FR", {
                   style: "currency",
                   currency: "EUR",
                   maximumFractionDigits: 0,
                 })}
               </p>
+              {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
+                <span
+                  className="text-xs tabular-nums font-normal shrink-0"
+                  style={{
+                    color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                  }}
+                >
+                  {cardPerfPct >= 0 ? "+" : ""}
+                  {cardPerfPct.toFixed(1)}%
+                </span>
+              ) : null}
             </div>
           </div>
         </div>
@@ -180,8 +198,11 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
       style={{ width: "100%", margin: 0, padding: "0 4px", ...cardStyle }}
     >
       <span
-        className="shrink-0 text-sm font-extrabold w-8 flex items-center justify-center"
-        style={{ color: "var(--text-primary)", WebkitFontSmoothing: "antialiased" as const }}
+        className="shrink-0 text-sm tabular-nums font-normal w-8 flex items-center justify-center"
+        style={{
+          color: "var(--text-primary)",
+          WebkitFontSmoothing: "antialiased" as const,
+        }}
       >
         #{rank}
       </span>
@@ -207,13 +228,26 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
         <p className="text-sm font-medium break-words leading-snug" style={{ color: "var(--text-primary)" }}>{displayName}</p>
       </div>
       <div className="shrink-0 flex flex-col items-end gap-1 justify-center">
-        <p className="text-sm font-semibold" style={{ color: accentGold }}>
-          {product.currentPrice.toLocaleString("fr-FR", {
-            style: "currency",
-            currency: "EUR",
-            maximumFractionDigits: 0,
-          })}
-        </p>
+        <div className="flex flex-wrap items-baseline justify-end gap-1.5">
+          <p className="text-sm tabular-nums font-normal" style={{ color: accentGold }}>
+            {product.currentPrice.toLocaleString("fr-FR", {
+              style: "currency",
+              currency: "EUR",
+              maximumFractionDigits: 0,
+            })}
+          </p>
+          {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
+            <span
+              className="text-xs tabular-nums font-normal shrink-0"
+              style={{
+                color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+              }}
+            >
+              {cardPerfPct >= 0 ? "+" : ""}
+              {cardPerfPct.toFixed(1)}%
+            </span>
+          ) : null}
+        </div>
       </div>
     </Link>
   );
@@ -377,37 +411,23 @@ export const MarketPage = () => {
         </div>
 
         <div style={{ marginTop: 24, display: "flex", justifyContent: "center" }}>
-          <h3 style={{ margin: 0, width: "100%", maxWidth: "600px" }}>
-            <svg viewBox="0 0 600 80" style={{ width: "100%", maxWidth: "600px", overflow: "visible", display: "block" }}>
-              <defs>
-                <filter id="neon">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-              <text
-                x="50%"
-                y="65"
-                textAnchor="middle"
-                fontFamily="Inter, Arial Black, sans-serif"
-                fontWeight="900"
-                fontSize="52"
-                letterSpacing="3"
-                fill="#000000"
-                stroke="#FBBF24"
-                strokeWidth="1"
-                paintOrder="stroke"
-                filter="url(#neon)"
-                style={{ filter: "drop-shadow(0 0 8px #FBBF24) drop-shadow(0 0 16px #FBBF2488)" }}
-              >
-                TOP DE LA SEMAINE !
-              </text>
-            </svg>
-          </h3>
+          <h2
+            style={{
+              fontFamily: "'Inter', 'Arial Black', sans-serif",
+              fontWeight: 900,
+              fontSize: "clamp(22px, 6vw, 36px)",
+              letterSpacing: "2px",
+              WebkitTextStroke: "1px #FBBF24",
+              WebkitTextFillColor: "#000",
+              color: "#000",
+              textShadow: "0 0 12px #FBBF24, 0 0 24px #FBBF24AA",
+              paintOrder: "stroke fill",
+              margin: "16px 0",
+              textAlign: "center",
+            }}
+          >
+            TOP DE LA SEMAINE !
+          </h2>
         </div>
 
         <div style={{ marginTop: 18, display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 8 }}>

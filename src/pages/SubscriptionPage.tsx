@@ -130,9 +130,9 @@ export function SubscriptionPage() {
         BOSS ACCESS
       </h1>
       <p
+        className="font-normal tabular-nums"
         style={{
           fontSize: 16,
-          fontWeight: 700,
           color: "var(--text-primary)",
           marginBottom: 20,
         }}
