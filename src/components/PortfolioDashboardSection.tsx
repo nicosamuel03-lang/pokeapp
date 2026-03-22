@@ -200,17 +200,18 @@ export function PortfolioDashboardSection({
                       dataKey="mois"
                       tick={{
                         fill: isDark ? LABEL_GRAY : "var(--text-secondary)",
-                        fontSize: 14,
-                        className: STAT_CARD_VALUE_CLASS,
+                        fontSize: 10,
                       }}
                       interval={chartPeriod === "1an" ? 1 : 2}
                     />
                     <YAxis
                       tick={{
                         fill: isDark ? LABEL_GRAY : "var(--text-secondary)",
-                        fontSize: 14,
-                        className: STAT_CARD_VALUE_CLASS,
+                        fontSize: 10,
                       }}
+                      tickFormatter={(v) =>
+                        typeof v === "number" && Number.isFinite(v) ? `${Math.round(v)}€` : `${v}€`
+                      }
                       width={45}
                     />
                     <Tooltip

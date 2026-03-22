@@ -11,7 +11,12 @@ import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
+import { ERA_DONUT_COLORS } from "../components/PortfolioEraDonut";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import {
+  isKnownProductCardEraLabel,
+  productCardEraBadgeClassName,
+} from "../utils/productCardEraBadge";
 
 const COLLECTION_FILTERS_KEY = "collectionFilters";
 const RETURN_TO_KEY = "returnTo";
@@ -97,6 +102,14 @@ function getProductImageUrl(product: {
   if (etb?.imageUrl) return etb.imageUrl;
 
   return product.imageUrl ?? null;
+}
+
+/** Modificateur CSS collection : filtres ère en mode clair (voir index.css). */
+function collectionEraFilterModifierClass(era: (typeof HOME_ERA_OPTIONS)[number]): string {
+  if (era === "Méga Évolution") return "collection-era-filter--mega";
+  if (era === "Écarlate & Violet") return "collection-era-filter--ev";
+  if (era === "Épée & Bouclier") return "collection-era-filter--eb";
+  return "";
 }
 
 function todayISO(): string {
@@ -228,8 +241,26 @@ export const CollectionPage = () => {
     touchAction: "manipulation",
     cursor: "pointer",
   };
-  const typeRowStyle = (key: CategoryFilter, selected: boolean): CSSProperties =>
-    selected
+  const typeRowStyle = (key: CategoryFilter, selected: boolean): CSSProperties => {
+    if (isLight) {
+      if (selected) {
+        return {
+          ...filterRow1Base,
+          backgroundColor: "#D1D5DB",
+          color: "#111827",
+          border: "none",
+          boxShadow: "none",
+        };
+      }
+      return {
+        ...filterRow1Base,
+        backgroundColor: "#ffffff",
+        color: "#4b5563",
+        border: "none",
+        boxShadow: "none",
+      };
+    }
+    return selected
       ? {
           ...filterRow1Base,
           backgroundColor: TYPE_ROW_DARK_BG,
@@ -243,6 +274,7 @@ export const CollectionPage = () => {
           border: "none",
           boxShadow: "none",
         };
+  };
 
   return (
     <div className="space-y-4 -mx-3">
@@ -303,28 +335,40 @@ export const CollectionPage = () => {
           </button>
         </div>
         {hasEraSubFilter && (
-          <div className="generation-filters mt-2 flex flex-wrap gap-1.5 pl-3">
+          <div className="generation-filters collection-era-filters mt-2 flex flex-wrap gap-1.5 pl-3">
             {HOME_ERA_OPTIONS.map((era) => {
               const isSelected = selectedEra === era;
+              const eraMod = collectionEraFilterModifierClass(era);
               return (
                 <button
                   type="button"
                   key={era}
-                  className="filter-btn rounded-full font-medium shrink-0"
+                  className={`filter-btn collection-era-filter-btn rounded-full font-medium shrink-0 ${eraMod}${isSelected ? " collection-era-filter--selected" : ""}`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setSelectedEra((current) => (current === era ? null : era));
                   }}
-                  style={{
-                    ...filterRow2Base,
-                    whiteSpace: "nowrap",
-                    backgroundColor: TYPE_ROW_DARK_BG,
-                    color: "#ffffff",
-                    ...(isSelected
-                      ? GENERATION_SELECTED_GLOW[era]
-                      : { border: "1px solid transparent", boxShadow: "none" }),
-                  }}
+                  style={
+                    isLight
+                      ? {
+                          ...filterRow2Base,
+                          whiteSpace: "nowrap",
+                          backgroundColor: ERA_DONUT_COLORS[era],
+                          color: "#ffffff",
+                          border: isSelected ? "2px solid #111827" : "1px solid transparent",
+                          boxShadow: "none",
+                        }
+                      : {
+                          ...filterRow2Base,
+                          whiteSpace: "nowrap",
+                          backgroundColor: TYPE_ROW_DARK_BG,
+                          color: "#ffffff",
+                          ...(isSelected
+                            ? GENERATION_SELECTED_GLOW[era]
+                            : { border: "1px solid transparent", boxShadow: "none" }),
+                        }
+                  }
                 >
                   {era}
                 </button>
@@ -364,21 +408,27 @@ export const CollectionPage = () => {
       )}
 
       {/* Détail des produits — grille 2 colonnes comme Accueil */}
-      <section className="space-y-2">
-        <h3 className="title-section pl-3" style={{ color: "var(--text-primary)" }}>
+      <section className="space-y-2" style={{ overflow: "visible", maxWidth: "100%" }}>
+        <h3
+          className="title-section pl-3"
+          style={{
+            color: "var(--text-primary)",
+            overflow: "visible",
+            maxWidth: "none",
+            width: "100%",
+            whiteSpace: "nowrap",
+            lineHeight: 1.4,
+          }}
+        >
           Détail des produits (
-          <span className={STAT_CARD_VALUE_CLASS}>
+          <span className="tabular-nums" style={{ font: "inherit", fontWeight: 700 }}>
             {displayedQuantity}
-          </span>{" "}
-          items)
+          </span>
+          {" "}items)
         </h3>
         <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
             const current = getPrixMarcheForProduct(item.product, etbData);
-            const cardPerfPct =
-              item.buyPrice > 0 && Number.isFinite(current)
-                ? ((current - item.buyPrice) / item.buyPrice) * 100
-                : null;
             const navProductId = encodeURIComponent(item.product.id);
             const detailUrl = `/produit/${navProductId}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);
@@ -400,6 +450,36 @@ export const CollectionPage = () => {
                   boxShadow: isDark ? "none" : "0 2px 12px rgba(0,0,0,0.12)",
                 }}
               >
+                <button
+                  type="button"
+                  aria-label="Modifier le prix et la date d'achat"
+                  className="rounded-md border"
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    left: "8px",
+                    padding: "2px 6px",
+                    fontSize: "10px",
+                    fontWeight: 600,
+                    lineHeight: 1.2,
+                    opacity: 1,
+                    background: isDark ? "#374151" : "#FFFFFF",
+                    color: isDark ? "#FFFFFF" : "#111827",
+                    border: isDark ? "1px solid #4b5563" : "1px solid #9ca3af",
+                    boxShadow: "none",
+                    zIndex: 11,
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setEditId(item.id);
+                    setEditPriceInput(String(item.buyPrice));
+                    setEditDateInput(item.purchaseDate || todayISO());
+                    setEditQuantityInput(String(item.quantity));
+                  }}
+                >
+                  Modifier
+                </button>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -469,10 +549,15 @@ export const CollectionPage = () => {
                     />
                   )}
                   <span
-                    className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] font-medium z-[5]"
-                    style={{ background: "rgba(0,0,0,0.75)", color: "#fff" }}
+                    className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] z-[5] tabular-nums"
+                    style={{
+                      background: "rgba(0,0,0,0.75)",
+                      color: "#fff",
+                      fontFamily: '"Inter", ui-sans-serif, system-ui, sans-serif',
+                      fontWeight: 300,
+                    }}
                   >
-                    x<span className={STAT_CARD_VALUE_CLASS}>{item.quantity}</span>
+                    x{item.quantity}
                   </span>
                 </div>
                 <div
@@ -490,7 +575,14 @@ export const CollectionPage = () => {
                 >
                   <div className="shrink-0 flex justify-start items-start self-start w-full min-h-0">
                     {eraBadge ? (
-                      <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                      <span
+                        className={productCardEraBadgeClassName(eraBadge.label)}
+                        style={
+                          isLight && isKnownProductCardEraLabel(eraBadge.label)
+                            ? undefined
+                            : getEraNeonBadgeStyle(eraBadge.label)
+                        }
+                      >
                         {eraBadge.label}
                       </span>
                     ) : (
@@ -515,8 +607,15 @@ export const CollectionPage = () => {
                       item.product.category as "ETB" | "Displays"
                     )}
                   </p>
-                  <p className="text-[11px] mt-1 shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
-                    <span className={STAT_CARD_VALUE_CLASS}>{formatPurchaseDate(item.purchaseDate)}</span>
+                  <p
+                    className="shrink-0 tabular-nums mt-1"
+                    style={{
+                      fontSize: "0.75rem",
+                      fontWeight: 400,
+                      color: isDark ? LABEL_MUTED : "var(--text-secondary)",
+                    }}
+                  >
+                    {formatPurchaseDate(item.purchaseDate)}
                   </p>
                   <div
                     className="flex w-full shrink-0 flex-wrap justify-end items-baseline gap-1.5"
@@ -528,43 +627,8 @@ export const CollectionPage = () => {
                     >
                       {current.toLocaleString("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}
                     </p>
-                    {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
-                      <span
-                        className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
-                        style={{
-                          color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
-                        }}
-                      >
-                        {cardPerfPct >= 0 ? "+" : ""}
-                        {cardPerfPct.toFixed(1)}%
-                      </span>
-                    ) : null}
                   </div>
                 </div>
-                <button
-                  type="button"
-                  aria-label="Modifier le prix et la date d'achat"
-                  className="rounded-lg px-2.5 py-1 text-xs font-semibold border hover:opacity-90"
-                  style={{
-                    position: "absolute",
-                    bottom: "12px",
-                    right: "12px",
-                    background: isDark ? "rgba(16,185,129,0.15)" : "rgba(250,204,21,0.12)",
-                    color: isDark ? EMERALD : accentGold,
-                    borderColor: isDark ? "rgba(16,185,129,0.45)" : "rgba(250,204,21,0.5)",
-                    zIndex: 10,
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setEditId(item.id);
-                    setEditPriceInput(String(item.buyPrice));
-                    setEditDateInput(item.purchaseDate || todayISO());
-                    setEditQuantityInput(String(item.quantity));
-                  }}
-                >
-                  Modifier
-                </button>
               </Link>
             );
           })}

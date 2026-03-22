@@ -1,3 +1,5 @@
+import { applyEbayMockMarketPrice } from "../services/ebayMarketPrice";
+
 /** Dernier prix non null dans historique_prix (mois le plus récent avec un prix). */
 export function getLastPrixFromHistorique(
   hist: { prix: number | null }[] | undefined
@@ -47,40 +49,58 @@ export function getPrixMarcheForProduct(
     product.id?.startsWith("display-") || product.category === "Displays";
   const isUPC = product.id?.startsWith("upc-") || product.category === "UPC";
 
+  let base: number;
+
   if (isDisplay || isUPC) {
     const fromSource = product.prixMarcheActuel ?? product.currentPrice ?? 0;
-    if (fromSource > 0) return fromSource;
-    if (product.historique_prix?.length) {
+    if (fromSource > 0) {
+      base = fromSource;
+    } else if (product.historique_prix?.length) {
       const p = getMostRecentPrixFromHistorique(
         product.historique_prix as { mois?: string; prix: number | null }[],
         fromSource
       );
-      if (p > 0) return p;
+      base = p > 0 ? p : fromSource;
+    } else {
+      base = fromSource;
     }
-    return fromSource;
+  } else {
+    const etb =
+      product.etbId && etbData.find((e) => e.id === product.etbId);
+    const byId = etbData.find(
+      (e) => e.id === product.id || product.id.startsWith(e.id)
+    );
+    const fromHist = (h: { prix: number | null }[] | undefined) =>
+      getLastPrixFromHistorique(h);
+
+    if (etb?.prixActuel != null && etb.prixActuel > 0) {
+      base = etb.prixActuel;
+    } else if (byId?.prixActuel != null && byId.prixActuel > 0) {
+      base = byId.prixActuel;
+    } else {
+      base = 0;
+      if (product.historique_prix?.length) {
+        const p = fromHist(product.historique_prix);
+        if (p > 0) base = p;
+      }
+      if (!(base > 0) && etb?.historique_prix?.length) {
+        const p = fromHist(etb.historique_prix);
+        if (p > 0) base = p;
+      }
+      if (!(base > 0) && byId?.historique_prix?.length) {
+        const p = fromHist(byId.historique_prix);
+        if (p > 0) base = p;
+      }
+      if (!(base > 0)) {
+        base = product.prixMarcheActuel ?? product.currentPrice ?? 0;
+      }
+    }
   }
 
-  const etb =
-    product.etbId && etbData.find((e) => e.id === product.etbId);
-  if (etb?.prixActuel != null && etb.prixActuel > 0) return etb.prixActuel;
-  const byId = etbData.find(
-    (e) => e.id === product.id || product.id.startsWith(e.id)
-  );
-  if (byId?.prixActuel != null && byId.prixActuel > 0) return byId.prixActuel;
-
-  const fromHist = (h: { prix: number | null }[] | undefined) =>
-    getLastPrixFromHistorique(h);
-  if (product.historique_prix?.length) {
-    const p = fromHist(product.historique_prix);
-    if (p > 0) return p;
-  }
-  if (etb?.historique_prix?.length) {
-    const p = fromHist(etb.historique_prix);
-    if (p > 0) return p;
-  }
-  if (byId?.historique_prix?.length) {
-    const p = fromHist(byId.historique_prix);
-    if (p > 0) return p;
-  }
-  return product.prixMarcheActuel ?? product.currentPrice ?? 0;
+  return applyEbayMockMarketPrice({
+    productId: product.id,
+    category: product.category,
+    etbId: product.etbId,
+    catalogReferencePrice: base,
+  });
 }

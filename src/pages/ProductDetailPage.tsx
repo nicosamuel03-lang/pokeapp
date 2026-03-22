@@ -24,6 +24,12 @@ import { supabase } from "../lib/supabase";
 import { fetchSalesCounterCount, incrementSalesCounterByOne } from "../lib/salesSupabase";
 import { getGuestSalesTransactionCount } from "../utils/salesHistoryStorage";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
+import { getEraBadge, getEraNeonBadgeStyle, getEraStyle } from "../utils/eraBadge";
+import {
+  isKnownProductCardEraLabel,
+  productCardEraBadgeClassName,
+} from "../utils/productCardEraBadge";
 /** Mock price history (60€ Jan → 75€) when product has no history. */
 const MOCK_CHART_DATA = [
   { mois_court: "Jan", mois_label: "Janvier", prix: 55 },
@@ -189,6 +195,32 @@ const ProductDetailPageInner = () => {
     return etbData.find((e) => e?.id?.toLowerCase() === etbIdParam);
   }, [product?.category, product?.etbId, sid, sidLower]);
 
+  /** Même nom complet que sur les cartes accueil (code set entre parenthèses). */
+  const categoryForFormat = useMemo((): "ETB" | "Displays" | "UPC" => {
+    if (!product) return "ETB";
+    if (product.category === "UPC") return "UPC";
+    if (product.category === "ETB") return "ETB";
+    return "Displays";
+  }, [product?.category]);
+
+  const displayProductName = useMemo(() => {
+    if (!product) return "";
+    return formatProductNameWithSetCode(
+      product.name,
+      getSetCodeFromProduct(product),
+      categoryForFormat
+    );
+  }, [product, categoryForFormat]);
+
+  /** Même badge d’ère / pilule néon que sur les cartes produit (accueil). */
+  const eraBadgeForDetail = useMemo(() => {
+    if (!product) return null;
+    if (product.category !== "ETB" && product.category !== "Displays" && product.category !== "UPC") return null;
+    return (
+      getEraBadge(product.id, product.set) ??
+      (product.set ? { label: product.set, ...getEraStyle(product.set) } : null)
+    );
+  }, [product]);
 
   const [saleInput, setSaleInput] = useState<string>("");
   /** Quantité à vendre pour cette ligne (1 … quantité possédée). */
@@ -390,6 +422,10 @@ const ProductDetailPageInner = () => {
     return Math.min(q, max);
   }, [saleQuantityToSell, quantite]);
   const prixMarche = getPrixMarcheForProduct(product, etbData);
+  const performanceVsPurchasePercent =
+    collectionMatch != null && collectionMatch.buyPrice > 0 && Number.isFinite(prixMarche)
+      ? ((prixMarche - collectionMatch.buyPrice) / collectionMatch.buyPrice) * 100
+      : null;
   const salePriceNumber = parseFloat(saleInput.replace(",", "."));
   const hasSale =
     saleInput.trim().length > 0 && !Number.isNaN(salePriceNumber);
@@ -452,7 +488,7 @@ const ProductDetailPageInner = () => {
       const row = {
         user_id: userId ?? "",
         product_id: String(product.id),
-        product_name: String(product.name ?? ""),
+        product_name: String(displayProductName || product.name || ""),
         image: imageToSave != null ? String(imageToSave) : null,
         buy_price: Number(collectionMatch.buyPrice),
         sale_price: Number(salePriceNumber),
@@ -481,7 +517,7 @@ const ProductDetailPageInner = () => {
         try {
           await addSaleRecord({
             productId: product.id,
-            productName: product.name ?? "",
+            productName: displayProductName || product.name || "",
             image: imageToSave,
             buyPrice: collectionMatch.buyPrice,
             salePrice: salePriceNumber,
@@ -543,7 +579,7 @@ const ProductDetailPageInner = () => {
       >
         <div style={{ paddingLeft: 12 }}>
           <div className="mb-2 flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-stretch gap-3">
               <div
                 className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl p-3"
                 style={{
@@ -558,7 +594,7 @@ const ProductDetailPageInner = () => {
                 {product.imageUrl ? (
                   <img
                     src={product.imageUrl}
-                    alt={product.name}
+                    alt={displayProductName}
                     width={130}
                     height={130}
                     className="object-contain"
@@ -582,56 +618,105 @@ const ProductDetailPageInner = () => {
                   <ItemIcon
                     imageUrl={null}
                     emoji={product.emoji}
-                    name={product.name}
+                    name={displayProductName}
                     size={130}
                     frame="none"
                   />
                 </div>
               </div>
-              <div className="space-y-1 min-w-0 flex-1">
-                <h2 className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>
-                  {product.name}
-                </h2>
-                <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                  {product?.set ?? ""}
-                </p>
-                <p className="text-[11px] uppercase tracking-wide mt-2 mb-0" style={{ color: "var(--text-secondary)" }}>
-                  Prix actuel
-                </p>
-                <div className="mt-0 flex flex-wrap items-baseline gap-2">
-                  <p className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
-                    {prixMarche.toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0
-                    })}
-                  </p>
-                  {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) && (
+              <div className="flex min-h-[154px] min-w-0 flex-1 flex-col justify-end overflow-visible">
+                <div className="flex w-full min-w-0 flex-col gap-2">
+                  {eraBadgeForDetail ? (
                     <span
-                      className={STAT_CARD_VALUE_CLASS}
-                      style={{
-                        color:
-                          product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
-                      }}
+                      className={`w-fit max-w-[min(100%,200px)] shrink-0 self-start font-semibold ${productCardEraBadgeClassName(eraBadgeForDetail.label)}`}
+                      style={
+                        isLight && isKnownProductCardEraLabel(eraBadgeForDetail.label)
+                          ? undefined
+                          : getEraNeonBadgeStyle(eraBadgeForDetail.label)
+                      }
                     >
-                      {product.change30dPercent >= 0 ? "+" : ""}
-                      {product.change30dPercent.toFixed(1)}%
+                      {eraBadgeForDetail.label}
                     </span>
+                  ) : null}
+                  <h2
+                    className="app-heading max-w-none text-sm"
+                    style={{
+                      color: "var(--text-primary)",
+                      whiteSpace: "normal",
+                      overflow: "visible",
+                      wordBreak: "break-word",
+                    }}
+                  >
+                    {displayProductName}
+                  </h2>
+                  <div className="flex flex-col gap-1">
+                    <p
+                      className="mb-0 text-[11px] font-medium uppercase tracking-wide"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      Prix actuel
+                    </p>
+                    <div className="flex flex-wrap items-baseline gap-2">
+                      <p
+                        className="tabular-nums"
+                        style={{
+                          fontSize: "2rem",
+                          fontWeight: 700,
+                          color: accentGold,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {prixMarche.toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                          maximumFractionDigits: 0
+                        })}
+                      </p>
+                      {performanceVsPurchasePercent != null && Number.isFinite(performanceVsPurchasePercent) ? (
+                        <span
+                          className="tabular-nums"
+                          style={{
+                            fontSize: "1rem",
+                            fontWeight: 500,
+                            color:
+                              performanceVsPurchasePercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                          }}
+                        >
+                          {performanceVsPurchasePercent >= 0 ? "+" : ""}
+                          {performanceVsPurchasePercent.toFixed(1)}%
+                        </span>
+                      ) : !isInCollection &&
+                        typeof product.change30dPercent === "number" &&
+                        Number.isFinite(product.change30dPercent) ? (
+                        <span
+                          className="tabular-nums"
+                          style={{
+                            fontSize: "1rem",
+                            fontWeight: 500,
+                            color:
+                              product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+                          }}
+                        >
+                          {product.change30dPercent >= 0 ? "+" : ""}
+                          {product.change30dPercent.toFixed(1)}%
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                  {isInCollection && (
+                    <p className="mt-0 text-xs" style={{ color: "var(--text-secondary)" }}>
+                      Achat{" "}
+                      <span className={STAT_CARD_VALUE_CLASS} style={{ color: "var(--text-primary)" }}>
+                        {prixAchat.toLocaleString("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                          maximumFractionDigits: 0
+                        })}
+                      </span>{" "}
+                      • ×<span className={STAT_CARD_VALUE_CLASS}>{quantite}</span>
+                    </p>
                   )}
                 </div>
-                {isInCollection && (
-                  <p className="mt-1 text-xs" style={{ color: "var(--text-secondary)" }}>
-                    Achat{" "}
-                    <span className={STAT_CARD_VALUE_CLASS} style={{ color: "var(--text-primary)" }}>
-                      {prixAchat.toLocaleString("fr-FR", {
-                        style: "currency",
-                        currency: "EUR",
-                        maximumFractionDigits: 0
-                      })}
-                    </span>{" "}
-                    • ×<span className={STAT_CARD_VALUE_CLASS}>{quantite}</span>
-                  </p>
-                )}
               </div>
             </div>
             {hasSale && (

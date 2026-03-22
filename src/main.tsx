@@ -9,7 +9,10 @@ import { ProductsProvider } from "./state/ProductsContext";
 import { ClerkProviderWithRouter } from "./components/ClerkProviderWithRouter";
 import { preloadProductImages } from "./utils/preloadImages";
 
-preloadProductImages();
+/** Désactivé par défaut : précharger toutes les images au démarrage multiplie le transfert Vercel (PNG lourds). */
+if (import.meta.env.VITE_PRELOAD_PRODUCT_IMAGES === "true") {
+  preloadProductImages();
+}
 
 if (typeof window !== "undefined") {
   try {

@@ -31,7 +31,10 @@ function collectProductImageUrls(): string[] {
   return urls;
 }
 
-/** Précharge toutes les images produits au chargement de l'app pour affichage instantané. */
+/**
+ * Précharge les images produits (opt-in via VITE_PRELOAD_PRODUCT_IMAGES=true).
+ * Par défaut désactivé dans main.tsx pour limiter le « Fast Data Transfer » sur Vercel.
+ */
 export function preloadProductImages(): void {
   const urls = collectProductImageUrls();
   for (const url of urls) {

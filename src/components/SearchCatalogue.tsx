@@ -5,7 +5,7 @@ import { useCollection } from "../state/CollectionContext";
 import { useSubscription } from "../state/SubscriptionContext";
 import { removeAccents, searchPokemonCatalogue, type PokemonCatalogueItem } from "../data/pokemonCatalogue";
 import { etbData } from "../data/etbData";
-import { getLastPrixFromHistorique } from "../utils/prixMarche";
+import { getLastPrixFromHistorique, getPrixMarcheForProduct } from "../utils/prixMarche";
 import { getDisplayImageUrlForCatalogueItem } from "../utils/displayImage";
 import { getEraBadgeForCatalogueItem } from "../utils/eraBadge";
 import { formatDisplayProductName, formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
@@ -13,7 +13,8 @@ import { useTheme } from "../state/ThemeContext";
 import { CatalogueSearchResultRow } from "./CatalogueSearchResultRow";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
-function getMarchéActuel(item: PokemonCatalogueItem): number {
+/** Prix catalogue brut (JSON / etbData), sans couche eBay mock. */
+function getMarchéActuelBrut(item: PokemonCatalogueItem): number {
   if (item.etbId) {
     const etb =
       etbData.find((e) => e.id === item.etbId && item.name === `ETB ${e.nom}`) ??
@@ -27,6 +28,24 @@ function getMarchéActuel(item: PokemonCatalogueItem): number {
   const v = (item as unknown as { currentMarketPrice?: unknown }).currentMarketPrice;
   const n = typeof v === "number" ? v : Number(v);
   return Number.isFinite(n) ? n : 0;
+}
+
+/** Prix affiché (inclut VITE_EBAY_STATUS=MOCK via getPrixMarcheForProduct). */
+function getMarchéActuelAffiché(item: PokemonCatalogueItem): number {
+  const brut = getMarchéActuelBrut(item);
+  const category =
+    item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB";
+  const id = item.type === "ETB" ? (item.etbId ?? item.id) : item.id;
+  return getPrixMarcheForProduct(
+    {
+      id,
+      category,
+      etbId: item.etbId,
+      currentPrice: brut,
+      prixMarcheActuel: brut,
+    },
+    etbData
+  );
 }
 
 /** Image produit :
@@ -177,7 +196,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   <p className="mt-0.5 text-xs font-medium">
                     <span style={{ color: accentGold }}>Marché actuel :</span>{" "}
                     <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
-                      {getMarchéActuel(item).toLocaleString("fr-FR", {
+                      {getMarchéActuelAffiché(item).toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",
                         maximumFractionDigits: 0,
@@ -368,7 +387,7 @@ export const SearchCatalogue = () => {
       navigate("/premium");
       return;
     }
-    const marchéActuel = getMarchéActuel(item);
+    const marchéActuel = getMarchéActuelBrut(item);
     const product = addProduct({
       emoji: item.emoji,
       name: item.name,
@@ -483,7 +502,7 @@ export const SearchCatalogue = () => {
                   item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
                 )}
                 showNewBadge={item.block === "Méga Évolution"}
-                marketPrice={getMarchéActuel(item)}
+                marketPrice={getMarchéActuelAffiché(item)}
                 retailPrice={item.msrp}
                 showBottomBorder={i < results.length - 1}
               />

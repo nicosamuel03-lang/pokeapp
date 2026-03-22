@@ -9,6 +9,11 @@ import { getPerformanceForPeriod } from "../utils/marketPerformance";
 import { formatProductNameWithSetCode } from "../utils/formatProduct";
 import { displayData } from "../data/displayData";
 import { etbData } from "../data/etbData";
+import { getPrixMarcheForProduct } from "../utils/prixMarche";
+import {
+  isKnownProductCardEraLabel,
+  productCardEraBadgeClassName,
+} from "../utils/productCardEraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 type MainTab = "etb" | "displays" | "upc";
 
@@ -43,7 +48,25 @@ const marketFilterRowBase: CSSProperties = {
   cursor: "pointer",
 };
 
-function marketTabStyle(tab: MainTab, selected: boolean): CSSProperties {
+function marketTabStyle(tab: MainTab, selected: boolean, isLight: boolean): CSSProperties {
+  if (isLight) {
+    if (selected) {
+      return {
+        ...marketFilterRowBase,
+        backgroundColor: "#D1D5DB",
+        color: "#111827",
+        border: "none",
+        boxShadow: "none",
+      };
+    }
+    return {
+      ...marketFilterRowBase,
+      backgroundColor: "#ffffff",
+      color: "#4b5563",
+      border: "none",
+      boxShadow: "none",
+    };
+  }
   return selected
     ? {
         ...marketFilterRowBase,
@@ -85,6 +108,13 @@ const MEDAL_COLORS: Record<number, string> = {
   3: "#CD7F32",
 };
 
+/** Halo néon discret autour des cartes top 3 (or / argent / bronze). */
+function top3MedalNeonBoxShadow(rank: number): string {
+  if (rank < 1 || rank > 3) return "0 2px 12px rgba(0,0,0,0.12)";
+  const c = MEDAL_COLORS[rank];
+  return `0 0 6px ${c}99, 0 0 14px ${c}4D, 0 2px 12px rgba(0,0,0,0.15)`;
+}
+
 const DEFAULT_PERIOD = "tout" as const;
 
 interface ProductCardProps {
@@ -95,6 +125,7 @@ interface ProductCardProps {
 
 function ProductCard({ product, rank, variant }: ProductCardProps) {
   const { theme } = useTheme();
+  const isLight = theme === "light";
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const rawId = product.etbId ?? product.id.replace(/^display-/, "").replace(/^upc-/, "");
   const eraBadge = getEraBadge(rawId, product.block);
@@ -102,9 +133,20 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
   const medalColor = rank <= 3 ? MEDAL_COLORS[rank] : undefined;
   const borderColor = rank <= 3 ? MEDAL_COLORS[rank] : undefined;
   const refPrice = product.prixAchat;
+  const displayMarket = getPrixMarcheForProduct(
+    {
+      id: product.id,
+      category: product.category,
+      etbId: product.etbId,
+      currentPrice: product.currentPrice,
+      prixMarcheActuel: product.currentPrice,
+      historique_prix: product.historique_prix as { mois?: string; prix: number | null }[],
+    },
+    etbData
+  );
   const cardPerfPct =
-    refPrice != null && refPrice > 0 && Number.isFinite(product.currentPrice)
-      ? ((product.currentPrice - refPrice) / refPrice) * 100
+    refPrice != null && refPrice > 0 && Number.isFinite(displayMarket)
+      ? ((displayMarket - refPrice) / refPrice) * 100
       : null;
 
   const baseStyle: React.CSSProperties = {
@@ -115,7 +157,11 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
 
   const cardStyle: React.CSSProperties =
     variant === "top3" && borderColor
-    ? { ...baseStyle, border: `2px solid ${borderColor}`, boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }
+      ? {
+          ...baseStyle,
+          border: `2px solid ${borderColor}`,
+          boxShadow: top3MedalNeonBoxShadow(rank),
+        }
       : baseStyle;
 
   const rankColor = medalColor ?? "var(--text-primary)";
@@ -127,16 +173,18 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
         className="flex rounded-2xl transition hover:opacity-95"
         style={{ width: "100%", margin: 0, padding: "0 4px", ...cardStyle }}
       >
-        <div className="flex flex-row items-center gap-4 w-full min-w-0">
-          <span
-            className={`${STAT_CARD_VALUE_CLASS} shrink-0 flex items-center justify-center min-w-[2rem]`}
-            style={{
-              color: rankColor,
-              WebkitFontSmoothing: "antialiased" as const,
-            }}
-          >
-            #{rank}
-          </span>
+        <div className="flex flex-row items-stretch gap-4 w-full min-w-0">
+          <div className="shrink-0 flex items-center justify-center min-w-[2rem]">
+            <span
+              className={STAT_CARD_VALUE_CLASS}
+              style={{
+                color: rankColor,
+                WebkitFontSmoothing: "antialiased" as const,
+              }}
+            >
+              #{rank}
+            </span>
+          </div>
           <div
             className="shrink-0 w-24 h-24 rounded-lg overflow-hidden flex items-center justify-center p-2"
             style={{ background: "var(--img-container-bg)" }}
@@ -152,10 +200,18 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
               <span className="text-2xl opacity-60">{product.emoji}</span>
             )}
           </div>
-          <div className="flex-1 min-w-0 flex flex-col justify-between gap-1">
-            <div className="min-w-0">
+          <div className="flex-1 min-w-0 flex flex-col justify-between gap-1 min-h-[96px]">
+            <div className="min-w-0" style={{ paddingTop: "12px" }}>
               {eraBadge ? (
-                <span className="inline-block shrink-0 max-w-[120px] truncate font-medium rounded-full" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                <span
+                  className={`inline-block shrink-0 max-w-[120px] truncate rounded-full ${productCardEraBadgeClassName(eraBadge.label)}`}
+                  style={{
+                    ...(isLight && isKnownProductCardEraLabel(eraBadge.label)
+                      ? {}
+                      : getEraNeonBadgeStyle(eraBadge.label)),
+                    fontSize: "0.65rem",
+                  }}
+                >
                   {eraBadge.label}
                 </span>
               ) : null}
@@ -163,12 +219,16 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
                 {displayName}
               </p>
             </div>
-            <div className="mt-1 flex w-full flex-wrap items-baseline justify-end gap-1.5">
+            <div className="flex w-full flex-wrap items-baseline justify-end gap-1.5 mt-auto">
               <p
-                className={`${STAT_CARD_VALUE_CLASS} shrink-0 min-w-0 truncate text-right`}
-                style={{ color: accentGold }}
+                className="tabular-nums shrink-0 min-w-0 truncate text-right"
+                style={{
+                  color: accentGold,
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                }}
               >
-                {product.currentPrice.toLocaleString("fr-FR", {
+                {displayMarket.toLocaleString("fr-FR", {
                   style: "currency",
                   currency: "EUR",
                   maximumFractionDigits: 0,
@@ -176,8 +236,10 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
               </p>
               {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
                 <span
-                  className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
+                  className="tabular-nums shrink-0"
                   style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
                     color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
                   }}
                 >
@@ -195,20 +257,22 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
   return (
     <Link
       to={`/produit/${product.id}`}
-      className="flex flex-row items-center gap-3 rounded-xl transition hover:opacity-95"
+      className="flex flex-row items-stretch gap-3 rounded-xl transition hover:opacity-95"
       style={{ width: "100%", margin: 0, padding: "0 4px", ...cardStyle }}
     >
-      <span
-        className={`${STAT_CARD_VALUE_CLASS} shrink-0 w-8 flex items-center justify-center`}
-        style={{
-          color: "var(--text-primary)",
-          WebkitFontSmoothing: "antialiased" as const,
-        }}
-      >
-        #{rank}
-      </span>
+      <div className="shrink-0 w-8 flex items-center justify-center">
+        <span
+          className={STAT_CARD_VALUE_CLASS}
+          style={{
+            color: "var(--text-primary)",
+            WebkitFontSmoothing: "antialiased" as const,
+          }}
+        >
+          #{rank}
+        </span>
+      </div>
       <div
-        className="shrink-0 w-14 h-14 rounded-lg overflow-hidden flex items-center justify-center"
+        className="shrink-0 w-14 h-14 self-center rounded-lg overflow-hidden flex items-center justify-center"
         style={{ background: "var(--img-container-bg)" }}
       >
         {product.imageUrl ? (
@@ -217,21 +281,37 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
           <span className="text-lg opacity-60">{product.emoji}</span>
         )}
       </div>
-      <div className="flex-1 min-w-0 flex flex-col gap-0.5 justify-center min-h-0">
-        {eraBadge ? (
-          <span
-            className="inline-block shrink-0 self-start max-w-[100px] truncate font-medium rounded-full whitespace-nowrap"
-            style={getEraNeonBadgeStyle(eraBadge.label)}
+      <div className="flex-1 min-w-0 flex flex-col justify-between gap-1 min-h-[56px]">
+        <div className="min-w-0 flex flex-col gap-0.5">
+          {eraBadge ? (
+            <span
+              className={`inline-block shrink-0 self-start max-w-[100px] truncate rounded-full whitespace-nowrap ${productCardEraBadgeClassName(eraBadge.label)}`}
+              style={{
+                ...(isLight && isKnownProductCardEraLabel(eraBadge.label)
+                  ? {}
+                  : getEraNeonBadgeStyle(eraBadge.label)),
+                fontSize: "0.6rem",
+                padding: "1px 5px",
+                marginTop: "8px",
+              }}
+            >
+              {eraBadge.label}
+            </span>
+          ) : null}
+          <p className="text-sm font-medium break-words leading-snug" style={{ color: "var(--text-primary)" }}>
+            {displayName}
+          </p>
+        </div>
+        <div className="flex w-full flex-wrap items-baseline justify-end gap-1.5 mt-auto">
+          <p
+            className="tabular-nums"
+            style={{
+              color: accentGold,
+              fontSize: "1.1rem",
+              fontWeight: 700,
+            }}
           >
-            {eraBadge.label}
-          </span>
-        ) : null}
-        <p className="text-sm font-medium break-words leading-snug" style={{ color: "var(--text-primary)" }}>{displayName}</p>
-      </div>
-      <div className="shrink-0 flex flex-col items-end gap-1 justify-center">
-        <div className="flex flex-wrap items-baseline justify-end gap-1.5">
-          <p className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
-            {product.currentPrice.toLocaleString("fr-FR", {
+            {displayMarket.toLocaleString("fr-FR", {
               style: "currency",
               currency: "EUR",
               maximumFractionDigits: 0,
@@ -239,8 +319,10 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
           </p>
           {cardPerfPct != null && Number.isFinite(cardPerfPct) ? (
             <span
-              className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
+              className="tabular-nums shrink-0"
               style={{
+                fontSize: "0.8rem",
+                fontWeight: 500,
                 color: cardPerfPct >= 0 ? "var(--gain-green)" : "var(--loss-red)",
               }}
             >
@@ -343,6 +425,7 @@ function mapEtbToProduct(item: (typeof etbData)[number]): MarketProduct {
 export const MarketPage = () => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const isLight = theme === "light";
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, isLoading: premiumLoading } = useSubscription();
   console.log("[RENDER] MarketPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
@@ -418,10 +501,18 @@ export const MarketPage = () => {
               fontWeight: 900,
               fontSize: "clamp(22px, 6vw, 36px)",
               letterSpacing: "2px",
-              WebkitTextStroke: "1px #FBBF24",
-              WebkitTextFillColor: "#000",
-              color: "#000",
-              textShadow: "0 0 12px #FBBF24, 0 0 24px #FBBF24AA",
+              WebkitTextStroke: "0.75px rgba(251, 191, 36, 0.9)",
+              ...(isLight
+                ? {
+                    WebkitTextFillColor: "#ffffff",
+                    color: "#ffffff",
+                  }
+                : {
+                    WebkitTextFillColor: "#000",
+                    color: "#000",
+                  }),
+              textShadow:
+                "0 0 8px rgba(251, 191, 36, 0.55), 0 0 18px rgba(251, 191, 36, 0.4), 0 0 32px rgba(251, 191, 36, 0.28), 0 0 48px rgba(251, 191, 36, 0.15)",
               paintOrder: "stroke fill",
               margin: "16px 0",
               textAlign: "center",
@@ -439,7 +530,7 @@ export const MarketPage = () => {
               triggerFilterPress("tab-etb");
               setMainTab("etb");
             }}
-            style={marketTabStyle("etb", mainTab === "etb")}
+            style={marketTabStyle("etb", mainTab === "etb", isLight)}
           >
             ETB
           </button>
@@ -450,7 +541,7 @@ export const MarketPage = () => {
               triggerFilterPress("tab-displays");
               setMainTab("displays");
             }}
-            style={marketTabStyle("displays", mainTab === "displays")}
+            style={marketTabStyle("displays", mainTab === "displays", isLight)}
           >
             Displays
           </button>
@@ -461,7 +552,7 @@ export const MarketPage = () => {
               triggerFilterPress("tab-upc");
               setMainTab("upc");
             }}
-            style={marketTabStyle("upc", mainTab === "upc")}
+            style={marketTabStyle("upc", mainTab === "upc", isLight)}
           >
             UPC
           </button>

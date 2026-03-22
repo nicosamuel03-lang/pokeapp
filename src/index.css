@@ -34,6 +34,59 @@ html.dark, html.dark body, html.dark #root { background-color: #0a0a0a; }
   --overlay-bg: rgba(0, 0, 0, 0.5);
 }
 
+/* Light mode only: badges ère sur les cartes produit (accueil) — couleurs = donut ERA_DONUT_COLORS */
+html.light .product-card-era-badge.badge-mega-evolution,
+[data-theme="light"] .product-card-era-badge.badge-mega-evolution {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #f97316;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+
+html.light .product-card-era-badge.badge-ecarlate,
+[data-theme="light"] .product-card-era-badge.badge-ecarlate {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #a855f7;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+
+html.light .product-card-era-badge.badge-epee,
+[data-theme="light"] .product-card-era-badge.badge-epee {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #10b981;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+
+/* Page Collection : filtres série — mode clair, priorité sur tout fond sombre (ex. classes utilitaires) */
+html.light .collection-era-filters .collection-era-filter-btn.collection-era-filter--mega,
+[data-theme="light"] .collection-era-filters .collection-era-filter-btn.collection-era-filter--mega {
+  background-color: #f97316 !important;
+  color: #ffffff !important;
+}
+
+html.light .collection-era-filters .collection-era-filter-btn.collection-era-filter--ev,
+[data-theme="light"] .collection-era-filters .collection-era-filter-btn.collection-era-filter--ev {
+  background-color: #a855f7 !important;
+  color: #ffffff !important;
+}
+
+html.light .collection-era-filters .collection-era-filter-btn.collection-era-filter--eb,
+[data-theme="light"] .collection-era-filters .collection-era-filter-btn.collection-era-filter--eb {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
 .light {
   --bg-color: #ffffff;
   --bg-app: #ffffff;

@@ -63,7 +63,6 @@ async function fetchIsPremiumFromSupabase(userId: string): Promise<boolean> {
 }
 
 const App = () => {
-  const { pathname } = useLocation();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   // Incrémenté à chaque navigation ou retour sur l’onglet → nouveau fetch Supabase (évite l’état free obsolète après paiement).
@@ -108,6 +107,8 @@ const App = () => {
     }
 
     setAuthState("loading");
+    // Pas de `pathname` dans les deps : évite un fetch Supabase à chaque changement de route.
+    // Après paiement : SuccessPage + retour d’onglet incrémentent `premiumFetchNonce` / `refreshSubscription`.
     fetchIsPremiumFromSupabase(userId)
       .then((premium) => {
         if (cancelled) return;
@@ -121,7 +122,7 @@ const App = () => {
     return () => {
       cancelled = true;
     };
-  }, [isLoaded, isSignedIn, user?.id, pathname, premiumFetchNonce]);
+  }, [isLoaded, isSignedIn, user?.id, premiumFetchNonce]);
 
   useEffect(() => {
     console.log("[AUTH] authState changed:", authState, new Date().toISOString());

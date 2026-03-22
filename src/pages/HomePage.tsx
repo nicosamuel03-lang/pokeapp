@@ -13,9 +13,14 @@ import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct 
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
+import { ERA_DONUT_COLORS } from "../components/PortfolioEraDonut";
 import { CatalogueStyleSearchBar } from "../components/CatalogueStyleSearchBar";
 import { CatalogueSearchResultRow } from "../components/CatalogueSearchResultRow";
 import { filterHomeProductsBySearch, sortHomeProductsBySearch } from "../utils/homeProductSearch";
+import {
+  isKnownProductCardEraLabel,
+  productCardEraBadgeClassName,
+} from "../utils/productCardEraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
@@ -81,6 +86,20 @@ interface HomeProduct {
   change30dPercent: number;
   badge: string;
   etbId?: string;
+}
+
+/** Prix marché affiché (MOCK eBay si VITE_EBAY_STATUS=MOCK). */
+function homeProductMarcheAffiché(p: HomeProduct): number {
+  return getPrixMarcheForProduct(
+    {
+      id: p.id,
+      category: p.category,
+      etbId: p.etbId,
+      currentPrice: p.currentPrice,
+      prixMarcheActuel: p.currentPrice,
+    },
+    etbData
+  );
 }
 
 export const HomePage = () => {
@@ -340,8 +359,26 @@ export const HomePage = () => {
     touchAction: "manipulation",
     cursor: "pointer",
   };
-  const typeRowStyle = (key: "Tous" | Category, selected: boolean): CSSProperties =>
-    selected
+  const typeRowStyle = (key: "Tous" | Category, selected: boolean): CSSProperties => {
+    if (isLight) {
+      if (selected) {
+        return {
+          ...filterRow1Base,
+          backgroundColor: "#D1D5DB",
+          color: "#111827",
+          border: "none",
+          boxShadow: "none",
+        };
+      }
+      return {
+        ...filterRow1Base,
+        backgroundColor: "#ffffff",
+        color: "#4b5563",
+        border: "none",
+        boxShadow: "none",
+      };
+    }
+    return selected
       ? {
           ...filterRow1Base,
           backgroundColor: TYPE_ROW_DARK_BG,
@@ -355,6 +392,7 @@ export const HomePage = () => {
           border: "none",
           boxShadow: "none",
         };
+  };
 
   return (
     <div className="space-y-4 -mx-3">
@@ -429,7 +467,7 @@ export const HomePage = () => {
                     eraBadge={eraBadge}
                     title={formatProductNameWithSetCode(product.name, getSetCodeFromProduct(product), catForTitle)}
                     showNewBadge={product.set === "Méga Évolution"}
-                    marketPrice={product.currentPrice}
+                    marketPrice={homeProductMarcheAffiché(product)}
                     retailPrice={product.prixAchat}
                     showBottomBorder={i < homeSearchResults.length - 1}
                   />
@@ -490,15 +528,26 @@ export const HomePage = () => {
                       e.stopPropagation();
                       setSelectedEra((current) => (current === era ? null : era));
                     }}
-                    style={{
-                      ...filterRow2Base,
-                      whiteSpace: "nowrap",
-                      backgroundColor: TYPE_ROW_DARK_BG,
-                      color: "#ffffff",
-                      ...(isSelected
-                        ? GENERATION_SELECTED_GLOW[era]
-                        : { border: "1px solid transparent", boxShadow: "none" }),
-                    }}
+                    style={
+                      isLight
+                        ? {
+                            ...filterRow2Base,
+                            whiteSpace: "nowrap",
+                            backgroundColor: ERA_DONUT_COLORS[era],
+                            color: "#ffffff",
+                            border: isSelected ? "2px solid #111827" : "1px solid transparent",
+                            boxShadow: "none",
+                          }
+                        : {
+                            ...filterRow2Base,
+                            whiteSpace: "nowrap",
+                            backgroundColor: TYPE_ROW_DARK_BG,
+                            color: "#ffffff",
+                            ...(isSelected
+                              ? GENERATION_SELECTED_GLOW[era]
+                              : { border: "1px solid transparent", boxShadow: "none" }),
+                          }
+                    }
                   >
                     {era}
                   </button>
@@ -587,7 +636,14 @@ export const HomePage = () => {
                 >
                 <div className="shrink-0 flex justify-start items-start self-start w-full min-h-0">
                   {eraBadge ? (
-                    <span className="shrink-0 max-w-[min(100%,140px)] truncate font-semibold" style={getEraNeonBadgeStyle(eraBadge.label)}>
+                    <span
+                      className={productCardEraBadgeClassName(eraBadge.label)}
+                      style={
+                        isLight && isKnownProductCardEraLabel(eraBadge.label)
+                          ? undefined
+                          : getEraNeonBadgeStyle(eraBadge.label)
+                      }
+                    >
                       {eraBadge.label}
                     </span>
                   ) : (
@@ -611,8 +667,15 @@ export const HomePage = () => {
                 </p>
                 <div className="mt-1 shrink-0 flex flex-col justify-start">
                   {dateLine && (
-                    <p className="text-[11px] shrink-0" style={{ color: isDark ? LABEL_MUTED : "var(--text-secondary)" }}>
-                      <span className={STAT_CARD_VALUE_CLASS}>{dateLine}</span>
+                    <p
+                      className="shrink-0 tabular-nums"
+                      style={{
+                        fontSize: "0.75rem",
+                        fontWeight: 400,
+                        color: isDark ? LABEL_MUTED : "var(--text-secondary)",
+                      }}
+                    >
+                      {dateLine}
                     </p>
                   )}
                 </div>
@@ -622,26 +685,18 @@ export const HomePage = () => {
                 >
                   <p
                     className={`${STAT_CARD_VALUE_CLASS} truncate max-w-full text-right`}
-                    style={{ color: isDark ? EMERALD : accentGold }}
+                    style={{
+                      color: isDark ? EMERALD : accentGold,
+                      fontSize: "1.1rem",
+                      fontWeight: 700,
+                    }}
                   >
-                    {product.currentPrice.toLocaleString("fr-FR", {
+                    {homeProductMarcheAffiché(product).toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",
                       maximumFractionDigits: 0,
                     })}
                   </p>
-                  {typeof product.change30dPercent === "number" && Number.isFinite(product.change30dPercent) ? (
-                    <span
-                      className={`${STAT_CARD_VALUE_CLASS} shrink-0`}
-                      style={{
-                        color:
-                          product.change30dPercent >= 0 ? "var(--gain-green)" : "var(--loss-red)",
-                      }}
-                    >
-                      {product.change30dPercent >= 0 ? "+" : ""}
-                      {product.change30dPercent.toFixed(1)}%
-                    </span>
-                  ) : null}
                 </div>
                 </div>
               </Link>
