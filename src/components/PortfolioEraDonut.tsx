@@ -8,12 +8,18 @@ export const ERA_DONUT_COLORS = {
   "Méga Évolution": "#f97316",
   "Épée & Bouclier": "#10b981",
   "Écarlate & Violet": "#a855f7",
+  "Soleil et Lune": "#EAB308",
   Autres: "#94a3b8",
 } as const;
 
 const LABEL_MEGA = "Méga Évolution";
 const LABEL_EB = "Épée & Bouclier";
 const LABEL_EV = "Écarlate & Violet";
+const LABEL_SL = "Soleil et Lune";
+const LABEL_MEGA_NORMALIZED = "méga évolution";
+const LABEL_EB_NORMALIZED = "épée et bouclier";
+const LABEL_EV_NORMALIZED = "écarlate et violet";
+const LABEL_SL_NORMALIZED = "soleil et lune";
 
 const COLOR_EMPTY_LIGHT = "#d1d5db";
 const COLOR_EMPTY_DARK = "#4b5563";
@@ -40,21 +46,24 @@ function aggregateByEra(lines: CollectionLineForChart[]) {
   let mega = 0;
   let eb = 0;
   let ev = 0;
+  let sl = 0;
   let autres = 0;
   for (const line of lines) {
     const q = Number(line.quantity) || 0;
-    const s = String(line.product.set ?? "").trim();
-    if (s === LABEL_MEGA) mega += q;
-    else if (s === LABEL_EB) eb += q;
-    else if (s === LABEL_EV) ev += q;
+    const raw = String(line.product.set ?? "").trim();
+    const s = raw.toLowerCase().replace(/\s*&\s*/g, " et ").replace(/\s+/g, " ");
+    if (s === LABEL_MEGA_NORMALIZED) mega += q;
+    else if (s === LABEL_EB_NORMALIZED) eb += q;
+    else if (s === LABEL_EV_NORMALIZED) ev += q;
+    else if (s === LABEL_SL_NORMALIZED) sl += q;
     else autres += q;
   }
-  return { mega, eb, ev, autres };
+  return { mega, eb, ev, sl, autres };
 }
 
 function buildSlices(lines: CollectionLineForChart[], isDark: boolean): { rows: SliceRow[]; total: number } {
-  const { mega, eb, ev, autres } = aggregateByEra(lines);
-  const total = mega + eb + ev + autres;
+  const { mega, eb, ev, sl, autres } = aggregateByEra(lines);
+  const total = mega + eb + ev + sl + autres;
   if (total === 0) {
     return {
       rows: [
@@ -86,6 +95,7 @@ function buildSlices(lines: CollectionLineForChart[], isDark: boolean): { rows: 
   push("mega", LABEL_MEGA, mega, ERA_DONUT_COLORS[LABEL_MEGA]);
   push("eb", LABEL_EB, eb, ERA_DONUT_COLORS[LABEL_EB]);
   push("ev", LABEL_EV, ev, ERA_DONUT_COLORS[LABEL_EV]);
+  push("sl", LABEL_SL, sl, ERA_DONUT_COLORS[LABEL_SL]);
   push("autres", "Autres", autres, ERA_DONUT_COLORS.Autres);
 
   if (rows.length === 0) {
@@ -109,8 +119,8 @@ function buildSlices(lines: CollectionLineForChart[], isDark: boolean): { rows: 
 
 /** Libellés courts comme sur la carte Répartition (Méga Évo, Épée&B, Écar&V). */
 export function getEraRepartitionRows(lines: CollectionLineForChart[]): EraRepartitionRow[] {
-  const { mega, eb, ev, autres } = aggregateByEra(lines);
-  const total = mega + eb + ev + autres;
+  const { mega, eb, ev, sl, autres } = aggregateByEra(lines);
+  const total = mega + eb + ev + sl + autres;
   if (total === 0) return [];
   const rows: EraRepartitionRow[] = [];
   const push = (label: string, count: number, color: string) => {
@@ -120,14 +130,15 @@ export function getEraRepartitionRows(lines: CollectionLineForChart[]): EraRepar
   push("Méga Évo", mega, ERA_DONUT_COLORS[LABEL_MEGA]);
   push("Épée&B", eb, ERA_DONUT_COLORS[LABEL_EB]);
   push("Écar&V", ev, ERA_DONUT_COLORS[LABEL_EV]);
+  push("Sol&L", sl, ERA_DONUT_COLORS[LABEL_SL]);
   push("Autres", autres, ERA_DONUT_COLORS.Autres);
   return rows;
 }
 
 /** Blocs nommés complets pour « Répartition détaillée » (Méga / EB / EV uniquement, sans « Autres »). */
 export function getBlocRepartitionDetailRows(lines: CollectionLineForChart[]): EraRepartitionRow[] {
-  const { mega, eb, ev, autres } = aggregateByEra(lines);
-  const total = mega + eb + ev + autres;
+  const { mega, eb, ev, sl, autres } = aggregateByEra(lines);
+  const total = mega + eb + ev + sl + autres;
   if (total === 0) return [];
   const rows: EraRepartitionRow[] = [];
   const push = (label: string, count: number, color: string) => {
@@ -137,6 +148,7 @@ export function getBlocRepartitionDetailRows(lines: CollectionLineForChart[]): E
   push(LABEL_MEGA, mega, ERA_DONUT_COLORS[LABEL_MEGA]);
   push(LABEL_EB, eb, ERA_DONUT_COLORS[LABEL_EB]);
   push(LABEL_EV, ev, ERA_DONUT_COLORS[LABEL_EV]);
+  push(LABEL_SL, sl, ERA_DONUT_COLORS[LABEL_SL]);
   return rows;
 }
 
@@ -144,10 +156,10 @@ function EraTooltipBody({
   breakdown,
   isDark,
 }: {
-  breakdown: { mega: number; eb: number; ev: number; autres: number; total: number };
+  breakdown: { mega: number; eb: number; ev: number; sl: number; autres: number; total: number };
   isDark: boolean;
 }) {
-  const { mega, eb, ev, autres, total } = breakdown;
+  const { mega, eb, ev, sl, autres, total } = breakdown;
   if (total === 0) {
     return <p className="m-0 text-[10px] font-medium">Aucun produit en collection</p>;
   }
@@ -170,6 +182,7 @@ function EraTooltipBody({
       {mega > 0 ? line(LABEL_MEGA, mega, ERA_DONUT_COLORS[LABEL_MEGA]) : null}
       {eb > 0 ? line(LABEL_EB, eb, ERA_DONUT_COLORS[LABEL_EB]) : null}
       {ev > 0 ? line(LABEL_EV, ev, ERA_DONUT_COLORS[LABEL_EV]) : null}
+      {sl > 0 ? line(LABEL_SL, sl, ERA_DONUT_COLORS[LABEL_SL]) : null}
       {autres > 0 ? line("Autres", autres, ERA_DONUT_COLORS.Autres) : null}
     </div>
   );

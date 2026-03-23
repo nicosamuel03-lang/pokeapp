@@ -29,6 +29,16 @@ const ERA_NEON_CARD_BADGE: Record<string, CSSProperties> = {
     boxShadow: "0 0 4px #22C55E80",
     color: "#22C55E",
   },
+  "Soleil et Lune": {
+    fontSize: "10px",
+    padding: "2px 8px",
+    borderRadius: "999px",
+    background: "rgba(0, 0, 0, 0.6)",
+    border: "1px solid #EAB308",
+    boxShadow: "0 0 5px #EAB308CC, 0 0 12px #EAB30880",
+    color: "#EAB308",
+    textShadow: "0 0 4px #EAB308CC",
+  },
 };
 
 export function getEraNeonBadgeStyle(eraLabel: string): CSSProperties {
@@ -49,6 +59,7 @@ const ERA_STYLES: Record<string, { bg: string; color: string }> = {
   "Épée & Bouclier": { bg: "#2E5FA3", color: "#FFFFFF" },
   "Écarlate & Violet": { bg: "#6B3A9E", color: "#FFFFFF" },
   "Méga Évolution": { bg: "#C4621A", color: "#FFFFFF" },
+  "Soleil et Lune": { bg: "#EAB308", color: "#FFFFFF" },
   "Célébrations": { bg: "#D4A017", color: "#FFFFFF" },
 };
 
@@ -59,6 +70,7 @@ export function getEraBadge(id: string, blockLabel?: string): { label: string; b
   if (upper.startsWith("EB")) return { label: "Épée & Bouclier", ...ERA_STYLES["Épée & Bouclier"] };
   if (upper.startsWith("EV")) return { label: "Écarlate & Violet", ...ERA_STYLES["Écarlate & Violet"] };
   if (upper.startsWith("ME")) return { label: "Méga Évolution", ...ERA_STYLES["Méga Évolution"] };
+  if (upper.startsWith("SL") || upper.startsWith("SM")) return { label: "Soleil et Lune", ...ERA_STYLES["Soleil et Lune"] };
   if (upper.startsWith("UPC")) {
     if (blockLabel) return { label: blockLabel, ...getEraStyle(blockLabel) };
     return { label: "UPC", ...ERA_STYLES["Célébrations"] };
@@ -82,7 +94,7 @@ export function getEraBadgeForCatalogueItem(item: {
   if (!item) return null;
   let badge = getEraBadge(item.etbId ?? item.id ?? "", item.block);
   if (!badge && item.name) {
-    const codeMatch = item.name.match(/\b(EB|EV|ME)\d{2}(?:\.\d)?/i);
+    const codeMatch = item.name.match(/\b(EB|EV|ME|SL|SM)\d{2}(?:\.\d)?/i);
     if (codeMatch) badge = getEraBadge(codeMatch[0]);
   }
   if (!badge && item.block && ERA_STYLES[item.block]) {

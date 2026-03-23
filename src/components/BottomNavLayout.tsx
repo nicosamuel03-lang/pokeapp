@@ -437,7 +437,11 @@ export const BottomNavLayout = () => {
           role="presentation"
           style={{
             position: "fixed",
-            inset: 0,
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "100%",
+            height: "100%",
             zIndex: 20000,
             background: "rgba(0, 0, 0, 0.55)",
             display: "flex",
@@ -454,7 +458,7 @@ export const BottomNavLayout = () => {
               background: "#1a1a1a",
               borderRadius: "16px",
               padding: "20px 20px 18px",
-              maxWidth: 320,
+              maxWidth: 360,
               width: "100%",
               color: "#ffffff",
               boxSizing: "border-box",
@@ -468,11 +472,12 @@ export const BottomNavLayout = () => {
                 lineHeight: 1.45,
                 fontWeight: 500,
                 color: "#ffffff",
+                textAlign: "center",
               }}
             >
               Êtes-vous sûr de vouloir vous déconnecter ?
             </p>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
               <button
                 type="button"
                 onClick={() => setShowSignOutConfirm(false)}

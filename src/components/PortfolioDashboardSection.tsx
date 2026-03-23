@@ -471,6 +471,10 @@ export function PortfolioDashboardSection({
         <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Écarlate & Violet"] }} aria-hidden />
         Écar&amp;V
       </span>
+      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+        <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: ERA_DONUT_COLORS["Soleil et Lune"] }} aria-hidden />
+        Sol&amp;L
+      </span>
     </div>
   );
 

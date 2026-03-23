@@ -23,7 +23,7 @@ const RETURN_TO_KEY = "returnTo";
 
 type CategoryFilter = "Tous" | "Displays" | "ETB" | "UPC";
 
-const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier"] as const;
+const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier", "Soleil et Lune"] as const;
 
 const TYPE_SELECTED_GLOW: Record<
   CategoryFilter,
@@ -64,6 +64,10 @@ const GENERATION_SELECTED_GLOW: Record<
   "Épée & Bouclier": {
     border: "1px solid #22C55E",
     boxShadow: "0 0 4px #22C55E80",
+  },
+  "Soleil et Lune": {
+    border: "1px solid #EAB308",
+    boxShadow: "0 0 4px #EAB30880",
   },
 };
 
@@ -109,7 +113,20 @@ function collectionEraFilterModifierClass(era: (typeof HOME_ERA_OPTIONS)[number]
   if (era === "Méga Évolution") return "collection-era-filter--mega";
   if (era === "Écarlate & Violet") return "collection-era-filter--ev";
   if (era === "Épée & Bouclier") return "collection-era-filter--eb";
+  if (era === "Soleil et Lune") return "collection-era-filter--sl";
   return "";
+}
+
+/** Aligné sur l’agrégation du donut (ex. « Soleil & Lune » → filtre « Soleil et Lune »). */
+function productSetMatchesEraFilter(productSet: string | undefined, selectedEra: string): boolean {
+  const raw = String(productSet ?? "").trim();
+  if (raw === selectedEra) return true;
+  const s = raw.toLowerCase().replace(/\s*&\s*/g, " et ").replace(/\s+/g, " ");
+  if (selectedEra === "Méga Évolution" && s === "méga évolution") return true;
+  if (selectedEra === "Épée & Bouclier" && s === "épée et bouclier") return true;
+  if (selectedEra === "Écarlate & Violet" && s === "écarlate et violet") return true;
+  if (selectedEra === "Soleil et Lune" && s === "soleil et lune") return true;
+  return false;
 }
 
 function todayISO(): string {
@@ -188,7 +205,7 @@ export const CollectionPage = () => {
       list = list.filter((it) => it.product.category === selectedCategory);
     }
     if (hasEraSubFilter && selectedEra) {
-      list = list.filter((it) => it.product.set === selectedEra);
+      list = list.filter((it) => productSetMatchesEraFilter(it.product.set, selectedEra));
     }
     return list;
   }, [items, selectedCategory, selectedEra, hasEraSubFilter]);

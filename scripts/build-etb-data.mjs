@@ -98,9 +98,44 @@ const MONTHS_2026 = [
 
 function normBloc(val) {
   const s = String(val ?? "").trim().toLowerCase();
+  if (s.startsWith("sl") || s.startsWith("sm")) return "sl";
   if (s.startsWith("ev")) return "ev";
   if (s.startsWith("me")) return "me";
   return "eb";
+}
+
+const SOLEIL_LUNE_SET_NAMES = new Set([
+  "Alliance Infaillible",
+  "Tempête Céleste",
+  "Éclipse Cosmique",
+  "Lumière Interdite",
+  "Tonnerre Perdue",
+  "Tonnerre Perdu",
+  "Majesté des Dragons",
+  "Destinées Ocultes",
+  "Destinées Cachées",
+  "Duo de Choc",
+  "Harmonie des Esprits",
+  "Soleil et Lune",
+]);
+
+/** Libellés Excel → nom affiché (fichier image = nom corrigé + .png). */
+const ETB_NAME_FROM_EXCEL_FIXES = {
+  "Dragon Majesty": "Majesté des Dragons",
+  "Destinées Cachées": "Destinées Occultes",
+};
+
+/** Nom produit → base du fichier .png dans public/images/etb/ */
+const ETB_IMAGE_FILE_OVERRIDES = {
+  "Tonnerre Perdu": "Tonnerre Perdue",
+};
+
+function resolveSeries(block, name) {
+  const rawName = String(name ?? "").trim().replace(/\s+FR$/, "").trim();
+  if (block === "sl" || SOLEIL_LUNE_SET_NAMES.has(rawName)) return "Soleil et Lune";
+  if (block === "eb") return "Épée & Bouclier";
+  if (block === "ev") return "Écarlate & Violet";
+  return "Méga Évolution";
 }
 
 function num(val) {
@@ -161,10 +196,14 @@ for (let i = 0; i < dataRows.length; i += 1) {
     id = "EB08.2";
     nameFromC = "Évolution Céleste 2";
   }
+  if (ETB_NAME_FROM_EXCEL_FIXES[nameFromC]) {
+    nameFromC = ETB_NAME_FROM_EXCEL_FIXES[nameFromC];
+  }
   // Derive bloc from code (column B) so EBxx=eb, EVxx=ev, MExx=me regardless of column A
   const block = normBloc(code);
   // Name comes ONLY from column C; for ETB (bloc eb) use "Extension FR" so app shows "ETB Extension FR"
   const name = block === "eb" ? (nameFromC ? `${nameFromC} FR` : "") : nameFromC;
+  const series = resolveSeries(block, nameFromC);
   const releaseDate = String(row[COL_RELEASE_DATE] ?? "").trim();
   const msrp = num(row[COL_MSRP]);
   const status = String(row[COL_STATUS] ?? "").trim();
@@ -197,16 +236,17 @@ for (let i = 0; i < dataRows.length; i += 1) {
   // Image locale : préférer fichier existant dans public/images/etb/
   const etbDir = path.join(process.cwd(), "public", "images", "etb");
   const imageBaseName = nameFromC || code;
+  const imageFileBase = ETB_IMAGE_FILE_OVERRIDES[imageBaseName] ?? imageBaseName;
   let imageUrl = null;
-  if (imageBaseName) {
-    const exactPath = path.join(etbDir, `${imageBaseName}.png`);
-    const altPath = path.join(etbDir, `${imageBaseName.replace(/Combat 2$/, "Combats 2")}.png`);
+  if (imageFileBase) {
+    const exactPath = path.join(etbDir, `${imageFileBase}.png`);
+    const altPath = path.join(etbDir, `${imageFileBase.replace(/Combat 2$/, "Combats 2")}.png`);
     if (fs.existsSync(exactPath)) {
-      imageUrl = `/images/etb/${imageBaseName}.png`;
+      imageUrl = `/images/etb/${imageFileBase}.png`;
     } else if (fs.existsSync(altPath)) {
-      imageUrl = `/images/etb/${imageBaseName.replace(/Combat 2$/, "Combats 2")}.png`;
+      imageUrl = `/images/etb/${imageFileBase.replace(/Combat 2$/, "Combats 2")}.png`;
     } else {
-      imageUrl = `/images/etb/${imageBaseName}.png`;
+      imageUrl = `/images/etb/${imageFileBase}.png`;
     }
   }
 
@@ -217,6 +257,7 @@ for (let i = 0; i < dataRows.length; i += 1) {
     id,
     nom: name,
     bloc: block,
+    series,
     dateSortie,
     pvcSortie: msrp,
     statut: status,
@@ -256,12 +297,13 @@ export interface MoisPrix {
 
 export type HistoriquePrixPoint = MoisPrix;
 
-export type EtbBloc = "eb" | "ev" | "me";
+export type EtbBloc = "eb" | "ev" | "me" | "sl";
 
 export interface ETBItem {
   id: string;
   nom: string;
   bloc: EtbBloc;
+  series: "Méga Évolution" | "Écarlate & Violet" | "Épée & Bouclier" | "Soleil et Lune";
   dateSortie: string;
   pvcSortie: number;
   statut: string;

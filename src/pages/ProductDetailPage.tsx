@@ -989,7 +989,7 @@ const ProductDetailPageInner = () => {
                 </defs>
                 <XAxis
                   dataKey="mois_court"
-                  tick={{ fontSize: 14, fill: "#9CA3AF", className: STAT_CARD_VALUE_CLASS }}
+                  tick={{ fontSize: 10, fill: "#9CA3AF" }}
                   tickLine={false}
                   axisLine={false}
                   interval={chartData.length > 0 ? xAxisInterval : 1}
@@ -997,9 +997,8 @@ const ProductDetailPageInner = () => {
                 <YAxis
                   tickFormatter={(v) => `${v}€`}
                   tick={{
-                    fontSize: 14,
+                    fontSize: 10,
                     fill: "#9CA3AF",
-                    className: STAT_CARD_VALUE_CLASS,
                   }}
                   tickLine={false}
                   axisLine={false}
@@ -1015,14 +1014,17 @@ const ProductDetailPageInner = () => {
                     const prixStr = prixVal != null && !Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—";
                     return (
                       <div
-                        className="rounded-xl px-3 py-2 text-xs"
+                        className="rounded-xl px-3 py-2"
                         style={{
                           background: "var(--card-color)",
                           color: accentGold,
                           boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
                         }}
                       >
-                        {label} : <span className={STAT_CARD_VALUE_CLASS}>{prixStr}</span>
+                        <p className="mb-1.5 text-[10px]">{label}</p>
+                        <p className="text-xs">
+                          <span className={STAT_CARD_VALUE_CLASS}>{prixStr}</span>
+                        </p>
                       </div>
                     );
                   }}

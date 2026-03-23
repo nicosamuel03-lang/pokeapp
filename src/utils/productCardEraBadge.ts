@@ -7,6 +7,7 @@ export function productCardEraBadgeClassName(eraLabel: string): string {
   if (eraLabel === "Méga Évolution") return `${base} badge-mega-evolution`;
   if (eraLabel === "Écarlate & Violet") return `${base} badge-ecarlate`;
   if (eraLabel === "Épée & Bouclier") return `${base} badge-epee`;
+  if (eraLabel === "Soleil et Lune") return `${base} badge-soleil-lune`;
   return base;
 }
 
@@ -14,6 +15,7 @@ export function isKnownProductCardEraLabel(label: string): boolean {
   return (
     label === "Méga Évolution" ||
     label === "Écarlate & Violet" ||
-    label === "Épée & Bouclier"
+    label === "Épée & Bouclier" ||
+    label === "Soleil et Lune"
   );
 }

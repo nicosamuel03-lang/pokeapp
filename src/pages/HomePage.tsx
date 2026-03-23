@@ -29,7 +29,7 @@ const categories: { key: Category; label: string }[] = [
 ];
 
 /** Filtres d’ère fixes (alignés sur `product.set` / blocs données). */
-const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier"] as const;
+const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier", "Soleil et Lune"] as const;
 
 const TYPE_SELECTED_GLOW: Record<
   "Tous" | Category,
@@ -70,6 +70,10 @@ const GENERATION_SELECTED_GLOW: Record<
   "Épée & Bouclier": {
     border: "1px solid #22C55E",
     boxShadow: "0 0 4px #22C55E80",
+  },
+  "Soleil et Lune": {
+    border: "1px solid #EAB308",
+    boxShadow: "0 0 4px #EAB30880",
   },
 };
 
@@ -183,12 +187,7 @@ export const HomePage = () => {
       const pvcSortie = item.pvcSortie || 0;
       const prixActuel = item.prixActuel || pvcSortie;
       const perfPct = pvcSortie > 0 ? ((prixActuel - pvcSortie) / pvcSortie) * 100 : 0;
-      const setLabel =
-        item.bloc === "eb"
-          ? "Épée & Bouclier"
-          : item.bloc === "ev"
-          ? "Écarlate & Violet"
-          : "Méga Évolution";
+      const setLabel = item.series;
       return {
         id: item.id,
         etbId: item.id,

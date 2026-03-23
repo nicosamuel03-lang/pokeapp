@@ -68,6 +68,17 @@ html.light .product-card-era-badge.badge-epee,
   box-shadow: none;
 }
 
+html.light .product-card-era-badge.badge-soleil-lune,
+[data-theme="light"] .product-card-era-badge.badge-soleil-lune {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background-color: #EAB308;
+  color: #ffffff;
+  border: none;
+  box-shadow: none;
+}
+
 /* Page Collection : filtres série — mode clair, priorité sur tout fond sombre (ex. classes utilitaires) */
 html.light .collection-era-filters .collection-era-filter-btn.collection-era-filter--mega,
 [data-theme="light"] .collection-era-filters .collection-era-filter-btn.collection-era-filter--mega {
@@ -84,6 +95,12 @@ html.light .collection-era-filters .collection-era-filter-btn.collection-era-fil
 html.light .collection-era-filters .collection-era-filter-btn.collection-era-filter--eb,
 [data-theme="light"] .collection-era-filters .collection-era-filter-btn.collection-era-filter--eb {
   background-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+html.light .collection-era-filters .collection-era-filter-btn.collection-era-filter--sl,
+[data-theme="light"] .collection-era-filters .collection-era-filter-btn.collection-era-filter--sl {
+  background-color: #EAB308 !important;
   color: #ffffff !important;
 }
 
