@@ -1,16 +1,192 @@
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { useAuth, useClerk, useSignUp } from "@clerk/react";
-/** Hook classique : `setActive` + `signIn.create({ strategy, identifier, password })` (l’export principal n’expose pas `setActive`). */
-import { useSignIn } from "@clerk/react/legacy";
+import { SignIn, SignUp, useAuth } from "@clerk/react";
+import type { Appearance, LocalizationResource } from "@clerk/types";
+import { frFR } from "@clerk/localizations";
+import { useTheme } from "../state/ThemeContext";
+import { authModalRouter } from "../utils/authModalRouter";
 
-/** Overlay plein écran : au-dessus de tout le layout, scroll iOS, safe area PWA. */
+const SIGN_IN_PATH = import.meta.env.VITE_CLERK_SIGN_IN_URL || "/sign-in";
+const SIGN_UP_PATH = import.meta.env.VITE_CLERK_SIGN_UP_URL || "/sign-up";
+const AFTER_SIGN_IN = import.meta.env.VITE_CLERK_AFTER_SIGN_IN_URL || "/";
+const AFTER_SIGN_UP = import.meta.env.VITE_CLERK_AFTER_SIGN_UP_URL || "/";
+
+const GOLD_LIGHT = "#D4A757";
+const GOLD_DARK = "#FBBF24";
+const TEXT_LIGHT = "#1a1a1a";
+const TEXT_DARK = "#ffffff";
+const BG_CARD_LIGHT = "#faf8f4";
+const BG_CARD_DARK = "#1a1a1a";
+const INPUT_BG_LIGHT = "#ffffff";
+const INPUT_BG_DARK = "#111111";
+
+/** Thème Clerk (connexion / inscription) — couleurs inchangées par rapport à l’existant. */
+function clerkAuthAppearance(isDark: boolean): Appearance {
+  if (isDark) {
+    return {
+      variables: {
+        colorPrimary: GOLD_DARK,
+        colorBackground: BG_CARD_DARK,
+        colorInputBackground: INPUT_BG_DARK,
+        colorText: TEXT_DARK,
+        colorTextSecondary: "#888888",
+        colorNeutral: "#888888",
+        borderRadius: "12px",
+      },
+      elements: {
+        rootBox: { width: "100%" },
+        card: {
+          backgroundColor: BG_CARD_DARK,
+          borderRadius: "16px",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.45)",
+          border: "1px solid #2a2a2a",
+        },
+        headerTitle: { color: TEXT_DARK },
+        headerSubtitle: { color: "#a3a3a3" },
+        socialButtonsIconButton: { color: TEXT_DARK },
+        socialButtonsBlockButton: {
+          borderColor: "#333333",
+          backgroundColor: "#141414",
+          color: TEXT_DARK,
+        },
+        socialButtonsBlockButtonText: { color: TEXT_DARK },
+        socialButtonsBlockButtonArrow: { color: TEXT_DARK },
+        dividerLine: { backgroundColor: "#333333" },
+        dividerText: { color: "#888888" },
+        formFieldLabel: { color: "#d4d4d4" },
+        formFieldInput: {
+          backgroundColor: INPUT_BG_DARK,
+          color: TEXT_DARK,
+          borderColor: "#333333",
+        },
+        formFieldInputShowPasswordButton: { color: "#a3a3a3" },
+        formButtonPrimary: {
+          backgroundColor: GOLD_DARK,
+          color: "#000000",
+          fontWeight: 600,
+        },
+        formButtonPrimaryIcon: { color: "#000000" },
+        footerActionText: { color: "#a3a3a3" },
+        footerActionLink: { color: GOLD_DARK },
+        identityPreviewText: { color: TEXT_DARK },
+        identityPreviewEditButton: { color: GOLD_DARK },
+        formResendCodeLink: { color: GOLD_DARK },
+        otpCodeFieldInput: {
+          backgroundColor: INPUT_BG_DARK,
+          borderColor: "#333333",
+          color: TEXT_DARK,
+        },
+        alertText: { color: "#fecaca" },
+        formFieldErrorText: { color: "#fecaca" },
+      },
+    };
+  }
+
+  return {
+    variables: {
+      colorPrimary: GOLD_LIGHT,
+      colorBackground: BG_CARD_LIGHT,
+      colorInputBackground: INPUT_BG_LIGHT,
+      colorText: TEXT_LIGHT,
+      colorTextSecondary: "#444444",
+      colorNeutral: "#6b7280",
+      borderRadius: "12px",
+    },
+    elements: {
+      rootBox: { width: "100%" },
+      card: {
+        backgroundColor: BG_CARD_LIGHT,
+        borderRadius: "16px",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+        border: "1px solid rgba(0,0,0,0.06)",
+      },
+      headerTitle: { color: TEXT_LIGHT },
+      headerSubtitle: { color: "#444444" },
+      socialButtonsBlockButton: {
+        borderColor: "rgba(0,0,0,0.12)",
+        backgroundColor: "#ffffff",
+        color: TEXT_LIGHT,
+      },
+      socialButtonsBlockButtonText: { color: TEXT_LIGHT },
+      dividerLine: { backgroundColor: "rgba(0,0,0,0.08)" },
+      dividerText: { color: "#6b7280" },
+      formFieldLabel: { color: "#374151" },
+      formFieldInput: {
+        backgroundColor: INPUT_BG_LIGHT,
+        color: TEXT_LIGHT,
+        borderColor: "#e5e7eb",
+      },
+      formButtonPrimary: {
+        backgroundColor: GOLD_LIGHT,
+        color: TEXT_LIGHT,
+        fontWeight: 600,
+      },
+      formButtonPrimaryIcon: { color: TEXT_LIGHT },
+      footerActionText: { color: "#444444" },
+      footerActionLink: { color: "#8B6914" },
+      identityPreviewEditButton: { color: GOLD_LIGHT },
+      formResendCodeLink: { color: "#8B6914" },
+    },
+  };
+}
+
+/** Mise en page inscription : réseaux sociaux en deux colonnes, logo Clerk masqué (nom app au-dessus). */
+function clerkSignUpAppearance(isDark: boolean): Appearance {
+  const base = clerkAuthAppearance(isDark);
+  const blockBtn = base.elements?.socialButtonsBlockButton;
+  return {
+    ...base,
+    elements: {
+      ...base.elements,
+      logoBox: { display: "none" },
+      logoImage: { display: "none" },
+      socialButtons: {
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: "10px",
+        width: "100%",
+      },
+      socialButtonsBlockButton: {
+        ...(typeof blockBtn === "object" && blockBtn !== null ? blockBtn : {}),
+        width: "100%",
+        minHeight: "44px",
+      },
+    },
+  };
+}
+
+/** Masque le pied d’action Clerk : le lien « S’inscrire » ne déclenche pas routerPush en routing virtual. */
+function clerkSignInAppearanceNoFooterLink(isDark: boolean): Appearance {
+  const base = clerkAuthAppearance(isDark);
+  return {
+    ...base,
+    elements: {
+      ...base.elements,
+      footerAction: { display: "none" },
+    },
+  };
+}
+
+const signUpModalLocalization: LocalizationResource = {
+  ...frFR,
+  signUp: {
+    ...frFR.signUp,
+    start: {
+      ...frFR.signUp.start,
+      title: "Créer un compte",
+      subtitle: "Rejoignez PokéVault pour suivre votre collection et les prix du marché.",
+      actionText: "Vous avez déjà un compte ?",
+      actionLink: "Se connecter",
+    },
+  },
+};
+
 const OVERLAY_STYLE: CSSProperties = {
   position: "fixed",
   inset: 0,
   zIndex: 9999,
   overflowY: "auto",
-  overflowX: "visible",
+  overflowX: "hidden",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -18,65 +194,79 @@ const OVERLAY_STYLE: CSSProperties = {
   paddingBottom: "env(safe-area-inset-bottom)",
   paddingLeft: "env(safe-area-inset-left)",
   paddingRight: "env(safe-area-inset-right)",
-  background: "rgba(0,0,0,0.5)",
+  background: "rgba(0, 0, 0, 0.55)",
   WebkitOverflowScrolling: "touch",
 };
 
-const PANEL_STYLE: CSSProperties = {
+const PANEL_WRAPPER_STYLE: CSSProperties = {
   position: "relative",
-  background: "#ffffff",
-  borderRadius: 16,
-  padding: 24,
-  maxWidth: 400,
-  width: "min(92vw, 400px)",
-  boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+  width: "min(100%, 420px)",
+  maxWidth: "100%",
+  margin: "16px",
   alignSelf: "center",
   zIndex: 1,
 };
 
-const GOLD_BTN: CSSProperties = {
-  width: "100%",
-  padding: "12px 16px",
-  border: "none",
-  borderRadius: 10,
-  background: "var(--accent-yellow, #D4A757)",
-  color: "#1a1a1a",
-  fontWeight: 600,
-  fontSize: 16,
-  cursor: "pointer",
-};
-
-const INPUT_STYLE: CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  borderRadius: 8,
-  border: "1px solid #ddd",
-  fontSize: 16,
-  boxSizing: "border-box",
-};
-
-type Tab = "connexion" | "inscription";
-
-function clerkErrMessage(err: unknown): string {
-  if (err && typeof err === "object" && "message" in err && typeof (err as { message: string }).message === "string") {
-    return (err as { message: string }).message;
-  }
-  return "Une erreur est survenue.";
+function AuthModalBranding({ isDark }: { isDark: boolean }) {
+  const color = isDark ? "#f5f5f5" : "#1a1a1a";
+  return (
+    <div style={{ textAlign: "center", marginBottom: 16, paddingTop: 4 }}>
+      <div
+        style={{
+          fontFamily: "system-ui, ui-sans-serif, sans-serif",
+          fontWeight: 800,
+          fontSize: "1.35rem",
+          letterSpacing: "0.025em",
+          color,
+        }}
+      >
+        PokéVault
+      </div>
+    </div>
+  );
 }
 
-/** Erreurs Clerk (API classique ou réponses JSON). */
-function clerkApiErr(err: unknown): string {
-  if (
-    err &&
-    typeof err === "object" &&
-    "errors" in err &&
-    Array.isArray((err as { errors: { message?: string }[] }).errors) &&
-    (err as { errors: { message?: string }[] }).errors.length > 0
-  ) {
-    const first = (err as { errors: { message?: string }[] }).errors[0];
-    if (first?.message) return first.message;
-  }
-  return clerkErrMessage(err);
+/**
+ * Lien inscription sous le formulaire Clerk : bascule `mode` → `signup` sans navigation.
+ * Texte affiché : « Vous n'avez pas encore de compte ? » + bouton « S'inscrire ».
+ */
+function AuthModalSignUpLinkFooter({ isDark, onGoSignUp }: { isDark: boolean; onGoSignUp: () => void }) {
+  const textMuted = isDark ? "#a3a3a3" : "#444444";
+  const linkColor = isDark ? GOLD_DARK : "#8B6914";
+  const borderTop = isDark ? "1px solid #333333" : "1px solid rgba(0,0,0,0.08)";
+
+  return (
+    <div
+      style={{
+        marginTop: 16,
+        paddingTop: 16,
+        borderTop,
+        textAlign: "center",
+        fontSize: 14,
+        lineHeight: 1.5,
+        color: textMuted,
+      }}
+    >
+      <span>Vous n&apos;avez pas encore de compte ? </span>
+      <button
+        type="button"
+        onClick={onGoSignUp}
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          font: "inherit",
+          fontWeight: 600,
+          color: linkColor,
+          textDecoration: "underline",
+          textUnderlineOffset: 2,
+        }}
+      >
+        S&apos;inscrire
+      </button>
+    </div>
+  );
 }
 
 type Props = {
@@ -84,363 +274,139 @@ type Props = {
   onClose: () => void;
 };
 
-/** Modale connexion / inscription headless (sans <SignIn /> Clerk) — meilleure compat iOS PWA. */
-export function ClerkSignInModal({ open, onClose }: Props) {
-  const { isSignedIn, isLoaded } = useAuth();
-  const { setActive: setActiveForSignUp } = useClerk();
-  const { isLoaded: signInLoaded, signIn, setActive } = useSignIn();
-  const { signUp } = useSignUp();
+export type AuthModalMode = "signin" | "signup";
 
-  const [tab, setTab] = useState<Tab>("connexion");
-  const [signUpStep, setSignUpStep] = useState<"form" | "verify">("form");
-  const [code, setCode] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+/**
+ * Modale auth : `<SignIn />` ou `<SignUp />` (routing virtual, OAuth en popup),
+ * thème aligné sur l’app. Bascule via `mode` sans quitter l’app.
+ */
+export function ClerkSignInModal({ open, onClose }: Props) {
+  const { isSignedIn } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  const [mode, setMode] = useState<AuthModalMode>("signin");
+
+  const appearanceSignIn = useMemo(() => clerkSignInAppearanceNoFooterLink(isDark), [isDark]);
+  const appearanceSignUp = useMemo(() => clerkSignUpAppearance(isDark), [isDark]);
+
+  const goSignUp = useCallback(() => setMode("signup"), []);
+
   useEffect(() => {
     if (isSignedIn) onClose();
   }, [isSignedIn, onClose]);
 
   useEffect(() => {
-    if (!open) {
-      setError(null);
-      setLoading(false);
-      setOauthLoading(false);
-      setSignUpStep("form");
-      setCode("");
-    }
+    if (!open) return;
+    setMode("signin");
   }, [open]);
 
-  const handleConnexion = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError(null);
-      if (!signInLoaded || !signIn) {
-        setError("Connexion indisponible, réessayez.");
-        return;
-      }
-      const id = email.trim();
-      if (!id || !password) {
-        setError("Renseignez l’e-mail et le mot de passe.");
-        return;
-      }
-      setLoading(true);
-      try {
-        const result = await signIn.create({
-          strategy: "password",
-          identifier: id,
-          password,
-        });
-        if (result.status === "complete" && result.createdSessionId) {
-          await setActive({ session: result.createdSessionId });
-          onClose();
-        } else {
-          setError(
-            "Étape supplémentaire requise : " + (result.status ?? "inconnue")
-          );
-        }
-      } catch (err) {
-        const e = err as { errors?: { message?: string }[] };
-        setError(e?.errors?.[0]?.message ?? "E-mail ou mot de passe incorrect");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [signIn, signInLoaded, email, password, setActive, onClose]
-  );
+  useEffect(() => {
+    if (!open) return;
+    authModalRouter.intercept = true;
+    authModalRouter.onNavigateToSignIn = () => setMode("signin");
+    authModalRouter.onNavigateToSignUp = () => setMode("signup");
+    return () => {
+      authModalRouter.intercept = false;
+      authModalRouter.onNavigateToSignIn = null;
+      authModalRouter.onNavigateToSignUp = null;
+    };
+  }, [open]);
 
-  /** Étape 1 : création du compte + envoi du code e-mail (Clerk v6 : sendEmailCode ≈ prepareEmailAddressVerification email_code). */
-  const handleSignUp = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError(null);
-      if (!signUp) {
-        setError("Inscription indisponible, réessayez.");
-        return;
-      }
-      const em = email.trim();
-      if (!em || !password) {
-        setError("Renseignez l’e-mail et le mot de passe.");
-        return;
-      }
-      setLoading(true);
-      try {
-        // Types v6 : create n’inclut pas le mot de passe → create (email) puis password (email + mot de passe).
-        const { error: createErr } = await signUp.create({ emailAddress: em });
-        if (createErr) {
-          setError(clerkErrMessage(createErr));
-          return;
-        }
-        const { error: pwErr } = await signUp.password({ emailAddress: em, password });
-        if (pwErr) {
-          setError(clerkErrMessage(pwErr));
-          return;
-        }
-        const { error: sendErr } = await signUp.verifications.sendEmailCode();
-        if (sendErr) {
-          setError(clerkErrMessage(sendErr));
-          return;
-        }
-        setSignUpStep("verify");
-      } catch (err) {
-        setError(clerkApiErr(err));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [signUp, email, password]
-  );
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
-  /** Étape 2 : vérification du code puis session active. */
-  const handleVerify = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError(null);
-      if (!signUp) {
-        setError("Inscription indisponible, réessayez.");
-        return;
-      }
-      const trimmed = code.trim();
-      if (!trimmed) {
-        setError("Entrez le code reçu par e-mail.");
-        return;
-      }
-      setLoading(true);
-      try {
-        const { error: verErr } = await signUp.verifications.verifyEmailCode({ code: trimmed });
-        if (verErr) {
-          setError(clerkErrMessage(verErr));
-          return;
-        }
-        if (signUp.status === "complete" && signUp.createdSessionId) {
-          await setActiveForSignUp({ session: signUp.createdSessionId });
-          onClose();
-          return;
-        }
-        const { error: finErr } = await signUp.finalize();
-        if (finErr) {
-          setError(clerkErrMessage(finErr));
-          return;
-        }
-        onClose();
-      } catch (err) {
-        setError(clerkApiErr(err));
-      } finally {
-        setLoading(false);
-      }
+  const handleOverlayPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.target === e.currentTarget) onClose();
     },
-    [signUp, code, setActiveForSignUp, onClose]
+    [onClose]
   );
-
-  const handleGoogle = useCallback(async () => {
-    setError(null);
-    if (!signInLoaded || !signIn) {
-      setError("Connexion indisponible, réessayez.");
-      return;
-    }
-    const origin = window.location.origin;
-    setOauthLoading(true);
-    try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: `${origin}/sso-callback`,
-        redirectUrlComplete: `${origin}/`,
-      });
-    } catch (err) {
-      setError(clerkApiErr(err));
-    } finally {
-      setOauthLoading(false);
-    }
-  }, [signIn, signInLoaded]);
 
   if (!open) return null;
 
-  const busy = loading || oauthLoading || !isLoaded || !signInLoaded;
-  const tabBtn = (id: Tab, label: string) => (
-    <button
-      type="button"
-      onClick={() => {
-        setTab(id);
-        setError(null);
-        setSignUpStep("form");
-        setCode("");
-      }}
-      style={{
-        flex: 1,
-        padding: "10px 8px",
-        border: "none",
-        borderBottom: tab === id ? "3px solid var(--accent-yellow, #D4A757)" : "3px solid transparent",
-        background: "transparent",
-        fontWeight: tab === id ? 700 : 500,
-        color: tab === id ? "#1a1a1a" : "#666",
-        cursor: "pointer",
-        fontSize: 15,
-      }}
-    >
-      {label}
-    </button>
-  );
+  const a11yTitle = mode === "signin" ? "Connexion à PokéVault" : "Créer un compte sur PokéVault";
 
   const overlay = (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Connexion"
-      style={OVERLAY_STYLE}
-      onClick={(e) => e.target === e.currentTarget && !busy && onClose()}
-    >
-      <div onClick={(e) => e.stopPropagation()} style={PANEL_STYLE}>
+    <div role="presentation" style={OVERLAY_STYLE} onPointerDown={handleOverlayPointerDown}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="clerk-auth-modal-title"
+        style={PANEL_WRAPPER_STYLE}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <button
           type="button"
           aria-label="Fermer"
-          onClick={() => !busy && onClose()}
+          onClick={onClose}
           style={{
             position: "absolute",
-            top: 12,
-            right: 12,
+            top: 8,
+            right: 8,
+            zIndex: 10,
+            width: 36,
+            height: 36,
             border: "none",
-            background: "transparent",
+            borderRadius: "10px",
+            background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+            color: isDark ? "#e5e5e5" : "#444444",
             fontSize: 22,
             lineHeight: 1,
-            cursor: busy ? "not-allowed" : "pointer",
-            color: "#666",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           ×
         </button>
+        <span
+          id="clerk-auth-modal-title"
+          style={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            margin: -1,
+            overflow: "hidden",
+            clip: "rect(0,0,0,0)",
+            whiteSpace: "nowrap",
+            border: 0,
+          }}
+        >
+          {a11yTitle}
+        </span>
 
-        <h2 style={{ margin: "0 0 16px", fontSize: 20, color: "#1a1a1a" }}>Compte</h2>
+        <AuthModalBranding isDark={isDark} />
 
-        <div style={{ display: "flex", marginBottom: 20, gap: 0 }}>
-          {tabBtn("connexion", "Connexion")}
-          {tabBtn("inscription", "S'inscrire")}
-        </div>
-
-        {!isLoaded && <p style={{ color: "#666" }}>Chargement…</p>}
-
-        {isLoaded && tab === "connexion" && (
-          <form onSubmit={handleConnexion}>
-            <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>E-mail</label>
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ ...INPUT_STYLE, marginBottom: 12 }}
-              disabled={busy}
+        {mode === "signin" ? (
+          <>
+            <SignIn
+              routing="virtual"
+              oauthFlow="popup"
+              appearance={appearanceSignIn}
+              signUpUrl={SIGN_UP_PATH}
+              fallbackRedirectUrl={AFTER_SIGN_IN}
+              signUpFallbackRedirectUrl={AFTER_SIGN_UP}
             />
-            <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>Mot de passe</label>
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ ...INPUT_STYLE, marginBottom: 16 }}
-              disabled={busy}
-            />
-            <button type="submit" style={GOLD_BTN} disabled={busy}>
-              {loading ? "Connexion…" : "Se connecter"}
-            </button>
-          </form>
-        )}
-
-        {isLoaded && tab === "inscription" && signUpStep === "form" && (
-          <form onSubmit={handleSignUp}>
-            <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>E-mail</label>
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ ...INPUT_STYLE, marginBottom: 12 }}
-              disabled={busy}
-            />
-            <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>Mot de passe</label>
-            <input
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ ...INPUT_STYLE, marginBottom: 16 }}
-              disabled={busy}
-            />
-            <button type="submit" style={GOLD_BTN} disabled={busy}>
-              {loading ? "Envoi du code…" : "Créer un compte"}
-            </button>
-          </form>
-        )}
-
-        {isLoaded && tab === "inscription" && signUpStep === "verify" && (
-          <form onSubmit={handleVerify}>
-            <p style={{ margin: "0 0 16px", color: "#333", fontSize: 15, lineHeight: 1.45 }}>
-              Un code de vérification a été envoyé à votre e-mail.
-            </p>
-            <label style={{ display: "block", marginBottom: 8, color: "#333", fontSize: 14 }}>Code à 6 chiffres</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              style={{ ...INPUT_STYLE, marginBottom: 16 }}
-              disabled={busy}
-              placeholder="123456"
-            />
-            <button type="submit" style={GOLD_BTN} disabled={busy}>
-              {loading ? "Vérification…" : "Vérifier"}
-            </button>
-            <button
-              type="button"
-              onClick={async () => {
-                if (signUp) {
-                  await signUp.reset();
-                }
-                setSignUpStep("form");
-                setCode("");
-                setError(null);
-              }}
-              disabled={busy}
-              style={{
-                marginTop: 12,
-                width: "100%",
-                padding: "10px",
-                border: "none",
-                background: "transparent",
-                color: "#666",
-                cursor: busy ? "not-allowed" : "pointer",
-                fontSize: 14,
-              }}
-            >
-              Modifier l’e-mail ou le mot de passe
-            </button>
-          </form>
-        )}
-
-        {isLoaded && !(tab === "inscription" && signUpStep === "verify") && (
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #eee" }}>
-            <button
-              type="button"
-              onClick={handleGoogle}
-              disabled={busy}
-              style={{
-                ...GOLD_BTN,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-              }}
-            >
-              {oauthLoading ? "Redirection…" : "Continuer avec Google"}
-            </button>
-          </div>
-        )}
-
-        {error && (
-          <p role="alert" style={{ marginTop: 12, color: "#b00020", fontSize: 14 }}>
-            {error}
-          </p>
+            <AuthModalSignUpLinkFooter isDark={isDark} onGoSignUp={goSignUp} />
+          </>
+        ) : (
+          <SignUp
+            routing="virtual"
+            oauthFlow="popup"
+            appearance={appearanceSignUp}
+            localization={signUpModalLocalization}
+            signInUrl={SIGN_IN_PATH}
+            fallbackRedirectUrl={AFTER_SIGN_UP}
+            signInFallbackRedirectUrl={AFTER_SIGN_IN}
+          />
         )}
       </div>
     </div>

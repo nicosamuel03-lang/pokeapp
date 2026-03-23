@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClerkProvider } from "@clerk/react";
 import { frFR } from "@clerk/localizations";
+import { authModalRouter, authModalTargetForPath } from "../utils/authModalRouter";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -48,6 +49,20 @@ export function ClerkProviderWithRouter({ children }: Props) {
     throw new Error("Add VITE_CLERK_PUBLISHABLE_KEY to your .env.local file");
   }
 
+  const tryAuthModalNavigation = (to: string): boolean => {
+    if (!authModalRouter.intercept) return false;
+    const target = authModalTargetForPath(to, signInUrl, signUpUrl);
+    if (target === "signIn" && authModalRouter.onNavigateToSignIn) {
+      authModalRouter.onNavigateToSignIn();
+      return true;
+    }
+    if (target === "signUp" && authModalRouter.onNavigateToSignUp) {
+      authModalRouter.onNavigateToSignUp();
+      return true;
+    }
+    return false;
+  };
+
   return (
     <ClerkProvider
       publishableKey={PUBLISHABLE_KEY}
@@ -58,8 +73,14 @@ export function ClerkProviderWithRouter({ children }: Props) {
       fallbackRedirectUrl={afterSignInUrl}
       signUpFallbackRedirectUrl={afterSignUpUrl}
       appearance={clerkLightAppearance}
-      routerPush={(to) => void navigate(to)}
-      routerReplace={(to) => void navigate(to, { replace: true })}
+      routerPush={(to) => {
+        if (tryAuthModalNavigation(to)) return;
+        void navigate(to);
+      }}
+      routerReplace={(to) => {
+        if (tryAuthModalNavigation(to)) return;
+        void navigate(to, { replace: true });
+      }}
     >
       {children}
     </ClerkProvider>
