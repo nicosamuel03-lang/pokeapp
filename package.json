@@ -9,6 +9,7 @@
     "build:etb": "node scripts/build-etb-data.mjs",
     "build:display": "node scripts/build-display-data.mjs",
     "fix:display-prices": "node scripts/fix-display-prices.mjs",
+    "optimize:images": "node scripts/optimize-public-images.mjs",
     "build": "npm run build:data && npm run build:display && vite build",
     "preview": "vite preview",
     "lint": "eslint ."
@@ -46,6 +47,7 @@
     "eslint-plugin-react-hooks": "latest",
     "eslint-plugin-react-refresh": "latest",
     "postcss": "^8.5.6",
+    "sharp": "^0.33.5",
     "tailwindcss": "latest",
     "typescript": "latest",
     "vite": "latest"

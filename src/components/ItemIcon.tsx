@@ -1,3 +1,5 @@
+import { RasterImage } from "./RasterImage";
+
 function getInitials(name: string): string {
   const cleaned = name.replace(/^ETB\s+/i, "").trim();
   const skip = new Set(["et", "des", "de", "du", "en", "la", "le", "les"]);
@@ -21,6 +23,9 @@ interface ItemIconProps {
   className?: string;
   /** "default": fond sombre + ombre (historique). "none": aucun fond/ombre. */
   frame?: "default" | "none";
+  /** Liste / icônes : `lazy` (défaut). Détail produit héro : `eager` + `fetchPriority="high"`. */
+  loading?: "lazy" | "eager";
+  fetchPriority?: "high" | "low" | "auto";
 }
 
 /**
@@ -54,10 +59,11 @@ export const ItemIcon = ({
       style={containerStyle}
     >
       {hasValidImage ? (
-        <img
+        <RasterImage
           src={imageUrl as string}
           alt={name}
-          loading="eager"
+          loading={loading}
+          {...(fetchPriority != null ? { fetchPriority } : {})}
           draggable={false}
           className="brightness-100 filter-none object-contain"
           onError={(e) => {
@@ -69,7 +75,7 @@ export const ItemIcon = ({
             width: "100%",
             height: "100%",
             objectFit: "contain",
-            imageRendering: "crisp-edges"
+            imageRendering: "crisp-edges",
           }}
         />
       ) : (

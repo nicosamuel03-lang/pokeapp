@@ -17,6 +17,7 @@ import {
   type SaleLike,
 } from "../utils/portfolioChartData";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { RasterImage } from "./RasterImage";
 
 export type PortfolioSectionMode = "summary" | "chartOnly";
 
@@ -151,6 +152,7 @@ export function PortfolioDashboardSection({
               }}
             >
               <div
+                className="mewtwo-png-watermark-layer"
                 aria-hidden
                 style={{
                   position: "absolute",
@@ -160,7 +162,6 @@ export function PortfolioDashboardSection({
                   backgroundSize: "contain",
                   backgroundPosition: "center",
                   backgroundRepeat: "no-repeat",
-                  opacity: 0.85,
                   pointerEvents: "none",
                 }}
               />
@@ -478,6 +479,11 @@ export function PortfolioDashboardSection({
     </div>
   );
 
+  /** Même fichier que les graphiques ; filtres + opacité pour contraste sur fond clair / sombre. */
+  const portfolioCardMewtwoSrc = isLight
+    ? "/images/fond%20graphique/mewtwoo_gris.png"
+    : "/images/fond%20graphique/mewtwoo.png?v=2";
+
   const portfolioValueBlock = (
     <>
       <p className="text-xs font-medium mb-1" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
@@ -525,11 +531,13 @@ export function PortfolioDashboardSection({
 
   const portfolioMainCardInner = (opts: { showLinks: boolean; to?: string }) => {
     const { showLinks, to } = opts;
+    const hasChevron = Boolean(showLinks && to);
+
     const chevron =
       showLinks && to ? (
         <Link
           to={to}
-          className="portfolio-summary-card-link flex shrink-0 items-center justify-center rounded-lg p-1.5 no-underline cursor-pointer"
+          className="portfolio-summary-card-link relative z-[2] flex shrink-0 items-center justify-center rounded-lg p-1.5 no-underline cursor-pointer"
           style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}
           aria-label="Aller à la collection"
         >
@@ -537,8 +545,63 @@ export function PortfolioDashboardSection({
         </Link>
       ) : null;
 
+    /**
+     * Taille proche de l’état d’avant le scale 1,22 / 156 px (sans regrossir la carte).
+     */
+    const MEWTWO_CARD_PX = 104;
+
+    const mewtwoWatermarkInner = (
+      <div
+        className="portfolio-card-mewtwo-watermark relative z-[1] flex shrink-0 select-none items-center justify-center"
+        style={{
+          width: MEWTWO_CARD_PX,
+          height: MEWTWO_CARD_PX,
+          minWidth: MEWTWO_CARD_PX,
+          marginLeft: -4,
+          marginRight: hasChevron ? 12 : 6,
+          boxShadow: "none",
+          filter: "none",
+          WebkitFilter: "none",
+          backdropFilter: "none",
+          WebkitBackdropFilter: "none",
+        }}
+      >
+        <RasterImage
+          src={portfolioCardMewtwoSrc}
+          alt=""
+          draggable={false}
+          loading="lazy"
+          className="portfolio-card-mewtwo-img relative z-[2] h-full w-full object-contain pointer-events-none"
+          style={{ filter: "grayscale(100%) opacity(0.2)" }}
+        />
+      </div>
+    );
+
+    /** Même navigation que la zone texte ; `aria-hidden` car le lien principal porte le libellé accessibilité. */
+    const portfolioCardMewtwoWatermark =
+      showLinks && to ? (
+        <Link
+          to={to}
+          className="portfolio-card-mewtwo-link relative z-[1] flex shrink-0 cursor-pointer items-center justify-center no-underline"
+          style={{
+            color: "inherit",
+            boxShadow: "none",
+            filter: "none",
+            WebkitFilter: "none",
+            backdropFilter: "none",
+            WebkitBackdropFilter: "none",
+          }}
+          aria-hidden
+          tabIndex={-1}
+        >
+          {mewtwoWatermarkInner}
+        </Link>
+      ) : (
+        <div className="pointer-events-none">{mewtwoWatermarkInner}</div>
+      );
+
     return (
-      <div className="flex w-full min-w-0 flex-row items-center justify-between gap-3">
+      <div className="flex w-full min-w-0 flex-row items-center justify-between gap-0 sm:gap-1">
         {showLinks && to ? (
           <Link
             to={to}
@@ -551,6 +614,7 @@ export function PortfolioDashboardSection({
         ) : (
           <div className="min-w-0 flex-1 basis-0 text-left">{portfolioValueBlock}</div>
         )}
+        {portfolioCardMewtwoWatermark}
         {chevron}
       </div>
     );

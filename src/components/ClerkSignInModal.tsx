@@ -155,16 +155,43 @@ function clerkSignUpAppearance(isDark: boolean): Appearance {
   };
 }
 
-/** Masque le pied d’action Clerk : le lien « S’inscrire » ne déclenche pas routerPush en routing virtual. */
-function clerkSignInAppearanceNoFooterLink(isDark: boolean): Appearance {
+/**
+ * Pied d’inscription **dans** la carte Clerk : lien natif « S’inscrire » (signUpUrl="#signup") + styles.
+ * `jselements` : sélecteurs avancés (ex. `& + div`) pour masquer ce qui suit le footer si besoin.
+ */
+function clerkSignInAppearanceModalFooter(isDark: boolean): Appearance {
   const base = clerkAuthAppearance(isDark);
+  const el = (base.elements ?? {}) as Record<string, CSSProperties | undefined>;
   return {
     ...base,
-    elements: {
-      ...base.elements,
-      footerAction: { display: "none" },
+      elements: {
+      ...el,
+      footerAction: {
+        pointerEvents: "auto",
+        position: "relative",
+        zIndex: 10,
+      },
+      footerActionLink: {
+        color: "#C9A84C",
+        fontWeight: 600,
+        pointerEvents: "auto",
+        cursor: "pointer",
+        position: "relative",
+        zIndex: 11,
+        ...(typeof el.footerActionLink === "object" && el.footerActionLink !== null ? el.footerActionLink : {}),
+      },
     },
-  };
+    jselements: {
+      footerAction__signIn: { display: "none" },
+      footerActionLink: {
+        color: "#C9A84C",
+        fontWeight: "600",
+      },
+      footer: {
+        "& + div": { display: "none" },
+      },
+    },
+  } as Appearance;
 }
 
 const signUpModalLocalization: LocalizationResource = {
@@ -204,7 +231,10 @@ const PANEL_WRAPPER_STYLE: CSSProperties = {
   maxWidth: "100%",
   margin: "16px",
   alignSelf: "center",
-  zIndex: 1,
+  /** Au-dessus de tout calque interne Clerk à z-index modéré ; le lien footer utilise aussi z-index élevé (index.css). */
+  zIndex: 2,
+  isolation: "isolate",
+  overflow: "visible",
 };
 
 function AuthModalBranding({ isDark }: { isDark: boolean }) {
@@ -226,49 +256,6 @@ function AuthModalBranding({ isDark }: { isDark: boolean }) {
   );
 }
 
-/**
- * Lien inscription sous le formulaire Clerk : bascule `mode` → `signup` sans navigation.
- * Texte affiché : « Vous n'avez pas encore de compte ? » + bouton « S'inscrire ».
- */
-function AuthModalSignUpLinkFooter({ isDark, onGoSignUp }: { isDark: boolean; onGoSignUp: () => void }) {
-  const textMuted = isDark ? "#a3a3a3" : "#444444";
-  const linkColor = isDark ? GOLD_DARK : "#8B6914";
-  const borderTop = isDark ? "1px solid #333333" : "1px solid rgba(0,0,0,0.08)";
-
-  return (
-    <div
-      style={{
-        marginTop: 16,
-        paddingTop: 16,
-        borderTop,
-        textAlign: "center",
-        fontSize: 14,
-        lineHeight: 1.5,
-        color: textMuted,
-      }}
-    >
-      <span>Vous n&apos;avez pas encore de compte ? </span>
-      <button
-        type="button"
-        onClick={onGoSignUp}
-        style={{
-          background: "none",
-          border: "none",
-          padding: 0,
-          cursor: "pointer",
-          font: "inherit",
-          fontWeight: 600,
-          color: linkColor,
-          textDecoration: "underline",
-          textUnderlineOffset: 2,
-        }}
-      >
-        S&apos;inscrire
-      </button>
-    </div>
-  );
-}
-
 type Props = {
   open: boolean;
   onClose: () => void;
@@ -286,10 +273,8 @@ export function ClerkSignInModal({ open, onClose }: Props) {
   const isDark = theme === "dark";
   const [mode, setMode] = useState<AuthModalMode>("signin");
 
-  const appearanceSignIn = useMemo(() => clerkSignInAppearanceNoFooterLink(isDark), [isDark]);
+  const appearanceSignIn = useMemo(() => clerkSignInAppearanceModalFooter(isDark), [isDark]);
   const appearanceSignUp = useMemo(() => clerkSignUpAppearance(isDark), [isDark]);
-
-  const goSignUp = useCallback(() => setMode("signup"), []);
 
   useEffect(() => {
     if (isSignedIn) onClose();
@@ -321,6 +306,42 @@ export function ClerkSignInModal({ open, onClose }: Props) {
     };
   }, [open]);
 
+  /**
+   * Intercepte le clic sur « S’inscrire » / Sign up : recherche par texte (clé de localisation variable selon Clerk).
+   */
+  useEffect(() => {
+    if (!open || mode !== "signin") return;
+
+    const tryInterceptSignUpLink = () => {
+      const allLinks = document.querySelectorAll('a, button, span[role="button"]');
+      allLinks.forEach((el) => {
+        if (!(el instanceof HTMLElement)) return;
+        const t = el.textContent ?? "";
+        const lower = t.toLowerCase();
+        if (!lower.includes("inscrire") && !lower.includes("sign up")) {
+          return;
+        }
+        if (el.dataset.intercepted) return;
+        el.dataset.intercepted = "true";
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setMode("signup");
+        });
+      });
+    };
+
+    tryInterceptSignUpLink();
+
+    const observer = new MutationObserver(() => {
+      tryInterceptSignUpLink();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [open, mode]);
+
   const handleOverlayPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.target === e.currentTarget) onClose();
@@ -335,6 +356,7 @@ export function ClerkSignInModal({ open, onClose }: Props) {
   const overlay = (
     <div role="presentation" style={OVERLAY_STYLE} onPointerDown={handleOverlayPointerDown}>
       <div
+        className="pokevault-auth-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="clerk-auth-modal-title"
@@ -349,7 +371,7 @@ export function ClerkSignInModal({ open, onClose }: Props) {
             position: "absolute",
             top: 8,
             right: 8,
-            zIndex: 10,
+            zIndex: 50,
             width: 36,
             height: 36,
             border: "none",
@@ -386,17 +408,15 @@ export function ClerkSignInModal({ open, onClose }: Props) {
         <AuthModalBranding isDark={isDark} />
 
         {mode === "signin" ? (
-          <>
-            <SignIn
-              routing="virtual"
-              oauthFlow="popup"
-              appearance={appearanceSignIn}
-              signUpUrl={SIGN_UP_PATH}
-              fallbackRedirectUrl={AFTER_SIGN_IN}
-              signUpFallbackRedirectUrl={AFTER_SIGN_UP}
-            />
-            <AuthModalSignUpLinkFooter isDark={isDark} onGoSignUp={goSignUp} />
-          </>
+          <SignIn
+            routing="virtual"
+            oauthFlow="popup"
+            appearance={appearanceSignIn}
+            signUpUrl="#signup"
+            signUpForceRedirectUrl="#signup"
+            fallbackRedirectUrl={AFTER_SIGN_IN}
+            signUpFallbackRedirectUrl={AFTER_SIGN_UP}
+          />
         ) : (
           <SignUp
             routing="virtual"

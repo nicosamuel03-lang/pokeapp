@@ -15,6 +15,7 @@ import {
   productCardEraBadgeClassName,
 } from "../utils/productCardEraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { RasterImage } from "../components/RasterImage";
 type MainTab = "etb" | "displays" | "upc";
 
 const TYPE_ROW_DARK_BG = "#111111";
@@ -190,10 +191,11 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
             style={{ background: "var(--img-container-bg)" }}
           >
             {product.imageUrl ? (
-              <img
+              <RasterImage
                 src={product.imageUrl}
                 alt={displayName}
-                className="w-full h-full object-contain"
+                loading="lazy"
+                className="h-full w-full object-contain"
                 style={{ objectFit: "contain" }}
               />
             ) : (
@@ -276,7 +278,13 @@ function ProductCard({ product, rank, variant }: ProductCardProps) {
         style={{ background: "var(--img-container-bg)" }}
       >
         {product.imageUrl ? (
-          <img src={product.imageUrl} alt={displayName} className="w-full h-full object-contain" style={{ objectFit: "contain" }} />
+          <RasterImage
+            src={product.imageUrl}
+            alt={displayName}
+            loading="lazy"
+            className="h-full w-full object-contain"
+            style={{ objectFit: "contain" }}
+          />
         ) : (
           <span className="text-lg opacity-60">{product.emoji}</span>
         )}

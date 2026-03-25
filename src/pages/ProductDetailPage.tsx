@@ -13,9 +13,12 @@ import { useProducts, type Product } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { setSalePrice } from "../utils/salesStorage";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
+import { useEbayLiveMarketPrice } from "../hooks/useEbayLiveMarketPrice";
+import { isEbayMockMode } from "../services/ebayMarketPrice";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
 import { ItemIcon } from "../components/ItemIcon";
+import { RasterImage } from "../components/RasterImage";
 import { ChevronLeft } from "lucide-react";
 import { useUser } from "@clerk/react";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -211,6 +214,13 @@ const ProductDetailPageInner = () => {
       categoryForFormat
     );
   }, [product, categoryForFormat]);
+
+  const catalogPrixMarche = useMemo(
+    () => (product ? getPrixMarcheForProduct(product, etbData) : 0),
+    [product, etbData]
+  );
+  const ebaySearchQuery = (displayProductName || product?.name || "").trim();
+  const ebayLive = useEbayLiveMarketPrice(ebaySearchQuery, catalogPrixMarche);
 
   /** Même badge d’ère / pilule néon que sur les cartes produit (accueil). */
   const eraBadgeForDetail = useMemo(() => {
@@ -421,7 +431,7 @@ const ProductDetailPageInner = () => {
     const q = !Number.isFinite(raw) || raw < 1 ? 1 : raw;
     return Math.min(q, max);
   }, [saleQuantityToSell, quantite]);
-  const prixMarche = getPrixMarcheForProduct(product, etbData);
+  const prixMarche = ebayLive.displayPrice;
   const performanceVsPurchasePercent =
     collectionMatch != null && collectionMatch.buyPrice > 0 && Number.isFinite(prixMarche)
       ? ((prixMarche - collectionMatch.buyPrice) / collectionMatch.buyPrice) * 100
@@ -592,7 +602,7 @@ const ProductDetailPageInner = () => {
                 }}
               >
                 {product.imageUrl ? (
-                  <img
+                  <RasterImage
                     src={product.imageUrl}
                     alt={displayProductName}
                     width={130}
@@ -600,6 +610,8 @@ const ProductDetailPageInner = () => {
                     className="object-contain"
                     style={{ objectFit: "contain" }}
                     loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                       const fallback = e.currentTarget.nextElementSibling as HTMLElement | null;
@@ -672,6 +684,11 @@ const ProductDetailPageInner = () => {
                           maximumFractionDigits: 0
                         })}
                       </p>
+                      {ebayLive.phase === "loading" ? (
+                        <span className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                          eBay FR…
+                        </span>
+                      ) : null}
                       {performanceVsPurchasePercent != null && Number.isFinite(performanceVsPurchasePercent) ? (
                         <span
                           className="tabular-nums"
@@ -702,6 +719,18 @@ const ProductDetailPageInner = () => {
                         </span>
                       ) : null}
                     </div>
+                    {!isEbayMockMode() && ebayLive.phase === "ok" && ebayLive.livePrice != null ? (
+                      <p className="mt-0 text-[10px] leading-snug" style={{ color: "var(--text-secondary)" }}>
+                        Estimation eBay France : moyenne sur {ebayLive.itemsUsed} annonce
+                        {ebayLive.itemsUsed > 1 ? "s" : ""} (parmi {ebayLive.resultCount} résultat
+                        {ebayLive.resultCount > 1 ? "s" : ""}).
+                      </p>
+                    ) : null}
+                    {!isEbayMockMode() && ebayLive.phase === "error" ? (
+                      <p className="mt-0 text-[10px] leading-snug" style={{ color: "var(--text-secondary)" }}>
+                        Prix catalogue (eBay indisponible ou sans annonces en EUR).
+                      </p>
+                    ) : null}
                   </div>
                   {isInCollection && (
                     <p className="mt-0 text-xs" style={{ color: "var(--text-secondary)" }}>
@@ -962,6 +991,7 @@ const ProductDetailPageInner = () => {
               }}
             >
               <div
+                className="mewtwo-png-watermark-layer"
                 aria-hidden
                 style={{
                   position: "absolute",
@@ -971,7 +1001,6 @@ const ProductDetailPageInner = () => {
                   backgroundSize: "contain",
                   backgroundRepeat: "no-repeat",
                   backgroundPosition: "center",
-                  opacity: 0.18,
                   pointerEvents: "none",
                 }}
               />

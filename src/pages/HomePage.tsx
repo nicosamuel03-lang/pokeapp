@@ -4,6 +4,7 @@ import type { Category } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { Link, useLocation } from "react-router-dom";
 import { ItemIcon } from "../components/ItemIcon";
+import { RasterImage } from "../components/RasterImage";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
@@ -594,13 +595,15 @@ export const HomePage = () => {
                   }}
                 >
                   {product.imageUrl ? (
-                    <img
+                    <RasterImage
                       src={product.imageUrl}
                       alt={product.name}
-                      loading="eager"
+                      loading="lazy"
                       width={144}
                       height={140}
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
                       style={{
                         width: "100%",
                         height: "100%",

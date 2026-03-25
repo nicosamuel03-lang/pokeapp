@@ -8,6 +8,7 @@ import { countSalesRowsByUserId, fetchSalesCounterCount } from "../lib/salesSupa
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { RasterImage } from "../components/RasterImage";
 
 function formatSaleDate(iso: string): string {
   const [y, m, d] = iso.split("-");
@@ -346,10 +347,10 @@ export const HistoriquePage = () => {
                         style={{ width: "56px", height: "56px", minHeight: "56px", background: "var(--img-container-bg)" }}
                       >
                         {imageUrl ? (
-                          <img
+                          <RasterImage
                             src={imageUrl}
                             alt={displayName}
-                            loading="eager"
+                            loading="lazy"
                             width={56}
                             height={56}
                             className="h-full w-full object-contain"
@@ -478,7 +479,14 @@ export const HistoriquePage = () => {
                               style={{ width: "56px", height: "56px", minHeight: "56px", background: "var(--img-container-bg)" }}
                             >
                               {imageUrl ? (
-                                <img src={imageUrl} alt={displayName} width={56} height={56} className="h-full w-full object-contain" />
+                                <RasterImage
+                                  src={imageUrl}
+                                  alt={displayName}
+                                  loading="lazy"
+                                  width={56}
+                                  height={56}
+                                  className="h-full w-full object-contain"
+                                />
                               ) : (
                                 <span className="text-lg opacity-60">🎴</span>
                               )}

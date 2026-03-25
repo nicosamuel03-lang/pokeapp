@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
+import { apiUrl } from "../config/apiUrl";
 
 const NOTIFICATIONS_STORAGE_KEY = "pokevault_notifications_enabled";
-const API_BASE = "https://pokeapp-production-52e4.up.railway.app";
 
 const sectionHeaderBaseStyle: React.CSSProperties = {
   fontSize: 11,
@@ -68,7 +68,7 @@ export function SettingsPage() {
     if (!user?.id) return;
     setCancelLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/cancel-subscription`, {
+      const res = await fetch(apiUrl("/api/cancel-subscription"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id }),
@@ -84,7 +84,7 @@ export function SettingsPage() {
     setDeleteLoading(true);
     try {
       const token = await getToken();
-      const res = await fetch(`${API_BASE}/api/delete-account`, {
+      const res = await fetch(apiUrl("/api/delete-account"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

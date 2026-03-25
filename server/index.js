@@ -1,6 +1,6 @@
-require("dotenv").config({
-  path: require("path").resolve(__dirname, "../.env.local"),
-});
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+require("dotenv").config({ path: path.resolve(__dirname, "../.env.local") });
 const express = require("express");
 const cors = require("cors");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -265,6 +265,74 @@ app.post(
 
 app.use(express.json());
 
+const { searchAveragePriceTop5 } = require("./ebayBrowse");
+const { findCompletedSoldMedian } = require("./ebayFinding");
+
+/** Prix moyen (€) des 5 premières annonces eBay France (Browse API). */
+app.get("/api/ebay/price", async (req, res) => {
+  const raw = req.query.query;
+  if (raw == null || String(raw).trim() === "") {
+    return res.status(400).json({ error: "Missing query parameter: query" });
+  }
+  try {
+    const result = await searchAveragePriceTop5(String(raw));
+    return res.json({
+      averagePriceEur: result.averagePriceEur,
+      resultCount: result.resultCount,
+      itemsUsed: result.itemsUsed,
+      query: String(raw).trim(),
+    });
+  } catch (err) {
+    if (err?.code === "EBAY_CONFIG") {
+      return res
+        .status(503)
+        .json({ error: "eBay API not configured (EBAY_CLIENT_ID / EBAY_CLIENT_SECRET)" });
+    }
+    if (err?.code === "BAD_QUERY") {
+      return res.status(400).json({ error: err.message });
+    }
+    console.error("[api/ebay/price]", err?.message || err);
+    return res.status(502).json({
+      error: err?.message || "eBay request failed",
+      code: err?.code || undefined,
+    });
+  }
+});
+
+/**
+ * eBay Finding API — findCompletedItems (ventes soldées FR), médiane € sur les 30 plus récentes &gt; 30 €.
+ */
+app.get("/api/ebay-sold-prices", async (req, res) => {
+  const raw = req.query.query;
+  if (raw == null || String(raw).trim() === "") {
+    return res.status(400).json({ error: "Missing query parameter: query" });
+  }
+  try {
+    const result = await findCompletedSoldMedian(String(raw).trim());
+    return res.json(result);
+  } catch (err) {
+    if (err?.code === "EBAY_FINDING_CONFIG") {
+      return res.status(503).json({
+        error: err.message || "eBay Finding non configuré",
+      });
+    }
+    if (err?.code === "BAD_QUERY") {
+      return res.status(400).json({ error: err.message });
+    }
+    if (err?.code === "NO_RESULTS") {
+      return res.status(404).json({
+        error: err.message,
+        query: String(raw).trim(),
+      });
+    }
+    console.error("[api/ebay-sold-prices]", err?.message || err);
+    return res.status(502).json({
+      error: err?.message || "eBay Finding request failed",
+      code: err?.code,
+    });
+  }
+});
+
 console.log(
   "TESTING KEY:",
   process.env.STRIPE_SECRET_KEY ? "Key is loaded" : "KEY IS MISSING"
@@ -488,7 +556,7 @@ app.post("/api/delete-account", async (req, res) => {
   }
 });
 
-const PORT = 4000;
-app.listen(4000, "0.0.0.0", () =>
-  console.log("SERVER STRIPE IS READY ON PORT 4000")
-);
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ SERVER IS READY ON PORT ${PORT}`);
+});

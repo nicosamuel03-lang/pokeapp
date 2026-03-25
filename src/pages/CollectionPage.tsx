@@ -7,6 +7,7 @@ import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
 import { ItemIcon } from "../components/ItemIcon";
+import { RasterImage } from "../components/RasterImage";
 import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
@@ -540,13 +541,15 @@ export const CollectionPage = () => {
                   }}
                 >
                   {imageUrl ? (
-                    <img
+                    <RasterImage
                       src={imageUrl}
                       alt={item.product.name}
-                      loading="eager"
+                      loading="lazy"
                       width={144}
                       height={140}
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
                       style={{
                         width: "100%",
                         height: "100%",

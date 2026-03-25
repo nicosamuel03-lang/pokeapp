@@ -11,7 +11,10 @@ import { getEraBadgeForCatalogueItem } from "../utils/eraBadge";
 import { formatDisplayProductName, formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { CatalogueSearchResultRow } from "./CatalogueSearchResultRow";
+import { RasterImage } from "./RasterImage";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { useEbayLiveMarketPrice } from "../hooks/useEbayLiveMarketPrice";
+import { isEbayMockMode } from "../services/ebayMarketPrice";
 
 /** Prix catalogue brut (JSON / etbData), sans couche eBay mock. */
 function getMarchéActuelBrut(item: PokemonCatalogueItem): number {
@@ -92,7 +95,13 @@ function todayISO(): string {
 interface AddModalProps {
   item: PokemonCatalogueItem;
   onClose: () => void;
-  onAdd: (item: PokemonCatalogueItem, buyPrice: number, qty: number, purchaseDate?: string) => void;
+  onAdd: (
+    item: PokemonCatalogueItem,
+    buyPrice: number,
+    qty: number,
+    purchaseDate?: string,
+    prixMarcheActuel?: number
+  ) => void;
 }
 
 const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
@@ -113,13 +122,21 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
   const modalPlaceholderBg =
     (item.type === "Display" || item.type === "UPC") && modalEraBadge ? modalEraBadge.bg : "var(--placeholder-bg)";
 
+  const titleFormatted = formatProductNameWithSetCode(
+    item.name,
+    getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
+    item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
+  );
+  const catalogMarché = getMarchéActuelAffiché(item);
+  const ebayLive = useEbayLiveMarketPrice(titleFormatted, catalogMarché);
+
   const handleConfirm = () => {
     const price = parseFloat(buyPrice.replace(",", "."));
     const quantity = parseInt(qty, 10);
     if (Number.isNaN(price) || price <= 0 || Number.isNaN(quantity) || quantity < 1)
       return;
     if (navigator.vibrate) navigator.vibrate(50);
-    onAdd(item, price, quantity, purchaseDate || undefined);
+    onAdd(item, price, quantity, purchaseDate || undefined, ebayLive.displayPrice);
     setJustAdded(true);
     setTimeout(() => {
       setJustAdded(false);
@@ -152,13 +169,13 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
               <div className="flex flex-col items-start gap-3">
                 <div className="relative w-full flex items-center justify-center rounded-2xl overflow-hidden" style={{ height: "192px", minHeight: "192px", background: "var(--img-container-bg)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}>
                   {modalImgUrl ? (
-                    <img
+                    <RasterImage
                       src={modalImgUrl || ""}
                       alt={formatDisplayProductName(item.name, item.type === "Display" || item.type === "UPC")}
                       loading="eager"
                       width={288}
                       height={192}
-                      className="w-full h-full object-contain"
+                      className="h-full w-full object-contain"
                       style={{ objectFit: "contain" }}
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
@@ -181,11 +198,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                 </div>
                 <div className="min-w-0 w-full text-left">
                   <p className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>
-                    {formatProductNameWithSetCode(
-                      item.name,
-                      getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
-                      item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
-                    )}
+                    {titleFormatted}
                   </p>
                   <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>
                     {item.block} · Sortie{" "}
@@ -196,13 +209,26 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   <p className="mt-0.5 text-xs font-medium">
                     <span style={{ color: accentGold }}>Marché actuel :</span>{" "}
                     <span className={STAT_CARD_VALUE_CLASS} style={{ color: accentGold }}>
-                      {getMarchéActuelAffiché(item).toLocaleString("fr-FR", {
+                      {ebayLive.displayPrice.toLocaleString("fr-FR", {
                         style: "currency",
                         currency: "EUR",
                         maximumFractionDigits: 0,
                       })}
                     </span>
+                    {ebayLive.phase === "loading" ? (
+                      <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}> · eBay…</span>
+                    ) : null}
                   </p>
+                  {!isEbayMockMode() && ebayLive.phase === "ok" ? (
+                    <p className="mt-0 text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                      Moyenne eBay FR ({ebayLive.itemsUsed} annonce{ebayLive.itemsUsed > 1 ? "s" : ""} en €).
+                    </p>
+                  ) : null}
+                  {!isEbayMockMode() && ebayLive.phase === "error" ? (
+                    <p className="mt-0 text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                      Prix catalogue (eBay indisponible).
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -382,12 +408,23 @@ export const SearchCatalogue = () => {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [query]);
 
-  const handleAdd = (item: PokemonCatalogueItem, buyPrice: number, qty: number, purchaseDate?: string) => {
+  const handleAdd = (
+    item: PokemonCatalogueItem,
+    buyPrice: number,
+    qty: number,
+    purchaseDate?: string,
+    prixMarcheActuel?: number
+  ) => {
     if (!premiumLoading && !isPremium && totalQuantity + qty > FREE_COLLECTION_LIMIT) {
       navigate("/premium");
       return;
     }
-    const marchéActuel = getMarchéActuelBrut(item);
+    const marchéActuel =
+      typeof prixMarcheActuel === "number" &&
+      Number.isFinite(prixMarcheActuel) &&
+      prixMarcheActuel > 0
+        ? prixMarcheActuel
+        : getMarchéActuelBrut(item);
     const product = addProduct({
       emoji: item.emoji,
       name: item.name,

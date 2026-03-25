@@ -4,10 +4,7 @@ import { useUser } from "@clerk/react";
 import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
 import { useTheme } from "../state/ThemeContext";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
-
-const CHECKOUT_URL = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL}/api/checkout`
-  : "https://pokeapp-production-52e4.up.railway.app/api/checkout";
+import { apiUrl, getApiBaseUrl } from "../config/apiUrl";
 
 const VITE_MONTHLY_PRICE_ID = import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID as string | undefined;
 const VITE_ANNUAL_PRICE_ID = import.meta.env.VITE_STRIPE_ANNUAL_PRICE_ID as string | undefined;
@@ -62,8 +59,15 @@ export function PremiumPage() {
         setError("Connectez-vous pour souscrire — compte requis pour lier l’abonnement.");
         return;
       }
-      const checkoutUrl = CHECKOUT_URL;
-      console.log("[Premium checkout] Calling exact URL:", checkoutUrl, "| VITE_API_URL:", import.meta.env.VITE_API_URL ?? "(not set)");
+      const checkoutUrl = apiUrl("/api/checkout");
+      console.log(
+        "[Premium checkout] Calling exact URL:",
+        checkoutUrl,
+        "| API base:",
+        getApiBaseUrl(),
+        "| VITE_API_URL env:",
+        import.meta.env.VITE_API_URL ?? "(défaut code / .env.*)"
+      );
       const baseUrl = window.location.origin;
       const priceId =
         plan === "annual"

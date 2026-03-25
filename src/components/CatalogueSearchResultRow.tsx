@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { formatDisplayProductName } from "../utils/formatProduct";
 import { getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { RasterImage } from "./RasterImage";
 
 export type CatalogueSearchResultRowEraBadge = { label: string; bg: string; color: string };
 
@@ -67,10 +68,10 @@ export function CatalogueSearchResultRow(props: CatalogueSearchResultRowProps) {
         style={{ height: "48px", minHeight: "48px", background: "var(--img-container-bg)", boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
       >
         {imageUrl ? (
-          <img
+          <RasterImage
             src={imageUrl}
             alt={alt}
-            loading="eager"
+            loading="lazy"
             width={48}
             height={48}
             className="h-full w-full object-contain"
