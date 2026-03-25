@@ -266,7 +266,6 @@ app.post(
 app.use(express.json());
 
 const { searchAveragePriceTop5 } = require("./ebayBrowse");
-const { findCompletedSoldMedian } = require("./ebayFinding");
 
 /** Prix moyen (€) des 5 premières annonces eBay France (Browse API). */
 app.get("/api/ebay/price", async (req, res) => {
@@ -295,40 +294,6 @@ app.get("/api/ebay/price", async (req, res) => {
     return res.status(502).json({
       error: err?.message || "eBay request failed",
       code: err?.code || undefined,
-    });
-  }
-});
-
-/**
- * eBay Finding API — findCompletedItems (ventes soldées FR), médiane € sur les 30 plus récentes &gt; 30 €.
- */
-app.get("/api/ebay-sold-prices", async (req, res) => {
-  const raw = req.query.query;
-  if (raw == null || String(raw).trim() === "") {
-    return res.status(400).json({ error: "Missing query parameter: query" });
-  }
-  try {
-    const result = await findCompletedSoldMedian(String(raw).trim());
-    return res.json(result);
-  } catch (err) {
-    if (err?.code === "EBAY_FINDING_CONFIG") {
-      return res.status(503).json({
-        error: err.message || "eBay Finding non configuré",
-      });
-    }
-    if (err?.code === "BAD_QUERY") {
-      return res.status(400).json({ error: err.message });
-    }
-    if (err?.code === "NO_RESULTS") {
-      return res.status(404).json({
-        error: err.message,
-        query: String(raw).trim(),
-      });
-    }
-    console.error("[api/ebay-sold-prices]", err?.message || err);
-    return res.status(502).json({
-      error: err?.message || "eBay Finding request failed",
-      code: err?.code,
     });
   }
 });
