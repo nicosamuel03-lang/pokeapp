@@ -279,13 +279,15 @@ app.get("/api/ebay/price", async (req, res) => {
       averagePriceEur: result.averagePriceEur,
       resultCount: result.resultCount,
       itemsUsed: result.itemsUsed,
-      query: String(raw).trim(),
+      marketplace: result.marketplace,
+      query: result.query ?? String(raw).trim(),
+      originalQuery: String(raw).trim(),
     });
   } catch (err) {
     if (err?.code === "EBAY_CONFIG") {
       return res
         .status(503)
-        .json({ error: "eBay API not configured (EBAY_CLIENT_ID / EBAY_CLIENT_SECRET)" });
+        .json({ error: "eBay API not configured (EBAY_APP_ID manquant)" });
     }
     if (err?.code === "BAD_QUERY") {
       return res.status(400).json({ error: err.message });

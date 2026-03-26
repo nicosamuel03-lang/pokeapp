@@ -229,9 +229,30 @@ for (let i = 0; i < dataRows.length; i += 1) {
     return { mois: iso, mois_label: label, prix };
   });
 
-  // currentMarketPrice = Col AG (index 32) = Février 2026
+  // prixActuel = dernier prix non-null dans l'historique (2026 > 2025 > 2024),
+  // sinon colonne AG (Fév 2026) si renseignée, sinon MSRP.
+  function lastNonNull(arr) {
+    for (let k = arr.length - 1; k >= 0; k--) {
+      if (arr[k] !== null && arr[k] !== undefined && arr[k] > 0) return arr[k];
+    }
+    return 0;
+  }
+  const prix2026Values = historique_prix.map((p) => p.prix);
+  const prix2025Values = historique_prix_2025.map((p) => p.prix);
+  const prix2024Values = historique_prix_2024.map((p) => p.prix);
+
+  const lastFrom2026 = lastNonNull(prix2026Values);
+  const lastFrom2025 = lastNonNull(prix2025Values);
+  const lastFrom2024 = lastNonNull(prix2024Values);
   const marchePrice = num(row[COL_CURRENT_MARKET]);
-  const prixActuel = marchePrice > 0 ? marchePrice : msrp;
+
+  // Priorité : dernier prix 2026 → dernier prix 2025 → dernier prix 2024 → colonne AG → MSRP
+  const prixActuel =
+    lastFrom2026 > 0 ? lastFrom2026 :
+    lastFrom2025 > 0 ? lastFrom2025 :
+    lastFrom2024 > 0 ? lastFrom2024 :
+    marchePrice > 0 ? marchePrice :
+    msrp;
 
   // Image locale : préférer fichier existant dans public/images/etb/
   const etbDir = path.join(process.cwd(), "public", "images", "etb");

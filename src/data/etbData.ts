@@ -35,19 +35,19 @@ export const etbData: ETBItem[] = [
     "series": "Méga Évolution",
     "dateSortie": "30/01/2026",
     "pvcSortie": 60,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 75,
     "imageUrl": "/images/etb/Héros Transcendants.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -104,124 +104,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": null
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 55
       }
     ]
   },
@@ -232,19 +232,19 @@ export const etbData: ETBItem[] = [
     "series": "Méga Évolution",
     "dateSortie": "14/11/2025",
     "pvcSortie": 60,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 85,
     "imageUrl": "/images/etb/Flammes Fantasmagoriques.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 85
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 85
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -301,124 +301,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": null
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 55
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 80
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -429,19 +429,19 @@ export const etbData: ETBItem[] = [
     "series": "Méga Évolution",
     "dateSortie": "26/09/2025",
     "pvcSortie": 60,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 85,
     "imageUrl": "/images/etb/Méga Évolution.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 85
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 85
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -498,124 +498,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": null
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 55
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 85
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 70
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 75
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -626,19 +626,19 @@ export const etbData: ETBItem[] = [
     "series": "Méga Évolution",
     "dateSortie": "26/09/2025",
     "pvcSortie": 60,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 85,
     "imageUrl": "/images/etb/Méga Évolution 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 85
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 85
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -695,124 +695,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": null
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 55
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 80
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 70
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 70
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -823,19 +823,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "18/07/2025",
     "pvcSortie": 55,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 80,
     "imageUrl": "/images/etb/Foudre Noire.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -892,124 +892,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": null
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 55
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 73
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 75
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 75
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 70
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 70
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -1020,19 +1020,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "18/07/2025",
     "pvcSortie": 55,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 80,
     "imageUrl": "/images/etb/Flamme Blanche.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -1089,124 +1089,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": null
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 55
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 70
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 70
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 70
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 70
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 70
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -1217,19 +1217,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "30/05/2025",
     "pvcSortie": 55,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 120,
     "imageUrl": "/images/etb/Rivalités Destinées.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 100
+        "prix": 120
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -1286,124 +1286,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 105
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 105
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 90
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 95
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 90
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 95
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 100
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 110
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 100
       }
     ]
   },
@@ -1414,19 +1414,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "28/03/2025",
     "pvcSortie": 55,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 80,
     "imageUrl": "/images/etb/Aventure Ensemble.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -1483,124 +1483,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": null
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 55
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 65
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 75
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 70
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 70
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 75
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 80
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 70
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 70
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 70
       }
     ]
   },
@@ -1611,19 +1611,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "07/02/2025",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "",
     "prixActuel": 105,
     "imageUrl": "/images/etb/Étincelles Déferlantes.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 90
+        "prix": 105
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 105
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -1680,124 +1680,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 55
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 110
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 120
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 100
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 95
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 110
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 115
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 120
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 120
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 90
       }
     ]
   },
@@ -1808,19 +1808,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "17/01/2025",
     "pvcSortie": 55,
-    "statut": "🆕 Récent",
+    "statut": "",
     "prixActuel": 100,
     "imageUrl": "/images/etb/Évolutions Prismatiques.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 90
+        "prix": 100
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -1877,124 +1877,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": null
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 55
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 120
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 100
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 95
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 89.99
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 105
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 110
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 120
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 90
       }
     ]
   },
@@ -2005,19 +2005,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "08/11/2024",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "",
     "prixActuel": 80,
     "imageUrl": "/images/etb/Couronne Stellaire.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -2074,124 +2074,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 50
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 70
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 70
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 65
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 70
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 70
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 70
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 70
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -2202,19 +2202,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "02/08/2024",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "",
     "prixActuel": 80,
     "imageUrl": "/images/etb/Mascarade Crépusculaire.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 80
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -2271,124 +2271,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 50
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 45
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 65
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 70
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 70
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 75
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 80
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 80
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 75
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -2399,19 +2399,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "02/08/2024",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "",
     "prixActuel": 75,
     "imageUrl": "/images/etb/Fable Nébuleuse.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -2468,124 +2468,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": null
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": null
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": null
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": null
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 50
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 60
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 65
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 60
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 65
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 60
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 60
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 60
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 65
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 60
       }
     ]
   },
@@ -2596,19 +2596,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "22/03/2024",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "",
     "prixActuel": 110,
     "imageUrl": "/images/etb/Forces Temporelles.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 100
+        "prix": 110
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 110
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -2665,124 +2665,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 50
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 55
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 90
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 90
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 80
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 90
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 85
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 100
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 100
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 90
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 100
       }
     ]
   },
@@ -2793,19 +2793,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "22/03/2024",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "",
     "prixActuel": 110,
     "imageUrl": "/images/etb/Forces Temporelles 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 100
+        "prix": 110
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 110
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -2862,124 +2862,124 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-01",
         "mois_label": "Janvier 2024",
-        "prix": 55
+        "prix": null
       },
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 50
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 55
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 90
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 125
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 115
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 130
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 115
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 135
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 145
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 170
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 100
       }
     ]
   },
@@ -2990,19 +2990,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "26/01/2024",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 160,
     "imageUrl": "/images/etb/Destinées de Paldéa.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 160
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 160
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -3064,37 +3064,37 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
@@ -3104,39 +3104,39 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 90
       },
       {
         "mois": "2025-05",
@@ -3146,37 +3146,37 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 110
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 110
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 110
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 115
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 120
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 110
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 150
       }
     ]
   },
@@ -3187,19 +3187,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "13/10/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 120,
     "imageUrl": "/images/etb/Faille Paradoxe.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 100
+        "prix": 120
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -3261,119 +3261,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 55
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 90
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 90
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 90
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 100
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 110
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 110
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 79.99
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 85
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 100
       }
     ]
   },
@@ -3384,19 +3384,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "13/10/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 120,
     "imageUrl": "/images/etb/Faille Paradoxe 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 100
+        "prix": 120
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -3458,79 +3458,79 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 55
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 90
       },
       {
         "mois": "2025-05",
@@ -3540,37 +3540,37 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 100
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 120
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 95
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 95
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 95
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 95
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 100
       }
     ]
   },
@@ -3581,19 +3581,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "22/09/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 290,
     "imageUrl": "/images/etb/Pokémon 151.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 200
+        "prix": 290
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 290
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -3655,89 +3655,89 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 165
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 220
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 220
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 250
       },
       {
         "mois": "2025-07",
@@ -3747,27 +3747,27 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 239.99
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 239.99
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 250
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 265
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 200
       }
     ]
   },
@@ -3778,19 +3778,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "11/08/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 180,
     "imageUrl": "/images/etb/Flammes Obsidiennes.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 140
+        "prix": 180
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -3852,119 +3852,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 95
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 150
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 175
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 190
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 200
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 175
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 180
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 180
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 160
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 140
       }
     ]
   },
@@ -3975,19 +3975,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "09/06/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 230,
     "imageUrl": "/images/etb/Évolutions à Paldéa.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 200
+        "prix": 230
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 230
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -4049,119 +4049,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 65
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 130
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 110
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 140
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 200
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 200
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 190
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 195
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 150
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 200
       }
     ]
   },
@@ -4172,19 +4172,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "31/03/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 150,
     "imageUrl": "/images/etb/Écarlate et Violet.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 120
+        "prix": 150
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 150
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -4246,37 +4246,37 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
@@ -4286,44 +4286,44 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 120
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 110
       },
       {
         "mois": "2025-06",
@@ -4333,32 +4333,32 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 160
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 200
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 190
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 175
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 165
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 120
       }
     ]
   },
@@ -4369,19 +4369,19 @@ export const etbData: ETBItem[] = [
     "series": "Écarlate & Violet",
     "dateSortie": "31/03/2023",
     "pvcSortie": 55,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 150,
     "imageUrl": "/images/etb/Écarlate et Violet 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 120
+        "prix": 150
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 150
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -4443,37 +4443,37 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
@@ -4483,44 +4483,44 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 120
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 115
       },
       {
         "mois": "2025-06",
@@ -4530,32 +4530,32 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 140
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 189.99
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 145
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 145
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 140
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 120
       }
     ]
   },
@@ -4566,19 +4566,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "27/02/2023",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 260,
     "imageUrl": "/images/etb/Zénith Suprême.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 200
+        "prix": 260
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 260
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -4640,119 +4640,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 110
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 180
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 160
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 210
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 230
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 240
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 250
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 240
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 230
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 200
       }
     ]
   },
@@ -4763,19 +4763,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "11/11/2022",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 190,
     "imageUrl": "/images/etb/Tempête Argentée.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 140
+        "prix": 190
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -4837,119 +4837,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 110
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 175
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 190
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 185
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 180
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 175
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 200
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 175
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 140
       }
     ]
   },
@@ -4960,19 +4960,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "09/09/2022",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 310,
     "imageUrl": "/images/etb/Origine Perdue.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 300
+        "prix": 310
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 310
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -5034,119 +5034,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 115
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 250
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 250
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 260
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 280
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 300
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 310
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 295
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 300
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 300
       }
     ]
   },
@@ -5157,19 +5157,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "01/07/2022",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 120,
     "imageUrl": "/images/etb/Pokémon GO.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 100
+        "prix": 120
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -5231,119 +5231,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 65
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 140
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 125
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 130
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 135
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 150
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 130
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 125
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 100
       }
     ]
   },
@@ -5354,19 +5354,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "27/05/2022",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 185,
     "imageUrl": "/images/etb/Astres Radieux.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 185
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 185
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -5428,119 +5428,316 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 100
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 150
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 185
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 175
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 170
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 165
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 165
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 190
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
+        "prix": 150
+      }
+    ]
+  },
+  {
+    "id": "EB05.2",
+    "nom": "Styles de Combat 2 FR",
+    "bloc": "eb",
+    "series": "Épée & Bouclier",
+    "dateSortie": "19/03/2022",
+    "pvcSortie": 45,
+    "statut": "55",
+    "prixActuel": 160,
+    "imageUrl": "/images/etb/Styles de Combats 2.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 160
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ],
+    "historique_prix_2024": [
+      {
+        "mois": "2024-01",
+        "mois_label": "Janvier 2024",
+        "prix": 55
+      },
+      {
+        "mois": "2024-02",
+        "mois_label": "Février 2024",
+        "prix": 60
+      },
+      {
+        "mois": "2024-03",
+        "mois_label": "Mars 2024",
+        "prix": 75
+      },
+      {
+        "mois": "2024-04",
+        "mois_label": "Avril 2024",
+        "prix": 70
+      },
+      {
+        "mois": "2024-05",
+        "mois_label": "Mai 2024",
+        "prix": 90
+      },
+      {
+        "mois": "2024-06",
+        "mois_label": "Juin 2024",
+        "prix": 80
+      },
+      {
+        "mois": "2024-07",
+        "mois_label": "Juillet 2024",
+        "prix": 100
+      },
+      {
+        "mois": "2024-08",
+        "mois_label": "Août 2024",
+        "prix": 70
+      },
+      {
+        "mois": "2024-09",
+        "mois_label": "Septembre 2024",
+        "prix": 100
+      },
+      {
+        "mois": "2024-10",
+        "mois_label": "Octobre 2024",
+        "prix": 70
+      },
+      {
+        "mois": "2024-11",
+        "mois_label": "Novembre 2024",
+        "prix": 60
+      },
+      {
+        "mois": "2024-12",
+        "mois_label": "Décembre 2024",
+        "prix": 80
+      }
+    ],
+    "historique_prix_2025": [
+      {
+        "mois": "2025-01",
+        "mois_label": "Janvier 2025",
+        "prix": 120
+      },
+      {
+        "mois": "2025-02",
+        "mois_label": "Février 2025",
         "prix": 180
+      },
+      {
+        "mois": "2025-03",
+        "mois_label": "Mars 2025",
+        "prix": 140
+      },
+      {
+        "mois": "2025-04",
+        "mois_label": "Avril 2025",
+        "prix": 100
+      },
+      {
+        "mois": "2025-05",
+        "mois_label": "Mai 2025",
+        "prix": 370
+      },
+      {
+        "mois": "2025-06",
+        "mois_label": "Juin 2025",
+        "prix": 390
+      },
+      {
+        "mois": "2025-07",
+        "mois_label": "Juillet 2025",
+        "prix": 375
+      },
+      {
+        "mois": "2025-08",
+        "mois_label": "Août 2025",
+        "prix": 365
+      },
+      {
+        "mois": "2025-09",
+        "mois_label": "Septembre 2025",
+        "prix": 400
+      },
+      {
+        "mois": "2025-10",
+        "mois_label": "Octobre 2025",
+        "prix": 385
+      },
+      {
+        "mois": "2025-11",
+        "mois_label": "Novembre 2025",
+        "prix": 370
+      },
+      {
+        "mois": "2025-12",
+        "mois_label": "Décembre 2025",
+        "prix": 140
       }
     ]
   },
@@ -5551,19 +5748,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "25/02/2022",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 210,
     "imageUrl": "/images/etb/Stars Étincelantes.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 200
+        "prix": 210
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -5625,119 +5822,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 150
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 200
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 225
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 190
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 190
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 190
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 185
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 180
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 190
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 200
       }
     ]
   },
@@ -5748,19 +5945,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "26/11/2021",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 300,
     "imageUrl": "/images/etb/Poing de Fusion.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 200
+        "prix": 300
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 300
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -5822,119 +6019,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 95
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 190
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 190
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 280
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 280
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 280
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 280
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 270
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 300
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 200
       }
     ]
   },
@@ -5945,19 +6142,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "08/10/2021",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 450,
     "imageUrl": "/images/etb/Célébrations 25 Ans.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 400
+        "prix": 450
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 450
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -6019,119 +6216,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 250
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 310
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 290
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 320
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 350
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 390
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 400
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 410
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 400
       }
     ]
   },
@@ -6142,19 +6339,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "27/08/2021",
     "pvcSortie": 50,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 340,
     "imageUrl": "/images/etb/Évolution Céleste.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 300
+        "prix": 340
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 340
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -6216,316 +6413,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 230
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 390
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 390
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 380
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 360
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 350
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 320
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 400
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
-      }
-    ]
-  },
-  {
-    "id": "EB07",
-    "nom": "Évolution Céleste 2 FR",
-    "bloc": "eb",
-    "series": "Épée & Bouclier",
-    "dateSortie": "27/08/2021",
-    "pvcSortie": 50,
-    "statut": "✅ Sorti",
-    "prixActuel": 340,
-    "imageUrl": "/images/etb/Évolution Céleste 2.png",
-    "historique_prix": [
-      {
-        "mois": "2026-01",
-        "mois_label": "Janvier 2026",
         "prix": 300
-      },
-      {
-        "mois": "2026-02",
-        "mois_label": "Février 2026",
-        "prix": 340
-      },
-      {
-        "mois": "2026-03",
-        "mois_label": "Mars 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-04",
-        "mois_label": "Avril 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-05",
-        "mois_label": "Mai 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-06",
-        "mois_label": "Juin 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-07",
-        "mois_label": "Juillet 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-08",
-        "mois_label": "Août 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-09",
-        "mois_label": "Septembre 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-10",
-        "mois_label": "Octobre 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-11",
-        "mois_label": "Novembre 2026",
-        "prix": null
-      },
-      {
-        "mois": "2026-12",
-        "mois_label": "Décembre 2026",
-        "prix": null
-      }
-    ],
-    "historique_prix_2024": [
-      {
-        "mois": "2024-01",
-        "mois_label": "Janvier 2024",
-        "prix": 55
-      },
-      {
-        "mois": "2024-02",
-        "mois_label": "Février 2024",
-        "prix": 55
-      },
-      {
-        "mois": "2024-03",
-        "mois_label": "Mars 2024",
-        "prix": 60
-      },
-      {
-        "mois": "2024-04",
-        "mois_label": "Avril 2024",
-        "prix": 75
-      },
-      {
-        "mois": "2024-05",
-        "mois_label": "Mai 2024",
-        "prix": 70
-      },
-      {
-        "mois": "2024-06",
-        "mois_label": "Juin 2024",
-        "prix": 90
-      },
-      {
-        "mois": "2024-07",
-        "mois_label": "Juillet 2024",
-        "prix": 80
-      },
-      {
-        "mois": "2024-08",
-        "mois_label": "Août 2024",
-        "prix": 100
-      },
-      {
-        "mois": "2024-09",
-        "mois_label": "Septembre 2024",
-        "prix": 70
-      },
-      {
-        "mois": "2024-10",
-        "mois_label": "Octobre 2024",
-        "prix": 80
-      },
-      {
-        "mois": "2024-11",
-        "mois_label": "Novembre 2024",
-        "prix": 70
-      },
-      {
-        "mois": "2024-12",
-        "mois_label": "Décembre 2024",
-        "prix": 60
-      }
-    ],
-    "historique_prix_2025": [
-      {
-        "mois": "2025-01",
-        "mois_label": "Janvier 2025",
-        "prix": 80
-      },
-      {
-        "mois": "2025-02",
-        "mois_label": "Février 2025",
-        "prix": 120
-      },
-      {
-        "mois": "2025-03",
-        "mois_label": "Mars 2025",
-        "prix": 180
-      },
-      {
-        "mois": "2025-04",
-        "mois_label": "Avril 2025",
-        "prix": 140
-      },
-      {
-        "mois": "2025-05",
-        "mois_label": "Mai 2025",
-        "prix": 100
-      },
-      {
-        "mois": "2025-06",
-        "mois_label": "Juin 2025",
-        "prix": 120
-      },
-      {
-        "mois": "2025-07",
-        "mois_label": "Juillet 2025",
-        "prix": 250
-      },
-      {
-        "mois": "2025-08",
-        "mois_label": "Août 2025",
-        "prix": 220
-      },
-      {
-        "mois": "2025-09",
-        "mois_label": "Septembre 2025",
-        "prix": 200
-      },
-      {
-        "mois": "2025-10",
-        "mois_label": "Octobre 2025",
-        "prix": 190
-      },
-      {
-        "mois": "2025-11",
-        "mois_label": "Novembre 2025",
-        "prix": 210
-      },
-      {
-        "mois": "2025-12",
-        "mois_label": "Décembre 2025",
-        "prix": 180
       }
     ]
   },
@@ -6536,19 +6536,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "18/06/2021",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 165,
     "imageUrl": "/images/etb/Règne de Glace.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 165
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 165
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -6610,104 +6610,104 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 155
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 165
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 190
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 210
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 240
       },
       {
         "mois": "2025-10",
@@ -6717,35 +6717,35 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 190
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 150
       }
     ]
   },
   {
     "id": "EB06",
-    "nom": "Règne de Glace 2 FR",
+    "nom": "Évolution Céleste 2 FR",
     "bloc": "eb",
     "series": "Épée & Bouclier",
     "dateSortie": "18/06/2021",
-    "pvcSortie": 45,
-    "statut": "✅ Sorti",
-    "prixActuel": 165,
-    "imageUrl": "/images/etb/Règne de Glace 2.png",
+    "pvcSortie": 50,
+    "statut": "55",
+    "prixActuel": 340,
+    "imageUrl": "/images/etb/Évolution Céleste 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 340
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 165
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -6807,119 +6807,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 230
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 390
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 390
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 395
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 395
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 400
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 340
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 340
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 300
       }
     ]
   },
@@ -6930,19 +6930,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "19/03/2021",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 160,
     "imageUrl": "/images/etb/Styles de Combat.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 140
+        "prix": 160
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 160
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -7004,142 +7004,142 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 100
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 250
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 260
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 255
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 250
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 380
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 140
       }
     ]
   },
   {
     "id": "EB05",
-    "nom": "Styles de Combat 2 FR",
+    "nom": "Règne de Glace 2 FR",
     "bloc": "eb",
     "series": "Épée & Bouclier",
     "dateSortie": "19/03/2021",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
-    "prixActuel": 160,
-    "imageUrl": "/images/etb/Styles de Combats 2.png",
+    "statut": "55",
+    "prixActuel": 165,
+    "imageUrl": "/images/etb/Règne de Glace 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 140
+        "prix": 165
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 160
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -7201,119 +7201,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 190
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 190
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 190
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 195
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 190
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 170
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 220
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 150
       }
     ]
   },
@@ -7324,19 +7324,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "19/02/2021",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 420,
     "imageUrl": "/images/etb/Destinées Radieuses.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 300
+        "prix": 420
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 420
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -7398,89 +7398,89 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 150
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 180
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 270
       },
       {
         "mois": "2025-07",
@@ -7490,27 +7490,27 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 230
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 220
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 240
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 200
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 300
       }
     ]
   },
@@ -7521,19 +7521,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "13/11/2020",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 170,
     "imageUrl": "/images/etb/Voltage Éclatant.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 170
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 170
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -7595,119 +7595,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 900
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 1990
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 1400
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 1750
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 150
       }
     ]
   },
@@ -7718,19 +7718,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "14/08/2020",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 180,
     "imageUrl": "/images/etb/Ténèbres Embrasées.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 180
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 180
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -7792,119 +7792,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 600
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 1800
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 1200
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 1400
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 150
       }
     ]
   },
@@ -7915,19 +7915,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "01/05/2020",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 190,
     "imageUrl": "/images/etb/Clash des Rebelles.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 150
+        "prix": 190
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -7989,119 +7989,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 440
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 430
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 450
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 470
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 550
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 650
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 690
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 150
       }
     ]
   },
@@ -8112,19 +8112,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "07/02/2020",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 6500,
     "imageUrl": "/images/etb/Épée et Bouclier.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 6500
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 6500
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -8186,119 +8186,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 700
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 2050
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -8309,19 +8309,19 @@ export const etbData: ETBItem[] = [
     "series": "Épée & Bouclier",
     "dateSortie": "07/02/2020",
     "pvcSortie": 45,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 280,
     "imageUrl": "/images/etb/Épée et Bouclier 2.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 280
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 280
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -8383,119 +8383,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 700
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 2050
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -8506,19 +8506,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "24/01/2020",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 2500,
     "imageUrl": "/images/etb/Éclipse Cosmique.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 2500
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 2500
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -8580,119 +8580,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 3290
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 1500
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -8703,19 +8703,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "25/10/2019",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 4800,
     "imageUrl": "/images/etb/Harmonie des Esprits.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 4800
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 4800
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -8777,119 +8777,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 390
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 450
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 460
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 480
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 450
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 570
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 500
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -8900,19 +8900,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "02/08/2019",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 3500,
     "imageUrl": "/images/etb/Destinées Occultes.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 3500
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 3500
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -8974,119 +8974,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 1270
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -9097,19 +9097,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "03/05/2019",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 1200,
     "imageUrl": "/images/etb/Alliance Infaillible.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 1200
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 1200
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -9171,119 +9171,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 950
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 1500
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 2200
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -9294,19 +9294,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "01/02/2019",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 6500,
     "imageUrl": "/images/etb/Duo de Choc.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 6500
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 6500
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -9368,119 +9368,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 2400
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 250
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 4230
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -9491,19 +9491,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "02/11/2018",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 2100,
     "imageUrl": "/images/etb/Tonnerre Perdue.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 2100
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 2100
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -9565,119 +9565,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 3500
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": null
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": null
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": null
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": null
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 6500
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -9688,19 +9688,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "06/10/2018",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 1500,
     "imageUrl": "/images/etb/Légendes Brillantes.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 1500
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 1500
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -9762,119 +9762,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 380
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 390
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 400
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 420
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 420
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 420
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 400
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -9885,19 +9885,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "05/10/2018",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 3200,
     "imageUrl": "/images/etb/Majesté des Dragons.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 3200
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 3200
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -9959,119 +9959,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 3000
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 250
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 220
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 200
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 190
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 210
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 180
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -10082,19 +10082,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "03/08/2018",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 4100,
     "imageUrl": "/images/etb/Tempête Céleste.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 4100
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 4100
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -10156,119 +10156,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 1400
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 1600
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 1700
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 1700
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 2000
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 210
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 180
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -10279,19 +10279,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "04/05/2018",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 2000,
     "imageUrl": "/images/etb/Lumière Interdite.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 2000
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 2000
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -10353,119 +10353,119 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 1000
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 1000
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 1100
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 1200
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 1250
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": null
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": null
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
-        "prix": 180
+        "prix": 240
       }
     ]
   },
@@ -10476,19 +10476,19 @@ export const etbData: ETBItem[] = [
     "series": "Soleil et Lune",
     "dateSortie": "02/02/2018",
     "pvcSortie": 40,
-    "statut": "✅ Sorti",
+    "statut": "55",
     "prixActuel": 1500,
     "imageUrl": "/images/etb/Ultra Prisme.png",
     "historique_prix": [
       {
         "mois": "2026-01",
         "mois_label": "Janvier 2026",
-        "prix": 240
+        "prix": 1500
       },
       {
         "mois": "2026-02",
         "mois_label": "Février 2026",
-        "prix": 1500
+        "prix": null
       },
       {
         "mois": "2026-03",
@@ -10550,119 +10550,513 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-02",
         "mois_label": "Février 2024",
-        "prix": 55
+        "prix": 60
       },
       {
         "mois": "2024-03",
         "mois_label": "Mars 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-04",
         "mois_label": "Avril 2024",
-        "prix": 75
+        "prix": 70
       },
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 70
+        "prix": 90
       },
       {
         "mois": "2024-06",
         "mois_label": "Juin 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 80
+        "prix": 100
       },
       {
         "mois": "2024-08",
         "mois_label": "Août 2024",
-        "prix": 100
+        "prix": 70
       },
       {
         "mois": "2024-09",
         "mois_label": "Septembre 2024",
-        "prix": 70
+        "prix": 80
       },
       {
         "mois": "2024-10",
         "mois_label": "Octobre 2024",
-        "prix": 80
+        "prix": 70
       },
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 70
+        "prix": 60
       },
       {
         "mois": "2024-12",
         "mois_label": "Décembre 2024",
-        "prix": 60
+        "prix": 80
       }
     ],
     "historique_prix_2025": [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 80
+        "prix": 120
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 120
+        "prix": 180
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 180
+        "prix": 140
       },
       {
         "mois": "2025-04",
         "mois_label": "Avril 2025",
-        "prix": 140
+        "prix": 100
       },
       {
         "mois": "2025-05",
         "mois_label": "Mai 2025",
-        "prix": 100
+        "prix": 450
       },
       {
         "mois": "2025-06",
         "mois_label": "Juin 2025",
-        "prix": 120
+        "prix": 430
       },
       {
         "mois": "2025-07",
         "mois_label": "Juillet 2025",
-        "prix": 250
+        "prix": 430
       },
       {
         "mois": "2025-08",
         "mois_label": "Août 2025",
-        "prix": 220
+        "prix": 430
       },
       {
         "mois": "2025-09",
         "mois_label": "Septembre 2025",
-        "prix": 200
+        "prix": 425
       },
       {
         "mois": "2025-10",
         "mois_label": "Octobre 2025",
-        "prix": 190
+        "prix": 410
       },
       {
         "mois": "2025-11",
         "mois_label": "Novembre 2025",
-        "prix": 210
+        "prix": 450
       },
       {
         "mois": "2025-12",
         "mois_label": "Décembre 2025",
+        "prix": 240
+      }
+    ]
+  },
+  {
+    "id": "SL05",
+    "nom": "Ultra Prisme",
+    "bloc": "sl",
+    "series": "Soleil et Lune",
+    "dateSortie": "02/02/2018",
+    "pvcSortie": 40,
+    "statut": "55",
+    "prixActuel": 1500,
+    "imageUrl": "/images/etb/Ultra Prisme.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": 1500
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ],
+    "historique_prix_2024": [
+      {
+        "mois": "2024-01",
+        "mois_label": "Janvier 2024",
+        "prix": 55
+      },
+      {
+        "mois": "2024-02",
+        "mois_label": "Février 2024",
+        "prix": 60
+      },
+      {
+        "mois": "2024-03",
+        "mois_label": "Mars 2024",
+        "prix": 75
+      },
+      {
+        "mois": "2024-04",
+        "mois_label": "Avril 2024",
+        "prix": 70
+      },
+      {
+        "mois": "2024-05",
+        "mois_label": "Mai 2024",
+        "prix": 90
+      },
+      {
+        "mois": "2024-06",
+        "mois_label": "Juin 2024",
+        "prix": 80
+      },
+      {
+        "mois": "2024-07",
+        "mois_label": "Juillet 2024",
+        "prix": 100
+      },
+      {
+        "mois": "2024-08",
+        "mois_label": "Août 2024",
+        "prix": 70
+      },
+      {
+        "mois": "2024-09",
+        "mois_label": "Septembre 2024",
+        "prix": 80
+      },
+      {
+        "mois": "2024-10",
+        "mois_label": "Octobre 2024",
+        "prix": 70
+      },
+      {
+        "mois": "2024-11",
+        "mois_label": "Novembre 2024",
+        "prix": 60
+      },
+      {
+        "mois": "2024-12",
+        "mois_label": "Décembre 2024",
+        "prix": 80
+      }
+    ],
+    "historique_prix_2025": [
+      {
+        "mois": "2025-01",
+        "mois_label": "Janvier 2025",
+        "prix": 120
+      },
+      {
+        "mois": "2025-02",
+        "mois_label": "Février 2025",
         "prix": 180
+      },
+      {
+        "mois": "2025-03",
+        "mois_label": "Mars 2025",
+        "prix": 140
+      },
+      {
+        "mois": "2025-04",
+        "mois_label": "Avril 2025",
+        "prix": 100
+      },
+      {
+        "mois": "2025-05",
+        "mois_label": "Mai 2025",
+        "prix": 450
+      },
+      {
+        "mois": "2025-06",
+        "mois_label": "Juin 2025",
+        "prix": 430
+      },
+      {
+        "mois": "2025-07",
+        "mois_label": "Juillet 2025",
+        "prix": 430
+      },
+      {
+        "mois": "2025-08",
+        "mois_label": "Août 2025",
+        "prix": 430
+      },
+      {
+        "mois": "2025-09",
+        "mois_label": "Septembre 2025",
+        "prix": 425
+      },
+      {
+        "mois": "2025-10",
+        "mois_label": "Octobre 2025",
+        "prix": 410
+      },
+      {
+        "mois": "2025-11",
+        "mois_label": "Novembre 2025",
+        "prix": 450
+      },
+      {
+        "mois": "2025-12",
+        "mois_label": "Décembre 2025",
+        "prix": 240
+      }
+    ]
+  },
+  {
+    "id": "EB03,5",
+    "nom": "La voie du Maître FR",
+    "bloc": "eb",
+    "series": "Épée & Bouclier",
+    "dateSortie": "44099",
+    "pvcSortie": 45,
+    "statut": "",
+    "prixActuel": 490,
+    "imageUrl": "/images/etb/La voie du Maître.png",
+    "historique_prix": [
+      {
+        "mois": "2026-01",
+        "mois_label": "Janvier 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "Février 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "Mars 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-04",
+        "mois_label": "Avril 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-05",
+        "mois_label": "Mai 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-06",
+        "mois_label": "Juin 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-07",
+        "mois_label": "Juillet 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-08",
+        "mois_label": "Août 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-09",
+        "mois_label": "Septembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-10",
+        "mois_label": "Octobre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-11",
+        "mois_label": "Novembre 2026",
+        "prix": null
+      },
+      {
+        "mois": "2026-12",
+        "mois_label": "Décembre 2026",
+        "prix": null
+      }
+    ],
+    "historique_prix_2024": [
+      {
+        "mois": "2024-01",
+        "mois_label": "Janvier 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-02",
+        "mois_label": "Février 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-03",
+        "mois_label": "Mars 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-04",
+        "mois_label": "Avril 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-05",
+        "mois_label": "Mai 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-06",
+        "mois_label": "Juin 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-07",
+        "mois_label": "Juillet 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-08",
+        "mois_label": "Août 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-09",
+        "mois_label": "Septembre 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-10",
+        "mois_label": "Octobre 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-11",
+        "mois_label": "Novembre 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-12",
+        "mois_label": "Décembre 2024",
+        "prix": null
+      }
+    ],
+    "historique_prix_2025": [
+      {
+        "mois": "2025-01",
+        "mois_label": "Janvier 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-02",
+        "mois_label": "Février 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-03",
+        "mois_label": "Mars 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-04",
+        "mois_label": "Avril 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-05",
+        "mois_label": "Mai 2025",
+        "prix": 400
+      },
+      {
+        "mois": "2025-06",
+        "mois_label": "Juin 2025",
+        "prix": 420
+      },
+      {
+        "mois": "2025-07",
+        "mois_label": "Juillet 2025",
+        "prix": 430
+      },
+      {
+        "mois": "2025-08",
+        "mois_label": "Août 2025",
+        "prix": 440
+      },
+      {
+        "mois": "2025-09",
+        "mois_label": "Septembre 2025",
+        "prix": 440
+      },
+      {
+        "mois": "2025-10",
+        "mois_label": "Octobre 2025",
+        "prix": 460
+      },
+      {
+        "mois": "2025-11",
+        "mois_label": "Novembre 2025",
+        "prix": 490
+      },
+      {
+        "mois": "2025-12",
+        "mois_label": "Décembre 2025",
+        "prix": null
       }
     ]
   }
