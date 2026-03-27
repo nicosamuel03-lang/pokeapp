@@ -391,6 +391,25 @@ export const displayData = rawDisplayData as DisplayDataItem[];
     fs.writeFileSync(tsOutputPath, tsContent, "utf-8");
 
     console.log(`🚀 RÉUSSITE : ${allItems.length} items extraits (${displays.length} Display/ETB + ${upcItems.length} UPC) !`);
+
+    // ── Catalogue produits pour le serveur (priceSyncJob) ───────────────────
+    const serverCatalogPath = path.join(process.cwd(), "server", "productCatalog.json");
+    let existingCatalog = [];
+    if (fs.existsSync(serverCatalogPath)) {
+      try {
+        existingCatalog = JSON.parse(fs.readFileSync(serverCatalogPath, "utf-8"))
+          .filter((e) => e.type === "ETB"); // garde les ETB écrits par build-etb-data
+      } catch { existingCatalog = []; }
+    }
+    const displayEntries = allItems
+      .filter((d) => d.category === "Displays")
+      .map((d) => ({ id: `display-${d.id}`, name: d.name, type: "Display" }));
+    const upcEntries = allItems
+      .filter((d) => d.category === "UPC")
+      .map((d) => ({ id: `upc-${d.id}`, name: d.name, type: "UPC" }));
+    const merged = [...existingCatalog, ...displayEntries, ...upcEntries];
+    fs.writeFileSync(serverCatalogPath, JSON.stringify(merged, null, 2), "utf-8");
+    console.log(`📋 Catalogue serveur mis à jour: ${merged.length} produits (${displayEntries.length} Display + ${upcEntries.length} UPC)`);
     if (displays.length > 0) {
       console.log(`📸 Image test (colonne T) : ${displays[0].imageUrl || "(vide)"}`);
     }

@@ -13,7 +13,7 @@ import { useProducts, type Product } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { setSalePrice } from "../utils/salesStorage";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
-import { useEbayLiveMarketPrice } from "../hooks/useEbayLiveMarketPrice";
+import { useEbayTrackedPrice, resolveDisplayPrice } from "../hooks/useEbayTrackedPrice";
 import { isEbayMockMode } from "../services/ebayMarketPrice";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
@@ -219,8 +219,14 @@ const ProductDetailPageInner = () => {
     () => (product ? getPrixMarcheForProduct(product, etbData) : 0),
     [product, etbData]
   );
-  const ebaySearchQuery = (displayProductName || product?.name || "").trim();
-  const ebayLive = useEbayLiveMarketPrice(ebaySearchQuery, catalogPrixMarche);
+
+  // ID produit tel qu'il est stocké dans ebay_prices (ETB : etbId, Display/UPC : product.id)
+  const trackedProductId = product?.etbId ?? product?.id ?? null;
+  const ebayTracked = useEbayTrackedPrice(trackedProductId, !!product && !isEbayMockMode());
+  const { price: prixMarcheResolu, source: prixSource } = resolveDisplayPrice(
+    ebayTracked,
+    catalogPrixMarche
+  );
 
   /** Même badge d’ère / pilule néon que sur les cartes produit (accueil). */
   const eraBadgeForDetail = useMemo(() => {
@@ -431,7 +437,7 @@ const ProductDetailPageInner = () => {
     const q = !Number.isFinite(raw) || raw < 1 ? 1 : raw;
     return Math.min(q, max);
   }, [saleQuantityToSell, quantite]);
-  const prixMarche = ebayLive.displayPrice;
+  const prixMarche = prixMarcheResolu;
   const performanceVsPurchasePercent =
     collectionMatch != null && collectionMatch.buyPrice > 0 && Number.isFinite(prixMarche)
       ? ((prixMarche - collectionMatch.buyPrice) / collectionMatch.buyPrice) * 100
@@ -684,9 +690,9 @@ const ProductDetailPageInner = () => {
                           maximumFractionDigits: 0
                         })}
                       </p>
-                      {ebayLive.phase === "loading" ? (
+                      {ebayTracked.loading ? (
                         <span className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
-                          eBay FR…
+                          eBay…
                         </span>
                       ) : null}
                       {performanceVsPurchasePercent != null && Number.isFinite(performanceVsPurchasePercent) ? (
@@ -719,16 +725,30 @@ const ProductDetailPageInner = () => {
                         </span>
                       ) : null}
                     </div>
-                    {!isEbayMockMode() && ebayLive.phase === "ok" && ebayLive.livePrice != null ? (
+
+                    {/* Badge "Prix marché eBay" — affiché uniquement si données trackées disponibles */}
+                    {!isEbayMockMode() && prixSource === "ebay_tracked" && ebayTracked.averagePriceEur != null ? (
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span
+                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          style={{
+                            background: "rgba(59,130,246,0.15)",
+                            color: "#60a5fa",
+                            border: "1px solid rgba(59,130,246,0.3)",
+                          }}
+                        >
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
+                            <circle cx="4" cy="4" r="3" />
+                          </svg>
+                          Prix marché eBay
+                        </span>
+                        <span className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                          moy. 30j · {ebayTracked.count} {ebayTracked.count > 1 ? "entrées" : "entrée"}
+                        </span>
+                      </div>
+                    ) : !isEbayMockMode() && !ebayTracked.loading && prixSource === "catalog" ? (
                       <p className="mt-0 text-[10px] leading-snug" style={{ color: "var(--text-secondary)" }}>
-                        Estimation eBay France : moyenne sur {ebayLive.itemsUsed} annonce
-                        {ebayLive.itemsUsed > 1 ? "s" : ""} (parmi {ebayLive.resultCount} résultat
-                        {ebayLive.resultCount > 1 ? "s" : ""}).
-                      </p>
-                    ) : null}
-                    {!isEbayMockMode() && ebayLive.phase === "error" ? (
-                      <p className="mt-0 text-[10px] leading-snug" style={{ color: "var(--text-secondary)" }}>
-                        Prix catalogue (eBay indisponible ou sans annonces en EUR).
+                        Prix catalogue
                       </p>
                     ) : null}
                   </div>

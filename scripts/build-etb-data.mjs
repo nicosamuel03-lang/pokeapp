@@ -344,3 +344,25 @@ fs.writeFileSync(outputPath, fileContent, "utf8");
 
 console.log(`✅ Généré: ${outputPath}`);
 console.log(`📦 ETB: ${items.length}`);
+
+// ── Catalogue produits pour le serveur (priceSyncJob) ──────────────────────
+const serverCatalogPath = path.join(process.cwd(), "server", "productCatalog.json");
+
+// Lire le catalogue existant pour ne pas écraser les entrées Display/UPC
+let existingCatalog = [];
+if (fs.existsSync(serverCatalogPath)) {
+  try {
+    const raw = fs.readFileSync(serverCatalogPath, "utf8");
+    existingCatalog = JSON.parse(raw).filter((e) => e.type !== "ETB");
+  } catch { existingCatalog = []; }
+}
+
+const etbCatalogEntries = items.map((item) => ({
+  id:   item.id,
+  name: `ETB ${item.nom}`,
+  type: "ETB",
+}));
+
+const merged = [...etbCatalogEntries, ...existingCatalog];
+fs.writeFileSync(serverCatalogPath, JSON.stringify(merged, null, 2), "utf8");
+console.log(`📋 Catalogue serveur mis à jour: ${serverCatalogPath} (${merged.length} produits)`);

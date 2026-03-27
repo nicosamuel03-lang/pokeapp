@@ -23,6 +23,7 @@ import {
   productCardEraBadgeClassName,
 } from "../utils/productCardEraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
   { key: "ETB", label: "ETB" },
@@ -248,9 +249,8 @@ export const HomePage = () => {
     const combined = [...etbProducts, ...displayProducts, ...upcProducts];
     const seen = new Set<string>();
     const deduped = combined.filter((p) => {
-      const key = `${p.id}|${p.name}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
       return true;
     });
 
@@ -304,6 +304,42 @@ export const HomePage = () => {
     const base = filtered;
     return sortHomeProductsBySearch(filterHomeProductsBySearch(base, ""), "");
   }, [filtered]);
+
+  // Un seul appel batch pour récupérer tous les prix eBay trackés (Supabase 7j).
+  // On utilise product.id (jamais etbId) car c'est l'ID qui correspond exactement
+  // aux product_id stockés dans Supabase :
+  //   ETB     → "EV10"          (pas de préfixe)
+  //   Display → "display-EV10"  (préfixe "display-")
+  //   UPC     → "upc-UPC08"     (préfixe "upc-")
+  const _databaseProductsAsLines = useMemo(
+    () =>
+      databaseProducts.map((p) => ({
+        quantity: 1,
+        buyPrice: p.prixAchat,
+        // etbId absent → le hook utilise systématiquement product.id
+        product: { id: p.id } as { id: string; etbId?: string },
+      })),
+    [databaseProducts]
+  );
+  const { priceMap: ebayHomePriceMap } = usePortfolioEbayPrices(
+    _databaseProductsAsLines as Parameters<typeof usePortfolioEbayPrices>[0]
+  );
+
+  // Log quand la priceMap change (pour vérifier qu'elle est bien reçue)
+  useEffect(() => {
+    console.log("[HomePage] ebayHomePriceMap updated — size:", ebayHomePriceMap.size);
+    if (ebayHomePriceMap.size > 0) {
+      console.log("[HomePage] Map keys (first 10):", Array.from(ebayHomePriceMap.keys()).slice(0, 10));
+      console.log("[HomePage] EB10.5 (Pokémon GO) in map →", ebayHomePriceMap.get("EB10.5") ?? "NOT FOUND");
+    }
+  }, [ebayHomePriceMap]);
+
+  /** Retourne le prix eBay tracké s'il est disponible, sinon le prix catalogue. */
+  const homeCardPrice = (product: HomeProduct): number => {
+    // product.id est toujours l'ID Supabase exact (ex: "EV10", "display-ME02", "upc-UPC08")
+    const ebay = ebayHomePriceMap.get(product.id);
+    return ebay != null && ebay > 0 ? ebay : homeProductMarcheAffiché(product);
+  };
 
   const applyHomeSearchFromValue = useCallback(
     (val: string) => {
@@ -449,7 +485,7 @@ export const HomePage = () => {
                   product.category === "Displays" ? "Displays" : product.category === "UPC" ? "UPC" : "ETB";
                 return (
                   <CatalogueSearchResultRow
-                    key={`${product.id}-${product.name}`}
+                    key={product.id}
                     mode="link"
                     to={`/produit/${product.id}`}
                     onNavigate={() => {
@@ -467,7 +503,7 @@ export const HomePage = () => {
                     eraBadge={eraBadge}
                     title={formatProductNameWithSetCode(product.name, getSetCodeFromProduct(product), catForTitle)}
                     showNewBadge={product.set === "Méga Évolution"}
-                    marketPrice={homeProductMarcheAffiché(product)}
+                    marketPrice={homeCardPrice(product)}
                     retailPrice={product.prixAchat}
                     showBottomBorder={i < homeSearchResults.length - 1}
                   />
@@ -567,7 +603,7 @@ export const HomePage = () => {
                 : null;
             return (
               <div
-                key={`${product.id}-${product.name}`}
+                key={product.id}
               >
                 <Link
                   to={`/produit/${product.id}`}
@@ -693,7 +729,7 @@ export const HomePage = () => {
                       fontWeight: 700,
                     }}
                   >
-                    {homeProductMarcheAffiché(product).toLocaleString("fr-FR", {
+                    {homeCardPrice(product).toLocaleString("fr-FR", {
                       style: "currency",
                       currency: "EUR",
                       maximumFractionDigits: 0,

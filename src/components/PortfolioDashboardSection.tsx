@@ -18,6 +18,7 @@ import {
 } from "../utils/portfolioChartData";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import { RasterImage } from "./RasterImage";
+import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
 
 export type PortfolioSectionMode = "summary" | "chartOnly";
 
@@ -58,9 +59,13 @@ export function PortfolioDashboardSection({
   produitsCount = 0,
   summaryMainCardTo,
 }: PortfolioDashboardSectionProps) {
+  // Prix eBay trackés (Supabase 7j) pour toute la collection — une seule requête batch
+  const { priceMap: ebayPriceMap } = usePortfolioEbayPrices(collectionLines);
+
   const totalInvesti = totalInvestedFromCollection(collectionLines);
   const chartData = buildPortfolioChartData(collectionLines, chartPeriod, totalInvesti);
-  const portfolio = computePortfolioStats(collectionLines, sales);
+  // computePortfolioStats utilise les prix eBay trackés quand disponibles (fallback catalogue)
+  const portfolio = computePortfolioStats(collectionLines, sales, ebayPriceMap);
 
   const categoryRepartitionRows = useMemo(() => getCategoryRepartitionRows(collectionLines), [collectionLines]);
   const eraRepartitionRows = useMemo(() => getEraRepartitionRows(collectionLines), [collectionLines]);

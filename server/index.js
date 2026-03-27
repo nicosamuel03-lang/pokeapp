@@ -266,6 +266,8 @@ app.post(
 app.use(express.json());
 
 const { searchAveragePriceTop5 } = require("./ebayBrowse");
+const { startPriceSyncJob, syncAllPrices } = require("./priceSyncJob");
+const { getSupabaseAdmin } = require("./supabaseAdmin");
 
 /** Prix moyen (€) des 5 premières annonces eBay France (Browse API). */
 app.get("/api/ebay/price", async (req, res) => {
@@ -522,6 +524,128 @@ app.post("/api/delete-account", async (req, res) => {
     return res.status(500).json({ error: err?.message || "Unknown server error" });
   }
 });
+
+// ─── Route : prix trackés (7 derniers jours depuis Supabase) ─────────────────
+app.get("/api/ebay/tracked-price", async (req, res) => {
+  const productId = String(req.query.productId || "").trim();
+  if (!productId) {
+    return res.status(400).json({ error: "Paramètre manquant : productId" });
+  }
+
+  try {
+    const db = getSupabaseAdmin();
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data, error } = await db
+      .from("ebay_prices")
+      .select("price_eur, fetched_at")
+      .eq("product_id", productId)
+      .gte("fetched_at", since)
+      .order("fetched_at", { ascending: false })
+      .limit(30);
+
+    if (error) {
+      console.error("[tracked-price] Supabase error:", error.message);
+      return res.status(502).json({ error: error.message });
+    }
+
+    const entries = Array.isArray(data) ? data : [];
+
+    if (entries.length < 1) {
+      // Aucune donnée — le frontend utilise le prix catalogue
+      return res.json({ available: false, count: 0 });
+    }
+
+    const prices = entries.map((e) => Number(e.price_eur)).filter(Number.isFinite);
+    const avg = Math.round((prices.reduce((a, b) => a + b, 0) / prices.length) * 100) / 100;
+
+    return res.json({
+      available:     true,
+      averagePriceEur: avg,
+      count:         prices.length,
+      oldestEntry:   entries[entries.length - 1]?.fetched_at,
+      newestEntry:   entries[0]?.fetched_at,
+    });
+  } catch (err) {
+    if (err.code === "SUPABASE_CONFIG") {
+      return res.status(503).json({ available: false, error: "Supabase non configuré" });
+    }
+    console.error("[tracked-price]", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Route : prix trackés en batch (portfolio) ───────────────────────────────
+// GET /api/ebay/tracked-prices?ids=ME02.5,display-ME02,upc-UPC08
+app.get("/api/ebay/tracked-prices", async (req, res) => {
+  const raw = String(req.query.ids || "").trim();
+  if (!raw) return res.status(400).json({ error: "Paramètre manquant : ids" });
+
+  const productIds = raw.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 200);
+
+  try {
+    const db = getSupabaseAdmin();
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data, error } = await db
+      .from("ebay_prices")
+      .select("product_id, price_eur")
+      .in("product_id", productIds)
+      .gte("fetched_at", since);
+
+    if (error) {
+      console.error("[tracked-prices/batch] Supabase error:", error.message);
+      return res.status(502).json({ error: error.message });
+    }
+
+    // Agrège les prix par product_id (moyenne des entrées des 7 derniers jours)
+    const grouped = new Map();
+    for (const row of (data || [])) {
+      const id = row.product_id;
+      if (!grouped.has(id)) grouped.set(id, []);
+      grouped.get(id).push(Number(row.price_eur));
+    }
+
+    const prices = {};
+    for (const id of productIds) {
+      const entries = grouped.get(id) || [];
+      if (entries.length >= 1) {
+        const avg = entries.reduce((a, b) => a + b, 0) / entries.length;
+        prices[id] = Math.round(avg * 100) / 100;
+      } else {
+        prices[id] = null; // aucune donnée → fallback catalogue côté client
+      }
+    }
+
+    return res.json({ prices });
+  } catch (err) {
+    if (err.code === "SUPABASE_CONFIG") {
+      return res.json({ prices: Object.fromEntries(productIds.map((id) => [id, null])) });
+    }
+    console.error("[tracked-prices/batch]", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Route admin : déclenche la sync manuellement ────────────────────────────
+app.get("/api/admin/sync-prices", async (req, res) => {
+  console.log("[admin] Sync manuelle déclenchée via GET /api/admin/sync-prices");
+  // Répondre immédiatement et lancer la sync en arrière-plan
+  res.json({ ok: true, message: "Synchronisation eBay lancée en arrière-plan — consulte les logs Railway" });
+
+  try {
+    const result = await syncAllPrices();
+    console.log("[admin] Sync terminée :", JSON.stringify(result));
+  } catch (err) {
+    console.error("[admin] Sync échouée :", err.message);
+  }
+});
+
+// ─── Health check (Railway / Vercel probes) ──────────────────────────────────
+app.get("/api/health", (_req, res) => res.json({ status: "ok", ts: Date.now() }));
+
+// ─── Démarrage du job de sync automatique (toutes les 24h) ───────────────────
+startPriceSyncJob();
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, "0.0.0.0", () => {

@@ -118,14 +118,31 @@ export interface SaleLike {
   profit?: number | null;
 }
 
-export function computePortfolioStats(collectionItems: CollectionLineForChart[], sales: SaleLike[]) {
+/**
+ * @param ebayPriceMap  Map optionnelle `productId → prix eBay moyen 7j`.
+ *                      Lorsqu'une entrée est présente, elle remplace le prix catalogue
+ *                      pour le calcul de la valeur marché actuelle du portefeuille.
+ */
+export function computePortfolioStats(
+  collectionItems: CollectionLineForChart[],
+  sales: SaleLike[],
+  ebayPriceMap?: Map<string, number>
+) {
   let totalInvestiP = 0;
   let totalMarcheP = 0;
   collectionItems.forEach((item) => {
     const qty = Number(item.quantity);
     const prixAchat = item.buyPrice ?? item.product.prixAchat ?? 0;
     totalInvestiP += prixAchat * qty;
-    totalMarcheP += getPrixMarcheForProduct(item.product, etbData) * qty;
+
+    // Priorité : prix eBay tracké (Supabase 7j) → prix catalogue
+    const productId = item.product.etbId ?? item.product.id;
+    const ebayPrice = ebayPriceMap?.get(productId);
+    const marketPrice =
+      ebayPrice != null && ebayPrice > 0
+        ? ebayPrice
+        : getPrixMarcheForProduct(item.product, etbData);
+    totalMarcheP += marketPrice * qty;
   });
   const plusValueLatente = totalMarcheP - totalInvestiP;
   const gainRealise = sales.reduce((sum, r) => sum + (r.profit ?? 0), 0);

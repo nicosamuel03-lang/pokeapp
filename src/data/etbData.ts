@@ -1555,7 +1555,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 140
+        "prix": 60
       },
       {
         "mois": "2025-04",
@@ -1730,7 +1730,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 100
       },
       {
         "mois": "2024-12",
@@ -1939,17 +1939,17 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": 120
+        "prix": 140
       },
       {
         "mois": "2025-02",
         "mois_label": "Février 2025",
-        "prix": 180
+        "prix": 130
       },
       {
         "mois": "2025-03",
         "mois_label": "Mars 2025",
-        "prix": 140
+        "prix": 120
       },
       {
         "mois": "2025-04",
@@ -2124,7 +2124,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 55
       },
       {
         "mois": "2024-12",
@@ -2321,7 +2321,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 55
       },
       {
         "mois": "2024-12",
@@ -2518,7 +2518,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 40
       },
       {
         "mois": "2024-12",
@@ -2715,7 +2715,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 65
       },
       {
         "mois": "2024-12",
@@ -2912,7 +2912,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 65
       },
       {
         "mois": "2024-12",
@@ -3109,7 +3109,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2024-12",
@@ -3306,7 +3306,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-12",
@@ -3473,7 +3473,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 75
       },
       {
         "mois": "2024-06",
@@ -3503,7 +3503,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 75
       },
       {
         "mois": "2024-12",
@@ -3700,7 +3700,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 200
       },
       {
         "mois": "2024-12",
@@ -3897,7 +3897,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 140
       },
       {
         "mois": "2024-12",
@@ -4094,7 +4094,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 95
       },
       {
         "mois": "2024-12",
@@ -4291,7 +4291,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2024-12",
@@ -4488,7 +4488,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-11",
         "mois_label": "Novembre 2024",
-        "prix": 60
+        "prix": 80
       },
       {
         "mois": "2024-12",
@@ -4655,7 +4655,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 95
       },
       {
         "mois": "2024-06",
@@ -4665,7 +4665,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 110
       },
       {
         "mois": "2024-08",
@@ -5049,7 +5049,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 110
       },
       {
         "mois": "2024-06",
@@ -5059,7 +5059,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 110
       },
       {
         "mois": "2024-08",
@@ -5246,7 +5246,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 60
       },
       {
         "mois": "2024-06",
@@ -5256,7 +5256,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 65
       },
       {
         "mois": "2024-08",
@@ -5443,7 +5443,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 80
       },
       {
         "mois": "2024-06",
@@ -5453,7 +5453,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 85
       },
       {
         "mois": "2024-08",
@@ -5640,7 +5640,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 200
       },
       {
         "mois": "2024-06",
@@ -5650,7 +5650,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 300
       },
       {
         "mois": "2024-08",
@@ -5837,7 +5837,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 150
       },
       {
         "mois": "2024-06",
@@ -5847,7 +5847,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 130
       },
       {
         "mois": "2024-08",
@@ -6034,7 +6034,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 110
       },
       {
         "mois": "2024-06",
@@ -6231,7 +6231,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 190
       },
       {
         "mois": "2024-06",
@@ -6241,7 +6241,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 200
       },
       {
         "mois": "2024-08",
@@ -6428,7 +6428,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 230
       },
       {
         "mois": "2024-06",
@@ -6438,7 +6438,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 220
       },
       {
         "mois": "2024-08",
@@ -6625,7 +6625,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 85
       },
       {
         "mois": "2024-06",
@@ -6635,7 +6635,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 95
       },
       {
         "mois": "2024-08",
@@ -6822,7 +6822,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 230
       },
       {
         "mois": "2024-06",
@@ -6832,7 +6832,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 220
       },
       {
         "mois": "2024-08",
@@ -7019,7 +7019,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 200
       },
       {
         "mois": "2024-06",
@@ -7029,7 +7029,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 300
       },
       {
         "mois": "2024-08",
@@ -7216,7 +7216,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 85
       },
       {
         "mois": "2024-06",
@@ -7226,7 +7226,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 95
       },
       {
         "mois": "2024-08",
@@ -7413,7 +7413,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 140
       },
       {
         "mois": "2024-06",
@@ -7423,7 +7423,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 150
       },
       {
         "mois": "2024-08",
@@ -7610,7 +7610,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 300
       },
       {
         "mois": "2024-06",
@@ -7620,7 +7620,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 800
       },
       {
         "mois": "2024-08",
@@ -7807,7 +7807,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 500
       },
       {
         "mois": "2024-06",
@@ -7817,7 +7817,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 450
       },
       {
         "mois": "2024-08",
@@ -8004,7 +8004,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 700
       },
       {
         "mois": "2024-06",
@@ -8014,7 +8014,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 450
       },
       {
         "mois": "2024-08",
@@ -8201,7 +8201,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 750
       },
       {
         "mois": "2024-06",
@@ -8211,7 +8211,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 900
       },
       {
         "mois": "2024-08",
@@ -8398,7 +8398,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": 90
+        "prix": 750
       },
       {
         "mois": "2024-06",
@@ -8408,7 +8408,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": 100
+        "prix": 900
       },
       {
         "mois": "2024-08",
@@ -10959,7 +10959,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-05",
         "mois_label": "Mai 2024",
-        "prix": null
+        "prix": 350
       },
       {
         "mois": "2024-06",
@@ -10969,7 +10969,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2024-07",
         "mois_label": "Juillet 2024",
-        "prix": null
+        "prix": 350
       },
       {
         "mois": "2024-08",
