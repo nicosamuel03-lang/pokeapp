@@ -43,6 +43,40 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+/** Compte les entrées par type (catalogue build:data + build:display = ETB + Display + UPC). */
+function summarizeCatalogForLog(catalog) {
+  let etb = 0;
+  let display = 0;
+  let upc = 0;
+  let unknownType = 0;
+  /** Bloc série pour ETB : EB / EV / ME / SL / … (préfixe avant non-numérique) */
+  const seriesBucket = { EB: 0, EV: 0, ME: 0, SL: 0, other: 0 };
+
+  for (const p of catalog) {
+    const rawType = String(p?.type ?? "").trim();
+    const t = rawType.toUpperCase();
+    if (t === "ETB") {
+      etb++;
+      const id = String(p?.id ?? "");
+      const m = id.match(/^([A-Za-z]+)/);
+      const prefix = m ? m[1].toUpperCase() : "";
+      if (prefix === "EB" || prefix === "EV" || prefix === "ME" || prefix === "SL") {
+        seriesBucket[prefix]++;
+      } else {
+        seriesBucket.other++;
+      }
+    } else if (t === "DISPLAY" || t === "DISPLAYS") {
+      display++;
+    } else if (t === "UPC") {
+      upc++;
+    } else {
+      unknownType++;
+    }
+  }
+
+  return { etb, display, upc, unknownType, seriesBucket };
+}
+
 // ─── Cœur de la synchronisation ──────────────────────────────────────────────
 
 async function syncAllPrices({ signal } = {}) {
@@ -54,7 +88,18 @@ async function syncAllPrices({ signal } = {}) {
     return { synced: 0, errors: 0, skipped: 0 };
   }
 
-  console.log(`[sync] Début synchronisation — ${catalog.length} produits`);
+  const summary = summarizeCatalogForLog(catalog);
+  console.log(
+    `[sync] ── Début run: ${catalog.length} produit(s) | types: ETB=${summary.etb} Display=${summary.display} UPC=${summary.upc}` +
+      (summary.unknownType ? ` ⚠ type inconnu=${summary.unknownType}` : "") +
+      ` | séries ETB: EB=${summary.seriesBucket.EB} EV=${summary.seriesBucket.EV} ME=${summary.seriesBucket.ME} SL=${summary.seriesBucket.SL}` +
+      (summary.seriesBucket.other ? ` autre=${summary.seriesBucket.other}` : "")
+  );
+  if (summary.display === 0 || summary.upc === 0) {
+    console.warn(
+      "[sync] ⚠ Attendu: au moins un Display et un UPC dans productCatalog.json — lance npm run build:display si la liste est vide."
+    );
+  }
 
   let synced  = 0;
   let errors  = 0;
@@ -133,29 +178,39 @@ function startPriceSyncJob() {
   if (_jobTimer) return; // déjà démarré
 
   async function tick() {
+    console.log("[sync] tick() — lancement d'un cycle (auto ou planifié)");
     try {
       await syncAllPrices();
+      console.log(
+        `[sync] Cycle OK — prochaine exécution dans ${SYNC_INTERVAL_MS / 3600000}h (${new Date(
+          Date.now() + SYNC_INTERVAL_MS
+        ).toISOString()} UTC approx.)`
+      );
     } catch (err) {
       if (err.code === "SUPABASE_CONFIG") {
         console.warn(
           "[sync] Job désactivé : SUPABASE_SERVICE_KEY manquante." +
           " Ajoute-la dans Railway pour activer la sync automatique."
         );
+        console.warn("[sync] Timer récurrent NON reprogrammé (erreur de configuration).");
         return; // ne reprogramme pas le job
       }
       if (err.code === "EBAY_CONFIG") {
         console.warn("[sync] Job désactivé : EBAY_APP_ID / EBAY_CERT_ID manquants.");
+        console.warn("[sync] Timer récurrent NON reprogrammé (erreur de configuration).");
         return;
       }
-      console.error("[sync] Erreur inattendue pendant la sync :", err.message);
+      console.error("[sync] Erreur inattendue pendant la sync :", err?.message || err, err?.code || "");
     }
 
-    // Reprogramme la prochaine exécution
+    // Reprogramme la prochaine exécution (sauf sorties early ci-dessus)
     _jobTimer = setTimeout(tick, SYNC_INTERVAL_MS);
   }
 
   // Premier lancement après 30 secondes (laisse le serveur démarrer complètement)
-  console.log(`[sync] Job démarré — première exécution dans 30s, puis toutes les 24h`);
+  console.log(
+    `[sync] Job planifié — première exécution dans 30s, puis toutes les ${SYNC_INTERVAL_MS / 3600000}h (syncAllPrices sur tout le catalogue)`
+  );
   _jobTimer = setTimeout(tick, 30_000);
 }
 

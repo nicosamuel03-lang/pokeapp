@@ -1,282 +1,287 @@
 [
   {
+    "id": "ME03",
+    "name": "ETB Équilibre Parfait (ME03)",
+    "type": "ETB"
+  },
+  {
     "id": "ME02.5",
-    "name": "ETB Héros Transcendants",
+    "name": "ETB Héros Transcendants (ME02.5)",
     "type": "ETB"
   },
   {
     "id": "ME02",
-    "name": "ETB Flammes Fantasmagoriques",
+    "name": "ETB Méga Évolution (Lucario) (ME01)",
+    "type": "ETB"
+  },
+  {
+    "id": "ME02-2",
+    "name": "ETB Flammes Fantasmagoriques (ME02)",
     "type": "ETB"
   },
   {
     "id": "ME01",
-    "name": "ETB Méga Évolution",
-    "type": "ETB"
-  },
-  {
-    "id": "ME01",
-    "name": "ETB Méga Évolution 2",
+    "name": "ETB Méga Évolution (Gardevoir) (ME01)",
     "type": "ETB"
   },
   {
     "id": "EV10.5",
-    "name": "ETB Foudre Noire",
+    "name": "ETB Foudre Noire (EV10.5)",
     "type": "ETB"
   },
   {
-    "id": "EV10.5",
-    "name": "ETB Flamme Blanche",
+    "id": "EV10.5-2",
+    "name": "ETB Flamme Blanche (EV10.5)",
     "type": "ETB"
   },
   {
     "id": "EV10",
-    "name": "ETB Rivalités Destinées",
+    "name": "ETB Rivalités Destinées (EV10)",
     "type": "ETB"
   },
   {
     "id": "EV09",
-    "name": "ETB Aventure Ensemble",
+    "name": "ETB Aventure Ensemble (EV09)",
     "type": "ETB"
   },
   {
     "id": "EV08",
-    "name": "ETB Étincelles Déferlantes",
+    "name": "ETB Étincelles Déferlantes (EV08)",
     "type": "ETB"
   },
   {
     "id": "EV08.5",
-    "name": "ETB Évolutions Prismatiques",
+    "name": "ETB Évolutions Prismatiques (EV08.5)",
     "type": "ETB"
   },
   {
     "id": "EV07",
-    "name": "ETB Couronne Stellaire",
+    "name": "ETB Couronne Stellaire (EV07)",
     "type": "ETB"
   },
   {
     "id": "EV06",
-    "name": "ETB Mascarade Crépusculaire",
+    "name": "ETB Forces Temporelles (Serpente-eau) (EV05)",
     "type": "ETB"
   },
   {
     "id": "EV06.5",
-    "name": "ETB Fable Nébuleuse",
+    "name": "ETB Fable Nébuleuse (EV06.5)",
+    "type": "ETB"
+  },
+  {
+    "id": "EV06-2",
+    "name": "ETB Mascarade Crépusculaire (EV06)",
     "type": "ETB"
   },
   {
     "id": "EV05",
-    "name": "ETB Forces Temporelles",
+    "name": "ETB Faille Paradoxe (Rugit-Lune) (EV04)",
     "type": "ETB"
   },
   {
-    "id": "EV05",
-    "name": "ETB Forces Temporelles 2",
+    "id": "EV05-2",
+    "name": "ETB Forces Temporelles (Vert-de-Fer) (EV05)",
     "type": "ETB"
   },
   {
     "id": "EV04.5",
-    "name": "ETB Destinées de Paldéa",
+    "name": "ETB Destinées de Paldéa (EV04.5)",
     "type": "ETB"
   },
   {
     "id": "EV04",
-    "name": "ETB Faille Paradoxe",
-    "type": "ETB"
-  },
-  {
-    "id": "EV04",
-    "name": "ETB Faille Paradoxe 2",
+    "name": "ETB Faille Paradoxe (Garde-de-Fer) (EV04)",
     "type": "ETB"
   },
   {
     "id": "EV03.5",
-    "name": "ETB Pokémon 151",
+    "name": "ETB Pokémon 151 (EV03.5)",
     "type": "ETB"
   },
   {
     "id": "EV03",
-    "name": "ETB Flammes Obsidiennes",
+    "name": "ETB Flammes Obsidiennes (EV03)",
     "type": "ETB"
   },
   {
     "id": "EV02",
-    "name": "ETB Évolutions à Paldéa",
+    "name": "ETB Écarlate et Violet (Miraidon) (EV01)",
+    "type": "ETB"
+  },
+  {
+    "id": "EV02-2",
+    "name": "ETB Évolutions à Paldéa (EV02)",
     "type": "ETB"
   },
   {
     "id": "EV01",
-    "name": "ETB Écarlate et Violet",
-    "type": "ETB"
-  },
-  {
-    "id": "EV01",
-    "name": "ETB Écarlate et Violet 2",
+    "name": "ETB Écarlate et Violet (Koraidon) (EV01)",
     "type": "ETB"
   },
   {
     "id": "EB12.5",
-    "name": "ETB Zénith Suprême FR",
+    "name": "ETB Zénith Suprême (EB12.5) FR",
     "type": "ETB"
   },
   {
     "id": "EB12",
-    "name": "ETB Tempête Argentée FR",
+    "name": "ETB Tempête Argentée (EB12) FR",
     "type": "ETB"
   },
   {
     "id": "EB11",
-    "name": "ETB Origine Perdue FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB10.5",
-    "name": "ETB Pokémon GO FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB10",
-    "name": "ETB Astres Radieux FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB05.2",
-    "name": "ETB Styles de Combat 2 FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB09",
-    "name": "ETB Stars Étincelantes FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB08",
-    "name": "ETB Poing de Fusion FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB07.5",
-    "name": "ETB Célébrations 25 Ans FR",
+    "name": "ETB Origine Perdue (EB11) FR",
     "type": "ETB"
   },
   {
     "id": "EB07",
-    "name": "ETB Évolution Céleste FR",
+    "name": "ETB Évolution Céleste (Mentali) (EB07) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB10.5",
+    "name": "ETB Pokémon GO (EB10.5) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB06-2",
+    "name": "ETB Règne de Glace (Sylveroy Cavalier du Froid) (EB06) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB10",
+    "name": "ETB Astres Radieux (EB10) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB05-2",
+    "name": "ETB Styles de Combat (Shifours Mille Poings) (EB05) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB09",
+    "name": "ETB Stars Étincelantes (EB09) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB08",
+    "name": "ETB Poing de Fusion (EB08) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB07.5",
+    "name": "ETB Célébrations 25 Ans (EB07.5) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB07-2",
+    "name": "ETB Évolution Céleste (Noctali) (EB07) FR",
     "type": "ETB"
   },
   {
     "id": "EB06",
-    "name": "ETB Règne de Glace FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB06",
-    "name": "ETB Évolution Céleste 2 FR",
+    "name": "ETB Règne de Glace (Sylveroy Cavalier d'Effroi) (EB06) FR",
     "type": "ETB"
   },
   {
     "id": "EB05",
-    "name": "ETB Styles de Combat FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB05",
-    "name": "ETB Règne de Glace 2 FR",
+    "name": "ETB Styles de Combat (Shifours Mille Poings Final) (EB05) FR",
     "type": "ETB"
   },
   {
     "id": "EB04.5",
-    "name": "ETB Destinées Radieuses FR",
+    "name": "ETB Destinées Radieuses (EB04.5) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB01-2",
+    "name": "ETB Épée et Bouclier (Zamazenta) (EB01) FR",
     "type": "ETB"
   },
   {
     "id": "EB04",
-    "name": "ETB Voltage Éclatant FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB03",
-    "name": "ETB Ténèbres Embrasées FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB02",
-    "name": "ETB Clash des Rebelles FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB01",
-    "name": "ETB Épée et Bouclier FR",
-    "type": "ETB"
-  },
-  {
-    "id": "EB01",
-    "name": "ETB Épée et Bouclier 2 FR",
-    "type": "ETB"
-  },
-  {
-    "id": "SL12",
-    "name": "ETB Éclipse Cosmique",
-    "type": "ETB"
-  },
-  {
-    "id": "SL11",
-    "name": "ETB Harmonie des Esprits",
-    "type": "ETB"
-  },
-  {
-    "id": "SL10.5",
-    "name": "ETB Destinées Occultes",
-    "type": "ETB"
-  },
-  {
-    "id": "SL10",
-    "name": "ETB Alliance Infaillible",
-    "type": "ETB"
-  },
-  {
-    "id": "SL09",
-    "name": "ETB Duo de Choc",
-    "type": "ETB"
-  },
-  {
-    "id": "SL08",
-    "name": "ETB Tonnerre Perdu",
-    "type": "ETB"
-  },
-  {
-    "id": "SL03.5",
-    "name": "ETB Légendes Brillantes",
-    "type": "ETB"
-  },
-  {
-    "id": "SL07.5",
-    "name": "ETB Majesté des Dragons",
-    "type": "ETB"
-  },
-  {
-    "id": "SL07",
-    "name": "ETB Tempête Céleste",
-    "type": "ETB"
-  },
-  {
-    "id": "SL06",
-    "name": "ETB Lumière Interdite",
-    "type": "ETB"
-  },
-  {
-    "id": "SL05",
-    "name": "ETB Ultra Prisme",
-    "type": "ETB"
-  },
-  {
-    "id": "SL05",
-    "name": "ETB Ultra Prisme",
+    "name": "ETB Voltage Éclatant (EB04) FR",
     "type": "ETB"
   },
   {
     "id": "EB03,5",
-    "name": "ETB La voie du Maître FR",
+    "name": "ETB La voie du Maître (EB03.5) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB03",
+    "name": "ETB Ténèbres Embrasées (EB03) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB02",
+    "name": "ETB Clash des Rebelles (EB02) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "EB01",
+    "name": "ETB Épée et Bouclier (Zacian) (EB01) FR",
+    "type": "ETB"
+  },
+  {
+    "id": "SL12",
+    "name": "ETB Éclipse Cosmique (SL12)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL11",
+    "name": "ETB Harmonie des Esprits (SL11)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL10.5",
+    "name": "ETB Destinées Occultes (SL10)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL10",
+    "name": "ETB Alliance Infaillible (SL10)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL09",
+    "name": "ETB Duo de Choc (SL09)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL08",
+    "name": "ETB Tonnerre Perdu (SL08)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL03.5",
+    "name": "ETB Légendes Brillantes (SL03.5)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL07.5",
+    "name": "ETB Majesté des Dragons (SL07.5)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL07",
+    "name": "ETB Tempête Céleste (SL07)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL06",
+    "name": "ETB Lumière Interdite (SL06)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL05",
+    "name": "ETB Ultra Prisme (Necrozma Ailes de l’Aurore) (SL05)",
+    "type": "ETB"
+  },
+  {
+    "id": "SL05-2",
+    "name": "ETB Ultra Prisme (Necrozma Crinière du Couchant) (SL05)",
     "type": "ETB"
   },
   {

@@ -1,9 +1,10 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth, useClerk, useUser } from "@clerk/react";
-import { Home, LineChart, History, Settings } from "lucide-react";
+import { Home, LineChart, History, Plus, Settings, X } from "lucide-react";
 import { ClerkSignInModal } from "./ClerkSignInModal";
 import { PremiumBanner } from "./PremiumBanner";
+import { AjouterPage } from "../pages/AjouterPage";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
 
@@ -13,16 +14,29 @@ const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
 const NAV_HEIGHT = 78;
 const MAIN_PADDING_BOTTOM = NAV_HEIGHT + 16;
 const ICON_SIZE = 12;
+const AJOUTER_ICON_SIZE = 15;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
 const LETTER_SPACING = "0.025em";
 
 /** Onglets visibles dans la barre du bas (la collection est accessible via la carte portefeuille sur l’accueil). */
 const BOTTOM_NAV_PATHS = ["/", "/marche", "/historique"] as const;
 
-const navItems: { to: string; label: string; Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>; iconSize: number }[] = [
-  { to: "/", label: "Accueil", Icon: Home, iconSize: ICON_SIZE },
-  { to: "/marche", label: "Marché", Icon: LineChart, iconSize: ICON_SIZE },
-  { to: "/historique", label: "Historique", Icon: History, iconSize: ICON_SIZE },
+const navItems: {
+  key: string;
+  to?: string;
+  label: string;
+  Icon: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+  iconSize: number;
+}[] = [
+  { key: "accueil", to: "/", label: "Accueil", Icon: Home, iconSize: ICON_SIZE },
+  {
+    key: "ajouter",
+    label: "Ajouter",
+    Icon: Plus,
+    iconSize: AJOUTER_ICON_SIZE,
+  },
+  { key: "marche", to: "/marche", label: "Marché", Icon: LineChart, iconSize: ICON_SIZE },
+  { key: "historique", to: "/historique", label: "Historique", Icon: History, iconSize: ICON_SIZE },
 ];
 
 export const BottomNavLayout = () => {
@@ -36,6 +50,7 @@ export const BottomNavLayout = () => {
   console.log("[RENDER] BottomNavLayout", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
   const [showSignInModal, setShowSignInModal] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [ajouterOverlayOpen, setAjouterOverlayOpen] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
@@ -375,20 +390,32 @@ export const BottomNavLayout = () => {
         >
           {navItems.map((item) => {
             const isActive =
-              item.to === "/"
-                ? location.pathname === "/"
-                : location.pathname.startsWith(item.to);
+              item.to != null
+                ? item.to === "/"
+                  ? location.pathname === "/"
+                  : location.pathname.startsWith(item.to)
+                : false;
             const color = isActive ? "var(--text-primary)" : "var(--text-secondary)";
-            const isJustClicked = clickedTab === item.to;
+            const clickKey = item.to ?? item.key;
+            const isJustClicked = clickedTab === clickKey;
 
             return (
               <button
-                key={item.to}
+                key={item.key}
                 type="button"
                 onClick={() => {
-                  navigate(item.to);
-                  setClickedTab(null);
-                  requestAnimationFrame(() => setClickedTab(item.to));
+                  if (item.key === "ajouter") {
+                    setAjouterOverlayOpen(true);
+                    setClickedTab(null);
+                    requestAnimationFrame(() => setClickedTab(clickKey));
+                    return;
+                  }
+                  if (item.to) {
+                    setAjouterOverlayOpen(false);
+                    navigate(item.to);
+                    setClickedTab(null);
+                    requestAnimationFrame(() => setClickedTab(clickKey));
+                  }
                 }}
                 aria-current={isActive ? "page" : undefined}
                 style={{
@@ -515,6 +542,53 @@ export const BottomNavLayout = () => {
               </button>
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {ajouterOverlayOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Scanner code-barres"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 50,
+            display: "flex",
+            flexDirection: "column",
+            background: "#0a0a0a",
+            paddingTop: "env(safe-area-inset-top, 0px)",
+          }}
+        >
+          <button
+            type="button"
+            aria-label="Fermer"
+            onClick={() => setAjouterOverlayOpen(false)}
+            style={{
+              position: "absolute",
+              top: "calc(12px + env(safe-area-inset-top, 0px))",
+              right: 16,
+              zIndex: 1,
+              width: 44,
+              height: 44,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer",
+              background: "var(--bg-card, #1a1a1a)",
+              color: "var(--text-primary, #fafafa)",
+            }}
+          >
+            <X size={22} strokeWidth={2} />
+          </button>
+          <AjouterPage />
         </div>
       ) : null}
     </div>

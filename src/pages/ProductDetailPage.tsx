@@ -2,13 +2,14 @@ import { Component, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Area,
-  AreaChart,
+  ComposedChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
   ReferenceLine,
 } from "recharts";
+import { PriceHistoryChartGaps, type PriceHistoryGapEndpoint } from "../components/PriceHistoryChartGaps";
 import { useProducts, type Product } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { setSalePrice } from "../utils/salesStorage";
@@ -48,6 +49,143 @@ const MOCK_CHART_DATA = [
   { mois_court: "Nov", mois_label: "Novembre", prix: 88 },
   { mois_court: "Déc", mois_label: "Décembre", prix: 120 },
 ];
+
+const MOIS_COURTS_FR = [
+  "Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc",
+] as const;
+
+/** Clé ISO mois (2026-03) → libellé court axe X type « Mar 26 ». */
+function isoMonthToShortLabel(iso: string): string {
+  const m = iso.match(/^(\d{4})-(\d{2})/);
+  if (!m) return iso;
+  const mi = Number(m[2], 10) - 1;
+  if (mi < 0 || mi > 11) return iso;
+  return `${MOIS_COURTS_FR[mi]} ${String(m[1]).slice(-2)}`;
+}
+
+type DetailHistRow = { mois?: string; mois_label?: string; prix?: number | null };
+
+/** Chronologie complète : Display = une seule série ; ETB = 2024 + 2025 + 2026 (etbData). */
+function mergeProductDetailHistory(
+  category: string | undefined,
+  displayHist: DetailHistRow[] | undefined,
+  h2024: DetailHistRow[],
+  h2025: DetailHistRow[],
+  h2026: DetailHistRow[]
+): DetailHistRow[] {
+  if (category === "Displays" && Array.isArray(displayHist) && displayHist.length > 0) {
+    return [...displayHist]
+      .filter((h) => h?.mois)
+      .sort((a, b) => String(a.mois).localeCompare(String(b.mois)));
+  }
+  const rows = [...h2024, ...h2025, ...h2026].filter((h) => h?.mois);
+  rows.sort((a, b) => String(a.mois).localeCompare(String(b.mois)));
+  return rows;
+}
+
+/**
+ * Axe X : du premier au dernier mois avec un prix > 0 (aucun mois « fantôme » après la dernière donnée).
+ */
+function trimHistoryToPrixBounds<T extends { mois?: string; prix?: number | null }>(
+  rows: T[],
+  getPrix: (r: T) => number | null
+): T[] {
+  const isValid = (v: number | null) =>
+    v != null && !Number.isNaN(Number(v)) && Number(v) > 0;
+  let first = -1;
+  let last = -1;
+  for (let i = 0; i < rows.length; i++) {
+    const v = getPrix(rows[i]);
+    if (isValid(v)) {
+      if (first < 0) first = i;
+      last = i;
+    }
+  }
+  if (first < 0) return [];
+  return rows.slice(first, last + 1);
+}
+
+function prixPointIsValid(p: number | null | undefined): boolean {
+  return p != null && !Number.isNaN(Number(p)) && Number(p) > 0;
+}
+
+function addOneCalendarMonth(ym: string): string | null {
+  const m = ym.match(/^(\d{4})-(\d{2})/);
+  if (!m) return null;
+  let y = Number(m[1]);
+  let mo = Number(m[2]);
+  mo += 1;
+  if (mo > 12) {
+    mo = 1;
+    y += 1;
+  }
+  return `${y}-${String(mo).padStart(2, "0")}`;
+}
+
+/**
+ * Insère chaque mois calendaire entre le premier et le dernier mois (sans inventer de prix : null si absent).
+ * Permet à l’Area de ne pas tracer un plein entre deux mois éloignés.
+ */
+function densifyMonthlyChartRows(
+  rows: Array<{ mois: string; mois_label: string; mois_court: string; prix: number | null }>
+): Array<{ mois: string; mois_label: string; mois_court: string; prix: number | null }> {
+  if (rows.length === 0) return rows;
+  const byMois = new Map(rows.map((r) => [r.mois, r]));
+  const firstM = rows[0].mois;
+  const lastM = rows[rows.length - 1].mois;
+  const out: Array<{ mois: string; mois_label: string; mois_court: string; prix: number | null }> = [];
+  let cur: string | null = firstM;
+  while (cur) {
+    const existing = byMois.get(cur);
+    if (existing) {
+      out.push(existing);
+    } else {
+      const short = isoMonthToShortLabel(cur);
+      out.push({
+        mois: cur,
+        mois_label: short,
+        mois_court: short,
+        prix: null,
+      });
+    }
+    if (cur >= lastM) break;
+    const next = addOneCalendarMonth(cur);
+    if (!next || next > lastM) break;
+    cur = next;
+  }
+  return out;
+}
+
+/** Segments en pointillés entre deux mois avec prix en laissant au moins un mois sans donnée entre les deux. */
+function buildGapBridgeEndpoints(
+  points: Array<{ mois: string; mois_court: string; mois_label: string; prix: number | null }>
+): [PriceHistoryGapEndpoint, PriceHistoryGapEndpoint][] {
+  const bridges: [PriceHistoryGapEndpoint, PriceHistoryGapEndpoint][] = [];
+  let lastIdx = -1;
+  for (let i = 0; i < points.length; i++) {
+    if (!prixPointIsValid(points[i]?.prix)) continue;
+    const b = points[i];
+    if (lastIdx >= 0 && i - lastIdx > 1) {
+      const a = points[lastIdx];
+      bridges.push([
+        {
+          mois: a.mois,
+          mois_court: a.mois_court,
+          mois_label: a.mois_label,
+          prix: Number(a.prix),
+        },
+        {
+          mois: b.mois,
+          mois_court: b.mois_court,
+          mois_label: b.mois_label,
+          prix: Number(b.prix),
+        },
+      ]);
+    }
+    lastIdx = i;
+  }
+  return bridges;
+}
 
 const FREE_SALE_LIMIT = 10;
 
@@ -228,6 +366,28 @@ const ProductDetailPageInner = () => {
     catalogPrixMarche
   );
 
+  useEffect(() => {
+    if (!product) return;
+    console.log("[ProductDetail eBay]", {
+      trackedProductId,
+      loading: ebayTracked.loading,
+      available: ebayTracked.available,
+      count: ebayTracked.count,
+      averagePriceEur: ebayTracked.averagePriceEur,
+      prixSource,
+      productId: product.id,
+      category: product.category,
+    });
+  }, [
+    product,
+    trackedProductId,
+    ebayTracked.loading,
+    ebayTracked.available,
+    ebayTracked.count,
+    ebayTracked.averagePriceEur,
+    prixSource,
+  ]);
+
   /** Même badge d’ère / pilule néon que sur les cartes produit (accueil). */
   const eraBadgeForDetail = useMemo(() => {
     if (!product) return null;
@@ -287,24 +447,25 @@ const ProductDetailPageInner = () => {
     return `${year}-${month}`;
   }, [etb?.dateSortie, product?.dateSortie]);
 
-  const { chartData, priceListRows, xAxisInterval } = useMemo(() => {
+  const { chartData, priceListRows, xAxisInterval, validPriceCount, gapBridgeSegments } = useMemo(() => {
     try {
       const safe2024 = Array.isArray(history2024) ? history2024 : [];
       const safe2025 = Array.isArray(history2025) ? history2025 : [];
       const safe2026 = Array.isArray(history2026) ? history2026 : [];
 
-      /** For Display: map mois -> prix from product.historique_prix (unique per Display). */
-      const displayPrixMap = product?.category === "Displays" && product?.historique_prix?.length
-        ? (() => {
-            const m = new Map<string, number | null>();
-            for (const h of product.historique_prix) {
-              if (h?.mois) m.set(h.mois, h.prix ?? null);
-            }
-            return m;
-          })()
-        : null;
+      /** Display : surcharge des prix depuis product.historique_prix. */
+      const displayPrixMap =
+        product?.category === "Displays" && product?.historique_prix?.length
+          ? (() => {
+              const m = new Map<string, number | null>();
+              for (const h of product.historique_prix) {
+                if (h?.mois) m.set(h.mois, h.prix ?? null);
+              }
+              return m;
+            })()
+          : null;
 
-      /** Keep only months >= release month. Returns full array if no release date. */
+      /** Mois >= date de sortie produit (YYYY-MM). */
       const filterFromRelease = <T extends { mois?: string }>(
         items: T[],
         releaseMonth: string | null
@@ -313,77 +474,74 @@ const ProductDetailPageInner = () => {
         return items.filter((item) => item.mois && item.mois >= releaseMonth);
       };
 
-      const labels1an = ["Fév 25", "Mar 25", "Avr 25", "Mai 25", "Juin 25", "Juil 25", "Août 25", "Sept 25", "Oct 25", "Nov 25", "Déc 25", "Jan 26", "Fév 26"];
-      const mois1an = ["2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12", "2026-01", "2026-02"];
-      const labels2ans = [
-        "Fév 24", "Mar 24", "Avr 24", "Mai 24", "Juin 24", "Juil 24", "Août 24", "Sept 24", "Oct 24", "Nov 24", "Déc 24",
-        "Jan 25", "Fév 25", "Mar 25", "Avr 25", "Mai 25", "Juin 25", "Juil 25", "Août 25", "Sept 25", "Oct 25", "Nov 25", "Déc 25",
-        "Jan 26", "Fév 26",
-      ];
-      const mois2ans = [
-        "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12",
-        "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
-        "2026-01", "2026-02",
-      ];
-
-      const buildRow = (
-        p: { mois?: string; mois_label?: string; prix?: number | null } | undefined,
-        moisFallback: string,
-        moisLabelFallback: string
-      ) => {
-        const mois = p?.mois || moisFallback;
-        const prix =
-          displayPrixMap?.has(mois)
-            ? (displayPrixMap.get(mois) ?? null)
-            : (p?.prix ?? null);
-        return {
-          mois,
-          mois_label: p?.mois_label || moisLabelFallback,
-          prix,
-        };
-      };
-
-      /** Remove rows with no price data. */
+      /** Lignes sans prix (tableau récap uniquement). */
       const filterEmptyRows = <T extends { prix?: number | null }>(items: T[]): T[] =>
         items.filter((item) => item.prix != null && !Number.isNaN(Number(item.prix)));
 
-      if (chartPeriod === "1an") {
-        const slice2025 = safe2025.slice(1, 12);
-        const slice2026 = safe2026.slice(0, 2);
-        const rows: { mois: string; mois_label: string; prix: number | null }[] = [];
-        for (let i = 0; i < 11; i++) rows.push(buildRow(slice2025[i], mois1an[i] ?? "", labels1an[i] ?? ""));
-        for (let i = 0; i < 2; i++) rows.push(buildRow(slice2026[i], mois1an[11 + i] ?? "", labels1an[11 + i] ?? ""));
-        const data = rows.slice(0, 13).map((p, i) => ({
-          ...p,
-          mois_court: labels1an[i] ?? p.mois_label ?? "",
-        }));
-        const filteredData = filterFromRelease(data, releaseMonthKey);
-        let filteredRows = filterFromRelease(rows, releaseMonthKey);
-        filteredRows = filterEmptyRows(filteredRows);
-        return { chartData: filteredData, priceListRows: filteredRows, xAxisInterval: 1 as const };
-      }
+      const merged = mergeProductDetailHistory(
+        product?.category,
+        product?.historique_prix as DetailHistRow[] | undefined,
+        safe2024,
+        safe2025,
+        safe2026
+      );
 
-      const slice2024 = safe2024.slice(1, 12);
-      const slice2025Full = safe2025.slice(0, 12);
-      const slice2026 = safe2026.slice(0, 2);
-      const rows: { mois: string; mois_label: string; prix: number | null }[] = [];
-      for (let i = 0; i < 11; i++) rows.push(buildRow(slice2024[i], mois2ans[i] ?? "", labels2ans[i] ?? ""));
-      for (let i = 0; i < 12; i++) rows.push(buildRow(slice2025Full[i], mois2ans[11 + i] ?? "", labels2ans[11 + i] ?? ""));
-      for (let i = 0; i < 2; i++) rows.push(buildRow(slice2026[i], mois2ans[23 + i] ?? "", labels2ans[23 + i] ?? ""));
-      const data = rows.slice(0, 25).map((p, i) => ({
+      const afterRelease = filterFromRelease(merged, releaseMonthKey);
+
+      const getPrixForRow = (p: DetailHistRow) => {
+        const mois = p.mois ?? "";
+        if (displayPrixMap?.has(mois)) return displayPrixMap.get(mois) ?? null;
+        return p.prix ?? null;
+      };
+
+      const trimmed = trimHistoryToPrixBounds(afterRelease, getPrixForRow);
+      const maxPoints = chartPeriod === "1an" ? 13 : 25;
+      const windowed =
+        trimmed.length > 0 ? trimmed.slice(-maxPoints) : [];
+
+      const rows: { mois: string; mois_label: string; prix: number | null }[] = windowed.map((p) => {
+        const mois = p.mois ?? "";
+        const prix = displayPrixMap?.has(mois)
+          ? (displayPrixMap.get(mois) ?? null)
+          : (p.prix ?? null);
+        return {
+          mois,
+          mois_label: p.mois_label || mois,
+          prix,
+        };
+      });
+
+      const data = rows.map((p) => ({
         ...p,
-        mois_court: labels2ans[i] ?? p.mois_label ?? "",
+        mois_court: p.mois ? isoMonthToShortLabel(p.mois) : "",
       }));
+
       const filteredData = filterFromRelease(data, releaseMonthKey);
-      let filteredRows = filterFromRelease(rows, releaseMonthKey);
-      filteredRows = filterEmptyRows(filteredRows);
-      return { chartData: filteredData, priceListRows: filteredRows, xAxisInterval: 2 as const };
+      const filteredRows = filterEmptyRows(filterFromRelease(rows, releaseMonthKey));
+
+      const chartSeriesDense = densifyMonthlyChartRows(filteredData);
+
+      const n = chartSeriesDense.length;
+      const xAxisInterval = n > 20 ? 2 : n > 12 ? 1 : 0;
+
+      const validPriceCount = chartSeriesDense.filter((p) => prixPointIsValid(p.prix)).length;
+      const gapBridgeSegments = buildGapBridgeEndpoints(chartSeriesDense);
+
+      return {
+        chartData: chartSeriesDense,
+        priceListRows: filteredRows,
+        xAxisInterval,
+        validPriceCount,
+        gapBridgeSegments,
+      };
     } catch (err) {
       console.error("[ProductDetailPage] chart data error", err);
       return {
         chartData: [],
         priceListRows: [],
         xAxisInterval: 1 as const,
+        validPriceCount: 0,
+        gapBridgeSegments: [] as [PriceHistoryGapEndpoint, PriceHistoryGapEndpoint][],
       };
     }
   }, [chartPeriod, history2024, history2025, history2026, releaseMonthKey, product]);
@@ -597,12 +755,10 @@ const ProductDetailPageInner = () => {
           <div className="mb-2 flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-stretch gap-3">
               <div
-                className="flex shrink-0 items-center justify-center overflow-hidden rounded-xl p-3"
+                className="flex max-h-56 shrink-0 items-center justify-center rounded-xl p-2"
                 style={{
-                  width: 154,
-                  height: 154,
-                  minWidth: 154,
-                  minHeight: 154,
+                  width: "100%",
+                  maxWidth: 220,
                   background: "var(--img-container-bg)",
                   boxSizing: "border-box",
                 }}
@@ -611,10 +767,8 @@ const ProductDetailPageInner = () => {
                   <RasterImage
                     src={product.imageUrl}
                     alt={displayProductName}
-                    width={130}
-                    height={130}
-                    className="object-contain"
-                    style={{ objectFit: "contain" }}
+                    className="max-h-56 w-full object-contain"
+                    style={{ objectFit: "contain", maxHeight: "14rem" }}
                     loading="eager"
                     fetchPriority="high"
                     decoding="async"
@@ -626,23 +780,22 @@ const ProductDetailPageInner = () => {
                   />
                 ) : null}
                 <div
-                  className="flex items-center justify-center"
+                  className="flex max-h-56 w-full items-center justify-center"
                   style={{
                     display: product.imageUrl ? "none" : "flex",
-                    width: 130,
-                    height: 130,
+                    minHeight: 112,
                   }}
                 >
                   <ItemIcon
                     imageUrl={null}
                     emoji={product.emoji}
                     name={displayProductName}
-                    size={130}
+                    size={112}
                     frame="none"
                   />
                 </div>
               </div>
-              <div className="flex min-h-[154px] min-w-0 flex-1 flex-col justify-end overflow-visible">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-end overflow-visible">
                 <div className="flex w-full min-w-0 flex-col gap-2">
                   {eraBadgeForDetail ? (
                     <span
@@ -1008,6 +1161,8 @@ const ProductDetailPageInner = () => {
                 height: 260,
                 width: "100%",
                 minHeight: 200,
+                paddingRight: 12,
+                boxSizing: "border-box",
               }}
             >
               <div
@@ -1025,10 +1180,22 @@ const ProductDetailPageInner = () => {
                 }}
               />
               <div style={{ position: "relative", zIndex: 1, height: "100%" }}>
+              {!premiumLoading &&
+              isPremium &&
+              validPriceCount < 3 ? (
+                <div
+                  className="flex h-full w-full items-center justify-center px-4 text-center text-xs"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Données insuffisantes pour afficher l&apos;historique complet
+                </div>
+              ) : (
               <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={!premiumLoading && isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA}
-                margin={{ top: 12, right: 8, left: 4, bottom: 8 }}
+              <ComposedChart
+                data={
+                  !premiumLoading && isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA
+                }
+                margin={{ top: 12, right: 32, left: 4, bottom: 8 }}
               >
                 <defs>
                   <linearGradient id="areaGradDetail" x1="0" y1="0" x2="0" y2="1">
@@ -1060,7 +1227,8 @@ const ProductDetailPageInner = () => {
                     if (!p) return null;
                     const label = p.mois_label ?? "";
                     const prixVal = p.prix;
-                    const prixStr = prixVal != null && !Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—";
+                    const prixStr =
+                      prixVal != null && !Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—";
                     return (
                       <div
                         className="rounded-xl px-3 py-2"
@@ -1092,12 +1260,36 @@ const ProductDetailPageInner = () => {
                   stroke={accentGold}
                   strokeWidth={2}
                   fill="url(#areaGradDetail)"
-                  dot={{ fill: accentGold, r: 2 }}
-                  activeDot={{ fill: accentGold, r: 4 }}
+                  dot={(dotProps) => {
+                    const { cx, cy, payload } = dotProps as {
+                      cx?: number;
+                      cy?: number;
+                      payload?: { prix?: number | null };
+                    };
+                    if (cx == null || cy == null || !prixPointIsValid(payload?.prix)) return null;
+                    return <circle cx={cx} cy={cy} r={2} fill={accentGold} />;
+                  }}
+                  activeDot={(dotProps) => {
+                    const { cx, cy, payload } = dotProps as {
+                      cx?: number;
+                      cy?: number;
+                      payload?: { prix?: number | null };
+                    };
+                    if (cx == null || cy == null || !prixPointIsValid(payload?.prix)) return null;
+                    return <circle cx={cx} cy={cy} r={4} fill={accentGold} />;
+                  }}
                   connectNulls={false}
                 />
-              </AreaChart>
+                {!premiumLoading &&
+                  isPremium &&
+                  validPriceCount >= 3 &&
+                  chartData.length > 0 &&
+                  gapBridgeSegments.length > 0 && (
+                    <PriceHistoryChartGaps segments={gapBridgeSegments} stroke={accentGold} />
+                  )}
+              </ComposedChart>
               </ResponsiveContainer>
+              )}
               </div>
             </div>
             {priceListRows.length > 0 && (

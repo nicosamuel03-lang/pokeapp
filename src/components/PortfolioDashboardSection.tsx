@@ -201,7 +201,7 @@ export function PortfolioDashboardSection({
                 }}
               >
                 <ResponsiveContainer width="100%" height={PORTFOLIO_CHART_HEIGHT}>
-                  <RechartsLineChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <RechartsLineChart data={chartData} margin={{ top: 10, right: 32, left: -10, bottom: 8 }}>
                     <XAxis
                       dataKey="mois"
                       tick={{

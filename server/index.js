@@ -627,6 +627,23 @@ app.get("/api/ebay/tracked-prices", async (req, res) => {
   }
 });
 
+// ─── Debug : exécute syncAllPrices une fois et renvoie le résultat HTTP ──────
+app.get("/api/ebay/sync-now", async (req, res) => {
+  console.log("[ebay/sync-now] Exécution immédiate de syncAllPrices (debug)");
+  try {
+    const result = await syncAllPrices();
+    console.log("[ebay/sync-now] Terminé :", JSON.stringify(result));
+    return res.json({ ok: true, result });
+  } catch (err) {
+    console.error("[ebay/sync-now] Échec :", err?.message || err, err?.code || "");
+    return res.status(500).json({
+      ok: false,
+      error: err?.message || String(err),
+      code: err?.code,
+    });
+  }
+});
+
 // ─── Route admin : déclenche la sync manuellement ────────────────────────────
 app.get("/api/admin/sync-prices", async (req, res) => {
   console.log("[admin] Sync manuelle déclenchée via GET /api/admin/sync-prices");

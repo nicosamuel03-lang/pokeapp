@@ -50,6 +50,8 @@ const COL_PRICE_2026_START = 31;   // AF
 const COL_PRICE_2026_END = 42;     // AQ
 const COL_CURRENT_MARKET = 32;    // AG = Fév 2026
 const COL_IMAGE_URL = 43;          // AR
+/** Colonne Excel « Mars 2026 » dans la grille historique AF–AQ (index 0 = janv. 2026). */
+const COL_MARS_2026 = COL_PRICE_2026_START + 2;
 
 const MONTHS_2024 = [
   { label: "Janvier 2024", iso: "2024-01" },
@@ -119,16 +121,105 @@ const SOLEIL_LUNE_SET_NAMES = new Set([
   "Soleil et Lune",
 ]);
 
-/** Libellés Excel → nom affiché (fichier image = nom corrigé + .png). */
+/** Regex d'un code set seul entre parenthèses, ex. (EB07), (SL10.5), (EV10.5) — pas les noms Pokémon. */
+const SET_CODE_ONLY_PARENS = /\s*\((?:SL|EV|ME|EB)\d{1,2}(?:\.\d+)?\)\s*$/i;
+
+/** Colonne B Excel → code affiché en fin de nom (virgule → point, variantes de ligne). */
+function normalizeExcelCodeForDisplay(code) {
+  let c = String(code ?? "").trim().replace(/,/g, ".");
+  if (/^EV10\.5[ab]$/i.test(c)) return "EV10.5";
+  if (/^ME2\.5$/i.test(c)) return "ME02.5";
+  return c.toUpperCase();
+}
+
+/** Retire tous les suffixes (EBxx) / (SLxx) / (EVxx) / (MExx) en fin de chaîne. */
+function stripTrailingDisplaySetCodes(name) {
+  let s = String(name ?? "").trim();
+  while (SET_CODE_ONLY_PARENS.test(s)) {
+    s = s.replace(SET_CODE_ONLY_PARENS, "").trim();
+  }
+  return s;
+}
+
+/**
+ * Un seul code set en fin de nom, aligné sur la référence Produit / série quand la colonne B Excel diverge.
+ */
+function computeDisplaySetCode(excelCode, nameSansCodes) {
+  const n = String(nameSansCodes ?? "");
+  const norm = normalizeExcelCodeForDisplay(excelCode);
+
+  // Méga Évolution « série 1 » : Gardevoir + Lucario → (ME01) même si Excel a ME02 pour Lucario
+  if (/Méga Évolution\s*\(\s*Gardevoir\s*\)/i.test(n) || /Méga Évolution\s*\(\s*Lucario\s*\)/i.test(n)) {
+    return "ME01";
+  }
+
+  // Écarlate et Violet (Koraidon / Miraidon) → (EV01) ; pas « Évolutions à Paldéa »
+  if (/Écarlate et Violet/i.test(n) && !/Évolutions\s+à\s+Paldéa/i.test(n)) return "EV01";
+
+  // Faille Paradoxe (deux variantes) → toujours (EV04)
+  if (/Faille Paradoxe/i.test(n)) return "EV04";
+
+  // Forces Temporelles → (EV05) même si une ligne Excel est EV06
+  if (/Forces Temporelles/i.test(n)) return "EV05";
+
+  // Coffrets EB01 : Zacian + Zamazenta
+  if (/Épée et Bouclier\s*\(\s*Zacian\s*\)/i.test(n) || /Épée et Bouclier\s*\(\s*Zamazenta\s*\)/i.test(n)) {
+    return "EB01";
+  }
+
+  // Soleil et Lune : même code affiché pour Alliance Infaillible et Destinées Occultes (réf. utilisateur SL10)
+  if (/Destinées Occultes/i.test(n)) return "SL10";
+
+  return norm;
+}
+
+/** Libellés Excel → base de nom (sans code set en fin ; le code est toujours ajouté ensuite). */
 const ETB_NAME_FROM_EXCEL_FIXES = {
   "Dragon Majesty": "Majesté des Dragons",
   "Destinées Cachées": "Destinées Occultes",
+  "Méga Évolution 2": "Méga Évolution (Lucario)",
+  "Forces Temporelles 2": "Forces Temporelles (Vert-de-Fer)",
+  "Faille Paradoxe 2": "Faille Paradoxe (Rugit-Lune)",
+  "Écarlate et Violet 2": "Écarlate et Violet (Miraidon)",
+  "Évolution Céleste 2": "Évolution Céleste (Noctali)",
+  "Règne de Glace 2": "Règne de Glace (Sylveroy Cavalier du Froid)",
+  "Styles de Combat 2": "Styles de Combat (Shifours Mille Poings Final)",
+  "Épée et Bouclier 2": "Épée et Bouclier (Zamazenta)",
+  "Ultra Prisme bleu": "Ultra Prisme (Necrozma Ailes de l\u2019Aurore)",
+  "Ultra Prisme jaune": "Ultra Prisme (Necrozma Crinière du Couchant)",
 };
 
-/** Nom produit → base du fichier .png dans public/images/etb/ */
+/** Base de nom (sans code set) → fichier image dans public/images/etb/ */
 const ETB_IMAGE_FILE_OVERRIDES = {
   "Tonnerre Perdu": "Tonnerre Perdue",
+  "Méga Évolution": "Méga Évolution (Gardevoir)",
+  "Forces Temporelles": "Forces Temporelles (Serpente-eau)",
+  "Faille Paradoxe": "Faille Paradoxe (Garde-de-Fer)",
+  "Écarlate et Violet": "Écarlate et Violet (Koraidon)",
+  "Évolution Céleste": "Évolution Céleste (Mentali)",
+  "Règne de Glace": "Règne de Glace (Sylveroy Cavalier d'Effroi)",
+  "Styles de Combat": "Styles de Combat (Shifours Mille Poings)",
+  "Épée et Bouclier": "Épée et Bouclier (Zacian)",
 };
+
+/** Nom produit (après fixes) → ID forcé (corrige les codes Excel incorrects). */
+const ETB_ID_BY_NAME_OVERRIDES = {
+  // Zamazenta : Excel a EB02 mais appartient à la famille EB01 (Épée et Bouclier)
+  "Épée et Bouclier (Zamazenta) (EB01)": "EB01",
+  // Mentali/Noctali : aussi ajustés en post-boucle (garantit Mentali=EB07 indépendamment de l'ordre Excel)
+  "Évolution Céleste (Mentali) (EB07)": "EB07",
+  "Évolution Céleste (Noctali) (EB07)": "EB07",
+};
+
+/** "(EB07) (EB07)" ou "(ME01) (ME01)" en fin de chaîne → une seule occurrence (Excel ou fixes cumulés). */
+function collapseDuplicateTrailingParentheses(name) {
+  let out = String(name ?? "").trim();
+  const re = /\s*\(([^)]+)\)\s*\(\1\)\s*$/i;
+  while (re.test(out)) {
+    out = out.replace(re, " ($1)");
+  }
+  return out;
+}
 
 function resolveSeries(block, name) {
   const rawName = String(name ?? "").trim().replace(/\s+FR$/, "").trim();
@@ -176,6 +267,8 @@ if (fs.existsSync(overridePath)) {
 }
 
 const items = [];
+/** Lignes à réécrire en col. C dans pokedata.xlsx (index de ligne = même grille que rawRows). */
+const pokedataNameSync = [];
 
 for (let i = 0; i < dataRows.length; i += 1) {
   const row = dataRows[i] || [];
@@ -199,12 +292,23 @@ for (let i = 0; i < dataRows.length; i += 1) {
   if (ETB_NAME_FROM_EXCEL_FIXES[nameFromC]) {
     nameFromC = ETB_NAME_FROM_EXCEL_FIXES[nameFromC];
   }
+  {
+    const baseSansSet = stripTrailingDisplaySetCodes(nameFromC);
+    const displaySetCode = computeDisplaySetCode(code, baseSansSet);
+    nameFromC = collapseDuplicateTrailingParentheses(`${baseSansSet} (${displaySetCode})`);
+  }
   // Derive bloc from code (column B) so EBxx=eb, EVxx=ev, MExx=me regardless of column A
   const block = normBloc(code);
   // Name comes ONLY from column C; for ETB (bloc eb) use "Extension FR" so app shows "ETB Extension FR"
   const name = block === "eb" ? (nameFromC ? `${nameFromC} FR` : "") : nameFromC;
   const series = resolveSeries(block, nameFromC);
-  const releaseDate = String(row[COL_RELEASE_DATE] ?? "").trim();
+  let releaseDate = String(row[COL_RELEASE_DATE] ?? "").trim();
+  // Convertit un numéro de série Excel (ex: 46108) en DD/MM/YYYY
+  if (/^\d{5}$/.test(releaseDate)) {
+    const serial = Number(releaseDate);
+    const d = new Date(Math.round((serial - 25569) * 86400000));
+    releaseDate = `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
+  }
   const msrp = num(row[COL_MSRP]);
   const status = String(row[COL_STATUS] ?? "").trim();
 
@@ -254,24 +358,61 @@ for (let i = 0; i < dataRows.length; i += 1) {
     marchePrice > 0 ? marchePrice :
     msrp;
 
-  // Image locale : préférer fichier existant dans public/images/etb/
+  // Mars 2026 : aligner sur le prix courant du produit (mise à jour du mois en cours)
+  const MARS_2026_ISO = "2026-03";
+  const marsIdx = historique_prix.findIndex((p) => p.mois === MARS_2026_ISO);
+  if (marsIdx >= 0 && prixActuel > 0) {
+    historique_prix[marsIdx] = {
+      ...historique_prix[marsIdx],
+      prix: prixActuel,
+    };
+  }
+
+  pokedataNameSync.push({
+    excelRow0: DATA_START_INDEX + i,
+    name: nameFromC,
+    march2026Prix: prixActuel > 0 ? prixActuel : null,
+  });
+
+  // Image locale : préférer .webp, fallback .png
+  // Si non trouvé avec le nom complet, essaie en retirant le code set final ex: "(EB01)", "(SL05.5)"
   const etbDir = path.join(process.cwd(), "public", "images", "etb");
   const imageBaseName = nameFromC || code;
-  const imageFileBase = ETB_IMAGE_FILE_OVERRIDES[imageBaseName] ?? imageBaseName;
+  const sansSetForOverride = stripTrailingDisplaySetCodes(imageBaseName);
+  const imageFileBase =
+    ETB_IMAGE_FILE_OVERRIDES[imageBaseName] ??
+    ETB_IMAGE_FILE_OVERRIDES[sansSetForOverride] ??
+    imageBaseName;
   let imageUrl = null;
   if (imageFileBase) {
-    const exactPath = path.join(etbDir, `${imageFileBase}.png`);
-    const altPath = path.join(etbDir, `${imageFileBase.replace(/Combat 2$/, "Combats 2")}.png`);
-    if (fs.existsSync(exactPath)) {
+    const webpPath = path.join(etbDir, `${imageFileBase}.webp`);
+    const pngPath  = path.join(etbDir, `${imageFileBase}.png`);
+    if (fs.existsSync(webpPath)) {
+      imageUrl = `/images/etb/${imageFileBase}.webp`;
+    } else if (fs.existsSync(pngPath)) {
       imageUrl = `/images/etb/${imageFileBase}.png`;
-    } else if (fs.existsSync(altPath)) {
-      imageUrl = `/images/etb/${imageFileBase.replace(/Combat 2$/, "Combats 2")}.png`;
     } else {
-      imageUrl = `/images/etb/${imageFileBase}.png`;
+      // Fallback : retirer le code set en fin de nom jusqu'à trouver un fichier
+      const stripped = stripTrailingDisplaySetCodes(imageFileBase);
+      const strWebp = path.join(etbDir, `${stripped}.webp`);
+      const strPng  = path.join(etbDir, `${stripped}.png`);
+      if (stripped !== imageFileBase && fs.existsSync(strWebp)) {
+        imageUrl = `/images/etb/${stripped}.webp`;
+      } else if (stripped !== imageFileBase && fs.existsSync(strPng)) {
+        imageUrl = `/images/etb/${stripped}.png`;
+      } else {
+        imageUrl = `/images/etb/${imageFileBase}.webp`; // fallback (404 si fichier absent)
+      }
     }
   }
 
+  // Override basé sur le nom : corrige les codes Excel incorrects (ex : Zamazenta=EB02→EB01)
+  // Note : Mentali/Noctali sont ajustés APRÈS la boucle pour garantir Mentali=EB07 quoi qu'il arrive
+  if (ETB_ID_BY_NAME_OVERRIDES[nameFromC]) id = ETB_ID_BY_NAME_OVERRIDES[nameFromC];
   if (idOverride[id]) id = idOverride[id];
+  // Garantit l'unicité : si l'ID est déjà pris par un produit précédent, ajoute "-2"
+  // Gère les variants (Faille Paradoxe 2, Ultra Prisme jaune, etc.) sans casser les originaux
+  if (items.some((it) => it.id === id)) id = id + "-2";
   const dateSortie = etbDateOverride[id] ?? releaseDate;
 
   items.push({
@@ -288,6 +429,29 @@ for (let i = 0; i < dataRows.length; i += 1) {
     historique_prix_2024,
     historique_prix_2025,
   });
+}
+
+// Synchroniser pokedata.xlsx : col. C (noms) + Mars 2026 (prix courant)
+for (const { excelRow0, name, march2026Prix } of pokedataNameSync) {
+  const cellRef = XLSX.utils.encode_cell({ r: excelRow0, c: COL_NAME });
+  ws[cellRef] = { t: "s", v: name };
+  if (march2026Prix != null && march2026Prix > 0) {
+    const cellMars = XLSX.utils.encode_cell({ r: excelRow0, c: COL_MARS_2026 });
+    ws[cellMars] = { t: "n", v: march2026Prix };
+  }
+}
+XLSX.writeFile(wb, xlsxPath);
+console.log(`📝 pokedata.xlsx : ${pokedataNameSync.length} lignes (noms + Mars 2026).`);
+
+// ── Corrections post-boucle ──────────────────────────────────────────────────
+// Garantit Mentali=EB07 et Noctali=EB07-2 quel que soit l'ordre des lignes Excel
+{
+  const mentali = items.find((i) => i.nom && i.nom.includes("Mentali"));
+  const noctali = items.find((i) => i.nom && i.nom.includes("Noctali"));
+  if (mentali && noctali && mentali.id !== "EB07") {
+    mentali.id = "EB07";
+    if (noctali.id === "EB07") noctali.id = "EB07-2";
+  }
 }
 
 // Trier par date de sortie (du plus récent au plus ancien)

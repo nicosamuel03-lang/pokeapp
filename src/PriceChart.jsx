@@ -224,7 +224,7 @@ export default function PriceChart({ produit, prixVente }) {
       <ResponsiveContainer width="100%" height={200}>
         <AreaChart
           data={chartData}
-          margin={{ top: 8, right: 4, left: -10, bottom: 0 }}
+          margin={{ top: 8, right: 32, left: -10, bottom: 8 }}
         >
           <defs>
             <linearGradient

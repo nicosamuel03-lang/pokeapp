@@ -1,3 +1,25 @@
+/** Supprime les répétitions consécutives identiques en fin de nom, ex. "(EB07) (EB07)" → "(EB07)". */
+function dedupeTrailingDuplicateParentheses(s: string): string {
+  let out = s.trim();
+  const re = /\s*\(([^)]+)\)\s*\(\1\)\s*$/i;
+  while (re.test(out)) {
+    out = out.replace(re, " ($1)");
+  }
+  return out;
+}
+
+/** True si le nom se termine déjà par ce code entre parenthèses (insensible à la casse). */
+function alreadyEndsWithSetCodeInParens(base: string, setCode: string): boolean {
+  if (!setCode) return false;
+  const esc = setCode.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\(${esc}\\)\\s*$`, "i").test(base.trim());
+}
+
+/** True si le nom se termine déjà par un code set catalogue (ME01, EB07, SL10.5, etc.) — pas le même que product.id. */
+function alreadyEndsWithAnyCatalogSetCode(base: string): boolean {
+  return /\((?:SL|EV|ME|EB)\d{1,2}(?:\.\d+)?\)\s*$/i.test(base.trim());
+}
+
 /** Retire le code set (EB06, EV02, ME01, etc.) et le suffixe FR du nom Display. */
 export function formatDisplayProductName(name: string | undefined, isDisplay: boolean): string {
     let s = (name ?? "").replace(/ FR$/, "");
@@ -37,10 +59,18 @@ export function formatDisplayProductName(name: string | undefined, isDisplay: bo
     if (category === "Displays") {
       base = base.replace(/^Display\s+/i, "").replace(/^ETB\s+/i, "").replace(/^UPC\s+/i, "");
     }
+    base = dedupeTrailingDuplicateParentheses(base);
     const prefix = category === "ETB" ? "ETB " : category === "UPC" ? "UPC " : "Display ";
     // UPC : pas de suffixe (UPCxx)
     if (category === "UPC") return `${prefix}${base}`;
-    return setCode ? `${prefix}${base} (${setCode})` : `${prefix}${base}`;
+    // Code déjà présent en fin de nom (ex. Lucario (ME01) alors que id = ME02) : ne pas ajouter (ME02)
+    if (category !== "UPC" && alreadyEndsWithAnyCatalogSetCode(base)) {
+      return `${prefix}${base}`;
+    }
+    if (setCode && !alreadyEndsWithSetCodeInParens(base, setCode)) {
+      return `${prefix}${base} (${setCode})`;
+    }
+    return `${prefix}${base}`;
   }
   
   /**
