@@ -14,10 +14,11 @@ import { useProducts, type Product } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { setSalePrice } from "../utils/salesStorage";
 import { getPrixMarcheForProduct } from "../utils/prixMarche";
-import { useEbayTrackedPrice, resolveDisplayPrice } from "../hooks/useEbayTrackedPrice";
+import { useEbayTrackedPrice } from "../hooks/useEbayTrackedPrice";
 import { isEbayMockMode } from "../services/ebayMarketPrice";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
+import { displayData } from "../data/displayData";
 import { ItemIcon } from "../components/ItemIcon";
 import { RasterImage } from "../components/RasterImage";
 import { ChevronLeft } from "lucide-react";
@@ -65,7 +66,7 @@ function isoMonthToShortLabel(iso: string): string {
 
 type DetailHistRow = { mois?: string; mois_label?: string; prix?: number | null };
 
-/** Chronologie complète : Display = une seule série ; ETB = 2024 + 2025 + 2026 (etbData). */
+/** Chronologie complète : Display / UPC = une seule série (pokedisplay) ; ETB = 2024 + 2025 + 2026 (etbData). */
 function mergeProductDetailHistory(
   category: string | undefined,
   displayHist: DetailHistRow[] | undefined,
@@ -73,7 +74,11 @@ function mergeProductDetailHistory(
   h2025: DetailHistRow[],
   h2026: DetailHistRow[]
 ): DetailHistRow[] {
-  if (category === "Displays" && Array.isArray(displayHist) && displayHist.length > 0) {
+  if (
+    (category === "Displays" || category === "UPC") &&
+    Array.isArray(displayHist) &&
+    displayHist.length > 0
+  ) {
     return [...displayHist]
       .filter((h) => h?.mois)
       .sort((a, b) => String(a.mois).localeCompare(String(b.mois)));
@@ -361,10 +366,12 @@ const ProductDetailPageInner = () => {
   // ID produit tel qu'il est stocké dans ebay_prices (ETB : etbId, Display/UPC : product.id)
   const trackedProductId = product?.etbId ?? product?.id ?? null;
   const ebayTracked = useEbayTrackedPrice(trackedProductId, !!product && !isEbayMockMode());
-  const { price: prixMarcheResolu, source: prixSource } = resolveDisplayPrice(
-    ebayTracked,
-    catalogPrixMarche
-  );
+  const prixSource: "ebay_tracked" | "catalog" =
+    ebayTracked.available &&
+    ebayTracked.averagePriceEur != null &&
+    ebayTracked.averagePriceEur > 0
+      ? "ebay_tracked"
+      : "catalog";
 
   useEffect(() => {
     if (!product) return;
@@ -453,12 +460,40 @@ const ProductDetailPageInner = () => {
       const safe2025 = Array.isArray(history2025) ? history2025 : [];
       const safe2026 = Array.isArray(history2026) ? history2026 : [];
 
-      /** Display : surcharge des prix depuis product.historique_prix. */
+      /** Historique graphique : toujours la série pokedisplay (display-data.json), jamais une version enrichie côté contexte. */
+      let historiqueChartSource: DetailHistRow[] | undefined;
+      if (
+        product &&
+        (product.category === "Displays" || product.category === "UPC")
+      ) {
+        const pid = product.id ?? "";
+        const rawId = pid.startsWith("display-")
+          ? pid.slice("display-".length)
+          : pid.startsWith("upc-")
+            ? pid.slice("upc-".length)
+            : "";
+        if (rawId) {
+          const row = displayData.find(
+            (d) => d.id.toLowerCase() === rawId.toLowerCase()
+          );
+          if (row?.historique_prix?.length) {
+            historiqueChartSource = row.historique_prix as DetailHistRow[];
+          }
+        }
+      }
+      const displayHistForChart =
+        historiqueChartSource ??
+        (product && Array.isArray(product.historique_prix)
+          ? (product.historique_prix as DetailHistRow[])
+          : undefined);
+
+      /** Display / UPC : grille des prix depuis la même source que le graphique (Excel / JSON). */
       const displayPrixMap =
-        product?.category === "Displays" && product?.historique_prix?.length
+        (product?.category === "Displays" || product?.category === "UPC") &&
+        displayHistForChart?.length
           ? (() => {
               const m = new Map<string, number | null>();
-              for (const h of product.historique_prix) {
+              for (const h of displayHistForChart) {
                 if (h?.mois) m.set(h.mois, h.prix ?? null);
               }
               return m;
@@ -480,7 +515,7 @@ const ProductDetailPageInner = () => {
 
       const merged = mergeProductDetailHistory(
         product?.category,
-        product?.historique_prix as DetailHistRow[] | undefined,
+        displayHistForChart,
         safe2024,
         safe2025,
         safe2026
@@ -546,6 +581,15 @@ const ProductDetailPageInner = () => {
     }
   }, [chartPeriod, history2024, history2025, history2026, releaseMonthKey, product]);
 
+  /** Premier mois sans prix dans la série affichée : tooltip Recharts visible au chargement (defaultIndex). */
+  const defaultTooltipIndexForNull = useMemo(() => {
+    if (!premiumLoading && isPremium && chartData.length > 0) {
+      const idx = chartData.findIndex((d) => d.prix === null);
+      return idx >= 0 ? idx : undefined;
+    }
+    return undefined;
+  }, [chartData, premiumLoading, isPremium]);
+
   const collectionId = collectionIdFromUrl;
 
   const collectionMatch = useMemo(() => {
@@ -595,7 +639,15 @@ const ProductDetailPageInner = () => {
     const q = !Number.isFinite(raw) || raw < 1 ? 1 : raw;
     return Math.min(q, max);
   }, [saleQuantityToSell, quantite]);
-  const prixMarche = prixMarcheResolu;
+  const composedChartData =
+    !premiumLoading && isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA;
+
+  const prixMarche =
+    ebayTracked.available &&
+    ebayTracked.averagePriceEur != null &&
+    ebayTracked.averagePriceEur > 0
+      ? ebayTracked.averagePriceEur
+      : catalogPrixMarche;
   const performanceVsPurchasePercent =
     collectionMatch != null && collectionMatch.buyPrice > 0 && Number.isFinite(prixMarche)
       ? ((prixMarche - collectionMatch.buyPrice) / collectionMatch.buyPrice) * 100
@@ -1190,9 +1242,7 @@ const ProductDetailPageInner = () => {
               ) : (
               <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
-                data={
-                  !premiumLoading && isPremium && chartData.length > 0 ? chartData : MOCK_CHART_DATA
-                }
+                data={composedChartData}
                 margin={{ top: 12, right: 32, left: 4, bottom: 8 }}
               >
                 <defs>
@@ -1219,14 +1269,26 @@ const ProductDetailPageInner = () => {
                   width={32}
                 />
                 <Tooltip
-                  content={({ active, payload }) => {
-                    if (!active || !payload?.length) return null;
-                    const p = payload[0]?.payload;
+                  defaultIndex={defaultTooltipIndexForNull}
+                  filterNull={false}
+                  content={({ active, payload, activeIndex, label }) => {
+                    if (!active) return null;
+                    const idx =
+                      typeof activeIndex === "number"
+                        ? activeIndex
+                        : typeof activeIndex === "string" && /^\d+$/.test(activeIndex)
+                          ? Number.parseInt(activeIndex, 10)
+                          : -1;
+                    type Row = { mois_label?: string; prix?: number | null };
+                    const fromPayload = payload?.[0]?.payload as Row | undefined;
+                    const fromChart =
+                      idx >= 0 && idx < composedChartData.length ? (composedChartData[idx] as Row) : undefined;
+                    const p = fromPayload ?? fromChart;
                     if (!p) return null;
-                    const label = p.mois_label ?? "";
+                    const moisLabel =
+                      p.mois_label ?? (typeof label === "string" || typeof label === "number" ? String(label) : "");
                     const prixVal = p.prix;
-                    const prixStr =
-                      prixVal != null && !Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—";
+                    const isNullPrix = prixVal === null || prixVal === undefined;
                     return (
                       <div
                         className="rounded-xl px-3 py-2"
@@ -1236,9 +1298,17 @@ const ProductDetailPageInner = () => {
                           boxShadow: "0 2px 12px rgba(0,0,0,0.2)",
                         }}
                       >
-                        <p className="mb-1.5 text-[10px]">{label}</p>
+                        <p className="mb-1.5 text-[10px]">{moisLabel}</p>
                         <p className="text-xs">
-                          <span className={STAT_CARD_VALUE_CLASS}>{prixStr}</span>
+                          {isNullPrix ? (
+                            <span className={STAT_CARD_VALUE_CLASS}>
+                              Données non disponibles pour cette période
+                            </span>
+                          ) : (
+                            <span className={STAT_CARD_VALUE_CLASS}>
+                              {!Number.isNaN(Number(prixVal)) ? `${Number(prixVal)} €` : "—"}
+                            </span>
+                          )}
                         </p>
                       </div>
                     );

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import type { Category } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ItemIcon } from "../components/ItemIcon";
 import { RasterImage } from "../components/RasterImage";
 import { etbData } from "../data/etbData";
@@ -116,7 +116,9 @@ export const HomePage = () => {
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, isLoading: isLoadingSubscription } = useSubscription();
   console.log("[RENDER] HomePage", "isPremium:", isPremium, "isLoading:", isLoadingSubscription, new Date().toISOString());
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { pathname } = location;
   const { sales, refreshSales } = useSalesHistory();
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
     "Tous"
@@ -138,6 +140,18 @@ export const HomePage = () => {
       refreshSales();
     }
   }, [pathname, refreshSales]);
+
+  /** Focus recherche accueil après navigation depuis la collection (« + ») — state évite les courses au DOM. */
+  useEffect(() => {
+    if (pathname !== "/") return;
+    const st = location.state as { focusSearch?: boolean } | null | undefined;
+    if (!st?.focusSearch) return;
+    const id = window.setTimeout(() => {
+      homeSearchInputRef.current?.focus();
+      navigate(".", { replace: true, state: {} });
+    }, 100);
+    return () => clearTimeout(id);
+  }, [pathname, location.state, navigate]);
 
   useEffect(() => {
     try {

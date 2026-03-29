@@ -12,7 +12,9 @@ const SWIPE_MIN_DISTANCE = 90;
 const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
 
 const NAV_HEIGHT = 78;
-const MAIN_PADDING_BOTTOM = NAV_HEIGHT + 16;
+/** Espace réservé sous le contenu = hauteur barre + encoche iOS (aligné sur la barre fixe). */
+const MAIN_PADDING_BOTTOM = `calc(${NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`;
+const VIEWPORT_KEYBOARD_SHRINK_PX = 120;
 const ICON_SIZE = 12;
 const AJOUTER_ICON_SIZE = 15;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
@@ -52,6 +54,7 @@ export const BottomNavLayout = () => {
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [ajouterOverlayOpen, setAjouterOverlayOpen] = useState(false);
   const [clickedTab, setClickedTab] = useState<string | null>(null);
+  const [keyboardCoversViewport, setKeyboardCoversViewport] = useState(false);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
   // Pendant le chargement Clerk + abonnement : header placeholder (hauteur fixe), aucun contenu.
@@ -132,13 +135,30 @@ export const BottomNavLayout = () => {
     return () => clearTimeout(id);
   }, [clickedTab]);
 
+  /** Clavier mobile : la barre fixe ne doit pas se superposer au clavier (visualViewport rétrécit). */
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const delta = window.innerHeight - vv.height;
+      setKeyboardCoversViewport(delta > VIEWPORT_KEYBOARD_SHRINK_PX);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
   return (
     <div style={{ position: "relative", minHeight: "100vh", background: "var(--bg-app)", color: "var(--text-secondary)" }}>
       <main
         style={{
           minHeight: "100vh",
           width: "100%",
-          paddingBottom: `${MAIN_PADDING_BOTTOM}px`,
+          paddingBottom: MAIN_PADDING_BOTTOM,
           touchAction: "pan-y",
           overflowY: "auto",
           WebkitOverflowScrolling: "touch",
@@ -346,6 +366,7 @@ export const BottomNavLayout = () => {
         id="app-bottom-nav"
         role="navigation"
         aria-label="Navigation principale"
+        aria-hidden={keyboardCoversViewport}
         style={{
           position: "fixed",
           bottom: 0,
@@ -369,7 +390,10 @@ export const BottomNavLayout = () => {
           borderBottom: "none",
           boxShadow: "none",
           outline: "none",
-          opacity: 1,
+          opacity: keyboardCoversViewport ? 0 : 1,
+          pointerEvents: keyboardCoversViewport ? "none" : "auto",
+          transform: keyboardCoversViewport ? "translateY(100%)" : "none",
+          transition: "opacity 0.2s ease, transform 0.2s ease",
           fontFamily: FONT_HEADING,
           fontWeight: 700,
           letterSpacing: LETTER_SPACING,

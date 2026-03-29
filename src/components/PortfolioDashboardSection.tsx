@@ -1,7 +1,7 @@
-import { useMemo, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { Line, LineChart as RechartsLineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Wallet, LineChart, Package, TrendingUp, ChevronRight } from "lucide-react";
+import { Wallet, LineChart, Package, TrendingUp, ChevronRight, X } from "lucide-react";
 import {
   PortfolioCategoryDonut,
   CATEGORY_DONUT_COLORS,
@@ -19,6 +19,8 @@ import {
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import { RasterImage } from "./RasterImage";
 import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
+import { useCollection } from "../state/CollectionContext";
+import { SearchCatalogue } from "./SearchCatalogue";
 
 export type PortfolioSectionMode = "summary" | "chartOnly";
 
@@ -59,6 +61,22 @@ export function PortfolioDashboardSection({
   produitsCount = 0,
   summaryMainCardTo,
 }: PortfolioDashboardSectionProps) {
+  const [addCatalogueOpen, setAddCatalogueOpen] = useState(false);
+  const collectionBaselineRef = useRef(0);
+  const { items: collectionItemsForOverlay } = useCollection();
+
+  const openAddCatalogueOverlay = () => {
+    collectionBaselineRef.current = collectionItemsForOverlay.length;
+    setAddCatalogueOpen(true);
+  };
+
+  useEffect(() => {
+    if (!addCatalogueOpen) return;
+    if (collectionItemsForOverlay.length > collectionBaselineRef.current) {
+      setAddCatalogueOpen(false);
+    }
+  }, [addCatalogueOpen, collectionItemsForOverlay.length]);
+
   // Prix eBay trackés (Supabase 7j) pour toute la collection — une seule requête batch
   const { priceMap: ebayPriceMap } = usePortfolioEbayPrices(collectionLines);
 
@@ -90,6 +108,7 @@ export function PortfolioDashboardSection({
 
   if (mode === "chartOnly") {
     return (
+      <>
       <section className="rounded-2xl px-2 py-3 overflow-hidden -mx-0" style={isDark ? { background: DARK_MAIN } : mainCardStyle}>
         <div className="mb-2 flex gap-2 px-2">
           <button
@@ -170,17 +189,18 @@ export function PortfolioDashboardSection({
                   pointerEvents: "none",
                 }}
               />
-              <Link
-                to="/ajouter"
+              <button
+                type="button"
                 className="absolute right-3 bottom-3 flex h-8 w-8 items-center justify-center rounded-full text-lg font-medium transition hover:opacity-80"
                 style={{
                   background: isDark ? "#333" : "var(--border-color)",
                   color: isDark ? "#fff" : "var(--text-secondary)",
                 }}
                 aria-label="Ajouter un item"
+                onClick={openAddCatalogueOverlay}
               >
                 +
-              </Link>
+              </button>
               <p className="text-sm mt-2 relative z-10" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
                 Ajoutez des items pour voir l&apos;évolution
               </p>
@@ -420,6 +440,53 @@ export function PortfolioDashboardSection({
           </div>
         ) : null}
       </section>
+
+      {addCatalogueOpen ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Catalogue universel — rechercher et ajouter"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 10050,
+            background: "var(--bg-app)",
+            overflowY: "auto",
+            WebkitOverflowScrolling: "touch",
+            paddingTop: "env(safe-area-inset-top, 0px)",
+            paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          }}
+        >
+          <div style={{ maxWidth: 480, margin: "0 auto", padding: "16px 16px 24px" }}>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="title-section m-0 pl-0" style={{ color: "var(--text-primary)" }}>
+                Catalogue universel
+              </h2>
+              <button
+                type="button"
+                onClick={() => setAddCatalogueOpen(false)}
+                aria-label="Fermer"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                  border: "none",
+                  cursor: "pointer",
+                  background: "var(--input-bg)",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                <X size={22} strokeWidth={2} />
+              </button>
+            </div>
+            <SearchCatalogue />
+          </div>
+        </div>
+      ) : null}
+      </>
     );
   }
 
