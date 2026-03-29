@@ -5,7 +5,8 @@
     "nixpacksPlan": {
       "phases": {
         "setup": {
-          "nixPkgs": ["nodejs_22"]
+          "nixPkgs": ["nodejs_22"],
+          "cmds": ["node --version"]
         }
       }
     }
