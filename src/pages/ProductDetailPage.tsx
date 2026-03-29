@@ -753,12 +753,10 @@ const ProductDetailPageInner = () => {
       >
         <div style={{ paddingLeft: 12 }}>
           <div className="mb-2 flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-1 items-stretch gap-3">
+            <div className="flex min-w-0 flex-1 items-stretch gap-2 md:gap-3">
               <div
-                className="flex max-h-56 shrink-0 items-center justify-center rounded-xl p-2"
+                className="flex max-h-56 w-[min(35%,130px)] max-w-[130px] shrink-0 items-center justify-center rounded-xl p-1.5 md:w-[220px] md:max-w-[220px] md:p-2"
                 style={{
-                  width: "100%",
-                  maxWidth: 220,
                   background: "var(--img-container-bg)",
                   boxSizing: "border-box",
                 }}
@@ -767,7 +765,7 @@ const ProductDetailPageInner = () => {
                   <RasterImage
                     src={product.imageUrl}
                     alt={displayProductName}
-                    className="max-h-56 w-full object-contain"
+                    className="h-auto max-h-56 w-full max-w-full object-contain"
                     style={{ objectFit: "contain", maxHeight: "14rem" }}
                     loading="eager"
                     fetchPriority="high"
@@ -795,7 +793,7 @@ const ProductDetailPageInner = () => {
                   />
                 </div>
               </div>
-              <div className="flex min-h-0 min-w-0 flex-1 flex-col justify-end overflow-visible">
+              <div className="flex min-h-0 min-w-0 flex-1 basis-0 flex-col justify-end overflow-visible">
                 <div className="flex w-full min-w-0 flex-col gap-2">
                   {eraBadgeForDetail ? (
                     <span
