@@ -14,6 +14,7 @@ import {
   computePortfolioStats,
   totalInvestedFromCollection,
   type CollectionLineForChart,
+  type PortfolioChartPeriod,
   type SaleLike,
 } from "../utils/portfolioChartData";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
@@ -34,8 +35,8 @@ interface PortfolioDashboardSectionProps {
   isDark: boolean;
   accentGold: string;
   /** Requis si mode === "chartOnly" */
-  chartPeriod?: "1an" | "2ans";
-  setChartPeriod?: (p: "1an" | "2ans") => void;
+  chartPeriod?: PortfolioChartPeriod;
+  setChartPeriod?: (p: PortfolioChartPeriod) => void;
   /** Requis si mode === "summary" */
   produitsCount?: number;
   /** Si défini, la carte « Valeur du portefeuille » mène à cette route (ex. /collection). */
@@ -113,6 +114,32 @@ export function PortfolioDashboardSection({
         <div className="mb-2 flex gap-2 px-2">
           <button
             type="button"
+            onClick={() => setChartPeriod?.("6m")}
+            className="text-xs font-medium transition"
+            style={
+              chartPeriod === "6m"
+                ? {
+                    backgroundColor: isDark ? "#ffffff" : accentGold,
+                    color: isDark ? "#000000" : "#000",
+                    borderRadius: 9999,
+                    padding: "4px 16px",
+                    fontWeight: 600,
+                    border: "none",
+                  }
+                : {
+                    backgroundColor: "transparent",
+                    color: isDark ? "#ffffff" : "inherit",
+                    borderRadius: 9999,
+                    padding: "4px 16px",
+                    border: isDark ? "1px solid #333" : "1px solid gray",
+                    fontSize: 13,
+                  }
+            }
+          >
+            6 mois
+          </button>
+          <button
+            type="button"
             onClick={() => setChartPeriod?.("1an")}
             className="text-xs font-medium transition"
             style={
@@ -136,32 +163,6 @@ export function PortfolioDashboardSection({
             }
           >
             1 an
-          </button>
-          <button
-            type="button"
-            onClick={() => setChartPeriod?.("2ans")}
-            className="text-xs font-medium transition"
-            style={
-              chartPeriod === "2ans"
-                ? {
-                    backgroundColor: isDark ? "#ffffff" : accentGold,
-                    color: isDark ? "#000000" : "#000",
-                    borderRadius: 9999,
-                    padding: "4px 16px",
-                    fontWeight: 600,
-                    border: "none",
-                  }
-                : {
-                    backgroundColor: "transparent",
-                    color: isDark ? "#ffffff" : "inherit",
-                    borderRadius: 9999,
-                    padding: "4px 16px",
-                    border: isDark ? "1px solid #333" : "1px solid gray",
-                    fontSize: 13,
-                  }
-            }
-          >
-            2 ans
           </button>
         </div>
 
@@ -228,7 +229,7 @@ export function PortfolioDashboardSection({
                         fill: isDark ? LABEL_GRAY : "var(--text-secondary)",
                         fontSize: 10,
                       }}
-                      interval={chartPeriod === "1an" ? 1 : 2}
+                      interval={chartPeriod === "1an" ? 1 : 0}
                     />
                     <YAxis
                       tick={{

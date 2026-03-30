@@ -7,21 +7,80 @@ type HistPrix = { mois: string; prix: number | null }[] | undefined;
 
 export const PORTFOLIO_CHART_HEIGHT = 300;
 
-export const MOIS_KEYS_1AN = [
-  "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
-  "2026-01", "2026-02",
-];
-export const MOIS_LABELS_1AN = ["Fév 25", "Mar 25", "Avr 25", "Mai 25", "Juin 25", "Juil 25", "Août 25", "Sept 25", "Oct 25", "Nov 25", "Déc 25", "Jan 26", "Fév 26"];
-export const MOIS_KEYS_2ANS = [
-  "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07", "2024-08", "2024-09", "2024-10", "2024-11", "2024-12",
-  "2025-01", "2025-02", "2025-03", "2025-04", "2025-05", "2025-06", "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
-  "2026-01", "2026-02",
-];
-export const MOIS_LABELS_2ANS = [
-  "Fév 24", "Mar 24", "Avr 24", "Mai 24", "Juin 24", "Juil 24", "Août 24", "Sept 24", "Oct 24", "Nov 24", "Déc 24",
-  "Jan 25", "Fév 25", "Mar 25", "Avr 25", "Mai 25", "Juin 25", "Juil 25", "Août 25", "Sept 25", "Oct 25", "Nov 25", "Déc 25",
-  "Jan 26", "Fév 26",
-];
+export type PortfolioChartPeriod = "6m" | "1an";
+
+const MOIS_COURTS_FR = [
+  "Jan",
+  "Fév",
+  "Mar",
+  "Avr",
+  "Mai",
+  "Juin",
+  "Juil",
+  "Août",
+  "Sept",
+  "Oct",
+  "Nov",
+  "Déc",
+] as const;
+
+function isoMonthNow(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function addOneCalendarMonth(ym: string): string | null {
+  const m = ym.match(/^(\d{4})-(\d{2})/);
+  if (!m) return null;
+  let y = Number(m[1]);
+  let mo = Number(m[2]);
+  mo += 1;
+  if (mo > 12) {
+    mo = 1;
+    y += 1;
+  }
+  return `${y}-${String(mo).padStart(2, "0")}`;
+}
+
+function subtractCalendarMonths(ym: string, n: number): string {
+  const m = ym.match(/^(\d{4})-(\d{2})/);
+  if (!m) return ym;
+  let y = Number(m[1]);
+  let mo = Number(m[2]);
+  let left = Math.max(0, Math.floor(n));
+  while (left > 0) {
+    mo -= 1;
+    if (mo < 1) {
+      mo = 12;
+      y -= 1;
+    }
+    left -= 1;
+  }
+  return `${y}-${String(mo).padStart(2, "0")}`;
+}
+
+function isoMonthToShortLabel(iso: string): string {
+  const m = iso.match(/^(\d{4})-(\d{2})/);
+  if (!m) return iso;
+  const mi = parseInt(m[2], 10) - 1;
+  if (mi < 0 || mi > 11) return iso;
+  return `${MOIS_COURTS_FR[mi]} ${String(m[1]).slice(-2)}`;
+}
+
+/** `count` mois calendaires inclusifs jusqu’à `endMonth` (YYYY-MM). */
+function getRollingMonthKeys(endMonth: string, count: number): string[] {
+  const first = subtractCalendarMonths(endMonth, count - 1);
+  const keys: string[] = [];
+  let cur: string | null = first;
+  while (cur) {
+    keys.push(cur);
+    if (cur >= endMonth) break;
+    const next = addOneCalendarMonth(cur);
+    if (!next || next > endMonth) break;
+    cur = next;
+  }
+  return keys;
+}
 
 export interface CollectionLineForChart {
   quantity: number;
@@ -91,11 +150,12 @@ function getPriceAtMonthForItem(
 
 export function buildPortfolioChartData(
   collectionItems: CollectionLineForChart[],
-  chartPeriod: "1an" | "2ans",
+  chartPeriod: PortfolioChartPeriod,
   totalInvesti: number
 ) {
-  const keys = chartPeriod === "1an" ? MOIS_KEYS_1AN : MOIS_KEYS_2ANS;
-  const labels = chartPeriod === "1an" ? [...MOIS_LABELS_1AN] : MOIS_LABELS_2ANS;
+  const monthCount = chartPeriod === "1an" ? 12 : 6;
+  const keys = getRollingMonthKeys(isoMonthNow(), monthCount);
+  const labels = keys.map(isoMonthToShortLabel);
   return keys.map((moisKey, index) => {
     let sum = 0;
     collectionItems.forEach((item) => {

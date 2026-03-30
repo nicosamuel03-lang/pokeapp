@@ -20,6 +20,43 @@ const MONTHS_2026 = [
   { label: "Décembre 2026", iso: "2026-12" },
 ];
 
+/**
+ * pokedisplay.xlsx — indices 0-based des colonnes prix mensuels (lettres Excel → index).
+ * Juil. 2024 = N (13) … Déc. 2026 = AQ (42) ; Nov./Déc. 2026 = AP/AQ (41–42) après Oct. AO (40).
+ */
+const POKEDISPLAY_HISTORIQUE_MONTH_COLS = [
+  { label: "Juillet 2024", iso: "2024-07", idx: 13 },
+  { label: "Août 2024", iso: "2024-08", idx: 14 },
+  { label: "Septembre 2024", iso: "2024-09", idx: 15 },
+  { label: "Octobre 2024", iso: "2024-10", idx: 16 },
+  { label: "Novembre 2024", iso: "2024-11", idx: 17 },
+  { label: "Décembre 2024", iso: "2024-12", idx: 18 },
+  { label: "Janvier 2025", iso: "2025-01", idx: 19 },
+  { label: "Février 2025", iso: "2025-02", idx: 20 },
+  { label: "Mars 2025", iso: "2025-03", idx: 21 },
+  { label: "Avril 2025", iso: "2025-04", idx: 22 },
+  { label: "Mai 2025", iso: "2025-05", idx: 23 },
+  { label: "Juin 2025", iso: "2025-06", idx: 24 },
+  { label: "Juillet 2025", iso: "2025-07", idx: 25 },
+  { label: "Août 2025", iso: "2025-08", idx: 26 },
+  { label: "Septembre 2025", iso: "2025-09", idx: 27 },
+  { label: "Octobre 2025", iso: "2025-10", idx: 28 },
+  { label: "Novembre 2025", iso: "2025-11", idx: 29 },
+  { label: "Décembre 2025", iso: "2025-12", idx: 30 },
+  { label: "Janvier 2026", iso: "2026-01", idx: 31 },
+  { label: "Février 2026", iso: "2026-02", idx: 32 },
+  { label: "Mars 2026", iso: "2026-03", idx: 33 },
+  { label: "Avril 2026", iso: "2026-04", idx: 34 },
+  { label: "Mai 2026", iso: "2026-05", idx: 35 },
+  { label: "Juin 2026", iso: "2026-06", idx: 36 },
+  { label: "Juillet 2026", iso: "2026-07", idx: 37 },
+  { label: "Août 2026", iso: "2026-08", idx: 38 },
+  { label: "Septembre 2026", iso: "2026-09", idx: 39 },
+  { label: "Octobre 2026", iso: "2026-10", idx: 40 },
+  { label: "Novembre 2026", iso: "2026-11", idx: 41 },
+  { label: "Décembre 2026", iso: "2026-12", idx: 42 },
+];
+
 function excelDateToRelease(dateSortie) {
   const s = String(dateSortie ?? "").trim();
   const parts = s.split("/");
@@ -67,6 +104,30 @@ function findCol(header, ...keywords) {
   });
 }
 
+/** En-têtes Excel des mois 2026 : 12 colonnes consécutives ; Mars = colonne après Février. */
+function resolveMonthCols2026(headerCells) {
+  const norm = (h) => String(h ?? "").trim().toLowerCase();
+  const janIdx = headerCells.findIndex((h) => norm(h) === "janvier 2026");
+  const fevIdx = headerCells.findIndex((h) => norm(h) === "février 2026");
+
+  if (janIdx >= 0) {
+    return MONTHS_2026.map((m, i) => ({
+      ...m,
+      idx: janIdx + i,
+    }));
+  }
+  if (fevIdx >= 0) {
+    return MONTHS_2026.map((m, i) => ({
+      ...m,
+      idx: fevIdx + (i - 1),
+    }));
+  }
+  return MONTHS_2026.map((m) => ({
+    ...m,
+    idx: headerCells.findIndex((h) => norm(h) === m.label.toLowerCase()),
+  }));
+}
+
 function detectImageUrlCol(rows, startIndex, sampleSize = 30) {
   const counts = {};
   const sample = rows.slice(startIndex, startIndex + sampleSize);
@@ -112,10 +173,7 @@ function parseUpcData() {
   const msrpCol = findCol(headerCells, "pvc");
   const currentCol = findCol(headerCells, "marché", "marche", "fév", "fev");
 
-  const monthCols = MONTHS_2026.map((m) => ({
-    ...m,
-    idx: headerCells.findIndex((h) => h.toLowerCase() === m.label.toLowerCase()),
-  }));
+  const monthCols = resolveMonthCols2026(headerCells);
 
   const upcDir = path.join(process.cwd(), "public", "images", "upc");
 
@@ -247,12 +305,7 @@ function buildDisplayData() {
     const currentCol = findCol(headerCells, "marché", "marche", "fév", "fev");
     const imageCol = detectImageUrlCol(rawRows, headerRowIndex + 1);
 
-    const monthCols = MONTHS_2026.map((m) => ({
-      ...m,
-      idx: headerCells.findIndex(
-        (h) => h.toLowerCase() === m.label.toLowerCase()
-      ),
-    }));
+    const monthCols = POKEDISPLAY_HISTORIQUE_MONTH_COLS;
 
     const displays = rows
       .map((r) => {

@@ -12,6 +12,7 @@ import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
+import type { PortfolioChartPeriod } from "../utils/portfolioChartData";
 import { ERA_DONUT_COLORS } from "../components/PortfolioEraDonut";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import {
@@ -156,7 +157,7 @@ export const CollectionPage = () => {
   const [editDateInput, setEditDateInput] = useState<string>("");
   const [editQuantityInput, setEditQuantityInput] = useState<string>("");
   const [editQuantityWarning, setEditQuantityWarning] = useState<string | null>(null);
-  const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
+  const [chartPeriod, setChartPeriod] = useState<PortfolioChartPeriod>("1an");
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   const triggerFilterPress = (key: string) => {
     setPressedFilterKey(key);

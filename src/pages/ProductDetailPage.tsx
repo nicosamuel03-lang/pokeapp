@@ -29,6 +29,7 @@ import { supabase } from "../lib/supabase";
 import { fetchSalesCounterCount, incrementSalesCounterByOne } from "../lib/salesSupabase";
 import { getGuestSalesTransactionCount } from "../utils/salesHistoryStorage";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import type { PortfolioChartPeriod } from "../utils/portfolioChartData";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { getEraBadge, getEraNeonBadgeStyle, getEraStyle } from "../utils/eraBadge";
 import {
@@ -59,7 +60,7 @@ const MOIS_COURTS_FR = [
 function isoMonthToShortLabel(iso: string): string {
   const m = iso.match(/^(\d{4})-(\d{2})/);
   if (!m) return iso;
-  const mi = Number(m[2], 10) - 1;
+  const mi = parseInt(m[2], 10) - 1;
   if (mi < 0 || mi > 11) return iso;
   return `${MOIS_COURTS_FR[mi]} ${String(m[1]).slice(-2)}`;
 }
@@ -123,6 +124,24 @@ function addOneCalendarMonth(ym: string): string | null {
   if (mo > 12) {
     mo = 1;
     y += 1;
+  }
+  return `${y}-${String(mo).padStart(2, "0")}`;
+}
+
+/** Recule de `n` mois (n ≥ 0) depuis une clé YYYY-MM. */
+function subtractCalendarMonths(isoYm: string, n: number): string {
+  const m = isoYm.match(/^(\d{4})-(\d{2})/);
+  if (!m) return isoYm;
+  let y = Number(m[1]);
+  let mo = Number(m[2]);
+  let left = Math.max(0, Math.floor(n));
+  while (left > 0) {
+    mo -= 1;
+    if (mo < 1) {
+      mo = 12;
+      y -= 1;
+    }
+    left -= 1;
   }
   return `${y}-${String(mo).padStart(2, "0")}`;
 }
@@ -408,7 +427,7 @@ const ProductDetailPageInner = () => {
   const [saleInput, setSaleInput] = useState<string>("");
   /** Quantité à vendre pour cette ligne (1 … quantité possédée). */
   const [saleQuantityToSell, setSaleQuantityToSell] = useState(1);
-  const [chartPeriod, setChartPeriod] = useState<"1an" | "2ans">("1an");
+  const [chartPeriod, setChartPeriod] = useState<PortfolioChartPeriod>("1an");
   const [addBtnPressed, setAddBtnPressed] = useState(false);
   const triggerAddPress = () => {
     setAddBtnPressed(true);
@@ -529,10 +548,34 @@ const ProductDetailPageInner = () => {
         return p.prix ?? null;
       };
 
-      const trimmed = trimHistoryToPrixBounds(afterRelease, getPrixForRow);
-      const maxPoints = chartPeriod === "1an" ? 13 : 25;
-      const windowed =
-        trimmed.length > 0 ? trimmed.slice(-maxPoints) : [];
+      /**
+       * Display / UPC : fenêtre calendaire stricte (6 ou 12 derniers mois inclus depuis le dernier mois de la série),
+       * sans couper sur le premier/dernier prix > 0 (sinon il ne reste que les mois avec une valeur Excel).
+       * ETB : comportement inchangé (troncature prix puis slice des derniers points).
+       */
+      let windowed: DetailHistRow[];
+      if (product?.category === "Displays" || product?.category === "UPC") {
+        if (afterRelease.length === 0) {
+          windowed = [];
+        } else {
+          const endMois = afterRelease[afterRelease.length - 1]?.mois ?? "";
+          const monthsBackInclusive = chartPeriod === "1an" ? 11 : 5;
+          const startMois =
+            endMois && /^\d{4}-\d{2}/.test(endMois)
+              ? subtractCalendarMonths(endMois, monthsBackInclusive)
+              : "";
+          windowed = afterRelease.filter(
+            (r) =>
+              r.mois &&
+              (!startMois || r.mois >= startMois) &&
+              (!endMois || r.mois <= endMois)
+          );
+        }
+      } else {
+        const trimmed = trimHistoryToPrixBounds(afterRelease, getPrixForRow);
+        const maxPoints = chartPeriod === "1an" ? 12 : 6;
+        windowed = trimmed.length > 0 ? trimmed.slice(-maxPoints) : [];
+      }
 
       const rows: { mois: string; mois_label: string; prix: number | null }[] = windowed.map((p) => {
         const mois = p.mois ?? "";
@@ -1158,6 +1201,22 @@ const ProductDetailPageInner = () => {
             <div className="flex gap-2">
               <button
             type="button"
+            onClick={!premiumLoading && isPremium ? () => setChartPeriod("6m") : undefined}
+            className="text-xs font-medium transition"
+            style={{
+              background: chartPeriod === "6m" ? accentGold : "var(--input-bg)",
+              color: chartPeriod === "6m" ? "#000" : "var(--text-primary)",
+              border: chartPeriod === "6m" ? "none" : "1px solid var(--border-color)",
+              borderRadius: 20,
+              padding: "4px 12px",
+              fontWeight: chartPeriod === "6m" ? "bold" : "normal",
+              ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
+            }}
+          >
+            6 mois
+          </button>
+          <button
+            type="button"
             onClick={!premiumLoading && isPremium ? () => setChartPeriod("1an") : undefined}
             className="text-xs font-medium transition"
             style={{
@@ -1171,22 +1230,6 @@ const ProductDetailPageInner = () => {
             }}
           >
             1 an
-          </button>
-          <button
-            type="button"
-            onClick={!premiumLoading && isPremium ? () => setChartPeriod("2ans") : undefined}
-            className="text-xs font-medium transition"
-            style={{
-              background: chartPeriod === "2ans" ? accentGold : "var(--input-bg)",
-              color: chartPeriod === "2ans" ? "#000" : "var(--text-primary)",
-              border: chartPeriod === "2ans" ? "none" : "1px solid var(--border-color)",
-              borderRadius: 20,
-              padding: "4px 12px",
-              fontWeight: chartPeriod === "2ans" ? "bold" : "normal",
-              ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
-            }}
-          >
-            2 ans
           </button>
             </div>
           </div>
