@@ -56,6 +56,32 @@ const MOIS_COURTS_FR = [
   "Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sept", "Oct", "Nov", "Déc",
 ] as const;
 
+const MOIS_LONGS_FR = [
+  "janvier",
+  "février",
+  "mars",
+  "avril",
+  "mai",
+  "juin",
+  "juillet",
+  "août",
+  "septembre",
+  "octobre",
+  "novembre",
+  "décembre",
+] as const;
+
+/** Clé ISO mois → libellé tableau type « Mars 2026 ». */
+function isoMonthToFrenchLongLabel(iso: string): string {
+  const m = iso.match(/^(\d{4})-(\d{2})/);
+  if (!m) return iso;
+  const mi = parseInt(m[2], 10) - 1;
+  if (mi < 0 || mi > 11) return iso;
+  const name = MOIS_LONGS_FR[mi];
+  const cap = name.charAt(0).toUpperCase() + name.slice(1);
+  return `${cap} ${m[1]}`;
+}
+
 /** Clé ISO mois (2026-03) → libellé court axe X type « Mar 26 ». */
 function isoMonthToShortLabel(iso: string): string {
   const m = iso.match(/^(\d{4})-(\d{2})/);
@@ -64,6 +90,25 @@ function isoMonthToShortLabel(iso: string): string {
   if (mi < 0 || mi > 11) return iso;
   return `${MOIS_COURTS_FR[mi]} ${String(m[1]).slice(-2)}`;
 }
+
+/** Date de sortie FR (catalogue display / `dateSortie`) → clé `YYYY-MM`. */
+function parseReleaseDateToMonthKey(dateSortie: string | undefined | null): string | null {
+  if (!dateSortie || typeof dateSortie !== "string") return null;
+  const s = dateSortie.trim();
+  if (/^\d{4}-\d{2}/.test(s)) return s.slice(0, 7);
+  const parts = s.split("/");
+  if (parts.length === 3) {
+    const [, m, y] = parts;
+    const month = String(m ?? "").padStart(2, "0");
+    const year = String(y ?? "").trim();
+    if (!month || !year) return null;
+    return `${year}-${month}`;
+  }
+  return null;
+}
+
+const DISPLAY_CHART_FLOOR_MONTH = "2025-03";
+const DISPLAY_PRICE_HISTORY_CHART_END_MONTH = "2026-03";
 
 type DetailHistRow = { mois?: string; mois_label?: string; prix?: number | null };
 
@@ -481,6 +526,7 @@ const ProductDetailPageInner = () => {
 
       /** Historique graphique : toujours la série pokedisplay (display-data.json), jamais une version enrichie côté contexte. */
       let historiqueChartSource: DetailHistRow[] | undefined;
+      let displayCatalogRow: (typeof displayData)[number] | undefined;
       if (
         product &&
         (product.category === "Displays" || product.category === "UPC")
@@ -492,11 +538,11 @@ const ProductDetailPageInner = () => {
             ? pid.slice("upc-".length)
             : "";
         if (rawId) {
-          const row = displayData.find(
+          displayCatalogRow = displayData.find(
             (d) => d.id.toLowerCase() === rawId.toLowerCase()
           );
-          if (row?.historique_prix?.length) {
-            historiqueChartSource = row.historique_prix as DetailHistRow[];
+          if (displayCatalogRow?.historique_prix?.length) {
+            historiqueChartSource = displayCatalogRow.historique_prix as DetailHistRow[];
           }
         }
       }
@@ -548,13 +594,73 @@ const ProductDetailPageInner = () => {
         return p.prix ?? null;
       };
 
+      let displayChartStartKey: string | null = null;
+      if (product?.category === "Displays") {
+        const displayReleaseKey =
+          parseReleaseDateToMonthKey(displayCatalogRow?.releaseDate) ??
+          releaseMonthKey ??
+          parseReleaseDateToMonthKey(product?.dateSortie);
+        let raw =
+          displayReleaseKey && /^\d{4}-\d{2}/.test(displayReleaseKey)
+            ? displayReleaseKey
+            : null;
+        if (!raw) raw = afterRelease[0]?.mois ?? null;
+        if (raw && /^\d{4}-\d{2}/.test(raw)) {
+          displayChartStartKey =
+            raw > DISPLAY_CHART_FLOOR_MONTH ? raw : DISPLAY_CHART_FLOOR_MONTH;
+        } else {
+          displayChartStartKey = DISPLAY_CHART_FLOOR_MONTH;
+        }
+      }
+
+      let etbChartStartKey: string | null = null;
+      if (product?.category === "ETB") {
+        let raw =
+          releaseMonthKey && /^\d{4}-\d{2}/.test(releaseMonthKey)
+            ? releaseMonthKey
+            : null;
+        if (!raw) raw = afterRelease[0]?.mois ?? null;
+        if (raw && /^\d{4}-\d{2}/.test(raw)) {
+          etbChartStartKey =
+            raw > DISPLAY_CHART_FLOOR_MONTH ? raw : DISPLAY_CHART_FLOOR_MONTH;
+        } else {
+          etbChartStartKey = DISPLAY_CHART_FLOOR_MONTH;
+        }
+      }
+
       /**
-       * Display / UPC : fenêtre calendaire stricte (6 ou 12 derniers mois inclus depuis le dernier mois de la série),
-       * sans couper sur le premier/dernier prix > 0 (sinon il ne reste que les mois avec une valeur Excel).
-       * ETB : comportement inchangé (troncature prix puis slice des derniers points).
+       * Displays : de max(releaseDate, mars 2025) jusqu’à mars 2026 inclus.
+       * ETB : même fenêtre calendaire (données disponibles sur la plage).
+       * UPC : fenêtre 6 ou 12 derniers mois depuis la fin de la série.
        */
       let windowed: DetailHistRow[];
-      if (product?.category === "Displays" || product?.category === "UPC") {
+      if (product?.category === "Displays") {
+        const startKey = displayChartStartKey;
+        if (
+          !startKey ||
+          !/^\d{4}-\d{2}/.test(startKey) ||
+          startKey > DISPLAY_PRICE_HISTORY_CHART_END_MONTH
+        ) {
+          windowed = [];
+        } else {
+          windowed = [];
+          let cur: string | null = startKey;
+          while (cur && cur <= DISPLAY_PRICE_HISTORY_CHART_END_MONTH) {
+            const fromHist = displayHistForChart?.find((h) => h.mois === cur);
+            const prix = displayPrixMap?.has(cur)
+              ? displayPrixMap.get(cur) ?? null
+              : fromHist?.prix ?? null;
+            windowed.push({
+              mois: cur,
+              mois_label: fromHist?.mois_label ?? cur,
+              prix,
+            });
+            const next = addOneCalendarMonth(cur);
+            if (!next || next > DISPLAY_PRICE_HISTORY_CHART_END_MONTH) break;
+            cur = next;
+          }
+        }
+      } else if (product?.category === "UPC") {
         if (afterRelease.length === 0) {
           windowed = [];
         } else {
@@ -571,6 +677,34 @@ const ProductDetailPageInner = () => {
               (!endMois || r.mois <= endMois)
           );
         }
+      } else if (product?.category === "ETB") {
+        const startKey = etbChartStartKey;
+        if (
+          !startKey ||
+          !/^\d{4}-\d{2}/.test(startKey) ||
+          startKey > DISPLAY_PRICE_HISTORY_CHART_END_MONTH
+        ) {
+          windowed = [];
+        } else {
+          const mergedByMois = new Map<string, DetailHistRow>();
+          for (const r of merged) {
+            if (r.mois) mergedByMois.set(String(r.mois), r);
+          }
+          windowed = [];
+          let cur: string | null = startKey;
+          while (cur && cur <= DISPLAY_PRICE_HISTORY_CHART_END_MONTH) {
+            const fromRow = mergedByMois.get(cur);
+            const prix = fromRow ? getPrixForRow(fromRow) : null;
+            windowed.push({
+              mois: cur,
+              mois_label: fromRow?.mois_label ?? cur,
+              prix,
+            });
+            const next = addOneCalendarMonth(cur);
+            if (!next || next > DISPLAY_PRICE_HISTORY_CHART_END_MONTH) break;
+            cur = next;
+          }
+        }
       } else {
         const trimmed = trimHistoryToPrixBounds(afterRelease, getPrixForRow);
         const maxPoints = chartPeriod === "1an" ? 12 : 6;
@@ -584,7 +718,10 @@ const ProductDetailPageInner = () => {
           : (p.prix ?? null);
         return {
           mois,
-          mois_label: p.mois_label || mois,
+          mois_label:
+            product?.category === "Displays" && mois
+              ? isoMonthToFrenchLongLabel(mois)
+              : p.mois_label || mois,
           prix,
         };
       });
@@ -594,10 +731,37 @@ const ProductDetailPageInner = () => {
         mois_court: p.mois ? isoMonthToShortLabel(p.mois) : "",
       }));
 
-      const filteredData = filterFromRelease(data, releaseMonthKey);
-      const filteredRows = filterEmptyRows(filterFromRelease(rows, releaseMonthKey));
+      const chartReleaseFilterKey =
+        product?.category === "Displays"
+          ? displayChartStartKey ?? DISPLAY_CHART_FLOOR_MONTH
+          : product?.category === "ETB"
+            ? etbChartStartKey ?? DISPLAY_CHART_FLOOR_MONTH
+            : releaseMonthKey;
 
-      const chartSeriesDense = densifyMonthlyChartRows(filteredData);
+      const filteredData = filterFromRelease(data, chartReleaseFilterKey);
+      const filteredRows = filterEmptyRows(filterFromRelease(rows, chartReleaseFilterKey));
+
+      let chartSeriesDense = densifyMonthlyChartRows(filteredData);
+
+      if (product?.category === "Displays" || product?.category === "ETB") {
+        const start =
+          product?.category === "Displays"
+            ? displayChartStartKey ?? DISPLAY_CHART_FLOOR_MONTH
+            : etbChartStartKey ?? DISPLAY_CHART_FLOOR_MONTH;
+        chartSeriesDense = chartSeriesDense.filter(
+          (p) =>
+            !!p.mois &&
+            p.mois >= start &&
+            p.mois <= DISPLAY_PRICE_HISTORY_CHART_END_MONTH
+        );
+        if (chartPeriod === "6m") {
+          let s = chartSeriesDense;
+          while (s.length > 0 && !prixPointIsValid(s[0]?.prix)) {
+            s = s.slice(1);
+          }
+          chartSeriesDense = s.length > 0 ? s.slice(-6) : [];
+        }
+      }
 
       const n = chartSeriesDense.length;
       const xAxisInterval = n > 20 ? 2 : n > 12 ? 1 : 0;
@@ -1275,7 +1439,7 @@ const ProductDetailPageInner = () => {
               <div style={{ position: "relative", zIndex: 1, height: "100%" }}>
               {!premiumLoading &&
               isPremium &&
-              validPriceCount < 3 ? (
+              validPriceCount < 1 ? (
                 <div
                   className="flex h-full w-full items-center justify-center px-4 text-center text-xs"
                   style={{ color: "var(--text-secondary)" }}
@@ -1296,6 +1460,23 @@ const ProductDetailPageInner = () => {
                 </defs>
                 <XAxis
                   dataKey="mois_court"
+                  type="category"
+                  domain={
+                    product.category === "Displays" &&
+                    !premiumLoading &&
+                    isPremium &&
+                    chartData.length > 0
+                      ? chartData.map((d) => d.mois_court)
+                      : undefined
+                  }
+                  ticks={
+                    product.category === "Displays" &&
+                    !premiumLoading &&
+                    isPremium &&
+                    chartData.length > 0
+                      ? chartData.map((d) => d.mois_court)
+                      : undefined
+                  }
                   tick={{ fontSize: 10, fill: "#9CA3AF" }}
                   tickLine={false}
                   axisLine={false}
@@ -1393,7 +1574,7 @@ const ProductDetailPageInner = () => {
                 />
                 {!premiumLoading &&
                   isPremium &&
-                  validPriceCount >= 3 &&
+                  validPriceCount >= 1 &&
                   chartData.length > 0 &&
                   gapBridgeSegments.length > 0 && (
                     <PriceHistoryChartGaps segments={gapBridgeSegments} stroke={accentGold} />

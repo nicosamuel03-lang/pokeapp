@@ -698,7 +698,10 @@ export function PortfolioDashboardSection({
       <p className="mb-1 text-xs font-medium" style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}>
         Répartition
       </p>
-      <div className="flex w-full min-w-0 flex-row items-center justify-between gap-2">
+      <div
+        className="flex w-full min-w-0 flex-row items-center justify-between gap-2"
+        style={{ marginLeft: -12 }}
+      >
         <div className="flex min-w-0 flex-1 flex-row items-center justify-center gap-1.5">
           <div className="shrink-0 leading-none" title="Catégories (ETB, UPC, Displays)">
             <PortfolioCategoryDonut

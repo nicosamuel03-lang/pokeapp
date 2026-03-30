@@ -446,20 +446,20 @@ export const HomePage = () => {
 
   return (
     <div className="space-y-4 -mx-3">
-      <PortfolioDashboardSection
-        mode="summary"
-        collectionLines={collectionLines}
-        sales={sales}
-        isPremium={isPremium}
-        isLoadingSubscription={isLoadingSubscription}
-        isLight={isLight}
-        isDark={isDark}
-        accentGold={accentGold}
-        produitsCount={collectionItems.length}
-        summaryMainCardTo="/collection"
-      />
+        <PortfolioDashboardSection
+          mode="summary"
+          collectionLines={collectionLines}
+          sales={sales}
+          isPremium={isPremium}
+          isLoadingSubscription={isLoadingSubscription}
+          isLight={isLight}
+          isDark={isDark}
+          accentGold={accentGold}
+          produitsCount={collectionItems.length}
+          summaryMainCardTo="/collection"
+        />
 
-      <div className="px-3" style={{ position: "relative", zIndex: 50 }}>
+        <div className="px-3" style={{ position: "relative", zIndex: 50 }}>
         <CatalogueStyleSearchBar
           uncontrolled
           id="home-collection-search"

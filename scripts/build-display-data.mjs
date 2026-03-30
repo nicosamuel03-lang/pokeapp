@@ -20,42 +20,31 @@ const MONTHS_2026 = [
   { label: "Décembre 2026", iso: "2026-12" },
 ];
 
-/**
- * pokedisplay.xlsx — indices 0-based des colonnes prix mensuels (lettres Excel → index).
- * Juil. 2024 = N (13) … Déc. 2026 = AQ (42) ; Nov./Déc. 2026 = AP/AQ (41–42) après Oct. AO (40).
- */
-const POKEDISPLAY_HISTORIQUE_MONTH_COLS = [
-  { label: "Juillet 2024", iso: "2024-07", idx: 13 },
-  { label: "Août 2024", iso: "2024-08", idx: 14 },
-  { label: "Septembre 2024", iso: "2024-09", idx: 15 },
-  { label: "Octobre 2024", iso: "2024-10", idx: 16 },
-  { label: "Novembre 2024", iso: "2024-11", idx: 17 },
-  { label: "Décembre 2024", iso: "2024-12", idx: 18 },
-  { label: "Janvier 2025", iso: "2025-01", idx: 19 },
-  { label: "Février 2025", iso: "2025-02", idx: 20 },
-  { label: "Mars 2025", iso: "2025-03", idx: 21 },
-  { label: "Avril 2025", iso: "2025-04", idx: 22 },
-  { label: "Mai 2025", iso: "2025-05", idx: 23 },
-  { label: "Juin 2025", iso: "2025-06", idx: 24 },
-  { label: "Juillet 2025", iso: "2025-07", idx: 25 },
-  { label: "Août 2025", iso: "2025-08", idx: 26 },
-  { label: "Septembre 2025", iso: "2025-09", idx: 27 },
-  { label: "Octobre 2025", iso: "2025-10", idx: 28 },
-  { label: "Novembre 2025", iso: "2025-11", idx: 29 },
-  { label: "Décembre 2025", iso: "2025-12", idx: 30 },
-  { label: "Janvier 2026", iso: "2026-01", idx: 31 },
-  { label: "Février 2026", iso: "2026-02", idx: 32 },
-  { label: "Mars 2026", iso: "2026-03", idx: 33 },
-  { label: "Avril 2026", iso: "2026-04", idx: 34 },
-  { label: "Mai 2026", iso: "2026-05", idx: 35 },
-  { label: "Juin 2026", iso: "2026-06", idx: 36 },
-  { label: "Juillet 2026", iso: "2026-07", idx: 37 },
-  { label: "Août 2026", iso: "2026-08", idx: 38 },
-  { label: "Septembre 2026", iso: "2026-09", idx: 39 },
-  { label: "Octobre 2026", iso: "2026-10", idx: 40 },
-  { label: "Novembre 2026", iso: "2026-11", idx: 41 },
-  { label: "Décembre 2026", iso: "2026-12", idx: 42 },
+const MONTH_COLUMNS = [
+  { key: "2025-03", index: 7 },
+  { key: "2025-04", index: 8 },
+  { key: "2025-05", index: 9 },
+  { key: "2025-06", index: 10 },
+  { key: "2025-07", index: 11 },
+  { key: "2025-08", index: 12 },
+  { key: "2025-09", index: 13 },
+  { key: "2025-10", index: 14 },
+  { key: "2025-11", index: 15 },
+  { key: "2025-12", index: 16 },
+  { key: "2026-01", index: 17 },
+  { key: "2026-02", index: 18 },
+  { key: "2026-03", index: 19 },
 ];
+
+function cellToDisplayHistoriquePrix(raw) {
+  if (raw == null) return null;
+  const s = String(raw).trim();
+  if (s === "") return null;
+  if (s.toLowerCase() === "n/a") return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  return n;
+}
 
 function excelDateToRelease(dateSortie) {
   const s = String(dateSortie ?? "").trim();
@@ -305,8 +294,6 @@ function buildDisplayData() {
     const currentCol = findCol(headerCells, "marché", "marche", "fév", "fev");
     const imageCol = detectImageUrlCol(rawRows, headerRowIndex + 1);
 
-    const monthCols = POKEDISPLAY_HISTORIQUE_MONTH_COLS;
-
     const displays = rows
       .map((r) => {
         const row = Array.isArray(r) ? r : [];
@@ -335,12 +322,12 @@ function buildDisplayData() {
 
         if (!code || !extension || !bloc) return null;
 
-        const historique_prix = monthCols.map(({ label, iso, idx }) => {
-          const vRaw = idx !== -1 ? Number(row[idx] || 0) : NaN;
-          const prix = Number.isFinite(vRaw) && vRaw > 0 ? vRaw : null;
+        const historique_prix = MONTH_COLUMNS.map((column) => {
+          const raw = row[column.index];
+          const prix = cellToDisplayHistoriquePrix(raw);
           return {
-            mois: iso,
-            mois_label: label,
+            mois: column.key,
+            mois_label: column.key,
             prix,
           };
         });
@@ -366,38 +353,6 @@ function buildDisplayData() {
         };
       })
       .filter(Boolean);
-
-    // Différencier les prix identiques : si plusieurs Displays partagent les mêmes valeurs
-    // pour un mois (ex. template Excel), ajuster par rapport au currentMarketPrice.
-    const dedupePrixByCurrentMarket = (displaysList) => {
-      const byMois = new Map();
-      for (const d of displaysList) {
-        for (const h of d.historique_prix || []) {
-          if (!h.mois || h.prix == null) continue;
-          if (!byMois.has(h.mois)) byMois.set(h.mois, new Map());
-          const count = byMois.get(h.mois);
-          const k = String(h.prix);
-          count.set(k, (count.get(k) || 0) + 1);
-        }
-      }
-      const duplicateMoiss = [];
-      for (const [mois, counts] of byMois) {
-        const maxCount = Math.max(...counts.values());
-        if (maxCount >= 3) duplicateMoiss.push(mois);
-      }
-      if (duplicateMoiss.length === 0) return;
-      const refPrice = 220;
-      for (const d of displaysList) {
-        const ratio = d.currentMarketPrice > 0 ? d.currentMarketPrice / refPrice : 1;
-        for (const h of d.historique_prix || []) {
-          if (h.mois && duplicateMoiss.includes(h.mois) && h.prix != null) {
-            const adjusted = Math.round(h.prix * ratio);
-            h.prix = adjusted > 0 ? adjusted : h.prix;
-          }
-        }
-      }
-    };
-    dedupePrixByCurrentMarket(displays);
 
     // Trier par date de sortie (du plus récent au plus ancien)
     displays.sort((a, b) => {

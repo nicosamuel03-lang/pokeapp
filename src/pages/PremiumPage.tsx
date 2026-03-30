@@ -18,7 +18,7 @@ const benefits = [
   {
     Icon: TrendingUp,
     label: "Graphiques d'évolution des prix",
-    sub: "Suivez la valeur de chaque item sur 1 an ou 2 ans et anticipez les meilleures opportunités.",
+    sub: "Suivez la valeur de chaque item sur 6 mois ou 1 an et anticipez les meilleures opportunités.",
   },
   {
     Icon: ShoppingCart,
@@ -51,7 +51,7 @@ export function PremiumPage() {
   const isAnnual = plan === "annual";
   const selectedPriceLabel = isAnnual ? "39,99 € par an" : "3,99 € par mois";
 
-  const handleSubscribe = async () => {
+  const handleSubscribe = async (planToCheckout: "monthly" | "annual") => {
     setLoading(true);
     setError(null);
     try {
@@ -70,7 +70,7 @@ export function PremiumPage() {
       );
       const baseUrl = window.location.origin;
       const priceId =
-        plan === "annual"
+        planToCheckout === "annual"
           ? VITE_ANNUAL_PRICE_ID
           : VITE_MONTHLY_PRICE_ID;
       const payload = {
@@ -78,12 +78,12 @@ export function PremiumPage() {
         cancel_url: `${baseUrl}/premium?canceled=1`,
         client_reference_id: user.id,
         userId: user.id,
-        plan,
+        plan: planToCheckout,
         ...(priceId && { priceId }),
       };
       console.log(
         "[Premium checkout] plan:",
-        plan,
+        planToCheckout,
         "Clerk userId:",
         user.id,
         "priceId sent to server:",
@@ -113,51 +113,13 @@ export function PremiumPage() {
       style={{
         background: "var(--bg-app)",
         color: "var(--text-secondary)",
-        padding: "24px 16px",
-        maxWidth: 480,
-        margin: "0 auto",
+        padding: "24px 0",
+        maxWidth: 560,
+        marginLeft: -10,
+        marginRight: -10,
         paddingBottom: 120,
       }}
     >
-      <div
-        style={{
-          marginBottom: 24,
-          borderRadius: 20,
-          padding: "14px 16px 16px",
-          background: "#FFFFFF",
-          boxShadow: "0 6px 18px rgba(0,0,0,0.35)",
-          border: "1px solid rgba(201,168,76,0.9)",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          className="title-section"
-          style={{
-            fontSize: "20px",
-            fontWeight: "bold",
-            color: accentGold,
-            letterSpacing: "0.08em",
-            textAlign: "center",
-            marginBottom: 4,
-          }}
-        >
-          COMMENCER VOTRE ESSAI GRATUIT
-        </h1>
-        <p
-          className="title-section"
-          style={{
-            fontSize: "24px",
-            fontWeight: "bold",
-            color: accentGold,
-            letterSpacing: "0.08em",
-            textAlign: "center",
-            marginBottom: 0,
-          }}
-        >
-          1ER MOIS OFFERT
-        </p>
-      </div>
-
       {success && (
         <p
           style={{
@@ -201,18 +163,23 @@ export function PremiumPage() {
         <div
           style={{
             display: "flex",
+            flexWrap: "nowrap",
             gap: 8,
             marginBottom: 18,
             padding: 4,
             borderRadius: 9999,
             background: "var(--bg-app)",
+            width: "100%",
+            minWidth: 0,
+            boxSizing: "border-box",
           }}
         >
           <button
             type="button"
             onClick={() => setPlan("monthly")}
             style={{
-              flex: 1,
+              flex: "1 1 0",
+              minWidth: 0,
               padding: "8px 10px",
               borderRadius: 9999,
               border: "none",
@@ -226,16 +193,17 @@ export function PremiumPage() {
               boxShadow: !isAnnual ? "0 1px 4px rgba(201,168,76,0.4)" : "none",
             }}
           >
-            Mensuel ·{" "}
-            <span className={STAT_CARD_VALUE_CLASS}>
-              3,99 € / mois
+            <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.15 }}>
+              <span>MENSUEL</span>
+              <span className={STAT_CARD_VALUE_CLASS}>3,99 € / MOIS</span>
             </span>
           </button>
           <button
             type="button"
             onClick={() => setPlan("annual")}
             style={{
-              flex: 1,
+              flex: "1 1 0",
+              minWidth: 0,
               padding: "8px 10px",
               borderRadius: 9999,
               border: "none",
@@ -250,9 +218,9 @@ export function PremiumPage() {
               position: "relative",
             }}
           >
-            Annuel ·{" "}
-            <span className={STAT_CARD_VALUE_CLASS}>
-              39,99 € / an
+            <span style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.15 }}>
+              <span>ANNUEL</span>
+              <span className={STAT_CARD_VALUE_CLASS}>39,99 € / AN</span>
             </span>
             <span
               style={{
@@ -331,12 +299,8 @@ export function PremiumPage() {
           textAlign: "center",
         }}
       >
-        Essai gratuit de 30 jours. Résiliable à tout moment sans frais. Le prélèvement
-        commencera à la fin de l&apos;essai, à hauteur de{" "}
-        <span className={STAT_CARD_VALUE_CLASS}>
-          {selectedPriceLabel}
-        </span>
-        .
+        Résiliable à tout moment. Le prélèvement est de{" "}
+        <span className={STAT_CARD_VALUE_CLASS}>{selectedPriceLabel}</span>.
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -347,16 +311,16 @@ export function PremiumPage() {
         )}
         <button
           type="button"
-          onClick={handleSubscribe}
+          onClick={() => handleSubscribe(isAnnual ? "annual" : "monthly")}
           disabled={loading || !user?.id}
           style={{
             width: "100%",
             padding: "14px 24px",
             borderRadius: 9999,
-            background: theme === "dark" ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)",
-            color: "#000",
-            border: "1px solid #E5C284",
-            boxShadow: "0 2px 4px rgba(201, 168, 76, 0.3)",
+            background: "#FFFFFF",
+            color: "#000000",
+            border: "2px solid #F4B942",
+            boxShadow: "none",
             cursor: loading ? "not-allowed" : "pointer",
             fontSize: 14,
             fontWeight: 700,
@@ -365,7 +329,11 @@ export function PremiumPage() {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Redirection…" : "Démarrer mon mois gratuit"}
+          {loading
+            ? "Redirection…"
+            : isAnnual
+              ? "S'ABONNER ANNUELLEMENT — 39,99 € / AN"
+              : "S'ABONNER MENSUELLEMENT — 3,99 € / MOIS"}
         </button>
         <Link
           to="/"
