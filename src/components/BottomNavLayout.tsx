@@ -506,12 +506,12 @@ export const BottomNavLayout = () => {
             aria-modal="true"
             aria-labelledby="sign-out-confirm-title"
             style={{
-              background: "#1a1a1a",
+              background: isLight ? "#ffffff" : "#1a1a1a",
               borderRadius: "16px",
               padding: "20px 20px 18px",
               maxWidth: 360,
               width: "100%",
-              color: "#ffffff",
+              color: isLight ? "#111827" : "#ffffff",
               boxSizing: "border-box",
             }}
           >
@@ -522,7 +522,7 @@ export const BottomNavLayout = () => {
                 fontSize: 15,
                 lineHeight: 1.45,
                 fontWeight: 500,
-                color: "#ffffff",
+                color: isLight ? "#111827" : "#ffffff",
                 textAlign: "center",
               }}
             >
@@ -539,8 +539,8 @@ export const BottomNavLayout = () => {
                   fontWeight: 600,
                   cursor: "pointer",
                   background: "transparent",
-                  color: "#ffffff",
-                  border: "1px solid rgba(255, 255, 255, 0.35)",
+                  color: isLight ? "#374151" : "#ffffff",
+                  border: isLight ? "1px solid rgba(0, 0, 0, 0.18)" : "1px solid rgba(255, 255, 255, 0.35)",
                 }}
               >
                 Annuler
@@ -557,7 +557,7 @@ export const BottomNavLayout = () => {
                   fontSize: 14,
                   fontWeight: 600,
                   cursor: "pointer",
-                  background: "#EF4444",
+                  background: "#c91517",
                   color: "#ffffff",
                   border: "none",
                 }}

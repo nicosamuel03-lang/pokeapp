@@ -17,6 +17,8 @@ import {
   type PortfolioChartPeriod,
   type SaleLike,
 } from "../utils/portfolioChartData";
+
+const NO_EBAY_FETCH_LINES: CollectionLineForChart[] = [];
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import { RasterImage } from "./RasterImage";
 import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
@@ -41,6 +43,11 @@ interface PortfolioDashboardSectionProps {
   produitsCount?: number;
   /** Si défini, la carte « Valeur du portefeuille » mène à cette route (ex. /collection). */
   summaryMainCardTo?: string;
+  /**
+   * Carte prix eBay déjà chargée (ex. page Collection) : évite un second appel batch
+   * et alimente le dernier point du graphique avec les mêmes valeurs.
+   */
+  ebayPriceMap?: Map<string, number>;
 }
 
 const DARK_MAIN = "#111111";
@@ -61,6 +68,7 @@ export function PortfolioDashboardSection({
   setChartPeriod,
   produitsCount = 0,
   summaryMainCardTo,
+  ebayPriceMap: ebayPriceMapProp,
 }: PortfolioDashboardSectionProps) {
   const [addCatalogueOpen, setAddCatalogueOpen] = useState(false);
   const collectionBaselineRef = useRef(0);
@@ -78,11 +86,13 @@ export function PortfolioDashboardSection({
     }
   }, [addCatalogueOpen, collectionItemsForOverlay.length]);
 
-  // Prix eBay trackés (Supabase 7j) pour toute la collection — une seule requête batch
-  const { priceMap: ebayPriceMap } = usePortfolioEbayPrices(collectionLines);
+  const { priceMap: fetchedEbayPriceMap } = usePortfolioEbayPrices(
+    ebayPriceMapProp !== undefined ? NO_EBAY_FETCH_LINES : collectionLines
+  );
+  const ebayPriceMap = ebayPriceMapProp ?? fetchedEbayPriceMap;
 
   const totalInvesti = totalInvestedFromCollection(collectionLines);
-  const chartData = buildPortfolioChartData(collectionLines, chartPeriod, totalInvesti);
+  const chartData = buildPortfolioChartData(collectionLines, chartPeriod, totalInvesti, ebayPriceMap);
   // computePortfolioStats utilise les prix eBay trackés quand disponibles (fallback catalogue)
   const portfolio = computePortfolioStats(collectionLines, sales, ebayPriceMap);
 
@@ -402,7 +412,10 @@ export function PortfolioDashboardSection({
                         <span className="font-medium" style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>
                           {row.label} ·{" "}
                         </span>
-                        <span className={STAT_CARD_VALUE_CLASS} style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+                        <span
+                          className="tabular-nums font-normal"
+                          style={{ fontSize: 10, color: isDark ? "#e5e7eb" : "#374151" }}
+                        >
                           {row.pct.toFixed(1)}%
                         </span>
                       </span>
@@ -429,7 +442,10 @@ export function PortfolioDashboardSection({
                         <span className="font-medium" style={{ color: isDark ? LABEL_GRAY : "#6b7280" }}>
                           {row.label} ·{" "}
                         </span>
-                        <span className={STAT_CARD_VALUE_CLASS} style={{ color: isDark ? "#e5e7eb" : "#374151" }}>
+                        <span
+                          className="tabular-nums font-normal"
+                          style={{ fontSize: 10, color: isDark ? "#e5e7eb" : "#374151" }}
+                        >
                           {row.pct.toFixed(1)}%
                         </span>
                       </span>
@@ -581,7 +597,9 @@ export function PortfolioDashboardSection({
       </p>
       <div
         className="mt-2 flex flex-wrap items-center gap-1.5 text-sm"
-        style={{ color: isDark ? EMERALD : plusPositive ? "var(--gain-green)" : "var(--loss-red)" }}
+        style={{
+          color: plusPositive ? (isDark ? EMERALD : "var(--gain-green)") : "#c91517",
+        }}
       >
         {plusPositive ? (
           <TrendingUp className="shrink-0" size={18} strokeWidth={2.5} aria-hidden />
@@ -778,7 +796,12 @@ export function PortfolioDashboardSection({
           <p
             className={STAT_CARD_VALUE_CLASS}
             style={{
-              color: isDark ? EMERALD : portfolio.perfGlobale >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+              color:
+                portfolio.perfGlobale >= 0
+                  ? isDark
+                    ? EMERALD
+                    : "var(--gain-green)"
+                  : "#c91517",
             }}
           >
             {portfolio.perfGlobale >= 0 ? "+" : ""}
@@ -807,7 +830,12 @@ export function PortfolioDashboardSection({
           <p
             className={STAT_CARD_VALUE_CLASS}
             style={{
-              color: isDark ? EMERALD : portfolio.plusValueTotale >= 0 ? "var(--gain-green)" : "var(--loss-red)",
+              color:
+                portfolio.plusValueTotale >= 0
+                  ? isDark
+                    ? EMERALD
+                    : "var(--gain-green)"
+                  : "#c91517",
             }}
           >
             {portfolio.plusValueTotale >= 0 ? "+" : ""}

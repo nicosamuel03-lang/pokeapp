@@ -1,6 +1,7 @@
 import type { Product } from "../state/ProductsContext";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
+import rawUpcData from "../data/upc-data.json";
 import { getPrixMarcheForProduct } from "./prixMarche";
 
 type HistPrix = { mois: string; prix: number | null }[] | undefined;
@@ -98,16 +99,92 @@ function getPriceAtMonthCarryForward(hist: HistPrix, monthKey: string): number {
   return last;
 }
 
-function getHistoriquePrix(item: { product: { id: string; etbId?: string; historique_prix?: HistPrix } }): HistPrix {
+function getHistoriquePrix(item: { product: { id: string; etbId?: string; historique_prix?: HistPrix; category?: string; name?: string } }): HistPrix {
   if (item.product.historique_prix?.length) return item.product.historique_prix;
+
+  // ETB : historique depuis etbData
   const etb = getEtbForItem(item);
-  return etb?.historique_prix;
+  if (etb?.historique_prix?.length) return etb.historique_prix;
+
+  // UPC : lookup depuis upc-data.json (match par id/code, fallback fuzzy par nom)
+  if (item.product.category === "UPC") {
+    const upcData = rawUpcData as {
+      id?: string;
+      code?: string;
+      name?: string;
+      historique_prix?: { mois?: string; prix?: number | null }[];
+      priceHistory?: { month?: string; price?: number | null }[];
+    }[];
+
+    const normalize = (v: unknown) =>
+      String(v ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/^upc-/, "")
+        .replace(/^display-/, "");
+
+    const productIdNorm = normalize(item.product.id);
+    const productNameNorm = normalize(item.product.name);
+
+    const match = upcData.find((u) => {
+      const idNorm = normalize(u.id);
+      const codeNorm = normalize(u.code);
+      const nameNorm = normalize(u.name);
+      return (
+        (productIdNorm && (idNorm === productIdNorm || codeNorm === productIdNorm)) ||
+        (productNameNorm && nameNorm && productNameNorm.includes(nameNorm))
+      );
+    });
+
+    if (match) {
+      if (Array.isArray(match.historique_prix) && match.historique_prix.length > 0) {
+        return match.historique_prix
+          .filter((p) => p?.mois)
+          .map((p) => ({ mois: String(p.mois), prix: p.prix ?? null }));
+      }
+      if (Array.isArray(match.priceHistory) && match.priceHistory.length > 0) {
+        return match.priceHistory
+          .filter((p) => p?.month)
+          .map((p) => ({ mois: String(p.month), prix: p.price ?? null }));
+      }
+    }
+  }
+
+  return undefined;
 }
 
 function getEtbForItem(item: { product: { id: string; etbId?: string } }): (typeof etbData)[number] | undefined {
   return item.product.etbId
     ? etbData.find((e) => e.id === item.product.etbId)
     : etbData.find((e) => e.id === item.product.id || item.product.id.startsWith(e.id));
+}
+
+/**
+ * Fusionne les séries ETB (2024 / 2025 / historique principal) pour le graphique portefeuille.
+ * Certains produits ont les prix 2025 dans `historique_prix` alors que `historique_prix_2025` est vide (tout null) :
+ * sans fusion, avril–sept. 2025 tombe à 0 au lieu des vraies valeurs.
+ */
+function mergeEtbHistoriquesForPortfolioChart(etb: (typeof etbData)[number]): HistPrix {
+  const byMonth = new Map<string, number | null>();
+  const ingest = (arr: HistPrix) => {
+    if (!arr?.length) return;
+    for (const p of arr) {
+      const mois = p?.mois;
+      if (!mois) continue;
+      const cur = byMonth.get(mois);
+      if (p.prix != null && !Number.isNaN(Number(p.prix))) {
+        byMonth.set(mois, p.prix);
+      } else if (cur === undefined) {
+        byMonth.set(mois, null);
+      }
+    }
+  };
+  ingest(etb.historique_prix_2024);
+  ingest(etb.historique_prix_2025);
+  ingest(etb.historique_prix);
+  return [...byMonth.entries()]
+    .map(([mois, prix]) => ({ mois, prix }))
+    .sort((a, b) => a.mois.localeCompare(b.mois));
 }
 
 export function getReleaseMonthKeyForItem(item: { product: { id: string; etbId?: string; category?: string } }): string | null {
@@ -131,16 +208,26 @@ export function getReleaseMonthKeyForItem(item: { product: { id: string; etbId?:
 }
 
 function getPriceAtMonthForItem(
-  item: { product: { id: string; etbId?: string; historique_prix?: HistPrix } },
+  item: {
+    product: {
+      id: string;
+      etbId?: string;
+      category?: string;
+      name?: string;
+      historique_prix?: HistPrix;
+    };
+  },
   moisKey: string
 ): number {
   const etb = getEtbForItem(item);
-  const hist =
-    moisKey.startsWith("2024-")
-      ? etb?.historique_prix_2024
-      : moisKey.startsWith("2025-")
-        ? etb?.historique_prix_2025
-        : getHistoriquePrix(item);
+  // ETB : timeline fusionnée (2024 + 2025 + historique_prix) pour chaque mois, avec carry-forward.
+  // UPC / Displays : historique dédié (pas les tableaux annuels ETB vides partiellement).
+  let hist: HistPrix;
+  if (item.product.category === "ETB" && etb) {
+    hist = mergeEtbHistoriquesForPortfolioChart(etb);
+  } else {
+    hist = getHistoriquePrix(item);
+  }
   let price = getPriceAtMonthCarryForward(hist, moisKey);
   if (price === 0 && !hist?.length) {
     price = getPrixMarcheForProduct(item.product, etbData);
@@ -151,19 +238,33 @@ function getPriceAtMonthForItem(
 export function buildPortfolioChartData(
   collectionItems: CollectionLineForChart[],
   chartPeriod: PortfolioChartPeriod,
-  totalInvesti: number
+  totalInvesti: number,
+  ebayPriceMap?: Map<string, number>
 ) {
   const monthCount = chartPeriod === "1an" ? 12 : 6;
   const keys = getRollingMonthKeys(isoMonthNow(), monthCount);
   const labels = keys.map(isoMonthToShortLabel);
+  const lastIndex = keys.length - 1;
   return keys.map((moisKey, index) => {
     let sum = 0;
+    const useEbayForMonth = index === lastIndex && ebayPriceMap != null;
     collectionItems.forEach((item) => {
       const releaseMonth = getReleaseMonthKeyForItem(item);
       if (releaseMonth && moisKey < releaseMonth) {
         return;
       }
-      sum += getPriceAtMonthForItem(item, moisKey) * Number(item.quantity);
+      let unit: number;
+      if (useEbayForMonth) {
+        const productId = item.product.etbId ?? item.product.id;
+        const ebayPrice = ebayPriceMap.get(productId);
+        unit =
+          ebayPrice != null && ebayPrice > 0
+            ? ebayPrice
+            : getPriceAtMonthForItem(item, moisKey);
+      } else {
+        unit = getPriceAtMonthForItem(item, moisKey);
+      }
+      sum += unit * Number(item.quantity);
     });
     const valeurMarche = Math.round(sum * 100) / 100;
     return {

@@ -158,7 +158,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 55
       },
       {
         "mois": "2025-02",
@@ -347,7 +347,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 70
       },
       {
         "mois": "2025-02",
@@ -536,7 +536,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 85
       },
       {
         "mois": "2025-02",
@@ -725,7 +725,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 80
       },
       {
         "mois": "2025-02",
@@ -914,7 +914,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 85
       },
       {
         "mois": "2025-02",
@@ -1103,7 +1103,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 75
       },
       {
         "mois": "2025-02",
@@ -1292,7 +1292,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 75
       },
       {
         "mois": "2025-02",
@@ -1481,7 +1481,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 130
       },
       {
         "mois": "2025-02",
@@ -1670,7 +1670,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 80
       },
       {
         "mois": "2025-02",
@@ -1859,7 +1859,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 115
       },
       {
         "mois": "2025-02",
@@ -2048,7 +2048,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 90
       },
       {
         "mois": "2025-02",
@@ -2237,7 +2237,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 75
       },
       {
         "mois": "2025-02",
@@ -2426,7 +2426,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 140
       },
       {
         "mois": "2025-02",
@@ -2615,7 +2615,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 70
       },
       {
         "mois": "2025-02",
@@ -2804,7 +2804,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 80
       },
       {
         "mois": "2025-02",
@@ -2993,7 +2993,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 120
       },
       {
         "mois": "2025-02",
@@ -3182,7 +3182,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 85
       },
       {
         "mois": "2025-02",
@@ -3371,7 +3371,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 135
       },
       {
         "mois": "2025-02",
@@ -3560,7 +3560,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 75
       },
       {
         "mois": "2025-02",
@@ -3749,7 +3749,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 300
       },
       {
         "mois": "2025-02",
@@ -3938,7 +3938,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 180
       },
       {
         "mois": "2025-02",
@@ -4127,7 +4127,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 160
       },
       {
         "mois": "2025-02",
@@ -4316,7 +4316,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 180
       },
       {
         "mois": "2025-02",
@@ -4505,7 +4505,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 175
       },
       {
         "mois": "2025-02",
@@ -4694,7 +4694,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 250
       },
       {
         "mois": "2025-02",
@@ -4883,7 +4883,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 200
       },
       {
         "mois": "2025-02",
@@ -5072,7 +5072,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 310
       },
       {
         "mois": "2025-02",
@@ -5261,7 +5261,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 430
       },
       {
         "mois": "2025-02",
@@ -5450,7 +5450,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 140
       },
       {
         "mois": "2025-02",
@@ -5639,7 +5639,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 185
       },
       {
         "mois": "2025-02",
@@ -5828,7 +5828,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 170
       },
       {
         "mois": "2025-02",
@@ -6017,7 +6017,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 400
       },
       {
         "mois": "2025-02",
@@ -6206,7 +6206,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 200
       },
       {
         "mois": "2025-02",
@@ -6395,7 +6395,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 300
       },
       {
         "mois": "2025-02",
@@ -6584,7 +6584,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 470
       },
       {
         "mois": "2025-02",
@@ -6773,7 +6773,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 450
       },
       {
         "mois": "2025-02",
@@ -6962,7 +6962,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 230
       },
       {
         "mois": "2025-02",
@@ -7151,7 +7151,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 400
       },
       {
         "mois": "2025-02",
@@ -7340,7 +7340,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 260
       },
       {
         "mois": "2025-02",
@@ -7529,7 +7529,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 2050
       },
       {
         "mois": "2025-02",
@@ -7718,7 +7718,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 1700
       },
       {
         "mois": "2025-02",
@@ -7907,7 +7907,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 500
       },
       {
         "mois": "2025-02",
@@ -8096,7 +8096,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 2000
       },
       {
         "mois": "2025-02",
@@ -8285,7 +8285,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 560
       },
       {
         "mois": "2025-02",
@@ -8474,7 +8474,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 2050
       },
       {
         "mois": "2025-02",
@@ -8663,7 +8663,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 1500
       },
       {
         "mois": "2025-02",
@@ -8852,7 +8852,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 1270
       },
       {
         "mois": "2025-02",
@@ -9041,7 +9041,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 450
       },
       {
         "mois": "2025-02",
@@ -9230,7 +9230,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 2200
       },
       {
         "mois": "2025-02",
@@ -9419,7 +9419,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 4500
       },
       {
         "mois": "2025-02",
@@ -9608,7 +9608,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 6500
       },
       {
         "mois": "2025-02",
@@ -9797,7 +9797,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 400
       },
       {
         "mois": "2025-02",
@@ -9986,7 +9986,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 4000
       },
       {
         "mois": "2025-02",
@@ -10175,7 +10175,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 2000
       },
       {
         "mois": "2025-02",
@@ -10364,7 +10364,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 1200
       },
       {
         "mois": "2025-02",
@@ -10553,7 +10553,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 450
       },
       {
         "mois": "2025-02",
@@ -10742,7 +10742,7 @@ export const etbData: ETBItem[] = [
       {
         "mois": "2025-01",
         "mois_label": "Janvier 2025",
-        "prix": null
+        "prix": 450
       },
       {
         "mois": "2025-02",

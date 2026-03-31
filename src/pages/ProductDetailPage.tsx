@@ -607,6 +607,13 @@ const ProductDetailPageInner = () => {
             }
           }
         } else {
+          const normalizeDisplay = (v: unknown) =>
+            String(v ?? "")
+              .trim()
+              .toLowerCase()
+              .replace(/^display-/, "")
+              .replace(/^upc-/, "");
+
           const rawId = pid.startsWith("display-") ? pid.slice("display-".length) : "";
           if (rawId) {
             displayCatalogRow = displayData.find(
@@ -614,6 +621,23 @@ const ProductDetailPageInner = () => {
             );
             if (displayCatalogRow?.historique_prix?.length) {
               historiqueChartSource = displayCatalogRow.historique_prix as DetailHistRow[];
+            }
+          }
+          // Fallback collection : `product.id` = UUID Supabase, pas de préfixe display-* → match par nom (comme UPC).
+          if (!historiqueChartSource?.length) {
+            const productNameNorm = normalizeDisplay(product.name);
+            if (productNameNorm) {
+              displayCatalogRow = displayData.find((d) => {
+                const displayNameNorm = normalizeDisplay(d.name);
+                return (
+                  displayNameNorm.length > 0 &&
+                  (productNameNorm.includes(displayNameNorm) ||
+                    displayNameNorm.includes(productNameNorm))
+                );
+              });
+              if (displayCatalogRow?.historique_prix?.length) {
+                historiqueChartSource = displayCatalogRow.historique_prix as DetailHistRow[];
+              }
             }
           }
         }

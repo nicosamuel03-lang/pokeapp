@@ -12,9 +12,11 @@ import { getEraBadge, getEraNeonBadgeStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
 import { useTheme } from "../state/ThemeContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
+import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
 import type { PortfolioChartPeriod } from "../utils/portfolioChartData";
 import { ERA_DONUT_COLORS } from "../components/PortfolioEraDonut";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { ChevronLeft } from "lucide-react";
 import {
   isKnownProductCardEraLabel,
   productCardEraBadgeClassName,
@@ -157,7 +159,7 @@ export const CollectionPage = () => {
   const [editDateInput, setEditDateInput] = useState<string>("");
   const [editQuantityInput, setEditQuantityInput] = useState<string>("");
   const [editQuantityWarning, setEditQuantityWarning] = useState<string | null>(null);
-  const [chartPeriod, setChartPeriod] = useState<PortfolioChartPeriod>("1an");
+  const [chartPeriod, setChartPeriod] = useState<PortfolioChartPeriod>("6m");
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);
   const triggerFilterPress = (key: string) => {
     setPressedFilterKey(key);
@@ -237,6 +239,8 @@ export const CollectionPage = () => {
     [items]
   );
 
+  const { priceMap: collectionEbayPriceMap } = usePortfolioEbayPrices(collectionLines);
+
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
 
@@ -297,6 +301,15 @@ export const CollectionPage = () => {
 
   return (
     <div className="space-y-4 -mx-3">
+      <button
+        type="button"
+        onClick={() => navigate("/")}
+        className="mb-1 flex items-center gap-1 pl-3 text-xs transition-opacity hover:opacity-80 cursor-pointer"
+        style={{ color: "var(--text-secondary)", background: "none", border: "none" }}
+        aria-label="Retour à l'accueil"
+      >
+        <ChevronLeft size={28} strokeWidth={1.5} />
+      </button>
       <PortfolioDashboardSection
         mode="chartOnly"
         collectionLines={collectionLines}
@@ -308,6 +321,7 @@ export const CollectionPage = () => {
         accentGold={accentGold}
         chartPeriod={chartPeriod}
         setChartPeriod={setChartPeriod}
+        ebayPriceMap={collectionEbayPriceMap}
       />
 
       {/* Filtres type + ère */}
@@ -447,7 +461,12 @@ export const CollectionPage = () => {
         </h3>
         <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
-            const current = getPrixMarcheForProduct(item.product, etbData);
+            const productId = item.product.etbId ?? item.product.id;
+            const ebayUnit = collectionEbayPriceMap.get(productId);
+            const current =
+              ebayUnit != null && ebayUnit > 0
+                ? ebayUnit
+                : getPrixMarcheForProduct(item.product, etbData);
             const navProductId = encodeURIComponent(item.product.id);
             const detailUrl = `/produit/${navProductId}?collectionId=${encodeURIComponent(item.id)}`;
             const eraBadge = getEraBadge(item.product.etbId ?? item.product.id.replace(/^upc-/, ""), item.product.set);

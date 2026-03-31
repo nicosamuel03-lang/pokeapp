@@ -3,6 +3,7 @@ import { PieChart, Pie, Cell, Tooltip } from "recharts";
 import type { CollectionLineForChart } from "../utils/portfolioChartData";
 import { getDonutLayout } from "../utils/donutChartLayout";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+import { etbData } from "../data/etbData";
 
 export const ERA_DONUT_COLORS = {
   "Méga Évolution": "#f97316",
@@ -42,6 +43,17 @@ export type EraRepartitionRow = {
   color: string;
 };
 
+/** Libellère d’ère pour l’agrégation donut : les ETB utilisent la série source (etbData), pas product.set (souvent faux pour le bloc SL). */
+function eraRawLabelForLine(line: CollectionLineForChart): string {
+  const p = line.product;
+  if (p.category === "ETB") {
+    const key = p.etbId ?? p.id;
+    const row = etbData.find((e) => e.id === key);
+    if (row) return row.series;
+  }
+  return String(p.set ?? "").trim();
+}
+
 function aggregateByEra(lines: CollectionLineForChart[]) {
   let mega = 0;
   let eb = 0;
@@ -50,12 +62,14 @@ function aggregateByEra(lines: CollectionLineForChart[]) {
   let autres = 0;
   for (const line of lines) {
     const q = Number(line.quantity) || 0;
-    const raw = String(line.product.set ?? "").trim();
+    const raw = eraRawLabelForLine(line);
     const s = raw.toLowerCase().replace(/\s*&\s*/g, " et ").replace(/\s+/g, " ");
     if (s === LABEL_MEGA_NORMALIZED) mega += q;
     else if (s === LABEL_EB_NORMALIZED) eb += q;
     else if (s === LABEL_EV_NORMALIZED) ev += q;
     else if (s === LABEL_SL_NORMALIZED) sl += q;
+    // Variantes catalogue (ex. « Soleil & Lune » déjà normalisé) / chaînes proches
+    else if (s.includes("soleil") && s.includes("lune")) sl += q;
     else autres += q;
   }
   return { mega, eb, ev, sl, autres };
