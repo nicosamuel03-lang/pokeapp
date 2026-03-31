@@ -1,0 +1,346 @@
+[
+  {
+    "id": "upc-UPC01",
+    "code": "UPC01",
+    "name": "UPC Célébrations 25 ans",
+    "series": "Épée & Bouclier",
+    "releaseDate": "2021-10",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Célébrations 25 ans.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": 1000
+      },
+      {
+        "month": "2025-11",
+        "price": 1050
+      },
+      {
+        "month": "2025-12",
+        "price": 950
+      },
+      {
+        "month": "2026-01",
+        "price": 950
+      },
+      {
+        "month": "2026-02",
+        "price": 1000
+      },
+      {
+        "month": "2026-03",
+        "price": 1100
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": 1000 },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 1050 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 950 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 950 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 1000 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 1100 }
+    ]
+  },
+  {
+    "id": "upc-UPC02",
+    "code": "UPC02",
+    "name": "UPC Dracaufeu VSTAR",
+    "series": "Épée & Bouclier",
+    "releaseDate": "2022-11",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Dracaufeu VSTAR.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": 440
+      },
+      {
+        "month": "2025-11",
+        "price": 470
+      },
+      {
+        "month": "2025-12",
+        "price": 450
+      },
+      {
+        "month": "2026-01",
+        "price": 440
+      },
+      {
+        "month": "2026-02",
+        "price": 460
+      },
+      {
+        "month": "2026-03",
+        "price": 430
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": 440 },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 470 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 450 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 440 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 460 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 430 }
+    ]
+  },
+  {
+    "id": "upc-UPC03",
+    "code": "UPC03",
+    "name": "UPC Mew 151",
+    "series": "Écarlate & Violet",
+    "releaseDate": "2023-10",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Mew 151.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": 360
+      },
+      {
+        "month": "2025-11",
+        "price": 380
+      },
+      {
+        "month": "2025-12",
+        "price": 360
+      },
+      {
+        "month": "2026-01",
+        "price": 350
+      },
+      {
+        "month": "2026-02",
+        "price": 400
+      },
+      {
+        "month": "2026-03",
+        "price": 500
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": 360 },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 380 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 360 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 350 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 400 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 500 }
+    ]
+  },
+  {
+    "id": "upc-UPC04",
+    "code": "UPC04",
+    "name": "UPC Amphinobi ex",
+    "series": "Écarlate & Violet",
+    "releaseDate": "",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Amphinobi ex.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": 175
+      },
+      {
+        "month": "2025-11",
+        "price": 180
+      },
+      {
+        "month": "2025-12",
+        "price": 180
+      },
+      {
+        "month": "2026-01",
+        "price": 190
+      },
+      {
+        "month": "2026-02",
+        "price": 190
+      },
+      {
+        "month": "2026-03",
+        "price": 180
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": 175 },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 180 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 180 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 190 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 190 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 180 }
+    ]
+  },
+  {
+    "id": "upc-UPC05",
+    "code": "UPC05",
+    "name": "UPC Terapagos ex",
+    "series": "Écarlate & Violet",
+    "releaseDate": "",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Terapagos ex.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": 180
+      },
+      {
+        "month": "2025-11",
+        "price": 175
+      },
+      {
+        "month": "2025-12",
+        "price": 170
+      },
+      {
+        "month": "2026-01",
+        "price": 175
+      },
+      {
+        "month": "2026-02",
+        "price": 175
+      },
+      {
+        "month": "2026-03",
+        "price": 180
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": 180 },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 175 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 170 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 175 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 175 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 180 }
+    ]
+  },
+  {
+    "id": "upc-UPC06",
+    "code": "UPC06",
+    "name": "SPC Évoli ex (Évolutions Prismatiques)",
+    "series": "Écarlate & Violet",
+    "releaseDate": "",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Évoli ex (Évolutions Prismatiques).png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": 175
+      },
+      {
+        "month": "2025-11",
+        "price": 180
+      },
+      {
+        "month": "2025-12",
+        "price": 170
+      },
+      {
+        "month": "2026-01",
+        "price": 170
+      },
+      {
+        "month": "2026-02",
+        "price": 165
+      },
+      {
+        "month": "2026-03",
+        "price": 180
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": 175 },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 180 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 170 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 170 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 165 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 180 }
+    ]
+  },
+  {
+    "id": "upc-UPC07",
+    "code": "UPC07",
+    "name": "UPC Méga-Dracaufeu X ex",
+    "series": "Méga Évolution",
+    "releaseDate": "",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Méga-Dracaufeu X ex.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": null
+      },
+      {
+        "month": "2025-11",
+        "price": 160
+      },
+      {
+        "month": "2025-12",
+        "price": 175
+      },
+      {
+        "month": "2026-01",
+        "price": 170
+      },
+      {
+        "month": "2026-02",
+        "price": 180
+      },
+      {
+        "month": "2026-03",
+        "price": 175
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": null },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": 160 },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 175 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 170 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 180 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 175 }
+    ]
+  },
+  {
+    "id": "upc-UPC08",
+    "code": "UPC08",
+    "name": "UPC Sulfura ex Team Rocket",
+    "series": "Méga Évolution",
+    "releaseDate": "",
+    "category": "UPC",
+    "imageUrl": "/images/upc/UPC Sulfura ex Team Rocket.png",
+    "priceHistory": [
+      {
+        "month": "2025-10",
+        "price": null
+      },
+      {
+        "month": "2025-11",
+        "price": null
+      },
+      {
+        "month": "2025-12",
+        "price": 160
+      },
+      {
+        "month": "2026-01",
+        "price": 190
+      },
+      {
+        "month": "2026-02",
+        "price": 200
+      },
+      {
+        "month": "2026-03",
+        "price": 210
+      }
+    ],
+    "historique_prix": [
+      { "mois": "2025-10", "mois_label": "2025-10", "prix": null },
+      { "mois": "2025-11", "mois_label": "2025-11", "prix": null },
+      { "mois": "2025-12", "mois_label": "2025-12", "prix": 160 },
+      { "mois": "2026-01", "mois_label": "2026-01", "prix": 190 },
+      { "mois": "2026-02", "mois_label": "2026-02", "prix": 200 },
+      { "mois": "2026-03", "mois_label": "2026-03", "prix": 210 }
+    ]
+  }
+]

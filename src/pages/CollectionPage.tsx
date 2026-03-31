@@ -720,7 +720,7 @@ export const CollectionPage = () => {
                     setConfirmId(null);
                   }}
                   className="flex-1 rounded-2xl py-1.5 text-xs font-semibold"
-                  style={{ background: "var(--loss-red)", color: "var(--text-primary)" }}
+                  style={{ background: "#c91517", color: "var(--text-primary)" }}
                 >
                   Tout retirer
                 </button>

@@ -412,6 +412,11 @@ h1, h2, h3,
   -webkit-filter: contrast(1) brightness(1) saturate(0) opacity(0.25) !important;
 }
 
+html.dark .mewtwo-png-watermark-layer {
+  filter: contrast(1) brightness(1.2) saturate(1) opacity(0.15) !important;
+  -webkit-filter: contrast(1) brightness(1.2) saturate(1) opacity(0.15) !important;
+}
+
 /* PokéVault modale auth : lien « S’inscrire » cliquable (évite pointer-events: none / calques Clerk) */
 .cl-footerActionLink,
 .cl-footerAction a,

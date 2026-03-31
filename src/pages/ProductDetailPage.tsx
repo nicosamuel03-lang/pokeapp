@@ -19,6 +19,7 @@ import { isEbayMockMode } from "../services/ebayMarketPrice";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
+import rawUpcData from "../data/upc-data.json";
 import { ItemIcon } from "../components/ItemIcon";
 import { RasterImage } from "../components/RasterImage";
 import { ChevronLeft } from "lucide-react";
@@ -503,6 +504,11 @@ const ProductDetailPageInner = () => {
     setSaleQuantityToSell(1);
   }, [id]);
 
+  // UPC : une seule fenêtre (6 mois) → état figé.
+  useEffect(() => {
+    if (product?.category === "UPC") setChartPeriod("6m");
+  }, [product?.category]);
+
   /** Parse dateSortie to month key (YYYY-MM) for filtering. Supports DD/MM/YYYY (ETB) and YYYY-MM (Display). */
   const releaseMonthKey = useMemo(() => {
     const dateSortie = etb?.dateSortie ?? product?.dateSortie;
@@ -532,17 +538,149 @@ const ProductDetailPageInner = () => {
         (product.category === "Displays" || product.category === "UPC")
       ) {
         const pid = product.id ?? "";
-        const rawId = pid.startsWith("display-")
-          ? pid.slice("display-".length)
-          : pid.startsWith("upc-")
-            ? pid.slice("upc-".length)
-            : "";
-        if (rawId) {
-          displayCatalogRow = displayData.find(
-            (d) => d.id.toLowerCase() === rawId.toLowerCase()
+        if (product.category === "UPC") {
+          const upcData = rawUpcData as {
+            id?: string;
+            code?: string;
+            historique_prix?: DetailHistRow[];
+            priceHistory?: { month?: string; price?: number | null }[];
+            name?: string;
+          }[];
+
+          const normalize = (v: unknown) =>
+            String(v ?? "")
+              .trim()
+              .toLowerCase()
+              .replace(/^upc-/, "")
+              .replace(/^display-/, "");
+
+          const extractUpcCode = (p: Product | null): string | null => {
+            if (!p) return null;
+            const anyP = p as unknown as { code?: unknown; id?: unknown; name?: unknown };
+            const direct = normalize(anyP.code);
+            if (/^upc\d{2}$/.test(direct)) return direct.toUpperCase();
+            const candidates = [anyP.id, anyP.name].map((x) => String(x ?? ""));
+            for (const s of candidates) {
+              const m = s.match(/UPC\d{2}/i);
+              if (m) return m[0].toUpperCase();
+            }
+            return null;
+          };
+
+          const pidNorm = normalize(pid);
+          const codeGuess = normalize(extractUpcCode(product));
+          const productNameNorm = normalize((product as unknown as { name?: unknown } | null)?.name);
+
+          const upcRow = upcData.find((u) => {
+            const idNorm = normalize(u.id);
+            const codeNorm = normalize(u.code);
+            const upcNameNorm = normalize(u.name);
+            return (
+              (pidNorm && idNorm && idNorm === pidNorm) ||
+              (pidNorm && codeNorm && codeNorm === pidNorm) ||
+              (codeGuess && idNorm && idNorm === codeGuess) ||
+              (codeGuess && codeNorm && codeNorm === codeGuess) ||
+              // Fallback collection : `product.id` = UUID Supabase, `code` absent → match fuzzy par nom.
+              (productNameNorm &&
+                upcNameNorm &&
+                (productNameNorm.includes(upcNameNorm) || upcNameNorm.includes(productNameNorm))) ||
+              // tolérance : certains chemins stockent `UPC01` alors que l'ID JSON est `upc-UPC01`
+              (pidNorm && idNorm && idNorm === normalize(`upc-${pidNorm}`)) ||
+              (pidNorm && codeNorm && codeNorm === normalize(`upc-${pidNorm}`)) ||
+              (codeGuess && idNorm && idNorm === normalize(`upc-${codeGuess}`)) ||
+              (codeGuess && codeNorm && codeNorm === normalize(`upc-${codeGuess}`))
+            );
+          });
+
+          if (upcRow) {
+            if (Array.isArray(upcRow.historique_prix) && upcRow.historique_prix.length > 0) {
+              historiqueChartSource = upcRow.historique_prix as DetailHistRow[];
+            } else if (Array.isArray(upcRow.priceHistory) && upcRow.priceHistory.length > 0) {
+              // Fallback : certains chemins peuvent ne pas embarquer `historique_prix`.
+              historiqueChartSource = upcRow.priceHistory
+                .filter((p) => p?.month)
+                .map((p) => ({
+                  mois: String(p.month),
+                  mois_label: String(p.month),
+                  prix: p.price ?? null,
+                }));
+            }
+          }
+        } else {
+          const rawId = pid.startsWith("display-") ? pid.slice("display-".length) : "";
+          if (rawId) {
+            displayCatalogRow = displayData.find(
+              (d) => d.id.toLowerCase() === rawId.toLowerCase()
+            );
+            if (displayCatalogRow?.historique_prix?.length) {
+              historiqueChartSource = displayCatalogRow.historique_prix as DetailHistRow[];
+            }
+          }
+        }
+      }
+
+      // Fallback UPC quand le produit vient de la collection (`collectionId`) mais n'a pas l'historique attaché
+      // ou quand la catégorie est mal propagée : on tente une résolution UPC par code/id.
+      if (
+        product &&
+        !historiqueChartSource?.length &&
+        (collectionIdFromUrl || product.category === "UPC" || /upc/i.test(String(product.id ?? "")) || /UPC\d{2}/i.test(String(product.name ?? "")))
+      ) {
+        const upcData = rawUpcData as {
+          id?: string;
+          code?: string;
+          historique_prix?: DetailHistRow[];
+          priceHistory?: { month?: string; price?: number | null }[];
+          name?: string;
+        }[];
+
+        const normalize = (v: unknown) =>
+          String(v ?? "")
+            .trim()
+            .toLowerCase()
+            .replace(/^upc-/, "")
+            .replace(/^display-/, "");
+
+        const pidNorm = normalize(product.id);
+        const productNameNorm = normalize((product as unknown as { name?: unknown } | null)?.name);
+        const codeFromText = (() => {
+          const anyP = product as unknown as { code?: unknown; id?: unknown; name?: unknown };
+          const direct = normalize(anyP.code);
+          if (/^upc\d{2}$/.test(direct)) return direct;
+          const candidates = [anyP.id, anyP.name].map((x) => String(x ?? ""));
+          for (const s of candidates) {
+            const m = s.match(/UPC\d{2}/i);
+            if (m) return normalize(m[0]);
+          }
+          return "";
+        })();
+
+        const upcRow = upcData.find((u) => {
+          const idNorm = normalize(u.id);
+          const codeNorm = normalize(u.code);
+          const upcNameNorm = normalize(u.name);
+          return (
+            (pidNorm && (idNorm === pidNorm || codeNorm === pidNorm)) ||
+            (codeFromText && (idNorm === codeFromText || codeNorm === codeFromText)) ||
+            (productNameNorm &&
+              upcNameNorm &&
+              (productNameNorm.includes(upcNameNorm) || upcNameNorm.includes(productNameNorm))) ||
+            (pidNorm && (idNorm === normalize(`upc-${pidNorm}`) || codeNorm === normalize(`upc-${pidNorm}`))) ||
+            (codeFromText && (idNorm === normalize(`upc-${codeFromText}`) || codeNorm === normalize(`upc-${codeFromText}`)))
           );
-          if (displayCatalogRow?.historique_prix?.length) {
-            historiqueChartSource = displayCatalogRow.historique_prix as DetailHistRow[];
+        });
+
+        if (upcRow) {
+          if (Array.isArray(upcRow.historique_prix) && upcRow.historique_prix.length > 0) {
+            historiqueChartSource = upcRow.historique_prix as DetailHistRow[];
+          } else if (Array.isArray(upcRow.priceHistory) && upcRow.priceHistory.length > 0) {
+            historiqueChartSource = upcRow.priceHistory
+              .filter((p) => p?.month)
+              .map((p) => ({
+                mois: String(p.month),
+                mois_label: String(p.month),
+                prix: p.price ?? null,
+              }));
           }
         }
       }
@@ -661,22 +799,12 @@ const ProductDetailPageInner = () => {
           }
         }
       } else if (product?.category === "UPC") {
-        if (afterRelease.length === 0) {
-          windowed = [];
-        } else {
-          const endMois = afterRelease[afterRelease.length - 1]?.mois ?? "";
-          const monthsBackInclusive = chartPeriod === "1an" ? 11 : 5;
-          const startMois =
-            endMois && /^\d{4}-\d{2}/.test(endMois)
-              ? subtractCalendarMonths(endMois, monthsBackInclusive)
-              : "";
-          windowed = afterRelease.filter(
-            (r) =>
-              r.mois &&
-              (!startMois || r.mois >= startMois) &&
-              (!endMois || r.mois <= endMois)
-          );
-        }
+        // UPC : fenêtre fixe 2025-10 → 2026-03 (6 mois), sans dépendre de displayData.
+        const UPC_START_MONTH = "2025-10";
+        const UPC_END_MONTH = "2026-03";
+        windowed = afterRelease.filter(
+          (r) => r.mois && r.mois >= UPC_START_MONTH && r.mois <= UPC_END_MONTH
+        );
       } else if (product?.category === "ETB") {
         const startKey = etbChartStartKey;
         if (
@@ -738,8 +866,14 @@ const ProductDetailPageInner = () => {
             ? etbChartStartKey ?? DISPLAY_CHART_FLOOR_MONTH
             : releaseMonthKey;
 
-      const filteredData = filterFromRelease(data, chartReleaseFilterKey);
-      const filteredRows = filterEmptyRows(filterFromRelease(rows, chartReleaseFilterKey));
+      const filteredData =
+        product?.category === "UPC"
+          ? data
+          : filterFromRelease(data, chartReleaseFilterKey);
+      const filteredRows =
+        product?.category === "UPC"
+          ? rows
+          : filterEmptyRows(filterFromRelease(rows, chartReleaseFilterKey));
 
       let chartSeriesDense = densifyMonthlyChartRows(filteredData);
 
@@ -1365,36 +1499,40 @@ const ProductDetailPageInner = () => {
             <div className="flex gap-2">
               <button
             type="button"
-            onClick={!premiumLoading && isPremium ? () => setChartPeriod("6m") : undefined}
-            className="text-xs font-medium transition"
+            onClick={product?.category === "UPC" ? undefined : (!premiumLoading && isPremium ? () => setChartPeriod("6m") : undefined)}
+            className={product?.category === "UPC" ? "text-xs font-medium" : "text-xs font-medium transition"}
             style={{
-              background: chartPeriod === "6m" ? accentGold : "var(--input-bg)",
-              color: chartPeriod === "6m" ? "#000" : "var(--text-primary)",
-              border: chartPeriod === "6m" ? "none" : "1px solid var(--border-color)",
+              background: product?.category === "UPC" ? accentGold : (chartPeriod === "6m" ? accentGold : "var(--input-bg)"),
+              color: product?.category === "UPC" ? "#000" : (chartPeriod === "6m" ? "#000" : "var(--text-primary)"),
+              border: product?.category === "UPC" ? "none" : (chartPeriod === "6m" ? "none" : "1px solid var(--border-color)"),
               borderRadius: 20,
               padding: "4px 12px",
-              fontWeight: chartPeriod === "6m" ? "bold" : "normal",
-              ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
+              fontWeight: "bold",
+              ...(product?.category === "UPC"
+                ? { cursor: "default", pointerEvents: "none" as const }
+                : (!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 })),
             }}
           >
             6 mois
           </button>
-          <button
-            type="button"
-            onClick={!premiumLoading && isPremium ? () => setChartPeriod("1an") : undefined}
-            className="text-xs font-medium transition"
-            style={{
-              background: chartPeriod === "1an" ? accentGold : "var(--input-bg)",
-              color: chartPeriod === "1an" ? "#000" : "var(--text-primary)",
-              border: chartPeriod === "1an" ? "none" : "1px solid var(--border-color)",
-              borderRadius: 20,
-              padding: "4px 12px",
-              fontWeight: chartPeriod === "1an" ? "bold" : "normal",
-              ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
-            }}
-          >
-            1 an
-          </button>
+          {product?.category === "UPC" ? null : (
+            <button
+              type="button"
+              onClick={!premiumLoading && isPremium ? () => setChartPeriod("1an") : undefined}
+              className="text-xs font-medium transition"
+              style={{
+                background: chartPeriod === "1an" ? accentGold : "var(--input-bg)",
+                color: chartPeriod === "1an" ? "#000" : "var(--text-primary)",
+                border: chartPeriod === "1an" ? "none" : "1px solid var(--border-color)",
+                borderRadius: 20,
+                padding: "4px 12px",
+                fontWeight: chartPeriod === "1an" ? "bold" : "normal",
+                ...(!premiumLoading && !isPremium && { pointerEvents: "none", opacity: 0.4 }),
+              }}
+            >
+              1 an
+            </button>
+          )}
             </div>
           </div>
           <div style={{ position: "relative" }}>

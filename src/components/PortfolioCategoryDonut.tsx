@@ -5,7 +5,7 @@ import { getDonutLayout } from "../utils/donutChartLayout";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 
 export const CATEGORY_DONUT_COLORS = {
-  ETB: "#ef4444",
+  ETB: "#c91517",
   UPC: "#f59e0b",
   Displays: "#3b82f6",
   Autres: "#94a3b8",

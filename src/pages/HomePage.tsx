@@ -135,6 +135,28 @@ export const HomePage = () => {
     setTimeout(() => setPressedFilterKey(null), 150);
   };
 
+  // Préchargement : évite le flash/délai du filigrane GIOVANNI au retour sur ACCUEIL.
+  useEffect(() => {
+    const href = "/images/GIOVANNI%203.png?v=2";
+    try {
+      const head = document.head;
+      const id = "preload-giovanni-watermark";
+      const existing = document.getElementById(id) as HTMLLinkElement | null;
+      if (!existing) {
+        const link = document.createElement("link");
+        link.id = id;
+        link.rel = "preload";
+        link.as = "image";
+        link.href = href;
+        head.appendChild(link);
+      }
+      const img = new Image();
+      img.src = href;
+    } catch {
+      // ignore
+    }
+  }, []);
+
   useEffect(() => {
     if (pathname === "/") {
       refreshSales();
@@ -446,6 +468,29 @@ export const HomePage = () => {
 
   return (
     <div className="space-y-4 -mx-3">
+      {isDark ? (
+        <style>
+          {`
+            /* Accueil uniquement : carte « Valeur du portefeuille » (watermark à droite) */
+            .home-portfolio-watermark .portfolio-card-mewtwo-img {
+              content: url("/images/GIOVANNI%203.png?v=2");
+              filter: saturate(1) !important;
+              -webkit-filter: saturate(1) !important;
+              /* Un peu plus grand qu'avant (≈ +15%), mais reste subtil */
+              transform: scale(0.886);
+              transform-origin: center center;
+              transition: transform 150ms ease;
+              pointer-events: auto !important;
+              cursor: pointer;
+            }
+
+            .home-portfolio-watermark .portfolio-card-mewtwo-img:active {
+              transform: scale(0.753);
+            }
+          `}
+        </style>
+      ) : null}
+      <div className="home-portfolio-watermark">
         <PortfolioDashboardSection
           mode="summary"
           collectionLines={collectionLines}
@@ -458,6 +503,7 @@ export const HomePage = () => {
           produitsCount={collectionItems.length}
           summaryMainCardTo="/collection"
         />
+      </div>
 
         <div className="px-3" style={{ position: "relative", zIndex: 50 }}>
         <CatalogueStyleSearchBar
