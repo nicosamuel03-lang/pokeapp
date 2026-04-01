@@ -95,7 +95,7 @@ function getProductImageUrl(product: {
   // UPC : priorité displayData (UPC items) — par id upc-* ou par etbId quand category UPC
   const upcId = product.id.startsWith("upc-") ? product.id.replace(/^upc-/, "") : (product.category === "UPC" && product.etbId ? product.etbId : null);
   if (upcId) {
-    const upc = displayData.find((d) => d.category === "UPC" && d.id === upcId);
+    const upc = displayData.find((d) => d.id === upcId);
     return upc?.imageUrl ?? product.imageUrl ?? null;
   }
 

@@ -396,13 +396,17 @@ h1, h2, h3,
 }
 
 .portfolio-card-mewtwo-img {
-  filter: grayscale(100%) opacity(0.2) !important;
-  -webkit-filter: grayscale(100%) opacity(0.2) !important;
+  filter: none !important;
+  -webkit-filter: none !important;
   box-shadow: none !important;
   text-shadow: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   mix-blend-mode: normal !important;
+}
+
+html:not(.dark) .portfolio-card-mewtwo-img {
+  opacity: 0.75;
 }
 
 /* Calques `background-image` Mewtwo (mewtwoo.png / mewtwoo_gris.png) — filigrane gris plat sans halo PNG */

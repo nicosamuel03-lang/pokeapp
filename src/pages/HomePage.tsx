@@ -266,7 +266,7 @@ export const HomePage = () => {
       });
 
     const upcProducts: HomeProduct[] = displayData
-      .filter((d) => d.category === "UPC")
+      .filter((d) => d.id.startsWith("UPC"))
       .map((d) => ({
         id: `upc-${d.id}`,
         etbId: d.id,

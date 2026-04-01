@@ -186,20 +186,6 @@ export function PortfolioDashboardSection({
                 overflow: "hidden",
               }}
             >
-              <div
-                className="mewtwo-png-watermark-layer"
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 0,
-                  backgroundImage: `url(${isLight ? "/images/fond%20graphique/mewtwoo_gris.png" : "/images/fond%20graphique/mewtwoo.png?v=2"})`,
-                  backgroundSize: "contain",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  pointerEvents: "none",
-                }}
-              />
               <button
                 type="button"
                 className="absolute right-3 bottom-3 flex h-8 w-8 items-center justify-center rounded-full text-lg font-medium transition hover:opacity-80"
@@ -570,8 +556,8 @@ export function PortfolioDashboardSection({
 
   /** Même fichier que les graphiques ; filtres + opacité pour contraste sur fond clair / sombre. */
   const portfolioCardMewtwoSrc = isLight
-    ? "/images/fond%20graphique/mewtwoo_gris.png"
-    : "/images/fond%20graphique/mewtwoo.png?v=2";
+    ? "/images/GIOVANNI%20clair.png"
+    : "/images/GIOVANNI%20noir.png";
 
   const portfolioValueBlock = (
     <>
@@ -663,7 +649,7 @@ export function PortfolioDashboardSection({
           draggable={false}
           loading="lazy"
           className="portfolio-card-mewtwo-img relative z-[2] h-full w-full object-contain pointer-events-none"
-          style={{ filter: "grayscale(100%) opacity(0.2)" }}
+          style={{ filter: "none", opacity: isDark ? 0.85 : 0.75 }}
         />
       </div>
     );
