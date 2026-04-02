@@ -235,6 +235,7 @@ export const CollectionPage = () => {
         quantity: it.quantity,
         buyPrice: it.buyPrice,
         product: it.product,
+        purchaseDate: it.purchaseDate,
       })),
     [items]
   );
@@ -461,8 +462,18 @@ export const CollectionPage = () => {
         </h3>
         <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
-            const productId = item.product.etbId ?? item.product.id;
-            const ebayUnit = collectionEbayPriceMap.get(productId);
+            const rawProductId = item.product.etbId ?? item.product.id;
+            const ebayLookupId = (() => {
+              const category = (item.product.category || "").toLowerCase();
+              if (category === "displays" || category === "display") {
+                return `display-${rawProductId}`;
+              }
+              if (category === "upc") {
+                return `UPC${rawProductId.replace(/^UPC/i, "")}`;
+              }
+              return rawProductId;
+            })();
+            const ebayUnit = collectionEbayPriceMap.get(ebayLookupId);
             const current =
               ebayUnit != null && ebayUnit > 0
                 ? ebayUnit

@@ -525,7 +525,7 @@ app.post("/api/delete-account", async (req, res) => {
   }
 });
 
-// ─── Route : prix trackés (7 derniers jours depuis Supabase) ─────────────────
+// ─── Route : prix trackés (90 derniers jours depuis Supabase) ─────────────────
 app.get("/api/ebay/tracked-price", async (req, res) => {
   const productId = String(req.query.productId || "").trim();
   if (!productId) {
@@ -534,7 +534,7 @@ app.get("/api/ebay/tracked-price", async (req, res) => {
 
   try {
     const db = getSupabaseAdmin();
-    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data, error } = await db
       .from("ebay_prices")
@@ -542,7 +542,7 @@ app.get("/api/ebay/tracked-price", async (req, res) => {
       .eq("product_id", productId)
       .gte("fetched_at", since)
       .order("fetched_at", { ascending: false })
-      .limit(30);
+      .limit(200);
 
     if (error) {
       console.error("[tracked-price] Supabase error:", error.message);
@@ -585,7 +585,7 @@ app.get("/api/ebay/tracked-prices", async (req, res) => {
 
   try {
     const db = getSupabaseAdmin();
-    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data, error } = await db
       .from("ebay_prices")
@@ -598,7 +598,7 @@ app.get("/api/ebay/tracked-prices", async (req, res) => {
       return res.status(502).json({ error: error.message });
     }
 
-    // Agrège les prix par product_id (moyenne des entrées des 7 derniers jours)
+    // Agrège les prix par product_id (moyenne des entrées des 90 derniers jours)
     const grouped = new Map();
     for (const row of (data || [])) {
       const id = row.product_id;

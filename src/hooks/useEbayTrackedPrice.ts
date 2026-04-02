@@ -1,9 +1,9 @@
 /**
  * Hook : prix de marché eBay issu de la table Supabase `ebay_prices`
- * (moyenne des 30 derniers jours synchronisés par priceSyncJob).
+ * (moyenne des 90 derniers jours synchronisés par priceSyncJob).
  *
  * Logique :
- *   - Si ≥ MIN_ENTRIES entrées disponibles → retourne la moyenne sur 30 jours
+ *   - Si ≥ MIN_ENTRIES entrées disponibles → retourne la moyenne sur 90 jours
  *   - Sinon → retourne null et le composant utilise le prix catalogue
  *
  * @param productId  ID du produit (ex. "ME02.5", "display-ME02", "upc-UPC08")
@@ -14,12 +14,12 @@ import { useEffect, useRef, useState } from "react";
 import { apiUrl } from "../config/apiUrl";
 
 /** Nombre minimum d'entrées dans ebay_prices pour considérer le prix fiable. */
-const MIN_ENTRIES = 1;
+const MIN_ENTRIES = 3;
 
 export interface TrackedPriceResult {
   /** true si au moins MIN_ENTRIES entrées disponibles dans Supabase */
   available: boolean;
-  /** Moyenne eBay sur 30 jours (null si available=false) */
+  /** Moyenne eBay sur 90 jours (null si available=false) */
   averagePriceEur: number | null;
   /** Nombre d'entrées utilisées */
   count: number;

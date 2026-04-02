@@ -87,6 +87,7 @@ export interface CollectionLineForChart {
   quantity: number;
   buyPrice: number;
   product: Product;
+  purchaseDate?: string;
 }
 
 function getPriceAtMonthCarryForward(hist: HistPrix, monthKey: string): number {
@@ -100,11 +101,31 @@ function getPriceAtMonthCarryForward(hist: HistPrix, monthKey: string): number {
 }
 
 function getHistoriquePrix(item: { product: { id: string; etbId?: string; historique_prix?: HistPrix; category?: string; name?: string } }): HistPrix {
-  if (item.product.historique_prix?.length) return item.product.historique_prix;
+  if (item.product.category !== "Displays" && item.product.category !== "Display" && item.product.historique_prix?.length) return item.product.historique_prix;
 
   // ETB : historique depuis etbData
   const etb = getEtbForItem(item);
-  if (etb?.historique_prix?.length) return etb.historique_prix;
+  if (item.product.category !== "Displays" && item.product.category !== "Display" && etb?.historique_prix?.length) return etb.historique_prix;
+
+  // Display : lookup depuis displayData (match par etbId ou id sans préfixe)
+  if (item.product.category === "Displays" || item.product.category === "Display") {
+    const rawId = (item.product.etbId ?? item.product.id ?? "").replace(/^display-/, "");
+    const displayRow = displayData.find((d) => d.id === rawId || d.id === item.product.etbId);
+    if (displayRow?.historique_prix?.length) {
+      return displayRow.historique_prix as HistPrix;
+    }
+    // Fallback fuzzy par nom
+    const nameNorm = String(item.product.name ?? "").toLowerCase();
+    if (nameNorm) {
+      const byName = displayData.find((d) => {
+        const dName = String(d.name ?? "").toLowerCase();
+        return dName && (nameNorm.includes(dName) || dName.includes(nameNorm));
+      });
+      if (byName?.historique_prix?.length) {
+        return byName.historique_prix as HistPrix;
+      }
+    }
+  }
 
   // UPC : lookup depuis upc-data.json (match par id/code, fallback fuzzy par nom)
   if (item.product.category === "UPC") {
@@ -247,16 +268,31 @@ export function buildPortfolioChartData(
   const lastIndex = keys.length - 1;
   return keys.map((moisKey, index) => {
     let sum = 0;
+    let investiAtMonth = 0;
     const useEbayForMonth = index === lastIndex && ebayPriceMap != null;
     collectionItems.forEach((item) => {
+      const purchaseMonth = item.purchaseDate ? item.purchaseDate.slice(0, 7) : null;
+      const isOwned = !purchaseMonth || purchaseMonth <= moisKey;
+      if (isOwned) {
+        investiAtMonth += (item.buyPrice ?? 0) * Number(item.quantity);
+      }
+
       const releaseMonth = getReleaseMonthKeyForItem(item);
       if (releaseMonth && moisKey < releaseMonth) {
         return;
       }
+      if (!isOwned) return;
+
       let unit: number;
       if (useEbayForMonth) {
-        const productId = item.product.etbId ?? item.product.id;
-        const ebayPrice = ebayPriceMap.get(productId);
+        const rawId = item.product.etbId ?? item.product.id;
+        const ebayLookupId = (() => {
+          const cat = (item.product.category || "").toLowerCase();
+          if (cat === "displays" || cat === "display") return `display-${rawId}`;
+          if (cat === "upc") return `UPC${rawId.replace(/^UPC/i, "")}`;
+          return rawId;
+        })();
+        const ebayPrice = ebayPriceMap.get(ebayLookupId);
         unit =
           ebayPrice != null && ebayPrice > 0
             ? ebayPrice
@@ -269,7 +305,7 @@ export function buildPortfolioChartData(
     const valeurMarche = Math.round(sum * 100) / 100;
     return {
       mois: labels[index],
-      investissement: totalInvesti,
+      investissement: investiAtMonth,
       valeurMarche,
     };
   });
@@ -297,8 +333,14 @@ export function computePortfolioStats(
     totalInvestiP += prixAchat * qty;
 
     // Priorité : prix eBay tracké (Supabase 7j) → prix catalogue
-    const productId = item.product.etbId ?? item.product.id;
-    const ebayPrice = ebayPriceMap?.get(productId);
+    const rawId = item.product.etbId ?? item.product.id;
+    const ebayLookupId = (() => {
+      const cat = (item.product.category || "").toLowerCase();
+      if (cat === "displays" || cat === "display") return `display-${rawId}`;
+      if (cat === "upc") return `UPC${rawId.replace(/^UPC/i, "")}`;
+      return rawId;
+    })();
+    const ebayPrice = ebayPriceMap?.get(ebayLookupId);
     const marketPrice =
       ebayPrice != null && ebayPrice > 0
         ? ebayPrice

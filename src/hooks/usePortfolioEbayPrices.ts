@@ -36,8 +36,17 @@ export function usePortfolioEbayPrices(
   const productIds = useMemo(() => {
     const ids = new Set<string>();
     for (const line of collectionLines) {
-      const id = line.product.etbId ?? line.product.id;
-      if (id) ids.add(id);
+      const rawId = line.product.etbId ?? line.product.id;
+      if (rawId) {
+        const category = (line.product.category || "").toLowerCase();
+        if (category === "displays" || category === "display") {
+          ids.add(`display-${rawId}`);
+        } else if (category === "upc") {
+          ids.add(`UPC${rawId.replace(/^UPC/i, "")}`);
+        } else {
+          ids.add(rawId);
+        }
+      }
     }
     return Array.from(ids);
   }, [collectionLines]);

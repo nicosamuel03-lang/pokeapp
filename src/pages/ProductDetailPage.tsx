@@ -429,7 +429,18 @@ const ProductDetailPageInner = () => {
   );
 
   // ID produit tel qu'il est stocké dans ebay_prices (ETB : etbId, Display/UPC : product.id)
-  const trackedProductId = product?.etbId ?? product?.id ?? null;
+  const trackedProductId = (() => {
+    const rawId = product?.etbId ?? product?.id ?? null;
+    if (!rawId) return null;
+    const category = (product?.category || "").toLowerCase();
+    if (category === "displays" || category === "display") {
+      return `display-${rawId}`;
+    }
+    if (category === "upc") {
+      return `UPC${rawId.replace(/^UPC/i, "")}`;
+    }
+    return rawId;
+  })();
   const ebayTracked = useEbayTrackedPrice(trackedProductId, !!product && !isEbayMockMode());
   const prixSource: "ebay_tracked" | "catalog" =
     ebayTracked.available &&
@@ -1311,7 +1322,7 @@ const ProductDetailPageInner = () => {
                           Prix marché eBay
                         </span>
                         <span className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                          moy. 30j · {ebayTracked.count} {ebayTracked.count > 1 ? "entrées" : "entrée"}
+                          moy. 90j · {ebayTracked.count} {ebayTracked.count > 1 ? "entrées" : "entrée"}
                         </span>
                       </div>
                     ) : !isEbayMockMode() && !ebayTracked.loading && prixSource === "catalog" ? (

@@ -20,7 +20,6 @@ import {
 
 const NO_EBAY_FETCH_LINES: CollectionLineForChart[] = [];
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
-import { RasterImage } from "./RasterImage";
 import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
 import { useCollection } from "../state/CollectionContext";
 import { SearchCatalogue } from "./SearchCatalogue";
@@ -555,9 +554,7 @@ export function PortfolioDashboardSection({
   );
 
   /** Même fichier que les graphiques ; filtres + opacité pour contraste sur fond clair / sombre. */
-  const portfolioCardMewtwoSrc = isLight
-    ? "/images/GIOVANNI%20clair.png"
-    : "/images/GIOVANNI%20noir.png";
+  const portfolioCardMewtwoSrc = "/images/GIOVANNI.png";
 
   const portfolioValueBlock = (
     <>
@@ -643,13 +640,13 @@ export function PortfolioDashboardSection({
           WebkitBackdropFilter: "none",
         }}
       >
-        <RasterImage
+        <img
           src={portfolioCardMewtwoSrc}
           alt=""
           draggable={false}
           loading="lazy"
-          className="portfolio-card-mewtwo-img relative z-[2] h-full w-full object-contain pointer-events-none"
-          style={{ filter: "none", opacity: isDark ? 0.85 : 0.75 }}
+          className="relative z-[2] object-contain pointer-events-none"
+          style={{ width: 80, height: 80, filter: "none", opacity: 0.85 }}
         />
       </div>
     );

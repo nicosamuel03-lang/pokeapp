@@ -46,16 +46,55 @@ function cellToDisplayHistoriquePrix(raw) {
   return n;
 }
 
-function excelDateToRelease(dateSortie) {
-  const s = String(dateSortie ?? "").trim();
+/** Colonne « Date sortie FR » (JJ/MM/AAAA) : conserve le jour ; accepte Date JS ou numéro série Excel. */
+function excelRawToReleaseDateString(raw) {
+  if (raw == null || raw === "") return "";
+  if (raw instanceof Date && !Number.isNaN(raw.getTime())) {
+    const dd = String(raw.getUTCDate()).padStart(2, "0");
+    const mm = String(raw.getUTCMonth() + 1).padStart(2, "0");
+    const yyyy = String(raw.getUTCFullYear());
+    return `${dd}/${mm}/${yyyy}`;
+  }
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    const epoch = new Date(Date.UTC(1899, 11, 30));
+    const ms = epoch.getTime() + Math.round(raw * 86400000);
+    const d = new Date(ms);
+    if (!Number.isNaN(d.getTime())) {
+      const dd = String(d.getUTCDate()).padStart(2, "0");
+      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const yyyy = String(d.getUTCFullYear());
+      return `${dd}/${mm}/${yyyy}`;
+    }
+  }
+  const s = String(raw).trim();
   const parts = s.split("/");
   if (parts.length === 3) {
     const [dd, mm, yyyy] = parts;
-    if (yyyy && mm) return `${yyyy}-${String(mm).padStart(2, "0")}`;
+    if (yyyy && mm && dd)
+      return `${String(dd).padStart(2, "0")}/${String(mm).padStart(2, "0")}/${String(yyyy).trim()}`;
   }
-  // Déjà au format YYYY-MM ?
-  if (/^\d{4}-\d{2}/.test(s)) return s.slice(0, 7);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s))
+    return s.replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$3/$2/$1");
+  if (/^\d{4}-\d{2}$/.test(s)) {
+    const y = s.slice(0, 4);
+    const m = s.slice(5, 7);
+    return `01/${m}/${y}`;
+  }
   return "";
+}
+
+/** Tri chronologique (JSON en JJ/MM/AAAA ou repli YYYY-MM). */
+function releaseDateToSortKey(s) {
+  if (!s) return "0000-00-00";
+  const str = String(s).trim();
+  const parts = str.split("/");
+  if (parts.length === 3) {
+    const [dd, mm, yyyy] = parts;
+    return `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  if (/^\d{4}-\d{2}/.test(str)) return `${str.slice(0, 7)}-01`;
+  return str;
 }
 
 function findHeaderRowIndex(rows) {
@@ -184,7 +223,7 @@ function parseUpcData() {
       const bloc = blocCol >= 0 ? String(row[blocCol] ?? "").trim() : "";
       const code = codeCol >= 0 ? String(row[codeCol] ?? "").trim() : "";
       let nom = nomCol >= 0 ? String(row[nomCol] ?? "").trim() : "";
-      const releaseDate = dateCol >= 0 ? excelDateToRelease(row[dateCol]) : "";
+      const releaseDate = dateCol >= 0 ? excelRawToReleaseDateString(row[dateCol]) : "";
       const msrpRaw = msrpCol >= 0 ? Number(row[msrpCol]) : 0;
       const msrp = Number.isFinite(msrpRaw) ? msrpRaw : 0;
       const currentRaw = currentCol >= 0 ? Number(row[currentCol]) : NaN;
@@ -234,8 +273,8 @@ function parseUpcData() {
     .filter(Boolean);
 
   upcItems.sort((a, b) => {
-    const da = (a.releaseDate && a.releaseDate.length >= 7) ? a.releaseDate : "0000-00";
-    const db = (b.releaseDate && b.releaseDate.length >= 7) ? b.releaseDate : "0000-00";
+    const da = releaseDateToSortKey(a.releaseDate);
+    const db = releaseDateToSortKey(b.releaseDate);
     return db.localeCompare(da);
   });
 
@@ -300,7 +339,8 @@ function buildDisplayData() {
         const bloc = blocCol >= 0 ? String(row[blocCol] ?? "").trim() : "";
         const code = codeCol >= 0 ? String(row[codeCol] ?? "").trim() : "";
         const extension = nomCol >= 0 ? String(row[nomCol] ?? "").trim() : "";
-        const releaseDate = dateCol >= 0 ? excelDateToRelease(row[dateCol]) : "";
+        const releaseDateFromExcel =
+          dateCol >= 0 ? excelRawToReleaseDateString(row[dateCol]) : "";
         const msrpRaw = msrpCol >= 0 ? Number(row[msrpCol]) : 0;
         const msrp = Number.isFinite(msrpRaw) ? msrpRaw : 0;
         const currentRaw = currentCol >= 0 ? Number(row[currentCol]) : NaN;
@@ -333,7 +373,13 @@ function buildDisplayData() {
         });
 
         const displayId = code.toUpperCase();
-        const releaseDateFinal = displayDateOverride[displayId] ?? releaseDate;
+        const overrideRaw = displayDateOverride[displayId];
+        const releaseDateFromOverride =
+          overrideRaw != null && overrideRaw !== ""
+            ? excelRawToReleaseDateString(overrideRaw)
+            : "";
+        const releaseDateFinal =
+          releaseDateFromExcel || releaseDateFromOverride;
         const name = `${displayId} ${extension} FR`;
         const category =
           name.startsWith("Display") ? "Displays" :
@@ -356,8 +402,8 @@ function buildDisplayData() {
 
     // Trier par date de sortie (du plus récent au plus ancien)
     displays.sort((a, b) => {
-      const da = (a.releaseDate && a.releaseDate.length >= 7) ? a.releaseDate : "0000-00";
-      const db = (b.releaseDate && b.releaseDate.length >= 7) ? b.releaseDate : "0000-00";
+      const da = releaseDateToSortKey(a.releaseDate);
+      const db = releaseDateToSortKey(b.releaseDate);
       return db.localeCompare(da);
     });
 

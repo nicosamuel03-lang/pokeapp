@@ -4,7 +4,7 @@
  * - Lit server/productCatalog.json (généré par npm run build:data + build:display)
  * - Appelle la Browse API eBay pour chaque produit (via searchFresh, sans cache résultats)
  * - Insère le prix dans la table Supabase `ebay_prices`
- * - Supprime les entrées de plus de 30 jours
+ * - Supprime les entrées de plus de 90 jours
  * - Tourne automatiquement toutes les 24h quand le serveur est actif
  *
  * Déclenchement manuel : GET /api/admin/sync-prices
@@ -15,7 +15,7 @@ const { searchFresh } = require("./ebayBrowse");
 const { getSupabaseAdmin } = require("./supabaseAdmin");
 
 const SYNC_INTERVAL_MS  = 24 * 60 * 60 * 1000; // 24 heures
-const RETENTION_DAYS    = 30;
+const RETENTION_DAYS    = 90;
 const DELAY_BETWEEN_MS  = 3_000; // 3s entre chaque produit pour éviter le rate limit eBay
 
 // ─── Chargement du catalogue produits ────────────────────────────────────────
@@ -147,7 +147,7 @@ async function syncAllPrices({ signal } = {}) {
     if (!signal?.aborted) await sleep(DELAY_BETWEEN_MS);
   }
 
-  // ── Purge des entrées > 30 jours ─────────────────────────────────────────
+  // ── Purge des entrées > 90 jours ─────────────────────────────────────────
   try {
     const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
     const { error: purgeError, count } = await getSupabaseAdmin()
