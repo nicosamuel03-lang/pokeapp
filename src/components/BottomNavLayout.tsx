@@ -14,6 +14,8 @@ const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
 const NAV_HEIGHT = 78;
 /** Espace réservé sous le contenu = hauteur barre + encoche iOS (aligné sur la barre fixe). */
 const MAIN_PADDING_BOTTOM = `calc(${NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`;
+/** Espace sous encoche / barre de statut iOS : min 20px (web/Android) ou 15px + safe-area. */
+const HEADER_SAFE_TOP = "max(20px, calc(15px + env(safe-area-inset-top, 0px)))";
 const VIEWPORT_KEYBOARD_SHRINK_PX = 120;
 const ICON_SIZE = 12;
 const AJOUTER_ICON_SIZE = 15;
@@ -160,11 +162,20 @@ export const BottomNavLayout = () => {
         onTouchStartCapture={handleTouchStart}
         onTouchEndCapture={handleTouchEnd}
       >
-        <div style={{ maxWidth: "480px", margin: "0 auto", padding: "16px 16px 8px 16px" }}>
+        <div
+          style={{
+            maxWidth: "480px",
+            margin: "0 auto",
+            paddingTop: HEADER_SAFE_TOP,
+            paddingLeft: 16,
+            paddingRight: 16,
+            paddingBottom: 8,
+          }}
+        >
           <header
             style={{
               position: "sticky",
-              top: 0,
+              top: HEADER_SAFE_TOP,
               zIndex: 10,
               marginBottom: "16px",
               display: "flex",
