@@ -458,7 +458,7 @@ export const CollectionPage = () => {
           <span className="tabular-nums" style={{ font: "inherit", fontWeight: 700 }}>
             {displayedQuantity}
           </span>
-          {" "}items)
+          {" "}{displayedQuantity >= 2 ? "items" : "item"})
         </h3>
         <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
@@ -713,11 +713,11 @@ export const CollectionPage = () => {
               <p className="text-[11px]" style={{ color: "var(--text-secondary)" }}>
                 {hasMultiple ? (
                   <>
-                    Vous avez x<span className={STAT_CARD_VALUE_CLASS}>{item.quantity}</span> exemplaires de &quot;{item.product.name}&quot;.
+                    Vous avez x{item.quantity} exemplaires de &quot;{item.product.name}&quot;.
                   </>
                 ) : (
                   <>
-                    Vous avez <span className={STAT_CARD_VALUE_CLASS}>1</span> exemplaire de &quot;{item.product.name}&quot;.
+                    Vous avez 1 exemplaire de &quot;{item.product.name}&quot;.
                   </>
                 )}
               </p>

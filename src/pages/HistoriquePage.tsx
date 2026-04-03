@@ -576,12 +576,12 @@ export const HistoriquePage = () => {
                         href="/premium"
                         style={{
                           display: "inline-block",
-                          padding: "8px 18px",
+                          padding: "6px 14px",
                           borderRadius: 9999,
                           background: accentGold,
-                          color: "#000",
+                          color: "#111827",
                           fontSize: 12,
-                          fontWeight: 700,
+                          fontWeight: 600,
                           textDecoration: "none",
                         }}
                       >

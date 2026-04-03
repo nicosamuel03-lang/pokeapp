@@ -345,9 +345,9 @@ export function PortfolioDashboardSection({
                         padding: "6px 14px",
                         borderRadius: 9999,
                         background: accentGold,
-                        color: "#000",
-                        fontSize: 11,
-                        fontWeight: 700,
+                        color: "#111827",
+                        fontSize: 12,
+                        fontWeight: 600,
                         textDecoration: "none",
                       }}
                     >

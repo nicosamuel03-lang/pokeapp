@@ -20,7 +20,7 @@ const AJOUTER_ICON_SIZE = 15;
 const FONT_HEADING = "system-ui, ui-sans-serif, sans-serif";
 const LETTER_SPACING = "0.025em";
 
-/** Onglets visibles dans la barre du bas (la collection est accessible via la carte portefeuille sur l’accueil). */
+/** Onglets visibles dans la barre du bas (la collection est accessible via la carte portefeuille sur l'accueil). */
 const BOTTOM_NAV_PATHS = ["/", "/marche", "/historique"] as const;
 
 const navItems: {
@@ -110,16 +110,10 @@ export const BottomNavLayout = () => {
       const deltaTime = Date.now() - startTime;
       touchStart.current = null;
 
-      // Direction lock : mouvement initial plus vertical que horizontal → annuler
       if (Math.abs(deltaY) > Math.abs(deltaX)) return;
-
-      // Horizontal doit être au moins 2× le vertical
       if (Math.abs(deltaX) < Math.abs(deltaY) * 2) return;
-
-      // Distance horizontale minimale
       if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
 
-      // Vitesse minimale : évite les glissements lents
       const velocity = Math.abs(deltaX) / Math.max(deltaTime, 1);
       if (velocity < SWIPE_MIN_VELOCITY) return;
 
@@ -245,6 +239,27 @@ export const BottomNavLayout = () => {
                         Boss Access
                       </span>
                     </button>
+                  ) : !isSignedIn ? (
+                    <>
+                      <button
+                        type="button"
+                        className="transition-opacity hover:opacity-90"
+                        style={{
+                          padding: "6px 14px",
+                          borderRadius: 9999,
+                          background: "#D4A757",
+                          color: "#111827",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: 12,
+                          fontWeight: 600,
+                        }}
+                        onClick={() => setShowSignInModal(true)}
+                      >
+                        Connexion
+                      </button>
+                      <ClerkSignInModal open={showSignInModal} onClose={() => setShowSignInModal(false)} />
+                    </>
                   ) : null}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }} aria-hidden />
@@ -302,29 +317,7 @@ export const BottomNavLayout = () => {
                         );
                       })()}
                     </button>
-                  ) : (
-                    <>
-                  <button
-                    type="button"
-                    className="transition-opacity hover:opacity-90"
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: "9999px",
-                      /* Toujours style « mode clair » : le thème sombre n’est pas actif sans premium */
-                      background: "#D4A757",
-                      color: "#111827",
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      fontWeight: 600,
-                    }}
-                    onClick={() => setShowSignInModal(true)}
-                  >
-                    Connexion
-                  </button>
-                  <ClerkSignInModal open={showSignInModal} onClose={() => setShowSignInModal(false)} />
-                    </>
-                  )}
+                  ) : null}
               <button
                 type="button"
                 onClick={() => navigate("/settings")}

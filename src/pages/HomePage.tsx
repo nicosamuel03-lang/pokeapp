@@ -33,6 +33,9 @@ const categories: { key: Category; label: string }[] = [
 /** Filtres d’ère fixes (alignés sur `product.set` / blocs données). */
 const HOME_ERA_OPTIONS = ["Méga Évolution", "Écarlate & Violet", "Épée & Bouclier", "Soleil et Lune"] as const;
 
+/** Nombre max de résultats dans la liste déroulante de recherche accueil. */
+const HOME_SEARCH_MAX_RESULTS = 20;
+
 const TYPE_SELECTED_GLOW: Record<
   "Tous" | Category,
   Pick<CSSProperties, "border" | "boxShadow">
@@ -381,7 +384,9 @@ export const HomePage = () => {
     (val: string) => {
       const base = databaseProducts;
       const matched = filterHomeProductsBySearch(base, val);
-      setHomeSearchResults(sortHomeProductsBySearch(matched, val));
+      setHomeSearchResults(
+        sortHomeProductsBySearch(matched, val).slice(0, HOME_SEARCH_MAX_RESULTS)
+      );
       setIsHomeSearchMode(val.trim() !== "");
     },
     [databaseProducts]
@@ -524,10 +529,11 @@ export const HomePage = () => {
               left: 0,
               right: 0,
               zIndex: 50,
-              backgroundColor: "#111",
+              backgroundColor: isDark ? "#111" : "#ffffff",
               borderRadius: "12px",
-              maxHeight: "300px",
+              maxHeight: "520px",
               overflowY: "auto",
+              boxShadow: isDark ? undefined : "0 4px 24px rgba(0,0,0,0.15)",
             }}
           >
             {homeSearchResults.length > 0 ? (

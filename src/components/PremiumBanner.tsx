@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "../state/SubscriptionContext";
 import { useTheme } from "../state/ThemeContext";
-import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
+
 
 export function PremiumBanner() {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ export function PremiumBanner() {
   console.log("[RENDER] PremiumBanner", "isPremium:", isPremium, "isLoading:", isLoading, new Date().toISOString());
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
-  const buttonBg = theme === "dark" ? "linear-gradient(135deg, #FBBF24 0%, #FBBF24 100%)" : "linear-gradient(135deg, #D4A757 0%, #B18A4A 100%)";
+  const buttonBg = theme === "dark" ? "#FBBF24" : "#D4A757";
 
   if (isLoading || isPremium) {
     return null;
@@ -62,10 +62,7 @@ export function PremiumBanner() {
             whiteSpace: "nowrap",
           }}
         >
-          <span className={STAT_CARD_VALUE_CLASS}>
-            3.99€
-          </span>{" "}
-          / mois
+          3.99€ / mois
         </span>
       </div>
       <button
@@ -73,15 +70,14 @@ export function PremiumBanner() {
         onClick={handlePremiumClick}
         style={{
           padding: "6px 14px",
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: 600,
           letterSpacing: "0.02em",
           textTransform: "uppercase",
-          color: "#FFFFFF",
+          color: "#111827",
           background: buttonBg,
-          border: "1px solid #E5C284",
+          border: "none",
           borderRadius: 9999,
-          boxShadow: "0 2px 4px rgba(212, 167, 87, 0.3)",
           cursor: "pointer",
           flexShrink: 0,
         }}

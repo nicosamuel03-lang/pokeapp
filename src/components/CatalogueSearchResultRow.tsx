@@ -129,7 +129,7 @@ export function CatalogueSearchResultRow(props: CatalogueSearchResultRowProps) {
           })}
         </p>
         <p className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-          Retail <span className={STAT_CARD_VALUE_CLASS}>{retailPrice}€</span>
+          Retail {retailPrice}€
         </p>
       </div>
     </>

@@ -616,14 +616,13 @@ export const MarketPage = () => {
               to="/premium"
               style={{
                 display: "inline-block",
-                padding: "8px 18px",
+                padding: "6px 14px",
                 borderRadius: 9999,
                 background: accentGold,
-                color: "#000",
+                color: "#111827",
                 fontSize: 12,
-                fontWeight: 700,
+                fontWeight: 600,
                 textDecoration: "none",
-                boxShadow: "0 2px 8px rgba(212,167,87,0.35)",
               }}
             >
               S&apos;abonner
