@@ -377,9 +377,10 @@ export const BottomNavLayout = () => {
           left: 0,
           right: 0,
           zIndex: 9999,
-          height: `${NAV_HEIGHT}px`,
-          minHeight: `${NAV_HEIGHT}px`,
-          paddingBottom: "max(8px, calc(env(safe-area-inset-bottom, 0px) + 4px))",
+          boxSizing: "border-box",
+          height: `calc(${NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+          minHeight: `calc(${NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`,
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -411,9 +412,10 @@ export const BottomNavLayout = () => {
             alignItems: "center",
             width: "100%",
             maxWidth: 480,
-            padding: "0 8px",
-            paddingTop: 0,
-            marginTop: -8,
+            height: 56,
+            minHeight: 56,
+            paddingLeft: 8,
+            paddingRight: 8,
           }}
         >
           {navItems.map((item) => {
