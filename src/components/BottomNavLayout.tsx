@@ -14,8 +14,8 @@ const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
 const NAV_HEIGHT = 78;
 /** Espace réservé sous le contenu = hauteur barre + encoche iOS (aligné sur la barre fixe). */
 const MAIN_PADDING_BOTTOM = `calc(${NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`;
-/** Espace sous encoche / barre de statut iOS : min 20px (web/Android) ou 15px + safe-area. */
-const HEADER_SAFE_TOP = "max(20px, calc(15px + env(safe-area-inset-top, 0px)))";
+/** Espace sous encoche : min 20px (web/Android) ; iOS = calc(env(safe-area-inset-top) + 8px). */
+const HEADER_SAFE_TOP = "max(20px, calc(env(safe-area-inset-top, 0px) + 8px))";
 const VIEWPORT_KEYBOARD_SHRINK_PX = 120;
 const ICON_SIZE = 12;
 const AJOUTER_ICON_SIZE = 15;
