@@ -379,7 +379,7 @@ export const BottomNavLayout = () => {
           zIndex: 9999,
           height: `${NAV_HEIGHT}px`,
           minHeight: `${NAV_HEIGHT}px`,
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          paddingBottom: "max(8px, calc(env(safe-area-inset-bottom, 0px) + 4px))",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
