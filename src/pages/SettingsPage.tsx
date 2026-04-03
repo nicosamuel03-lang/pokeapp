@@ -302,7 +302,8 @@ export function SettingsPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  backgroundColor: isDark ? "#FBBF24" : "#C9A84C",
+                  backgroundColor: "var(--accent-yellow)",
+                  color: "#111827",
                   border: "none",
                   cursor: "pointer",
                 }}

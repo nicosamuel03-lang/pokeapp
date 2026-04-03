@@ -474,7 +474,7 @@ export const MarketPage = () => {
 
 
   return (
-    <div style={{ position: "relative", minHeight: "100%" }}>
+    <div style={{ position: "relative", minHeight: "100%", ...(!premiumLoading && !isPremium ? { overflow: "hidden", maxHeight: "100vh" } : {}) }}>
       <div
         className="space-y-6"
         style={

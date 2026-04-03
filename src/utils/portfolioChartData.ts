@@ -289,7 +289,7 @@ export function buildPortfolioChartData(
         const ebayLookupId = (() => {
           const cat = (item.product.category || "").toLowerCase();
           if (cat === "displays" || cat === "display") return `display-${rawId}`;
-          if (cat === "upc") return `UPC${rawId.replace(/^UPC/i, "")}`;
+          if (cat === "upc") return `upc-${rawId.replace(/^upc-/i, "")}`;
           return rawId;
         })();
         const ebayPrice = ebayPriceMap.get(ebayLookupId);
@@ -337,7 +337,7 @@ export function computePortfolioStats(
     const ebayLookupId = (() => {
       const cat = (item.product.category || "").toLowerCase();
       if (cat === "displays" || cat === "display") return `display-${rawId}`;
-      if (cat === "upc") return `UPC${rawId.replace(/^UPC/i, "")}`;
+      if (cat === "upc") return `upc-${rawId.replace(/^upc-/i, "")}`;
       return rawId;
     })();
     const ebayPrice = ebayPriceMap?.get(ebayLookupId);

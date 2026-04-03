@@ -422,6 +422,10 @@ export const BottomNavLayout = () => {
                 type="button"
                 onClick={() => {
                   if (item.key === "ajouter") {
+                    if (!isSignedIn) {
+                      setShowSignInModal(true);
+                      return;
+                    }
                     setAjouterOverlayOpen(true);
                     setClickedTab(null);
                     requestAnimationFrame(() => setClickedTab(clickKey));

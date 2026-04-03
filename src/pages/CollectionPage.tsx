@@ -469,7 +469,7 @@ export const CollectionPage = () => {
                 return `display-${rawProductId}`;
               }
               if (category === "upc") {
-                return `UPC${rawProductId.replace(/^UPC/i, "")}`;
+                return `upc-${rawProductId.replace(/^upc-/i, "")}`;
               }
               return rawProductId;
             })();

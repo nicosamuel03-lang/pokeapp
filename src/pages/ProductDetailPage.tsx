@@ -1,5 +1,6 @@
 import { Component, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@clerk/react";
 import {
   Area,
   ComposedChart,
@@ -319,6 +320,7 @@ const ProductDetailPageInner = () => {
   const { products } = useProducts();
   const { items: collectionItems, removeFromCollection, updateCollectionItem } = useCollection();
   const { user } = useUser();
+  const { isSignedIn } = useAuth();
   const { authState, isPremium, isLoading: premiumLoading } = useSubscription();
   console.log("[RENDER] ProductDetailPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
   const { theme } = useTheme();
@@ -329,6 +331,7 @@ const ProductDetailPageInner = () => {
   const [isSelling, setIsSelling] = useState(false);
   const [saleError, setSaleError] = useState<string | null>(null);
   const [saleLimitMessage, setSaleLimitMessage] = useState<string | null>(null);
+  const [authMessage, setAuthMessage] = useState(false);
 
   const sid = decodeURIComponent((id ?? "").trim());
   const sidLower = sid.toLowerCase();
@@ -434,10 +437,12 @@ const ProductDetailPageInner = () => {
     if (!rawId) return null;
     const category = (product?.category || "").toLowerCase();
     if (category === "displays" || category === "display") {
-      return `display-${rawId}`;
+      const cleanId = rawId.replace(/^display-/i, "");
+      return `display-${cleanId}`;
     }
     if (category === "upc") {
-      return `UPC${rawId.replace(/^UPC/i, "")}`;
+      const cleanId = rawId.replace(/^upc-/i, "");
+      return `upc-${cleanId}`;
     }
     return rawId;
   })();
@@ -1044,6 +1049,11 @@ const ProductDetailPageInner = () => {
   const isInCollection = useMemo(() => !!collectionMatch, [collectionMatch]);
 
   const handleAddToCollection = () => {
+    if (!isSignedIn) {
+      setAuthMessage(true);
+      setTimeout(() => setAuthMessage(false), 4000);
+      return;
+    }
     if (navigator.vibrate) navigator.vibrate(50);
     const itemId = product.etbId ?? product.id;
     navigate(`/ajouter?item=${encodeURIComponent(itemId)}`);
@@ -1159,6 +1169,28 @@ const ProductDetailPageInner = () => {
 
   return (
     <div className="relative space-y-4 -mx-3">
+      {authMessage && (
+        <div
+          style={{
+            position: "fixed",
+            top: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 10000,
+            background: "#1a1a1a",
+            color: "#ffffff",
+            padding: "10px 20px",
+            borderRadius: 12,
+            fontSize: 13,
+            fontWeight: 500,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            textAlign: "center",
+            maxWidth: "90vw",
+          }}
+        >
+          Vous devez vous connecter pour ajouter un item à votre collection.
+        </div>
+      )}
       <button
         type="button"
         onClick={() => {
@@ -1305,8 +1337,7 @@ const ProductDetailPageInner = () => {
                       ) : null}
                     </div>
 
-                    {/* Badge "Prix marché eBay" — affiché uniquement si données trackées disponibles */}
-                    {!isEbayMockMode() && prixSource === "ebay_tracked" && ebayTracked.averagePriceEur != null ? (
+                    {!isEbayMockMode() && !ebayTracked.loading ? (
                       <div className="mt-1 flex items-center gap-1.5">
                         <span
                           className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
@@ -1322,13 +1353,11 @@ const ProductDetailPageInner = () => {
                           Prix marché eBay
                         </span>
                         <span className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                          moy. 90j · {ebayTracked.count} {ebayTracked.count > 1 ? "entrées" : "entrée"}
+                          {prixSource === "ebay_tracked"
+                            ? `moy. 90j · ${ebayTracked.count} ${ebayTracked.count > 1 ? "entrées" : "entrée"}`
+                            : "estimé"}
                         </span>
                       </div>
-                    ) : !isEbayMockMode() && !ebayTracked.loading && prixSource === "catalog" ? (
-                      <p className="mt-0 text-[10px] leading-snug" style={{ color: "var(--text-secondary)" }}>
-                        Prix catalogue
-                      </p>
                     ) : null}
                   </div>
                   {isInCollection && (

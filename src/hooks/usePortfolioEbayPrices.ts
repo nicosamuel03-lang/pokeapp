@@ -1,5 +1,5 @@
 /**
- * Hook : prix eBay trackés (7 derniers jours, Supabase) pour toute la collection.
+ * Hook : prix eBay trackés (90 derniers jours, Supabase) pour toute la collection.
  * Appelle /api/ebay/tracked-prices?ids=... en une seule requête batch.
  *
  * Retourne une Map<productId, averagePriceEur> avec uniquement les produits
@@ -12,7 +12,7 @@ import { apiUrl } from "../config/apiUrl";
 import type { CollectionLineForChart } from "../utils/portfolioChartData";
 
 export interface PortfolioEbayPricesResult {
-  /** Map productId → prix eBay moyen 7j (présent seulement si ≥ 3 entrées) */
+  /** Map productId → prix eBay moyen 90j (présent seulement si ≥ 3 entrées) */
   priceMap: Map<string, number>;
   loading: boolean;
   /** Nombre de produits avec un prix eBay disponible */
@@ -42,7 +42,7 @@ export function usePortfolioEbayPrices(
         if (category === "displays" || category === "display") {
           ids.add(`display-${rawId}`);
         } else if (category === "upc") {
-          ids.add(`UPC${rawId.replace(/^UPC/i, "")}`);
+          ids.add(`upc-${rawId.replace(/^upc-/i, "")}`);
         } else {
           ids.add(rawId);
         }

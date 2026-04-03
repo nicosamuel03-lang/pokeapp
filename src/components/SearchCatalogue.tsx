@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useAuth } from "@clerk/react";
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -331,6 +332,7 @@ const FREE_COLLECTION_LIMIT = 5;
 export const SearchCatalogue = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const { addProduct } = useProducts();
@@ -347,6 +349,7 @@ export const SearchCatalogue = () => {
   const [results, setResults] = useState<PokemonCatalogueItem[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<PokemonCatalogueItem | null>(null);
+  const [authMessage, setAuthMessage] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -415,6 +418,11 @@ export const SearchCatalogue = () => {
     purchaseDate?: string,
     prixMarcheActuel?: number
   ) => {
+    if (!isSignedIn) {
+      setAuthMessage(true);
+      setTimeout(() => setAuthMessage(false), 4000);
+      return;
+    }
     if (!premiumLoading && !isPremium && totalQuantity + qty > FREE_COLLECTION_LIMIT) {
       navigate("/premium");
       return;
@@ -457,6 +465,28 @@ export const SearchCatalogue = () => {
 
   return (
     <div ref={containerRef} className="relative">
+      {authMessage && (
+        <div
+          style={{
+            position: "fixed",
+            top: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 10000,
+            background: "#1a1a1a",
+            color: "#ffffff",
+            padding: "10px 20px",
+            borderRadius: 12,
+            fontSize: 13,
+            fontWeight: 500,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+            textAlign: "center",
+            maxWidth: "90vw",
+          }}
+        >
+          Vous devez vous connecter pour ajouter un item à votre collection.
+        </div>
+      )}
       {/* Barre de recherche */}
       <div
         className="flex items-center gap-2 rounded-2xl px-3 py-2.5 transition-all"
