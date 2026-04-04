@@ -236,9 +236,12 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   <p className="app-heading text-sm" style={{ color: "var(--text-primary)" }}>
                     {titleFormatted}
                   </p>
-                  <p className="mt-0.5 text-[11px]" style={{ color: "var(--text-secondary)" }}>
+                  <p
+                    className="mt-0.5 text-[11px] font-normal"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     {item.block} · Sortie{" "}
-                    <span className={STAT_CARD_VALUE_CLASS}>
+                    <span className="tabular-nums">
                       {(item.releaseDate ?? "").slice(0, 7).replace("-", "/")}
                     </span>
                   </p>
