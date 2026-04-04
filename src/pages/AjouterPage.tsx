@@ -1,9 +1,18 @@
 import { useCallback, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { BarcodeScanner } from "@capacitor-community/barcode-scanner";
+import { registerPlugin } from "@capacitor/core";
 import { supabase } from "../lib/supabase";
 import { useCollection } from "../state/CollectionContext";
 import type { Product } from "../state/ProductsContext";
+
+type NativeScanResult = {
+  cancelled?: boolean;
+  code?: string;
+};
+
+const BarcodeScanner = registerPlugin<{
+  scan: () => Promise<NativeScanResult>;
+}>("BarcodeScanner");
 
 type ScannedProduct = {
   name: string | null;
@@ -74,15 +83,6 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
   }
 }
 
-async function restoreScannerUi() {
-  document.body.classList.remove("scanner-active");
-  try {
-    await BarcodeScanner.showBackground();
-  } catch {
-    /* web / stub */
-  }
-}
-
 export const AjouterPage = () => {
   const { addToCollection } = useCollection();
   const scanBusy = useRef(false);
@@ -122,65 +122,30 @@ export const AjouterPage = () => {
     setNotFoundModalOpen(false);
 
     try {
-      let perm;
+      let result: NativeScanResult;
       try {
-        perm = await BarcodeScanner.checkPermission({ force: true });
+        result = await BarcodeScanner.scan();
       } catch (e) {
-        const msg = `checkPermission: ${formatUnknownError(e)}`;
+        const msg = `BarcodeScanner.scan: ${formatUnknownError(e)}`;
         showDebugError(msg, setScanError);
         return;
       }
 
-      if (!perm.granted) {
-        const msg = perm.denied
-          ? "Permission caméra refusée"
-          : "Permission caméra non accordée (vérifiez les réglages de l’appareil).";
+      if (result.cancelled) {
+        return;
+      }
+
+      const eanCode = result.code;
+      if (eanCode == null || String(eanCode).trim() === "") {
+        const msg = "Aucun code-barres reçu.";
         showDebugError(msg, setScanError);
         return;
       }
 
-      try {
-        await BarcodeScanner.hideBackground();
-      } catch (e) {
-        const msg = `hideBackground: ${formatUnknownError(e)}`;
-        showDebugError(msg, setScanError);
-        return;
-      }
-
-      document.body.classList.add("scanner-active");
-
-      let result: Awaited<ReturnType<typeof BarcodeScanner.startScan>> | undefined;
-      try {
-        result = await BarcodeScanner.startScan({
-          targetedFormats: ["EAN_13"],
-        });
-      } catch (e) {
-        const msg = `startScan: ${formatUnknownError(e)}`;
-        showDebugError(msg, setScanError);
-      } finally {
-        await restoreScannerUi();
-      }
-
-      if (!result) {
-        return;
-      }
-
-      if (result.hasContent) {
-        const ean = (result.content ?? "").trim().replace(/\s/g, "");
-        if (ean) {
-          await processEanCode(ean);
-        } else {
-          const msg = "Code lu mais contenu vide.";
-          showDebugError(msg, setScanError);
-        }
-      } else {
-        const msg = "Aucun code-barres détecté.";
-        showDebugError(msg, setScanError);
-      }
+      await processEanCode(String(eanCode));
     } catch (e) {
       const msg = `Scanner: ${formatUnknownError(e)}`;
       showDebugError(msg, setScanError);
-      await restoreScannerUi();
     } finally {
       setIsAnalyzing(false);
       scanBusy.current = false;
@@ -255,7 +220,7 @@ export const AjouterPage = () => {
           lineHeight: 1.45,
         }}
       >
-        Appuyez sur Scanner : la caméra détecte le code EAN-13 en direct.
+        Appuyez sur Scanner : la caméra native lit le code EAN (plugin iOS).
       </p>
 
       <button
@@ -299,7 +264,7 @@ export const AjouterPage = () => {
             fontSize: 15,
           }}
         >
-          Préparation du scan…
+          Scan en cours…
         </div>
       ) : null}
 
