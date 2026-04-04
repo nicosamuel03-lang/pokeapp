@@ -153,6 +153,7 @@ export const AjouterPage = () => {
   const [isStarting, setIsStarting] = useState(true);
   const [scanError, setScanError] = useState<string | null>(null);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
+  const [scanHintVisible, setScanHintVisible] = useState(true);
 
   const processDetectedCode = useCallback(
     async (code: string) => {
@@ -226,6 +227,7 @@ export const AjouterPage = () => {
 
     scanBusy.current = true;
     setIsStarting(true);
+    setScanHintVisible(true);
     setScanError(null);
     setNotFoundModalOpen(false);
     setScannerOpen(true);
@@ -268,8 +270,11 @@ export const AjouterPage = () => {
       let handled = false;
       const onDetected = (data: QuaggaJSResultObject) => {
         if (handled) return;
-        if (!isHighConfidenceScan(data)) return;
         const raw = data.codeResult?.code;
+        if (raw != null && String(raw).trim() !== "") {
+          setScanHintVisible(false);
+        }
+        if (!isHighConfidenceScan(data)) return;
         if (raw == null || String(raw).trim() === "") return;
         handled = true;
 
@@ -420,6 +425,18 @@ export const AjouterPage = () => {
                 0 0 0 1px rgba(0, 0, 0, 0.5) inset,
                 0 0 20px rgba(212, 167, 87, 0.35);
             }
+            .scanner-zone-message-wrap {
+              position: absolute;
+              top: 30%;
+              right: 10%;
+              left: 10%;
+              bottom: 30%;
+              z-index: 3;
+              pointer-events: none;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
           `}</style>
           <div
             role="dialog"
@@ -449,6 +466,21 @@ export const AjouterPage = () => {
                 autoPlay
               />
               <div className="scanner-zone-overlay" aria-hidden />
+              {!isStarting && scanHintVisible ? (
+                <div className="scanner-zone-message-wrap" role="status">
+                  <span
+                    style={{
+                      color: "#ffffff",
+                      fontSize: 16,
+                      fontWeight: 700,
+                      textAlign: "center",
+                      textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+                    }}
+                  >
+                    Scannez le code-barres de l&apos;item
+                  </span>
+                </div>
+              ) : null}
               {isStarting ? (
                 <div
                   style={{
@@ -469,28 +501,6 @@ export const AjouterPage = () => {
                 </div>
               ) : null}
             </div>
-            {!isStarting ? (
-              <div
-                role="status"
-                style={{
-                  position: "fixed",
-                  top: 120,
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  zIndex: 9999,
-                  background: "rgba(0,0,0,0.7)",
-                  color: "#ffffff",
-                  borderRadius: 12,
-                  padding: "12px 24px",
-                  fontSize: 16,
-                  fontWeight: 700,
-                  textAlign: "center",
-                  pointerEvents: "none",
-                }}
-              >
-                Scannez le code-barres de votre produit
-              </div>
-            ) : null}
             <button
               type="button"
               onClick={() => void closeScanner()}
@@ -505,8 +515,9 @@ export const AjouterPage = () => {
                 fontSize: 16,
                 fontWeight: 700,
                 letterSpacing: "0.02em",
-                background: "rgba(0,0,0,0.82)",
+                background: "transparent",
                 color: "#ffffff",
+                textShadow: "0 1px 4px rgba(0,0,0,0.8)",
                 cursor: "pointer",
                 boxShadow: "0 4px 20px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,167,87,0.4)",
               }}
