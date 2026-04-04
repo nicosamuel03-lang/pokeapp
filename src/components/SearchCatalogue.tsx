@@ -59,6 +59,10 @@ function getMarchéActuelAffiché(item: PokemonCatalogueItem): number {
  */
 function getProductImageUrlForCatalogueItem(item: PokemonCatalogueItem | null | undefined): string | null {
   if (!item) return null;
+  /** Après scan : image locale public/images/etb, fichier = nom de série + .webp */
+  if (item.imageUrl?.startsWith("/images/etb/")) {
+    return item.imageUrl;
+  }
   if (item.type === "Display" || item.type === "UPC") {
     return getDisplayImageUrlForCatalogueItem(item) ?? item.imageUrl ?? null;
   }

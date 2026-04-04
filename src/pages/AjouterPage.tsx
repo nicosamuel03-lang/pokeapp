@@ -60,12 +60,15 @@ function supabaseRowToCatalogueItem(row: Record<string, unknown>): PokemonCatalo
     coerceNumber(
       row.current_price ?? row.current_market_price ?? row.currentMarketPrice ?? msrp
     ) ?? 0;
+  const seriesTrimmed = series.trim();
   const imageUrl =
-    typeof row.image_url === "string"
-      ? row.image_url
-      : typeof row.imageUrl === "string"
-        ? row.imageUrl
-        : null;
+    seriesTrimmed !== ""
+      ? `/images/etb/${seriesTrimmed}.webp`
+      : typeof row.image_url === "string"
+        ? row.image_url
+        : typeof row.imageUrl === "string"
+          ? row.imageUrl
+          : null;
   const releaseDate = normalizeReleaseDate(row.release_date ?? row.releaseDate);
   const etbIdRaw = row.etb_id ?? row.etbId;
   const etbId =
