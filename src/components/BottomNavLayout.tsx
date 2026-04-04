@@ -416,11 +416,13 @@ export const BottomNavLayout = () => {
         >
           {navItems.map((item) => {
             const isActive =
-              item.to != null
-                ? item.to === "/"
-                  ? location.pathname === "/"
-                  : location.pathname.startsWith(item.to)
-                : false;
+              item.key === "ajouter"
+                ? ajouterOverlayOpen || location.pathname === "/ajouter"
+                : item.to != null
+                  ? item.to === "/"
+                    ? location.pathname === "/"
+                    : location.pathname.startsWith(item.to)
+                  : false;
             const color = isActive ? "var(--text-primary)" : "var(--text-secondary)";
             const clickKey = item.to ?? item.key;
             const isJustClicked = clickedTab === clickKey;
