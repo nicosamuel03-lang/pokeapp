@@ -38,7 +38,7 @@ async function fetchProductByEan(code: string): Promise<ScannedProduct | null> {
   const { data, error } = await supabase
     .from("products")
     .select("id, name, series, era, category, ean")
-    .eq("ean", code)
+    .eq("barcode", code)
     .maybeSingle();
 
   if (error || !data) return null;
