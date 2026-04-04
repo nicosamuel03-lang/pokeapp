@@ -1,16 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChangeEvent, CSSProperties } from "react";
-import { Capacitor } from "@capacitor/core";
+import type { CSSProperties } from "react";
 import {
   BarcodeScanner,
   BarcodeFormat,
   type Barcode,
 } from "@capacitor-mlkit/barcode-scanning";
-import {
-  BarcodeFormat as ZxBarcodeFormat,
-  BrowserMultiFormatReader,
-  DecodeHintType,
-} from "@zxing/library";
 import { supabase } from "../lib/supabase";
 import { useCollection } from "../state/CollectionContext";
 import type { Product } from "../state/ProductsContext";
@@ -70,29 +64,26 @@ async function fetchProductByEan(code: string): Promise<ScannedProduct | null> {
   };
 }
 
+async function ensureCameraPermission(): Promise<boolean> {
+  const checked = await BarcodeScanner.checkPermissions();
+  if (checked.camera === "granted" || checked.camera === "limited") {
+    return true;
+  }
+  const requested = await BarcodeScanner.requestPermissions();
+  return requested.camera === "granted" || requested.camera === "limited";
+}
+
 /** Évite un double lancement auto du scan en React StrictMode (remontage). */
-let autoNativeBarcodeScanLaunched = false;
+let autoBarcodeScanLaunched = false;
 
 export const AjouterPage = () => {
   const { addToCollection } = useCollection();
-  const inputRef = useRef<HTMLInputElement>(null);
   const scanBusy = useRef(false);
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [product, setProduct] = useState<ScannedProduct | null>(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  const clearPreview = () => {
-    setPreviewUrl(null);
-  };
 
   const processEanCode = useCallback(async (code: string) => {
     const trimmed = code.trim();
@@ -111,21 +102,20 @@ export const AjouterPage = () => {
     setSuccessModalOpen(true);
   }, []);
 
-  const openMlKitScanner = useCallback(async () => {
+  const runBarcodeScan = useCallback(async () => {
     if (scanBusy.current) return;
     scanBusy.current = true;
     setIsAnalyzing(true);
     setNotFoundModalOpen(false);
 
     try {
-      const perm = await BarcodeScanner.requestPermissions();
-      if (perm.camera !== "granted" && perm.camera !== "limited") {
+      const allowed = await ensureCameraPermission();
+      if (!allowed) {
         return;
       }
 
       const { barcodes } = await BarcodeScanner.scan({
         formats: [BarcodeFormat.Ean13],
-        autoZoom: true,
       });
 
       const eanBarcode =
@@ -138,79 +128,21 @@ export const AjouterPage = () => {
 
       await processEanCode(ean);
     } catch {
-      /* annulation utilisateur ou indisponibilité */
+      /* annulation ou indisponibilité */
     } finally {
       setIsAnalyzing(false);
       scanBusy.current = false;
     }
   }, [processEanCode]);
 
-  const openScanner = useCallback(async () => {
-    if (Capacitor.isNativePlatform()) {
-      await openMlKitScanner();
-      return;
-    }
-
-    try {
-      const { supported } = await BarcodeScanner.isSupported();
-      if (supported) {
-        await openMlKitScanner();
-        return;
-      }
-    } catch {
-      /* fallback fichier */
-    }
-
-    inputRef.current?.click();
-  }, [openMlKitScanner]);
-
   useEffect(() => {
-    if (!Capacitor.isNativePlatform() || autoNativeBarcodeScanLaunched) return;
-    autoNativeBarcodeScanLaunched = true;
+    if (autoBarcodeScanLaunched) return;
+    autoBarcodeScanLaunched = true;
     const id = window.setTimeout(() => {
-      void openMlKitScanner();
+      void runBarcodeScan();
     }, 400);
     return () => clearTimeout(id);
-  }, [openMlKitScanner]);
-
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-
-    setPreviewUrl(URL.createObjectURL(file));
-
-    setIsAnalyzing(true);
-    setNotFoundModalOpen(false);
-
-    const hints = new Map();
-    hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-      ZxBarcodeFormat.EAN_13,
-      ZxBarcodeFormat.EAN_8,
-      ZxBarcodeFormat.UPC_A,
-      ZxBarcodeFormat.UPC_E,
-    ]);
-    hints.set(DecodeHintType.TRY_HARDER, true);
-    const reader = new BrowserMultiFormatReader(hints);
-
-    const objectUrl = URL.createObjectURL(file);
-    let decodeObjectUrlRevoked = false;
-
-    try {
-      const result = await reader.decodeFromImageUrl(objectUrl);
-      URL.revokeObjectURL(objectUrl);
-      decodeObjectUrlRevoked = true;
-
-      const code = result.getText().trim();
-      await processEanCode(code);
-    } catch (err) {
-      console.log("ZXing error:", err);
-      if (!decodeObjectUrlRevoked) URL.revokeObjectURL(objectUrl);
-      setNotFoundModalOpen(true);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+  }, [runBarcodeScan]);
 
   const cardStyle: CSSProperties = {
     background: "var(--card-color, #1a1a1a)",
@@ -280,53 +212,18 @@ export const AjouterPage = () => {
           lineHeight: 1.45,
         }}
       >
-        {Capacitor.isNativePlatform()
-          ? "La caméra s’ouvre pour lire le code EAN-13. Vous pouvez aussi relancer le scan ci-dessous."
-          : "Prenez une photo nette du code-barres du produit, ou utilisez le scan si votre navigateur le permet."}
+        La caméra en plein écran lit le code EAN-13 en temps réel. Vous pouvez relancer un scan
+        ci-dessous.
       </p>
-
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
 
       <button
         type="button"
         disabled={isAnalyzing}
-        onClick={() => void openScanner()}
+        onClick={() => void runBarcodeScan()}
         style={darkButtonStyle}
       >
-        📷 Prendre une photo
+        Scanner
       </button>
-
-      {previewUrl ? (
-        <div
-          style={{
-            width: "100%",
-            maxWidth: 420,
-            margin: "20px auto 0",
-            borderRadius: 12,
-            overflow: "hidden",
-            border: "1px solid var(--border-color, rgba(255,255,255,0.08))",
-            background: "#000",
-          }}
-        >
-          <img
-            src={previewUrl}
-            alt="Aperçu de la photo"
-            style={{
-              display: "block",
-              width: "100%",
-              height: "auto",
-              verticalAlign: "top",
-            }}
-          />
-        </div>
-      ) : null}
 
       {isAnalyzing ? (
         <div
@@ -406,7 +303,6 @@ export const AjouterPage = () => {
               onClick={() => {
                 addToCollection(rowToProduct(product));
                 setSuccessModalOpen(false);
-                clearPreview();
               }}
               style={{
                 width: "100%",
@@ -455,10 +351,7 @@ export const AjouterPage = () => {
             </h2>
             <button
               type="button"
-              onClick={() => {
-                setNotFoundModalOpen(false);
-                clearPreview();
-              }}
+              onClick={() => setNotFoundModalOpen(false)}
               style={{
                 width: "100%",
                 padding: "12px 16px",
