@@ -160,7 +160,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
       setTimeout(() => {
         setJustAdded(false);
         onClose();
-      }, 400);
+      }, ADD_TO_COLLECTION_SUCCESS_MS);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setSubmitError(msg);
@@ -356,14 +356,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                   color: "#FFFFFF",
                 }}
               >
-                {justAdded ? (
-                  <>
-                    <span>✓</span>
-                    <span> Ajouté !</span>
-                  </>
-                ) : (
-                  "Ajouter à ma collection"
-                )}
+                {justAdded ? "Ajouté ✓" : "Ajouter à ma collection"}
               </button>
             </div>
           </div>
@@ -373,6 +366,8 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
 };
 
 const FREE_COLLECTION_LIMIT = 5;
+/** Durée d’affichage « Ajouté ✓ » + alignement avec la navigation (même délai que l’animation bouton). */
+const ADD_TO_COLLECTION_SUCCESS_MS = 1000;
 
 export const SearchCatalogue = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -586,12 +581,9 @@ export const SearchCatalogue = () => {
 
     addToCollection(product, buyPrice, qty, purchaseDate);
 
-    try {
-      window.alert("Produit ajouté à la collection.");
-    } catch {
-      /* ignore */
-    }
-    navigate("/");
+    window.setTimeout(() => {
+      navigate("/");
+    }, ADD_TO_COLLECTION_SUCCESS_MS);
   };
 
   const hasSearchQuery = query.trim().length >= 1;
