@@ -598,9 +598,9 @@ export const SearchCatalogue = ({
 
     addToCollection(product, buyPrice, qty, purchaseDate);
 
-    /* Même route que l’onglet Accueil de la barre du bas (`BottomNavLayout` → `to: "/"`). */
+    /* Page collection / portefeuille (`TabSwitch` → `/collection`, graphique + détail des produits). */
     window.setTimeout(() => {
-      navigate("/");
+      navigate("/collection");
     }, ADD_TO_COLLECTION_SUCCESS_MS);
   };
 
