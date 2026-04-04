@@ -75,6 +75,21 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
   }
 }
 
+function showDecodeDebugMessage(
+  message: string,
+  setDecodeDebugMessage: (s: string | null) => void
+) {
+  setDecodeDebugMessage(message);
+  try {
+    window.alert(message);
+  } catch {
+    /* ignore */
+  }
+}
+
+const NO_BARCODE_IN_PHOTO_MSG =
+  "Aucun code-barres détecté dans la photo. Réessayez avec une photo plus nette.";
+
 function isUserCancelledCamera(err: unknown): boolean {
   const msg = formatUnknownError(err).toLowerCase();
   return (
@@ -91,6 +106,7 @@ export const AjouterPage = () => {
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
+  const [decodeDebugMessage, setDecodeDebugMessage] = useState<string | null>(null);
   const [product, setProduct] = useState<ScannedProduct | null>(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
@@ -121,6 +137,7 @@ export const AjouterPage = () => {
     scanBusy.current = true;
     setIsAnalyzing(true);
     setScanError(null);
+    setDecodeDebugMessage(null);
     setNotFoundModalOpen(false);
 
     try {
@@ -147,18 +164,24 @@ export const AjouterPage = () => {
           locate: true,
         });
       } catch (e) {
-        const msg = `Décodage : ${formatUnknownError(e)}`;
-        showDebugError(msg, setScanError);
-        setNotFoundModalOpen(true);
+        setScanError(`Décodage : ${formatUnknownError(e)}`);
+        showDecodeDebugMessage(NO_BARCODE_IN_PHOTO_MSG, setDecodeDebugMessage);
         return;
       }
 
-      const code = decodeResult?.codeResult?.code;
+      if (decodeResult == null) {
+        showDecodeDebugMessage(NO_BARCODE_IN_PHOTO_MSG, setDecodeDebugMessage);
+        return;
+      }
+
+      const code = decodeResult.codeResult?.code;
       if (code == null || String(code).trim() === "") {
-        setNotFoundModalOpen(true);
+        showDecodeDebugMessage(NO_BARCODE_IN_PHOTO_MSG, setDecodeDebugMessage);
         return;
       }
 
+      const detectedMsg = `Code détecté : ${code}`;
+      showDecodeDebugMessage(detectedMsg, setDecodeDebugMessage);
       await processEanCode(String(code));
     } catch (e) {
       if (isUserCancelledCamera(e)) {
@@ -252,6 +275,29 @@ export const AjouterPage = () => {
       >
         Scanner
       </button>
+
+      {decodeDebugMessage ? (
+        <div
+          role="status"
+          style={{
+            marginTop: 16,
+            maxWidth: 420,
+            marginLeft: "auto",
+            marginRight: "auto",
+            padding: 14,
+            borderRadius: 12,
+            background: "rgba(59, 130, 246, 0.12)",
+            border: "1px solid rgba(96, 165, 250, 0.45)",
+            color: "#bfdbfe",
+            fontSize: 13,
+            lineHeight: 1.45,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {decodeDebugMessage}
+        </div>
+      ) : null}
 
       {scanError ? (
         <div
