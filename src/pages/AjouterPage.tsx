@@ -7,47 +7,8 @@ import { supabase } from "../lib/supabase";
 import {
   removeAccents,
   searchPokemonCatalogue,
-  type ModernBlock,
-  type ModernSealedType,
   type PokemonCatalogueItem,
 } from "../data/pokemonCatalogue";
-
-const SCAN_CATALOGUE_ITEM_KEY = "pokevault_scan_catalogue_item";
-
-/** Aligné sur useEbayTrackedPrice / API tracked-price : minimum d’entrées sur 90 jours. */
-const EBAY_PRICES_MIN_ENTRIES = 3;
-
-function coerceNumber(v: unknown): number | null {
-  if (typeof v === "number" && Number.isFinite(v)) return v;
-  if (typeof v === "string") {
-    const n = parseFloat(v.replace(",", "."));
-    return Number.isFinite(n) ? n : null;
-  }
-  return null;
-}
-
-function inferBlockFromEraSeries(era: string, series: string): ModernBlock {
-  const norm = removeAccents(`${era} ${series}`.toLowerCase());
-  if (norm.includes("mega") || norm.includes("mega evolution")) return "Méga Évolution";
-  if (norm.includes("epee") || norm.includes("bouclier") || norm.includes("e&b")) {
-    return "Épée & Bouclier";
-  }
-  return "Écarlate & Violet";
-}
-
-function inferTypeFromCategory(category: string | null): ModernSealedType {
-  const c = (category ?? "").toLowerCase();
-  if (c.includes("upc")) return "UPC";
-  if (c.includes("display")) return "Display";
-  return "ETB";
-}
-
-function normalizeReleaseDate(value: unknown): string {
-  if (typeof value !== "string" || value.length < 7) return "2024-01";
-  const m = value.match(/^(\d{4})-(\d{2})/);
-  if (m) return `${m[1]}-${m[2]}`;
-  return "2024-01";
-}
 
 function resolveEtbIdFromProductsRow(row: Record<string, unknown>): string | undefined {
   for (const key of [
@@ -81,106 +42,76 @@ function findCatalogueEtbItem(etbId: string, seriesHint: string): PokemonCatalog
 }
 
 /**
- * Moyenne price_eur sur 90 jours (table ebay_prices), même filtre que server/index.js tracked-price.
+ * Même liste que la page d’ajout manuel : retrouver l’entrée catalogue (ETB / Display / UPC)
+ * à partir de la ligne Supabase `products` (série, nom, code set).
  */
-async function fetchEbayAverageFromSupabase(productId: string): Promise<number | null> {
-  const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
-  const { data, error } = await supabase
-    .from("ebay_prices")
-    .select("price_eur")
-    .eq("product_id", productId)
-    .gte("fetched_at", since)
-    .order("fetched_at", { ascending: false })
-    .limit(200);
+function findLocalCatalogueMatchFromProductsRow(row: Record<string, unknown>): PokemonCatalogueItem | undefined {
+  const series = typeof row.series === "string" ? row.series.trim() : "";
+  const name = typeof row.name === "string" ? row.name.trim() : "";
+  const full = searchPokemonCatalogue("") ?? [];
+  const etbId = resolveEtbIdFromProductsRow(row);
 
-  if (error || !data?.length || data.length < EBAY_PRICES_MIN_ENTRIES) return null;
-  const prices = data
-    .map((r: { price_eur?: unknown }) => Number(r.price_eur))
-    .filter((n) => Number.isFinite(n));
-  if (prices.length < EBAY_PRICES_MIN_ENTRIES) return null;
-  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
-  return Math.round(avg * 100) / 100;
+  if (etbId) {
+    const byEtb = findCatalogueEtbItem(etbId, series);
+    if (byEtb) return byEtb;
+    const anyWithCode = full.find((i) => i.etbId === etbId);
+    if (anyWithCode) return anyWithCode;
+  }
+
+  if (series) {
+    const sNorm = removeAccents(series.toLowerCase());
+    const words = sNorm.split(/\s+/).filter((w) => w.length > 2);
+    const bySeries = full.filter((i) => {
+      const n = removeAccents(i.name.toLowerCase());
+      if (n.includes(sNorm)) return true;
+      return words.length > 0 && words.every((w) => n.includes(w));
+    });
+    if (bySeries.length === 1) return bySeries[0];
+    if (bySeries.length > 1) {
+      if (etbId) {
+        const narrowed = bySeries.filter((i) => i.etbId === etbId);
+        if (narrowed.length >= 1) return narrowed[0];
+      }
+      const etbOnly = bySeries.filter((i) => i.type === "ETB");
+      if (etbOnly.length >= 1) return etbOnly[0];
+      return bySeries[0];
+    }
+  }
+
+  if (name) {
+    const tokens = removeAccents(name.toLowerCase())
+      .replace(/^etb\s+/i, "")
+      .replace(/^display\s+/i, "")
+      .replace(/^upc\s+/i, "")
+      .split(/\s+/)
+      .filter((t) => t.length > 3);
+    if (tokens.length > 0) {
+      const scored = full
+        .map((i) => {
+          const n = removeAccents(i.name.toLowerCase());
+          const hits = tokens.filter((t) => n.includes(t)).length;
+          return { i, hits };
+        })
+        .filter((x) => x.hits > 0)
+        .sort((a, b) => b.hits - a.hits);
+      if (scored.length === 1) return scored[0].i;
+      if (scored.length > 1 && scored[0].hits > scored[1].hits) return scored[0].i;
+    }
+  }
+
+  return undefined;
 }
 
-type CatalogueItemWithScanOverride = PokemonCatalogueItem & { scanMarketOverride?: number };
-
-function supabaseRowToCatalogueItem(row: Record<string, unknown>): PokemonCatalogueItem | null {
-  const id = row.id != null ? String(row.id) : "";
-  if (!id) return null;
-  const name =
-    typeof row.name === "string" && row.name.trim() ? row.name.trim() : "Produit";
-  const era = typeof row.era === "string" ? row.era : "";
-  const series = typeof row.series === "string" ? row.series : "";
-  const category = typeof row.category === "string" ? row.category : null;
-  const block = inferBlockFromEraSeries(era, series);
-  const type = inferTypeFromCategory(category);
-  const msrp = coerceNumber(row.msrp ?? row.retail_price ?? row.pvc ?? row.retail) ?? 0;
-  const market =
-    coerceNumber(
-      row.current_price ?? row.current_market_price ?? row.currentMarketPrice ?? msrp
-    ) ?? 0;
-  const seriesTrimmed = series.trim();
-  const imageUrl =
-    seriesTrimmed !== ""
-      ? `/images/etb/${seriesTrimmed}.webp`
-      : typeof row.image_url === "string"
-        ? row.image_url
-        : typeof row.imageUrl === "string"
-          ? row.imageUrl
-          : null;
-  const releaseDate = normalizeReleaseDate(row.release_date ?? row.releaseDate);
-  const etbIdRaw = row.etb_id ?? row.etbId;
-  const etbId =
-    typeof etbIdRaw === "string" && etbIdRaw.trim() ? etbIdRaw.trim() : undefined;
-  return {
-    id,
-    name,
-    block,
-    type,
-    releaseDate,
-    msrp: msrp >= 0 ? msrp : 0,
-    currentMarketPrice: market >= 0 ? market : 0,
-    imageUrl,
-    emoji: "📦",
-    etbId,
-  };
+/** Paramètre `item` attendu par SearchCatalogue (identique à la navigation depuis la fiche produit). */
+function catalogueItemToItemQueryParam(item: PokemonCatalogueItem): string {
+  return item.etbId ?? item.id;
 }
 
-async function fetchCatalogueItemByBarcode(code: string): Promise<PokemonCatalogueItem | null> {
+async function fetchProductsRowByBarcode(code: string): Promise<Record<string, unknown> | null> {
   const { data, error } = await supabase.from("products").select("*").eq("barcode", code);
   if (error || data == null) return null;
   const row = Array.isArray(data) ? data[0] : data;
-  if (row == null) return null;
-  const r = row as Record<string, unknown>;
-  const series = typeof r.series === "string" ? r.series : "";
-
-  const etbId = resolveEtbIdFromProductsRow(r);
-  if (etbId) {
-    const catalogueMatch = findCatalogueEtbItem(etbId, series);
-    if (catalogueMatch) {
-      const ebayAvg = await fetchEbayAverageFromSupabase(etbId);
-      const out: CatalogueItemWithScanOverride = { ...catalogueMatch };
-      if (ebayAvg != null && ebayAvg > 0) {
-        out.scanMarketOverride = ebayAvg;
-        out.currentMarketPrice = ebayAvg;
-      }
-      return out;
-    }
-  }
-
-  const base = supabaseRowToCatalogueItem(r);
-  if (!base) return null;
-
-  if (etbId) {
-    const ebayAvg = await fetchEbayAverageFromSupabase(etbId);
-    if (ebayAvg != null && ebayAvg > 0) {
-      const out: CatalogueItemWithScanOverride = { ...base, currentMarketPrice: ebayAvg };
-      out.scanMarketOverride = ebayAvg;
-      return out;
-    }
-  }
-
-  return base;
+  return row != null ? (row as Record<string, unknown>) : null;
 }
 
 function formatUnknownError(err: unknown): string {
@@ -231,20 +162,20 @@ export const AjouterPage = () => {
         return;
       }
 
-      const found = await fetchCatalogueItemByBarcode(trimmed);
-      if (!found) {
+      const productsRow = await fetchProductsRowByBarcode(trimmed);
+      if (!productsRow) {
         setNotFoundModalOpen(true);
         return;
       }
 
-      try {
-        sessionStorage.setItem(SCAN_CATALOGUE_ITEM_KEY, JSON.stringify(found));
-      } catch {
+      const catalogueMatch = findLocalCatalogueMatchFromProductsRow(productsRow);
+      if (!catalogueMatch) {
         setNotFoundModalOpen(true);
         return;
       }
 
-      navigate("/ajouter?fromScan=1");
+      const itemParam = catalogueItemToItemQueryParam(catalogueMatch);
+      navigate(`/ajouter?item=${encodeURIComponent(itemParam)}`);
     },
     [navigate]
   );
