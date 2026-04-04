@@ -10,6 +10,7 @@ const config: CapacitorConfig = {
     url: 'https://pokeapp-weld.vercel.app',
     cleartext: true,
     allowNavigation: ['*'],
+    iosScheme: 'https',
   },
   ios: {
     allowsInlineMediaPlayback: true,

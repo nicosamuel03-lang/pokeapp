@@ -1,7 +1,7 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import Quagga from "@ericblade/quagga2";
+import type { QuaggaJSResultObject } from "@ericblade/quagga2";
 import { supabase } from "../lib/supabase";
 import { useCollection } from "../state/CollectionContext";
 import type { Product } from "../state/ProductsContext";
@@ -34,7 +34,7 @@ function rowToProduct(row: ScannedProduct): Product {
   };
 }
 
-async function fetchProductByEan(code: string): Promise<ScannedProduct | null> {
+async function fetchProductByBarcode(code: string): Promise<ScannedProduct | null> {
   const { data, error } = await supabase
     .from("products")
     .select("id, name, series, era, category, ean")
@@ -75,50 +75,29 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
   }
 }
 
-function showDecodeDebugMessage(
-  message: string,
-  setDecodeDebugMessage: (s: string | null) => void
-) {
-  setDecodeDebugMessage(message);
-  try {
-    window.alert(message);
-  } catch {
-    /* ignore */
-  }
-}
-
-const NO_BARCODE_IN_PHOTO_MSG =
-  "Aucun code-barres détecté dans la photo. Réessayez avec une photo plus nette.";
-
-function isUserCancelledCamera(err: unknown): boolean {
-  const msg = formatUnknownError(err).toLowerCase();
-  return (
-    msg.includes("cancel") ||
-    msg.includes("cancelled") ||
-    msg.includes("canceled") ||
-    msg.includes("dismiss")
-  );
-}
-
 export const AjouterPage = () => {
   const { addToCollection } = useCollection();
+  const quaggaTargetRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const onDetectedRef = useRef<((r: QuaggaJSResultObject) => void) | null>(null);
   const scanBusy = useRef(false);
 
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
-  const [decodeDebugMessage, setDecodeDebugMessage] = useState<string | null>(null);
   const [product, setProduct] = useState<ScannedProduct | null>(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
 
-  const processEanCode = useCallback(async (code: string) => {
+  const processDetectedCode = useCallback(async (code: string) => {
     const trimmed = code.trim().replace(/\s/g, "");
     if (!trimmed) {
       setNotFoundModalOpen(true);
       return;
     }
 
-    const found = await fetchProductByEan(trimmed);
+    const found = await fetchProductByBarcode(trimmed);
     if (!found) {
       setNotFoundModalOpen(true);
       return;
@@ -128,72 +107,151 @@ export const AjouterPage = () => {
     setSuccessModalOpen(true);
   }, []);
 
+  const stopMediaStream = useCallback(() => {
+    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+    mediaStreamRef.current = null;
+    const v = videoRef.current;
+    if (v) {
+      v.srcObject = null;
+    }
+  }, []);
+
+  const stopQuagga = useCallback(async () => {
+    const handler = onDetectedRef.current;
+    if (handler) {
+      try {
+        Quagga.offDetected(handler);
+      } catch {
+        /* ignore */
+      }
+      onDetectedRef.current = null;
+    }
+    try {
+      await Quagga.stop();
+    } catch {
+      /* ignore */
+    }
+    stopMediaStream();
+  }, [stopMediaStream]);
+
+  const closeScanner = useCallback(async () => {
+    await stopQuagga();
+    setScannerOpen(false);
+    setIsStarting(false);
+    scanBusy.current = false;
+  }, [stopQuagga]);
+
+  useEffect(() => {
+    return () => {
+      void stopQuagga();
+    };
+  }, [stopQuagga]);
+
   const runBarcodeScan = useCallback(async () => {
     if (scanBusy.current) {
-      const msg = "Un scan est déjà en cours.";
-      showDebugError(msg, setScanError);
+      showDebugError("Un scan est déjà en cours.", setScanError);
       return;
     }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      showDebugError("getUserMedia n’est pas disponible sur cet appareil.", setScanError);
+      return;
+    }
+
     scanBusy.current = true;
-    setIsAnalyzing(true);
+    setIsStarting(true);
     setScanError(null);
-    setDecodeDebugMessage(null);
     setNotFoundModalOpen(false);
+    setScannerOpen(true);
 
     try {
-      const photo = await Camera.getPhoto({
-        quality: 90,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera,
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
       });
 
-      const dataUrl = photo.dataUrl;
-      if (!dataUrl) {
-        setNotFoundModalOpen(true);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+      mediaStreamRef.current = stream;
+
+      const video = videoRef.current;
+      if (!video) {
+        stopMediaStream();
+        showDebugError("Élément vidéo introuvable.", setScanError);
+        await closeScanner();
         return;
       }
 
-      let decodeResult;
-      try {
-        decodeResult = await Quagga.decodeSingle({
-          src: dataUrl,
-          numOfWorkers: 0,
-          inputStream: { size: 800, singleChannel: false },
-          locator: { patchSize: "medium", halfSample: true },
-          decoder: { readers: ["ean_reader"] },
-          locate: true,
-        });
-      } catch (e) {
-        setScanError(`Décodage : ${formatUnknownError(e)}`);
-        showDecodeDebugMessage(NO_BARCODE_IN_PHOTO_MSG, setDecodeDebugMessage);
+      video.srcObject = stream;
+      video.muted = true;
+      video.playsInline = true;
+      await video.play();
+
+      const target = quaggaTargetRef.current;
+      if (!target) {
+        stopMediaStream();
+        showDebugError("Conteneur de scan introuvable.", setScanError);
+        await closeScanner();
         return;
       }
 
-      if (decodeResult == null) {
-        showDecodeDebugMessage(NO_BARCODE_IN_PHOTO_MSG, setDecodeDebugMessage);
-        return;
-      }
+      stream.getTracks().forEach((t) => t.stop());
+      mediaStreamRef.current = null;
+      video.srcObject = null;
 
-      const code = decodeResult.codeResult?.code;
-      if (code == null || String(code).trim() === "") {
-        showDecodeDebugMessage(NO_BARCODE_IN_PHOTO_MSG, setDecodeDebugMessage);
-        return;
-      }
+      let handled = false;
+      const onDetected = (data: QuaggaJSResultObject) => {
+        if (handled) return;
+        const raw = data.codeResult?.code;
+        if (raw == null || String(raw).trim() === "") return;
+        handled = true;
 
-      const detectedMsg = `Code détecté : ${code}`;
-      showDecodeDebugMessage(detectedMsg, setDecodeDebugMessage);
-      await processEanCode(String(code));
+        void (async () => {
+          await stopQuagga();
+          setScannerOpen(false);
+          setIsStarting(false);
+          scanBusy.current = false;
+          await processDetectedCode(String(raw));
+        })();
+      };
+      onDetectedRef.current = onDetected;
+      Quagga.onDetected(onDetected);
+
+      await new Promise<void>((resolve, reject) => {
+        void Quagga.init(
+          {
+            inputStream: {
+              type: "LiveStream",
+              target,
+              constraints: {
+                width: { min: 640 },
+                height: { min: 480 },
+                facingMode: "environment",
+              },
+            },
+            locator: { patchSize: "medium", halfSample: true },
+            frequency: 10,
+            decoder: { readers: ["ean_reader"] },
+            numOfWorkers: 0,
+            locate: true,
+          },
+          (err) => {
+            if (err) reject(err);
+            else resolve();
+          }
+        );
+      });
+
+      Quagga.start();
+      setIsStarting(false);
     } catch (e) {
-      if (isUserCancelledCamera(e)) {
-        return;
-      }
-      const msg = `Caméra : ${formatUnknownError(e)}`;
+      const msg = `Caméra / scanner : ${formatUnknownError(e)}`;
       showDebugError(msg, setScanError);
-    } finally {
-      setIsAnalyzing(false);
+      await stopQuagga();
+      setScannerOpen(false);
+      setIsStarting(false);
       scanBusy.current = false;
     }
-  }, [processEanCode]);
+  }, [closeScanner, processDetectedCode, stopMediaStream, stopQuagga]);
 
   const cardStyle: CSSProperties = {
     background: "var(--card-color, #1a1a1a)",
@@ -222,13 +280,13 @@ export const AjouterPage = () => {
     padding: "18px 24px",
     borderRadius: 14,
     border: "1px solid rgba(255,255,255,0.12)",
-    cursor: isAnalyzing ? "wait" : "pointer",
+    cursor: isStarting || scannerOpen ? "wait" : "pointer",
     fontSize: 17,
     fontWeight: 600,
     background: "var(--card-color, #1f1f1f)",
     color: "var(--text-primary, #fafafa)",
     boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
-    opacity: isAnalyzing ? 0.75 : 1,
+    opacity: isStarting || scannerOpen ? 0.75 : 1,
   };
 
   return (
@@ -263,39 +321,76 @@ export const AjouterPage = () => {
           lineHeight: 1.45,
         }}
       >
-        Appuyez sur Scanner : photo avec la caméra native (Capacitor), puis lecture du code EAN avec
-        Quagga2.
+        Appuyez sur Scanner : flux caméra en direct et détection EAN-13 (Quagga2). Contexte sécurisé
+        recommandé (ex. iosScheme https côté Capacitor).
       </p>
 
       <button
         type="button"
-        disabled={isAnalyzing}
+        disabled={isStarting || scannerOpen}
         onClick={() => void runBarcodeScan()}
         style={darkButtonStyle}
       >
         Scanner
       </button>
 
-      {decodeDebugMessage ? (
+      {scannerOpen ? (
         <div
-          role="status"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Scanner code-barres"
           style={{
-            marginTop: 16,
-            maxWidth: 420,
-            marginLeft: "auto",
-            marginRight: "auto",
-            padding: 14,
-            borderRadius: 12,
-            background: "rgba(59, 130, 246, 0.12)",
-            border: "1px solid rgba(96, 165, 250, 0.45)",
-            color: "#bfdbfe",
-            fontSize: 13,
-            lineHeight: 1.45,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "#000",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          {decodeDebugMessage}
+          <div
+            ref={quaggaTargetRef}
+            style={{
+              flex: 1,
+              minHeight: 0,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              autoPlay
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            onClick={() => void closeScanner()}
+            style={{
+              position: "absolute",
+              top: "max(12px, env(safe-area-inset-top, 12px))",
+              right: 12,
+              zIndex: 110,
+              padding: "12px 18px",
+              borderRadius: 12,
+              border: "none",
+              fontSize: 15,
+              fontWeight: 600,
+              background: "rgba(0,0,0,0.65)",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            Fermer
+          </button>
         </div>
       ) : null}
 
@@ -322,7 +417,7 @@ export const AjouterPage = () => {
         </div>
       ) : null}
 
-      {isAnalyzing ? (
+      {isStarting ? (
         <div
           style={{
             textAlign: "center",
@@ -331,7 +426,7 @@ export const AjouterPage = () => {
             fontSize: 15,
           }}
         >
-          Traitement de la photo…
+          Démarrage de la caméra…
         </div>
       ) : null}
 
@@ -343,7 +438,7 @@ export const AjouterPage = () => {
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 60,
+            zIndex: 160,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -427,7 +522,7 @@ export const AjouterPage = () => {
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 60,
+            zIndex: 160,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -444,7 +539,7 @@ export const AjouterPage = () => {
                 color: "var(--text-primary)",
               }}
             >
-              Produit non reconnu - Réessayer
+              Produit non reconnu
             </h2>
             <button
               type="button"
