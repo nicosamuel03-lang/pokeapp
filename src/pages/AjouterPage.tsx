@@ -149,8 +149,8 @@ export const AjouterPage = () => {
   const onDetectedRef = useRef<((r: QuaggaJSResultObject) => void) | null>(null);
   const scanBusy = useRef(false);
 
-  const [scannerOpen, setScannerOpen] = useState(false);
-  const [isStarting, setIsStarting] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(true);
+  const [isStarting, setIsStarting] = useState(true);
   const [scanError, setScanError] = useState<string | null>(null);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
 
@@ -212,12 +212,6 @@ export const AjouterPage = () => {
     setScannerOpen(false);
     setIsStarting(false);
     scanBusy.current = false;
-  }, [stopQuagga]);
-
-  useEffect(() => {
-    return () => {
-      void stopQuagga();
-    };
   }, [stopQuagga]);
 
   const runBarcodeScan = useCallback(async () => {
@@ -338,6 +332,14 @@ export const AjouterPage = () => {
     }
   }, [closeScanner, processDetectedCode, stopMediaStream, stopQuagga]);
 
+  useEffect(() => {
+    void runBarcodeScan();
+    return () => {
+      scanBusy.current = false;
+      void stopQuagga();
+    };
+  }, [runBarcodeScan, stopQuagga]);
+
   const cardStyle: CSSProperties = {
     background: "var(--card-color, #1a1a1a)",
     border: "1px solid var(--border-color, rgba(255,255,255,0.08))",
@@ -347,23 +349,6 @@ export const AjouterPage = () => {
     maxWidth: 400,
     width: "100%",
     margin: "0 auto",
-  };
-
-  const darkButtonStyle: CSSProperties = {
-    display: "block",
-    width: "100%",
-    maxWidth: 420,
-    margin: "0 auto",
-    padding: "18px 24px",
-    borderRadius: 14,
-    border: "1px solid rgba(255,255,255,0.12)",
-    cursor: isStarting || scannerOpen ? "wait" : "pointer",
-    fontSize: 17,
-    fontWeight: 600,
-    background: "var(--card-color, #1f1f1f)",
-    color: "var(--text-primary, #fafafa)",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.35)",
-    opacity: isStarting || scannerOpen ? 0.75 : 1,
   };
 
   return (
@@ -398,18 +383,9 @@ export const AjouterPage = () => {
           lineHeight: 1.45,
         }}
       >
-        Appuyez sur Scanner : flux caméra en direct et détection EAN-13 (Quagga2). Contexte sécurisé
-        recommandé (ex. iosScheme https côté Capacitor).
+        La caméra démarre automatiquement : détection EAN-13 (Quagga2). Contexte sécurisé recommandé (ex.
+        iosScheme https côté Capacitor).
       </p>
-
-      <button
-        type="button"
-        disabled={isStarting || scannerOpen}
-        onClick={() => void runBarcodeScan()}
-        style={darkButtonStyle}
-      >
-        Scanner
-      </button>
 
       {scannerOpen ? (
         <>
@@ -444,6 +420,25 @@ export const AjouterPage = () => {
                 0 0 0 1px rgba(0, 0, 0, 0.5) inset,
                 0 0 20px rgba(212, 167, 87, 0.35);
             }
+            .scanner-hint-overlay {
+              position: absolute;
+              left: 50%;
+              transform: translateX(-50%);
+              bottom: max(28px, env(safe-area-inset-bottom, 28px));
+              z-index: 4;
+              pointer-events: none;
+              max-width: min(92vw, 360px);
+              padding: 14px 18px;
+              border-radius: 14px;
+              text-align: center;
+              font-size: 16px;
+              font-weight: 600;
+              line-height: 1.35;
+              color: #ffffff;
+              background: rgba(0, 0, 0, 0.72);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+            }
           `}</style>
           <div
             role="dialog"
@@ -473,6 +468,29 @@ export const AjouterPage = () => {
                 autoPlay
               />
               <div className="scanner-zone-overlay" aria-hidden />
+              {isStarting ? (
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    zIndex: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "rgba(0,0,0,0.55)",
+                    color: "#ffffff",
+                    fontSize: 17,
+                    fontWeight: 600,
+                    pointerEvents: "none",
+                  }}
+                >
+                  Démarrage de la caméra…
+                </div>
+              ) : (
+                <div className="scanner-hint-overlay" role="status">
+                  Scannez le code-barres de votre produit
+                </div>
+              )}
             </div>
             <button
               type="button"
@@ -520,19 +538,6 @@ export const AjouterPage = () => {
           }}
         >
           {scanError}
-        </div>
-      ) : null}
-
-      {isStarting ? (
-        <div
-          style={{
-            textAlign: "center",
-            padding: 24,
-            color: "var(--text-primary)",
-            fontSize: 15,
-          }}
-        >
-          Démarrage de la caméra…
         </div>
       ) : null}
 
