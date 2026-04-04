@@ -7,7 +7,7 @@ import { ItemIcon } from "../components/ItemIcon";
 import { RasterImage } from "../components/RasterImage";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
-import { ebayPricesTableProductId, getPrixMarcheForProduct } from "../utils/prixMarche";
+import { getPrixMarcheForProduct } from "../utils/prixMarche";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { getEraBadge, getEraNeonBadgeStyle, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
@@ -16,14 +16,17 @@ import { useSubscription } from "../state/SubscriptionContext";
 import { PortfolioDashboardSection } from "../components/PortfolioDashboardSection";
 import { ERA_DONUT_COLORS } from "../components/PortfolioEraDonut";
 import { CatalogueStyleSearchBar } from "../components/CatalogueStyleSearchBar";
-import { CatalogueSearchResultRow } from "../components/CatalogueSearchResultRow";
+import {
+  CatalogueSearchResultRow,
+  type CatalogueSearchResultRowEraBadge,
+} from "../components/CatalogueSearchResultRow";
 import { filterHomeProductsBySearch, sortHomeProductsBySearch } from "../utils/homeProductSearch";
 import {
   isKnownProductCardEraLabel,
   productCardEraBadgeClassName,
 } from "../utils/productCardEraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
-import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
+import { useEbayTrackedPrice } from "../hooks/useEbayTrackedPrice";
 import { isEbayMockMode } from "../services/ebayMarketPrice";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
@@ -109,6 +112,131 @@ function homeProductMarcheAffiché(p: HomeProduct): number {
       prixMarcheActuel: p.currentPrice,
     },
     etbData
+  );
+}
+
+/** Identique à `trackedProductId` sur `ProductDetailPage` (clé `ebay_prices`). */
+function homeDetailTrackedProductId(product: HomeProduct): string | null {
+  const rawId = product.etbId ?? product.id ?? null;
+  if (!rawId) return null;
+  const category = (product.category || "").toLowerCase();
+  if (category === "displays" || category === "display") {
+    const cleanId = String(rawId).replace(/^display-/i, "");
+    return `display-${cleanId}`;
+  }
+  if (category === "upc") {
+    const cleanId = String(rawId).replace(/^upc-/i, "");
+    return `upc-${cleanId}`;
+  }
+  return String(rawId);
+}
+
+/** Même source que le « PRIX ACTUEL » détail : `useEbayTrackedPrice` (moy. 90j, ≥3 entrées) puis catalogue. */
+function HomeGridTrackedMarketPrice({
+  product,
+  priceColor,
+}: {
+  product: HomeProduct;
+  priceColor: string;
+}) {
+  const trackedId = useMemo(
+    () => homeDetailTrackedProductId(product),
+    [product.id, product.etbId, product.category]
+  );
+  const enabled = !isEbayMockMode();
+  const ebay = useEbayTrackedPrice(trackedId, enabled);
+  const catalogPrice = homeProductMarcheAffiché(product);
+  const displayPrice =
+    enabled &&
+    ebay.available &&
+    ebay.averagePriceEur != null &&
+    ebay.averagePriceEur > 0
+      ? ebay.averagePriceEur
+      : catalogPrice;
+  return (
+    <p
+      className={`${STAT_CARD_VALUE_CLASS} truncate max-w-full text-right`}
+      style={{
+        color: priceColor,
+        fontSize: "1.1rem",
+        fontWeight: 700,
+      }}
+    >
+      {displayPrice.toLocaleString("fr-FR", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0,
+      })}
+    </p>
+  );
+}
+
+type HomeSearchTrackedRowProps = {
+  product: HomeProduct;
+  accentGold: string;
+  imageUrl: string | null;
+  nameForAlt: string;
+  isDisplayOrUpc: boolean;
+  placeholderBg: string;
+  eraBadge: CatalogueSearchResultRowEraBadge | null;
+  title: string;
+  showNewBadge: boolean;
+  retailPrice: number;
+  showBottomBorder: boolean;
+  selectedCategory: Category | "Tous";
+  selectedEra: string | null;
+};
+
+function HomeSearchResultRowWithTrackedPrice({
+  product,
+  accentGold,
+  imageUrl,
+  nameForAlt,
+  isDisplayOrUpc,
+  placeholderBg,
+  eraBadge,
+  title,
+  showNewBadge,
+  retailPrice,
+  showBottomBorder,
+  selectedCategory,
+  selectedEra,
+}: HomeSearchTrackedRowProps) {
+  const trackedId = useMemo(
+    () => homeDetailTrackedProductId(product),
+    [product.id, product.etbId, product.category]
+  );
+  const enabled = !isEbayMockMode();
+  const ebay = useEbayTrackedPrice(trackedId, enabled);
+  const catalogPrice = homeProductMarcheAffiché(product);
+  const marketPrice =
+    enabled && ebay.available && ebay.averagePriceEur != null && ebay.averagePriceEur > 0
+      ? ebay.averagePriceEur
+      : catalogPrice;
+
+  return (
+    <CatalogueSearchResultRow
+      mode="link"
+      to={`/produit/${product.id}`}
+      onNavigate={() => {
+        sessionStorage.setItem("returnTo", "/");
+        sessionStorage.setItem(
+          "collectionFilters",
+          JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
+        );
+      }}
+      accentGold={accentGold}
+      imageUrl={imageUrl}
+      nameForAlt={nameForAlt}
+      isDisplayOrUpc={isDisplayOrUpc}
+      placeholderBg={placeholderBg}
+      eraBadge={eraBadge}
+      title={title}
+      showNewBadge={showNewBadge}
+      marketPrice={marketPrice}
+      retailPrice={retailPrice}
+      showBottomBorder={showBottomBorder}
+    />
   );
 }
 
@@ -345,48 +473,6 @@ export const HomePage = () => {
     return sortHomeProductsBySearch(filterHomeProductsBySearch(base, ""), "");
   }, [filtered]);
 
-  // Batch `ebay_prices` : mêmes `product_id` que la fiche détail (`trackedProductId`).
-  const _databaseProductsAsLines = useMemo(
-    () =>
-      databaseProducts.map((p) => ({
-        quantity: 1,
-        buyPrice: p.prixAchat,
-        product: {
-          id: p.id,
-          etbId: p.etbId,
-          category: p.category,
-        },
-      })),
-    [databaseProducts]
-  );
-  const { priceMap: ebayHomePriceMap } = usePortfolioEbayPrices(
-    _databaseProductsAsLines as Parameters<typeof usePortfolioEbayPrices>[0]
-  );
-
-  // Log quand la priceMap change (pour vérifier qu'elle est bien reçue)
-  useEffect(() => {
-    console.log("[HomePage] ebayHomePriceMap updated — size:", ebayHomePriceMap.size);
-    if (ebayHomePriceMap.size > 0) {
-      console.log("[HomePage] Map keys (first 10):", Array.from(ebayHomePriceMap.keys()).slice(0, 10));
-      console.log("[HomePage] EB10.5 (Pokémon GO) in map →", ebayHomePriceMap.get("EB10.5") ?? "NOT FOUND");
-    }
-  }, [ebayHomePriceMap]);
-
-  /** Même logique que la fiche produit : moyenne eBay 90j si dispo, sinon `getPrixMarcheForProduct`. */
-  const homeCardPrice = (product: HomeProduct): number => {
-    if (isEbayMockMode()) return homeProductMarcheAffiché(product);
-    const key = ebayPricesTableProductId({
-      id: product.id,
-      etbId: product.etbId,
-      category: product.category,
-    });
-    if (key != null) {
-      const ebay = ebayHomePriceMap.get(key);
-      if (ebay != null && ebay > 0) return ebay;
-    }
-    return homeProductMarcheAffiché(product);
-  };
-
   const applyHomeSearchFromValue = useCallback(
     (val: string) => {
       const base = databaseProducts;
@@ -557,17 +643,9 @@ export const HomePage = () => {
                 const catForTitle =
                   product.category === "Displays" ? "Displays" : product.category === "UPC" ? "UPC" : "ETB";
                 return (
-                  <CatalogueSearchResultRow
+                  <HomeSearchResultRowWithTrackedPrice
                     key={product.id}
-                    mode="link"
-                    to={`/produit/${product.id}`}
-                    onNavigate={() => {
-                      sessionStorage.setItem("returnTo", "/");
-                      sessionStorage.setItem(
-                        "collectionFilters",
-                        JSON.stringify({ typeFilter: selectedCategory, eraFilter: selectedEra })
-                      );
-                    }}
+                    product={product}
                     accentGold={accentGold}
                     imageUrl={product.imageUrl ?? null}
                     nameForAlt={product.name}
@@ -576,9 +654,10 @@ export const HomePage = () => {
                     eraBadge={eraBadge}
                     title={formatProductNameWithSetCode(product.name, getSetCodeFromProduct(product), catForTitle)}
                     showNewBadge={product.set === "Méga Évolution"}
-                    marketPrice={homeCardPrice(product)}
                     retailPrice={product.prixAchat}
                     showBottomBorder={i < homeSearchResults.length - 1}
+                    selectedCategory={selectedCategory}
+                    selectedEra={selectedEra}
                   />
                 );
               })
@@ -794,20 +873,10 @@ export const HomePage = () => {
                   className="flex w-full shrink-0 flex-wrap justify-end items-baseline gap-1.5"
                   style={{ marginTop: "4px" }}
                 >
-                  <p
-                    className={`${STAT_CARD_VALUE_CLASS} truncate max-w-full text-right`}
-                    style={{
-                      color: isDark ? EMERALD : accentGold,
-                      fontSize: "1.1rem",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {homeCardPrice(product).toLocaleString("fr-FR", {
-                      style: "currency",
-                      currency: "EUR",
-                      maximumFractionDigits: 0,
-                    })}
-                  </p>
+                  <HomeGridTrackedMarketPrice
+                    product={product}
+                    priceColor={isDark ? EMERALD : accentGold}
+                  />
                 </div>
                 </div>
               </Link>
