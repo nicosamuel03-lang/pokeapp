@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useAuth } from "@clerk/react";
+import { useAuth, useUser } from "@clerk/react";
+import { supabase } from "../lib/supabase";
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -97,6 +98,17 @@ function todayISO(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+/** Produit issu du scan (ligne Supabase `products`) : id sans préfixe catalogue etb-/display-/upc-. */
+function isBarcodeSourcedCatalogueItem(item: PokemonCatalogueItem): boolean {
+  const id = item.id ?? "";
+  return (
+    id.length > 0 &&
+    !/^etb-/i.test(id) &&
+    !/^display-/i.test(id) &&
+    !/^upc-/i.test(id)
+  );
+}
+
 interface AddModalProps {
   item: PokemonCatalogueItem;
   onClose: () => void;
@@ -106,7 +118,7 @@ interface AddModalProps {
     qty: number,
     purchaseDate?: string,
     prixMarcheActuel?: number
-  ) => void;
+  ) => void | Promise<void>;
 }
 
 const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
@@ -116,11 +128,17 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
   const [purchaseDate, setPurchaseDate] = useState(todayISO);
   const [qty, setQty] = useState("1");
   const [justAdded, setJustAdded] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [pressedBtn, setPressedBtn] = useState<"annuler" | "ajouter" | null>(null);
   const triggerPress = (key: "annuler" | "ajouter") => {
     setPressedBtn(key);
     setTimeout(() => setPressedBtn(null), 150);
   };
+
+  useEffect(() => {
+    setSubmitError(null);
+  }, [item.id]);
 
   const modalImgUrl = getProductImageUrlForCatalogueItem(item);
   const modalEraBadge = getEraBadgeForCatalogueItem(item);
@@ -135,18 +153,33 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
   const catalogMarché = getMarchéActuelAffiché(item);
   const ebayLive = useEbayLiveMarketPrice(titleFormatted, catalogMarché);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    setSubmitError(null);
     const price = parseFloat(buyPrice.replace(",", "."));
     const quantity = parseInt(qty, 10);
-    if (Number.isNaN(price) || price <= 0 || Number.isNaN(quantity) || quantity < 1)
-      return;
-    if (navigator.vibrate) navigator.vibrate(50);
-    onAdd(item, price, quantity, purchaseDate || undefined, ebayLive.displayPrice);
-    setJustAdded(true);
-    setTimeout(() => {
-      setJustAdded(false);
-      onClose();
-    }, 400);
+    if (Number.isNaN(price) || price <= 0 || Number.isNaN(quantity) || quantity < 1) return;
+    setIsSubmitting(true);
+    try {
+      if (navigator.vibrate) navigator.vibrate(50);
+      await Promise.resolve(
+        onAdd(item, price, quantity, purchaseDate || undefined, ebayLive.displayPrice)
+      );
+      setJustAdded(true);
+      setTimeout(() => {
+        setJustAdded(false);
+        onClose();
+      }, 400);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setSubmitError(msg);
+      try {
+        window.alert(msg);
+      } catch {
+        /* ignore */
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -290,6 +323,20 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
               </div>
             </div>
 
+            {submitError ? (
+              <div
+                role="alert"
+                className="mt-3 rounded-2xl px-3 py-2 text-xs font-medium leading-snug"
+                style={{
+                  background: "rgba(220, 38, 38, 0.18)",
+                  border: "1px solid rgba(248, 113, 113, 0.5)",
+                  color: "#fecaca",
+                }}
+              >
+                {submitError}
+              </div>
+            ) : null}
+
             {/* Boutons directement sous Quantité */}
             <div className="flex flex-row gap-2 mt-4 shrink-0">
               <button
@@ -297,19 +344,21 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
                 className={`btn-press flex-1 rounded-2xl py-2.5 text-sm font-medium transition ${pressedBtn === "annuler" ? "btn-press-pressed" : ""}`}
                 onPointerDown={() => triggerPress("annuler")}
                 onClick={onClose}
+                disabled={isSubmitting}
                 style={{
                   background: "var(--input-bg)",
                   color: "var(--text-secondary)",
+                  opacity: isSubmitting ? 0.6 : 1,
                 }}
               >
                 Annuler
               </button>
               <button
                 type="button"
-                onClick={handleConfirm}
-                disabled={justAdded}
+                onClick={() => void handleConfirm()}
+                disabled={justAdded || isSubmitting}
                 className={`btn-press flex-1 rounded-2xl py-2.5 text-sm font-semibold transition disabled:cursor-default disabled:opacity-100 ${pressedBtn === "ajouter" ? "btn-press-pressed" : ""}`}
-                onPointerDown={() => !justAdded && triggerPress("ajouter")}
+                onPointerDown={() => !justAdded && !isSubmitting && triggerPress("ajouter")}
                 style={{
                   background: justAdded ? "#166534" : "#15803D",
                   color: "#FFFFFF",
@@ -337,6 +386,7 @@ export const SearchCatalogue = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const { addProduct } = useProducts();
@@ -438,7 +488,7 @@ export const SearchCatalogue = () => {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [query]);
 
-  const handleAdd = (
+  const handleAdd = async (
     item: PokemonCatalogueItem,
     buyPrice: number,
     qty: number,
@@ -448,11 +498,15 @@ export const SearchCatalogue = () => {
     if (!isSignedIn) {
       setAuthMessage(true);
       setTimeout(() => setAuthMessage(false), 4000);
-      return;
+      throw new Error(
+        "Vous devez vous connecter pour ajouter un item à votre collection."
+      );
     }
     if (!premiumLoading && !isPremium && totalQuantity + qty > FREE_COLLECTION_LIMIT) {
       navigate("/premium");
-      return;
+      throw new Error(
+        "Limite de 5 produits en collection (version gratuite). Passez à Premium pour continuer."
+      );
     }
     const marchéActuel =
       typeof prixMarcheActuel === "number" &&
@@ -460,6 +514,24 @@ export const SearchCatalogue = () => {
       prixMarcheActuel > 0
         ? prixMarcheActuel
         : getMarchéActuelBrut(item);
+
+    const userId = user?.id ?? null;
+    if (userId && isBarcodeSourcedCatalogueItem(item)) {
+      const imageForRow = getProductImageUrlForCatalogueItem(item) ?? item.imageUrl ?? null;
+      const { error: supabaseError } = await supabase.from("collection_items").insert({
+        user_id: userId,
+        product_id: item.id,
+        buy_price: buyPrice,
+        purchase_date: purchaseDate ?? null,
+        quantity: qty,
+        product_name: item.name,
+        image: imageForRow,
+      });
+      if (supabaseError) {
+        throw new Error(supabaseError.message || String(supabaseError));
+      }
+    }
+
     const product = addProduct({
       emoji: item.emoji,
       name: item.name,
@@ -467,10 +539,10 @@ export const SearchCatalogue = () => {
         item.type === "Display"
           ? "Displays"
           : item.type === "UPC"
-          ? "UPC"
-          : item.type === "ETB"
-          ? "ETB"
-          : "Coffrets",
+            ? "UPC"
+            : item.type === "ETB"
+              ? "ETB"
+              : "Coffrets",
       set: item.block,
       condition: "Neuf scellé",
       currentPrice: marchéActuel,
@@ -485,7 +557,13 @@ export const SearchCatalogue = () => {
       etbId: item.etbId ?? item.id?.replace(/^(?:display-|upc-|etb-)/, "") ?? undefined,
     });
     addToCollection(product, buyPrice, qty, purchaseDate);
-    navigate("/collection");
+
+    try {
+      window.alert("Produit ajouté à la collection.");
+    } catch {
+      /* ignore */
+    }
+    navigate("/");
   };
 
   const hasSearchQuery = query.trim().length >= 1;
