@@ -153,6 +153,8 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const onDetectedRef = useRef<((r: QuaggaJSResultObject) => void) | null>(null);
   const scanBusy = useRef(false);
+  /** false pendant le démontage : évite alertes si getUserMedia / play continuent après navigation. */
+  const aliveRef = useRef(true);
 
   const [scannerOpen, setScannerOpen] = useState(true);
   const [isStarting, setIsStarting] = useState(true);
@@ -254,6 +256,12 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
       });
+      if (!aliveRef.current) {
+        stream.getTracks().forEach((t) => t.stop());
+        setIsStarting(false);
+        scanBusy.current = false;
+        return;
+      }
       mediaStreamRef.current = stream;
 
       const video = videoRef.current;
@@ -273,7 +281,36 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
       video.srcObject = stream;
       video.muted = true;
       video.playsInline = true;
-      await video.play();
+      try {
+        await video.play();
+      } catch (playErr) {
+        stopMediaStream();
+        try {
+          await stopQuagga();
+        } catch {
+          /* ignore */
+        }
+        setScannerOpen(false);
+        setIsStarting(false);
+        scanBusy.current = false;
+        if (aliveRef.current) {
+          showDebugError(`Caméra / scanner : ${formatUnknownError(playErr)}`, setScanError);
+        }
+        return;
+      }
+
+      if (!aliveRef.current) {
+        stopMediaStream();
+        try {
+          await stopQuagga();
+        } catch {
+          /* ignore */
+        }
+        setScannerOpen(false);
+        setIsStarting(false);
+        scanBusy.current = false;
+        return;
+      }
 
       const target = quaggaTargetRef.current;
       if (!target) {
@@ -354,8 +391,10 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
       Quagga.start();
       setIsStarting(false);
     } catch (e) {
-      const msg = `Caméra / scanner : ${formatUnknownError(e)}`;
-      showDebugError(msg, setScanError);
+      if (aliveRef.current) {
+        const msg = `Caméra / scanner : ${formatUnknownError(e)}`;
+        showDebugError(msg, setScanError);
+      }
       await stopQuagga();
       setScannerOpen(false);
       setIsStarting(false);
@@ -364,8 +403,10 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
   }, [closeScanner, processDetectedCode, stopMediaStream, stopQuagga]);
 
   useEffect(() => {
+    aliveRef.current = true;
     void runBarcodeScan();
     return () => {
+      aliveRef.current = false;
       scanBusy.current = false;
       void stopQuagga();
     };
