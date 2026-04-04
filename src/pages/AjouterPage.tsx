@@ -6,12 +6,16 @@ import type { QuaggaJSResultObject } from "@ericblade/quagga2";
 import { supabase } from "../lib/supabase";
 import {
   removeAccents,
+  searchPokemonCatalogue,
   type ModernBlock,
   type ModernSealedType,
   type PokemonCatalogueItem,
 } from "../data/pokemonCatalogue";
 
 const SCAN_CATALOGUE_ITEM_KEY = "pokevault_scan_catalogue_item";
+
+/** Aligné sur useEbayTrackedPrice / API tracked-price : minimum d’entrées sur 90 jours. */
+const EBAY_PRICES_MIN_ENTRIES = 3;
 
 function coerceNumber(v: unknown): number | null {
   if (typeof v === "number" && Number.isFinite(v)) return v;
@@ -44,6 +48,61 @@ function normalizeReleaseDate(value: unknown): string {
   if (m) return `${m[1]}-${m[2]}`;
   return "2024-01";
 }
+
+function resolveEtbIdFromProductsRow(row: Record<string, unknown>): string | undefined {
+  for (const key of [
+    "etb_id",
+    "etbId",
+    "code",
+    "set_code",
+    "product_code",
+    "set_id",
+  ] as const) {
+    const v = row[key];
+    if (typeof v === "string" && /^(?:EB|EV|ME|SL)\d{2}(?:\.\d)?$/i.test(v.trim())) {
+      return v.trim().toUpperCase();
+    }
+  }
+  const name = typeof row.name === "string" ? row.name : "";
+  const m = name.match(/\b((?:EB|EV|ME|SL)\d{2}(?:\.\d)?)\b/i);
+  if (m) return m[1]!.toUpperCase();
+  return undefined;
+}
+
+function findCatalogueEtbItem(etbId: string, seriesHint: string): PokemonCatalogueItem | undefined {
+  const full = searchPokemonCatalogue("") ?? [];
+  const candidates = full.filter((i) => i.type === "ETB" && i.etbId === etbId);
+  if (candidates.length <= 1) return candidates[0];
+  const hint = removeAccents(seriesHint.trim().toLowerCase());
+  if (!hint) return candidates[0];
+  return (
+    candidates.find((i) => removeAccents(i.name.toLowerCase()).includes(hint)) ?? candidates[0]
+  );
+}
+
+/**
+ * Moyenne price_eur sur 90 jours (table ebay_prices), même filtre que server/index.js tracked-price.
+ */
+async function fetchEbayAverageFromSupabase(productId: string): Promise<number | null> {
+  const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("ebay_prices")
+    .select("price_eur")
+    .eq("product_id", productId)
+    .gte("fetched_at", since)
+    .order("fetched_at", { ascending: false })
+    .limit(200);
+
+  if (error || !data?.length || data.length < EBAY_PRICES_MIN_ENTRIES) return null;
+  const prices = data
+    .map((r: { price_eur?: unknown }) => Number(r.price_eur))
+    .filter((n) => Number.isFinite(n));
+  if (prices.length < EBAY_PRICES_MIN_ENTRIES) return null;
+  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+  return Math.round(avg * 100) / 100;
+}
+
+type CatalogueItemWithScanOverride = PokemonCatalogueItem & { scanMarketOverride?: number };
 
 function supabaseRowToCatalogueItem(row: Record<string, unknown>): PokemonCatalogueItem | null {
   const id = row.id != null ? String(row.id) : "";
@@ -92,7 +151,36 @@ async function fetchCatalogueItemByBarcode(code: string): Promise<PokemonCatalog
   if (error || data == null) return null;
   const row = Array.isArray(data) ? data[0] : data;
   if (row == null) return null;
-  return supabaseRowToCatalogueItem(row as Record<string, unknown>);
+  const r = row as Record<string, unknown>;
+  const series = typeof r.series === "string" ? r.series : "";
+
+  const etbId = resolveEtbIdFromProductsRow(r);
+  if (etbId) {
+    const catalogueMatch = findCatalogueEtbItem(etbId, series);
+    if (catalogueMatch) {
+      const ebayAvg = await fetchEbayAverageFromSupabase(etbId);
+      const out: CatalogueItemWithScanOverride = { ...catalogueMatch };
+      if (ebayAvg != null && ebayAvg > 0) {
+        out.scanMarketOverride = ebayAvg;
+        out.currentMarketPrice = ebayAvg;
+      }
+      return out;
+    }
+  }
+
+  const base = supabaseRowToCatalogueItem(r);
+  if (!base) return null;
+
+  if (etbId) {
+    const ebayAvg = await fetchEbayAverageFromSupabase(etbId);
+    if (ebayAvg != null && ebayAvg > 0) {
+      const out: CatalogueItemWithScanOverride = { ...base, currentMarketPrice: ebayAvg };
+      out.scanMarketOverride = ebayAvg;
+      return out;
+    }
+  }
+
+  return base;
 }
 
 function formatUnknownError(err: unknown): string {

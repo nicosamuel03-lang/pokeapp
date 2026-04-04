@@ -21,6 +21,8 @@ import { isEbayMockMode } from "../services/ebayMarketPrice";
 
 /** Prix catalogue brut (JSON / etbData), sans couche eBay mock. */
 function getMarchéActuelBrut(item: PokemonCatalogueItem): number {
+  const scanOv = (item as PokemonCatalogueItem & { scanMarketOverride?: number }).scanMarketOverride;
+  if (typeof scanOv === "number" && scanOv > 0) return scanOv;
   if (item.etbId) {
     const etb =
       etbData.find((e) => e.id === item.etbId && item.name === `ETB ${e.nom}`) ??
