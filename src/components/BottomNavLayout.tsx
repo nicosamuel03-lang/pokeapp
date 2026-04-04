@@ -59,6 +59,12 @@ export const BottomNavLayout = () => {
   const [keyboardCoversViewport, setKeyboardCoversViewport] = useState(false);
   const touchStart = useRef<{ x: number; y: number; time: number } | null>(null);
 
+  useEffect(() => {
+    if (location.pathname === "/ajouter") {
+      setAjouterOverlayOpen(false);
+    }
+  }, [location.pathname]);
+
   // Pendant le chargement Clerk + abonnement : header placeholder (hauteur fixe), aucun contenu.
   const headerLoading = !isAuthLoaded || isLoading;
 

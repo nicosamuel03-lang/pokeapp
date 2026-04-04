@@ -1,66 +1,95 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { useNavigate } from "react-router-dom";
 import Quagga from "@ericblade/quagga2";
 import type { QuaggaJSResultObject } from "@ericblade/quagga2";
 import { supabase } from "../lib/supabase";
-import { useCollection } from "../state/CollectionContext";
-import type { Product } from "../state/ProductsContext";
+import {
+  removeAccents,
+  type ModernBlock,
+  type ModernSealedType,
+  type PokemonCatalogueItem,
+} from "../data/pokemonCatalogue";
 
-type ScannedProduct = {
-  name: string | null;
-  series: string | null;
-  era: string | null;
-  category: string | null;
-  id: string;
-  imageUrl?: string | null;
-  currentPrice?: number | null;
-};
+const SCAN_CATALOGUE_ITEM_KEY = "pokevault_scan_catalogue_item";
 
-function rowToProduct(row: ScannedProduct): Product {
-  const price = Number(row.currentPrice);
-  const currentPrice = Number.isFinite(price) && price >= 0 ? price : 0;
+function coerceNumber(v: unknown): number | null {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string") {
+    const n = parseFloat(v.replace(",", "."));
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+function inferBlockFromEraSeries(era: string, series: string): ModernBlock {
+  const norm = removeAccents(`${era} ${series}`.toLowerCase());
+  if (norm.includes("mega") || norm.includes("mega evolution")) return "Méga Évolution";
+  if (norm.includes("epee") || norm.includes("bouclier") || norm.includes("e&b")) {
+    return "Épée & Bouclier";
+  }
+  return "Écarlate & Violet";
+}
+
+function inferTypeFromCategory(category: string | null): ModernSealedType {
+  const c = (category ?? "").toLowerCase();
+  if (c.includes("upc")) return "UPC";
+  if (c.includes("display")) return "Display";
+  return "ETB";
+}
+
+function normalizeReleaseDate(value: unknown): string {
+  if (typeof value !== "string" || value.length < 7) return "2024-01";
+  const m = value.match(/^(\d{4})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}`;
+  return "2024-01";
+}
+
+function supabaseRowToCatalogueItem(row: Record<string, unknown>): PokemonCatalogueItem | null {
+  const id = row.id != null ? String(row.id) : "";
+  if (!id) return null;
+  const name =
+    typeof row.name === "string" && row.name.trim() ? row.name.trim() : "Produit";
+  const era = typeof row.era === "string" ? row.era : "";
+  const series = typeof row.series === "string" ? row.series : "";
+  const category = typeof row.category === "string" ? row.category : null;
+  const block = inferBlockFromEraSeries(era, series);
+  const type = inferTypeFromCategory(category);
+  const msrp = coerceNumber(row.msrp ?? row.retail_price ?? row.pvc ?? row.retail) ?? 0;
+  const market =
+    coerceNumber(
+      row.current_price ?? row.current_market_price ?? row.currentMarketPrice ?? msrp
+    ) ?? 0;
+  const imageUrl =
+    typeof row.image_url === "string"
+      ? row.image_url
+      : typeof row.imageUrl === "string"
+        ? row.imageUrl
+        : null;
+  const releaseDate = normalizeReleaseDate(row.release_date ?? row.releaseDate);
+  const etbIdRaw = row.etb_id ?? row.etbId;
+  const etbId =
+    typeof etbIdRaw === "string" && etbIdRaw.trim() ? etbIdRaw.trim() : undefined;
   return {
-    id: row.id,
-    name: row.name ?? "Produit",
+    id,
+    name,
+    block,
+    type,
+    releaseDate,
+    msrp: msrp >= 0 ? msrp : 0,
+    currentMarketPrice: market >= 0 ? market : 0,
+    imageUrl,
     emoji: "📦",
-    category: (row.category as Product["category"]) || "UPC",
-    set: row.series ?? "",
-    condition: "Neuf scellé",
-    currentPrice,
-    change30dPercent: 0,
-    badge: row.era ?? row.category ?? "",
-    createdAt: Date.now(),
-    imageUrl: row.imageUrl ?? undefined,
+    etbId,
   };
 }
 
-async function fetchProductByBarcode(code: string): Promise<ScannedProduct | null> {
+async function fetchCatalogueItemByBarcode(code: string): Promise<PokemonCatalogueItem | null> {
   const { data, error } = await supabase.from("products").select("*").eq("barcode", code);
-
-  try {
-    window.alert(
-      "Query barcode=" + code + " | data=" + JSON.stringify(data) + " | error=" + JSON.stringify(error)
-    );
-  } catch {
-    /* ignore */
-  }
-
   if (error || data == null) return null;
-
   const row = Array.isArray(data) ? data[0] : data;
   if (row == null) return null;
-
-  const r = row as Record<string, unknown>;
-  const id = r.id != null ? String(r.id) : "";
-  if (!id) return null;
-
-  return {
-    id,
-    name: (r.name as string) ?? null,
-    series: (r.series as string) ?? null,
-    era: (r.era as string) ?? null,
-    category: (r.category as string) ?? null,
-  };
+  return supabaseRowToCatalogueItem(row as Record<string, unknown>);
 }
 
 function formatUnknownError(err: unknown): string {
@@ -91,7 +120,7 @@ function isHighConfidenceScan(data: QuaggaJSResultObject): boolean {
 }
 
 export const AjouterPage = () => {
-  const { addToCollection } = useCollection();
+  const navigate = useNavigate();
   const quaggaTargetRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -101,32 +130,33 @@ export const AjouterPage = () => {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
-  const [product, setProduct] = useState<ScannedProduct | null>(null);
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
 
-  const processDetectedCode = useCallback(async (code: string) => {
-    const trimmed = code.trim().replace(/\s/g, "");
-    if (!trimmed) {
-      setNotFoundModalOpen(true);
-      return;
-    }
+  const processDetectedCode = useCallback(
+    async (code: string) => {
+      const trimmed = code.trim().replace(/\s/g, "");
+      if (!trimmed) {
+        setNotFoundModalOpen(true);
+        return;
+      }
 
-    try {
-      window.alert("Code détecté: " + trimmed);
-    } catch {
-      /* ignore */
-    }
+      const found = await fetchCatalogueItemByBarcode(trimmed);
+      if (!found) {
+        setNotFoundModalOpen(true);
+        return;
+      }
 
-    const found = await fetchProductByBarcode(trimmed);
-    if (!found) {
-      setNotFoundModalOpen(true);
-      return;
-    }
+      try {
+        sessionStorage.setItem(SCAN_CATALOGUE_ITEM_KEY, JSON.stringify(found));
+      } catch {
+        setNotFoundModalOpen(true);
+        return;
+      }
 
-    setProduct(found);
-    setSuccessModalOpen(true);
-  }, []);
+      navigate("/ajouter?fromScan=1");
+    },
+    [navigate]
+  );
 
   const stopMediaStream = useCallback(() => {
     mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -295,14 +325,6 @@ export const AjouterPage = () => {
     maxWidth: 400,
     width: "100%",
     margin: "0 auto",
-  };
-
-  const labelStyle: CSSProperties = {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    color: "var(--text-secondary, #9ca3af)",
-    marginBottom: 4,
   };
 
   const darkButtonStyle: CSSProperties = {
@@ -489,90 +511,6 @@ export const AjouterPage = () => {
           }}
         >
           Démarrage de la caméra…
-        </div>
-      ) : null}
-
-      {successModalOpen && product ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="ajouter-success-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 160,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 20,
-            background: "rgba(0,0,0,0.72)",
-          }}
-        >
-          <div style={cardStyle}>
-            <h2
-              id="ajouter-success-title"
-              style={{
-                margin: "0 0 16px",
-                fontSize: 17,
-                color: "var(--text-primary)",
-              }}
-            >
-              Produit trouvé
-            </h2>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 12,
-                marginBottom: 20,
-              }}
-            >
-              <div>
-                <div style={labelStyle}>Nom</div>
-                <div style={{ fontSize: 15, color: "var(--text-primary)" }}>
-                  {product.name ?? "—"}
-                </div>
-              </div>
-              <div>
-                <div style={labelStyle}>Série</div>
-                <div style={{ fontSize: 15, color: "var(--text-primary)" }}>
-                  {product.series ?? "—"}
-                </div>
-              </div>
-              <div>
-                <div style={labelStyle}>Ère</div>
-                <div style={{ fontSize: 15, color: "var(--text-primary)" }}>
-                  {product.era ?? "—"}
-                </div>
-              </div>
-              <div>
-                <div style={labelStyle}>Catégorie</div>
-                <div style={{ fontSize: 15, color: "var(--text-primary)" }}>
-                  {product.category ?? "—"}
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                addToCollection(rowToProduct(product));
-                setSuccessModalOpen(false);
-              }}
-              style={{
-                width: "100%",
-                padding: "12px 16px",
-                borderRadius: 12,
-                border: "none",
-                cursor: "pointer",
-                fontSize: 14,
-                fontWeight: 600,
-                background: "#D4A757",
-                color: "#111827",
-              }}
-            >
-              Ajouter à ma collection
-            </button>
-          </div>
         </div>
       ) : null}
 

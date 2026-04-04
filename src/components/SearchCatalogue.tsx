@@ -354,6 +354,7 @@ export const SearchCatalogue = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const itemParam = searchParams.get("item");
+  const fromScan = searchParams.get("fromScan");
 
   useEffect(() => {
     if (!itemParam) return;
@@ -372,6 +373,28 @@ export const SearchCatalogue = () => {
       setSearchParams({}, { replace: true });
     }
   }, [itemParam, setSearchParams]);
+
+  useEffect(() => {
+    if (fromScan !== "1") return;
+    try {
+      const raw = sessionStorage.getItem("pokevault_scan_catalogue_item");
+      if (raw) {
+        const item = JSON.parse(raw) as PokemonCatalogueItem;
+        if (item?.id && typeof item.name === "string") {
+          setSelected(item);
+        }
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      try {
+        sessionStorage.removeItem("pokevault_scan_catalogue_item");
+      } catch {
+        /* ignore */
+      }
+      setSearchParams({}, { replace: true });
+    }
+  }, [fromScan, setSearchParams]);
 
   useEffect(() => {
     const q = query.trim();
