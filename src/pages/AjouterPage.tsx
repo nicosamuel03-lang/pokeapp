@@ -75,6 +75,14 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
   }
 }
 
+/** Quagga : lecture fiable uniquement si erreur de décodage faible. */
+function isHighConfidenceScan(data: QuaggaJSResultObject): boolean {
+  const code = data.codeResult?.code;
+  if (code == null || String(code).trim() === "") return false;
+  const err = data.codeResult?.startInfo?.error;
+  return typeof err === "number" && err < 0.1;
+}
+
 export const AjouterPage = () => {
   const { addToCollection } = useCollection();
   const quaggaTargetRef = useRef<HTMLDivElement>(null);
@@ -201,6 +209,7 @@ export const AjouterPage = () => {
       let handled = false;
       const onDetected = (data: QuaggaJSResultObject) => {
         if (handled) return;
+        if (!isHighConfidenceScan(data)) return;
         const raw = data.codeResult?.code;
         if (raw == null || String(raw).trim() === "") return;
         handled = true;
@@ -223,16 +232,27 @@ export const AjouterPage = () => {
               type: "LiveStream",
               target,
               constraints: {
-                width: { min: 640 },
-                height: { min: 480 },
                 facingMode: "environment",
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+              },
+              area: {
+                top: "30%",
+                right: "10%",
+                left: "10%",
+                bottom: "30%",
+                borderColor: "rgba(212, 167, 87, 0.85)",
+                borderWidth: 2,
               },
             },
-            locator: { patchSize: "medium", halfSample: true },
-            frequency: 10,
-            decoder: { readers: ["ean_reader"] },
-            numOfWorkers: 0,
+            decoder: {
+              readers: ["ean_reader"],
+              multiple: false,
+            },
             locate: true,
+            frequency: 10,
+            locator: { patchSize: "medium", halfSample: true },
+            numOfWorkers: 0,
           },
           (err) => {
             if (err) reject(err);
@@ -335,63 +355,92 @@ export const AjouterPage = () => {
       </button>
 
       {scannerOpen ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Scanner code-barres"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 100,
-            background: "#000",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+        <>
+          <style>{`
+            #scanner-container {
+              position: relative;
+              flex: 1;
+              min-height: 0;
+              width: 100%;
+              overflow: hidden;
+              background: #000;
+            }
+            #scanner-container video {
+              position: absolute;
+              inset: 0;
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              z-index: 0;
+            }
+            .scanner-zone-overlay {
+              position: absolute;
+              top: 30%;
+              right: 10%;
+              left: 10%;
+              bottom: 30%;
+              z-index: 2;
+              pointer-events: none;
+              border: 3px solid rgba(212, 167, 87, 0.95);
+              border-radius: 10px;
+              box-shadow:
+                0 0 0 1px rgba(0, 0, 0, 0.5) inset,
+                0 0 20px rgba(212, 167, 87, 0.35);
+            }
+          `}</style>
           <div
-            ref={quaggaTargetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Scanner code-barres"
+            className="pokevault-scanner-shell"
             style={{
-              flex: 1,
-              minHeight: 0,
-              width: "100%",
-              position: "relative",
+              position: "fixed",
+              inset: 0,
+              width: "100vw",
+              height: "100vh",
+              maxHeight: "100dvh",
+              zIndex: 9999,
+              background: "#000",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <video
-              ref={videoRef}
-              playsInline
-              muted
-              autoPlay
+            <div
+              id="scanner-container"
+              ref={quaggaTargetRef}
+            >
+              <video
+                ref={videoRef}
+                playsInline
+                muted
+                autoPlay
+              />
+              <div className="scanner-zone-overlay" aria-hidden />
+            </div>
+            <button
+              type="button"
+              onClick={() => void closeScanner()}
               style={{
                 position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
+                top: "max(16px, env(safe-area-inset-top, 16px))",
+                right: "max(16px, env(safe-area-inset-right, 16px))",
+                zIndex: 10001,
+                padding: "14px 22px",
+                borderRadius: 14,
+                border: "2px solid rgba(255,255,255,0.95)",
+                fontSize: 16,
+                fontWeight: 700,
+                letterSpacing: "0.02em",
+                background: "rgba(0,0,0,0.82)",
+                color: "#ffffff",
+                cursor: "pointer",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,167,87,0.4)",
               }}
-            />
+            >
+              Fermer
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => void closeScanner()}
-            style={{
-              position: "absolute",
-              top: "max(12px, env(safe-area-inset-top, 12px))",
-              right: 12,
-              zIndex: 110,
-              padding: "12px 18px",
-              borderRadius: 12,
-              border: "none",
-              fontSize: 15,
-              fontWeight: 600,
-              background: "rgba(0,0,0,0.65)",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            Fermer
-          </button>
-        </div>
+        </>
       ) : null}
 
       {scanError ? (
