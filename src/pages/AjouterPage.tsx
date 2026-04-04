@@ -1,21 +1,82 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, CSSProperties } from "react";
+import { Capacitor } from "@capacitor/core";
 import {
+  BarcodeScanner,
   BarcodeFormat,
+  type Barcode,
+} from "@capacitor-mlkit/barcode-scanning";
+import {
+  BarcodeFormat as ZxBarcodeFormat,
   BrowserMultiFormatReader,
   DecodeHintType,
 } from "@zxing/library";
 import { supabase } from "../lib/supabase";
+import { useCollection } from "../state/CollectionContext";
+import type { Product } from "../state/ProductsContext";
 
 type ScannedProduct = {
   name: string | null;
   series: string | null;
   era: string | null;
   category: string | null;
+  id: string;
+  imageUrl?: string | null;
+  currentPrice?: number | null;
 };
 
+function barcodeToEanString(barcode: Barcode): string {
+  const raw = (barcode.rawValue ?? barcode.displayValue ?? "").trim();
+  return raw.replace(/\s/g, "");
+}
+
+function rowToProduct(row: ScannedProduct): Product {
+  const price = Number(row.currentPrice);
+  const currentPrice = Number.isFinite(price) && price >= 0 ? price : 0;
+  return {
+    id: row.id,
+    name: row.name ?? "Produit",
+    emoji: "📦",
+    category: (row.category as Product["category"]) || "UPC",
+    set: row.series ?? "",
+    condition: "Neuf scellé",
+    currentPrice,
+    change30dPercent: 0,
+    badge: row.era ?? row.category ?? "",
+    createdAt: Date.now(),
+    imageUrl: row.imageUrl ?? undefined,
+  };
+}
+
+async function fetchProductByEan(code: string): Promise<ScannedProduct | null> {
+  const { data, error } = await supabase
+    .from("products")
+    .select("id, name, series, era, category, ean")
+    .eq("ean", code)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const r = data as Record<string, unknown>;
+  const id = r.id != null ? String(r.id) : "";
+  if (!id) return null;
+
+  return {
+    id,
+    name: (r.name as string) ?? null,
+    series: (r.series as string) ?? null,
+    era: (r.era as string) ?? null,
+    category: (r.category as string) ?? null,
+  };
+}
+
+/** Évite un double lancement auto du scan en React StrictMode (remontage). */
+let autoNativeBarcodeScanLaunched = false;
+
 export const AjouterPage = () => {
+  const { addToCollection } = useCollection();
   const inputRef = useRef<HTMLInputElement>(null);
+  const scanBusy = useRef(false);
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -33,6 +94,85 @@ export const AjouterPage = () => {
     setPreviewUrl(null);
   };
 
+  const processEanCode = useCallback(async (code: string) => {
+    const trimmed = code.trim();
+    if (!trimmed) {
+      setNotFoundModalOpen(true);
+      return;
+    }
+
+    const found = await fetchProductByEan(trimmed);
+    if (!found) {
+      setNotFoundModalOpen(true);
+      return;
+    }
+
+    setProduct(found);
+    setSuccessModalOpen(true);
+  }, []);
+
+  const openMlKitScanner = useCallback(async () => {
+    if (scanBusy.current) return;
+    scanBusy.current = true;
+    setIsAnalyzing(true);
+    setNotFoundModalOpen(false);
+
+    try {
+      const perm = await BarcodeScanner.requestPermissions();
+      if (perm.camera !== "granted" && perm.camera !== "limited") {
+        return;
+      }
+
+      const { barcodes } = await BarcodeScanner.scan({
+        formats: [BarcodeFormat.Ean13],
+        autoZoom: true,
+      });
+
+      const eanBarcode =
+        barcodes.find((b) => b.format === BarcodeFormat.Ean13) ?? barcodes[0];
+      const ean = eanBarcode ? barcodeToEanString(eanBarcode) : "";
+
+      if (!ean) {
+        return;
+      }
+
+      await processEanCode(ean);
+    } catch {
+      /* annulation utilisateur ou indisponibilité */
+    } finally {
+      setIsAnalyzing(false);
+      scanBusy.current = false;
+    }
+  }, [processEanCode]);
+
+  const openScanner = useCallback(async () => {
+    if (Capacitor.isNativePlatform()) {
+      await openMlKitScanner();
+      return;
+    }
+
+    try {
+      const { supported } = await BarcodeScanner.isSupported();
+      if (supported) {
+        await openMlKitScanner();
+        return;
+      }
+    } catch {
+      /* fallback fichier */
+    }
+
+    inputRef.current?.click();
+  }, [openMlKitScanner]);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform() || autoNativeBarcodeScanLaunched) return;
+    autoNativeBarcodeScanLaunched = true;
+    const id = window.setTimeout(() => {
+      void openMlKitScanner();
+    }, 400);
+    return () => clearTimeout(id);
+  }, [openMlKitScanner]);
+
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -45,10 +185,10 @@ export const AjouterPage = () => {
 
     const hints = new Map();
     hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-      BarcodeFormat.EAN_13,
-      BarcodeFormat.EAN_8,
-      BarcodeFormat.UPC_A,
-      BarcodeFormat.UPC_E,
+      ZxBarcodeFormat.EAN_13,
+      ZxBarcodeFormat.EAN_8,
+      ZxBarcodeFormat.UPC_A,
+      ZxBarcodeFormat.UPC_E,
     ]);
     hints.set(DecodeHintType.TRY_HARDER, true);
     const reader = new BrowserMultiFormatReader(hints);
@@ -61,33 +201,8 @@ export const AjouterPage = () => {
       URL.revokeObjectURL(objectUrl);
       decodeObjectUrlRevoked = true;
 
-      console.log("Barcode detected:", result.getText());
       const code = result.getText().trim();
-      if (!code) {
-        setNotFoundModalOpen(true);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("products")
-        .select("name, series, era, category")
-        .eq("barcode", code)
-        .maybeSingle();
-
-      console.log("Supabase result:", data, error);
-
-      if (error || !data) {
-        setNotFoundModalOpen(true);
-        return;
-      }
-
-      setProduct({
-        name: (data as ScannedProduct).name ?? null,
-        series: (data as ScannedProduct).series ?? null,
-        era: (data as ScannedProduct).era ?? null,
-        category: (data as ScannedProduct).category ?? null,
-      });
-      setSuccessModalOpen(true);
+      await processEanCode(code);
     } catch (err) {
       console.log("ZXing error:", err);
       if (!decodeObjectUrlRevoked) URL.revokeObjectURL(objectUrl);
@@ -165,7 +280,9 @@ export const AjouterPage = () => {
           lineHeight: 1.45,
         }}
       >
-        Prenez une photo nette du code-barres du produit.
+        {Capacitor.isNativePlatform()
+          ? "La caméra s’ouvre pour lire le code EAN-13. Vous pouvez aussi relancer le scan ci-dessous."
+          : "Prenez une photo nette du code-barres du produit, ou utilisez le scan si votre navigateur le permet."}
       </p>
 
       <input
@@ -180,7 +297,7 @@ export const AjouterPage = () => {
       <button
         type="button"
         disabled={isAnalyzing}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => void openScanner()}
         style={darkButtonStyle}
       >
         📷 Prendre une photo
@@ -287,7 +404,7 @@ export const AjouterPage = () => {
             <button
               type="button"
               onClick={() => {
-                console.log("Ajouter à ma collection (placeholder)");
+                addToCollection(rowToProduct(product));
                 setSuccessModalOpen(false);
                 clearPreview();
               }}
