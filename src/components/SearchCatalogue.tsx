@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useAuth, useUser } from "@clerk/react";
 import { supabase } from "../lib/supabase";
 import { incrementSalesCounterByOne } from "../lib/salesSupabase";
@@ -157,6 +158,11 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
         onAdd(item, price, quantity, purchaseDate || undefined, ebayLive.displayPrice)
       );
       setJustAdded(true);
+      try {
+        await Haptics.impact({ style: ImpactStyle.Medium });
+      } catch {
+        /* Web ou plugin indisponible */
+      }
       setTimeout(() => {
         setJustAdded(false);
         onClose();
