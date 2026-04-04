@@ -423,3 +423,11 @@ html.dark .mewtwo-png-watermark-layer {
   position: relative !important;
   z-index: 20 !important;
 }
+
+/* Scanner code-barres (Capacitor) : webview transparente pendant le scan */
+body.scanner-active {
+  background: transparent !important;
+}
+body.scanner-active .app-container {
+  display: none;
+}

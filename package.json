@@ -15,7 +15,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@capacitor-mlkit/barcode-scanning": "^8.0.1",
+    "@capacitor-community/barcode-scanner": "^4.0.1",
     "@capacitor/core": "^8.3.0",
     "@clerk/backend": "^1.0.0",
     "@clerk/localizations": "^4.0.0",
