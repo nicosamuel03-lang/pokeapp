@@ -1556,7 +1556,7 @@ const ProductDetailPageInner = () => {
         }}
       >
         <div className="space-y-3">
-          <div style={{ paddingLeft: 12 }}>
+          <div style={{ paddingLeft: 8, paddingRight: 8 }}>
             <h3 className="app-heading mb-1 text-sm" style={{ color: "var(--text-primary)" }}>
               Historique de prix & vente
             </h3>
@@ -1599,7 +1599,14 @@ const ProductDetailPageInner = () => {
           )}
             </div>
           </div>
-          <div style={{ position: "relative" }}>
+          <div
+            style={{
+              position: "relative",
+              marginLeft: -8,
+              marginRight: -8,
+              width: "calc(100% + 16px)",
+            }}
+          >
           <div
             style={
               isPremium
@@ -1620,7 +1627,6 @@ const ProductDetailPageInner = () => {
                 height: 260,
                 width: "100%",
                 minHeight: 200,
-                paddingRight: 12,
                 boxSizing: "border-box",
               }}
             >
@@ -1652,7 +1658,7 @@ const ProductDetailPageInner = () => {
               <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 data={composedChartData}
-                margin={{ top: 12, right: 32, left: 4, bottom: 8 }}
+                margin={{ top: 12, right: 8, left: 0, bottom: 8 }}
               >
                 <defs>
                   <linearGradient id="areaGradDetail" x1="0" y1="0" x2="0" y2="1">
@@ -1786,6 +1792,27 @@ const ProductDetailPageInner = () => {
               )}
               </div>
             </div>
+          </div>
+            {!isInCollection && (
+              <button
+                type="button"
+                onClick={handleAddToCollection}
+                onPointerDown={triggerAddPress}
+                className={`btn-press flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:opacity-90 ${addBtnPressed ? "btn-press-pressed" : ""}`}
+                style={{
+                  background: "var(--bg-card-elevated)",
+                  color: "var(--text-primary)",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+                  marginTop: 12,
+                  marginLeft: 8,
+                  marginRight: 8,
+                  width: "calc(100% - 16px)",
+                  boxSizing: "border-box",
+                }}
+              >
+                <span>Ajouter à ma collection</span>
+              </button>
+            )}
             {priceListRows.length > 0 && (
               <div
                 className="overflow-hidden text-xs"
@@ -1795,6 +1822,10 @@ const ProductDetailPageInner = () => {
                   borderRadius: 12,
                   padding: 16,
                   marginTop: 12,
+                  marginLeft: 8,
+                  marginRight: 8,
+                  width: "calc(100% - 16px)",
+                  boxSizing: "border-box",
                 }}
               >
                 <table className="w-full border-collapse">
@@ -1828,7 +1859,6 @@ const ProductDetailPageInner = () => {
                 </table>
               </div>
             )}
-          </div>
           {!premiumLoading && !isPremium && (
             <div
               style={{
@@ -1888,22 +1918,7 @@ const ProductDetailPageInner = () => {
               </div>
             </div>
           )}
-        </div>
-        {!isInCollection && (
-          <button
-            type="button"
-            onClick={handleAddToCollection}
-            onPointerDown={triggerAddPress}
-            className={`btn-press flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:opacity-90 ${addBtnPressed ? "btn-press-pressed" : ""}`}
-            style={{
-              background: "var(--bg-card-elevated)",
-              color: "var(--text-primary)",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-            }}
-          >
-            <span>Ajouter à ma collection</span>
-          </button>
-        )}
+          </div>
         </div>
       </div>
 
