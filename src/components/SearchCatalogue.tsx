@@ -104,7 +104,10 @@ function todayISO(): string {
 
 interface AddModalProps {
   item: PokemonCatalogueItem;
+  /** Annuler, clic overlay — pas après succès. */
   onClose: () => void;
+  /** Après « Ajouté ✓ » ; si absent, utilise `onClose` (évite p.ex. `navigate(-1)` sur /ajouter). */
+  onCloseAfterSuccess?: () => void;
   onAdd: (
     item: PokemonCatalogueItem,
     buyPrice: number,
@@ -114,7 +117,7 @@ interface AddModalProps {
   ) => void | Promise<void>;
 }
 
-const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
+const AddModal = ({ item, onClose, onCloseAfterSuccess, onAdd }: AddModalProps) => {
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const [buyPrice, setBuyPrice] = useState("");
@@ -165,7 +168,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
       }
       setTimeout(() => {
         setJustAdded(false);
-        onClose();
+        (onCloseAfterSuccess ?? onClose)();
       }, ADD_TO_COLLECTION_SUCCESS_MS);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -595,6 +598,7 @@ export const SearchCatalogue = ({
 
     addToCollection(product, buyPrice, qty, purchaseDate);
 
+    /* Même route que l’onglet Accueil de la barre du bas (`BottomNavLayout` → `to: "/"`). */
     window.setTimeout(() => {
       navigate("/");
     }, ADD_TO_COLLECTION_SUCCESS_MS);
@@ -737,6 +741,14 @@ export const SearchCatalogue = ({
               navigate(-1);
             }
           }}
+          onCloseAfterSuccess={
+            historyBackOnAddModalClose
+              ? () => {
+                  setSelected(null);
+                  setOpen(query.trim().length >= 1);
+                }
+              : undefined
+          }
           onAdd={handleAdd}
         />
       )}
