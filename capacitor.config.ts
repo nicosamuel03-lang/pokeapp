@@ -14,6 +14,11 @@ const config: CapacitorConfig = {
   ios: {
     allowsInlineMediaPlayback: true,
     webContentsDebuggingEnabled: true,
+    infoPlist: {
+      NSCameraUsageDescription: 'Scanner de codes-barres pour vos produits Pokémon',
+      NSPhotoLibraryAddUsageDescription: 'Sauvegarder les photos de vos produits Pokémon',
+      NSPhotoLibraryUsageDescription: 'Accéder à vos photos pour scanner les codes-barres',
+    },
   },
   plugins: {
     SplashScreen: {
