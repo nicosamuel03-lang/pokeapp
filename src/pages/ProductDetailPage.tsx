@@ -1548,7 +1548,7 @@ const ProductDetailPageInner = () => {
       )}
 
       <div
-        className="rounded-2xl px-2 py-3"
+        className="rounded-2xl px-2 py-3 !mt-2"
         style={{
           background: "var(--card-color)",
           boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
