@@ -420,25 +420,6 @@ export const AjouterPage = () => {
                 0 0 0 1px rgba(0, 0, 0, 0.5) inset,
                 0 0 20px rgba(212, 167, 87, 0.35);
             }
-            .scanner-hint-overlay {
-              position: absolute;
-              left: 50%;
-              transform: translateX(-50%);
-              bottom: max(28px, env(safe-area-inset-bottom, 28px));
-              z-index: 4;
-              pointer-events: none;
-              max-width: min(92vw, 360px);
-              padding: 14px 18px;
-              border-radius: 14px;
-              text-align: center;
-              font-size: 16px;
-              font-weight: 600;
-              line-height: 1.35;
-              color: #ffffff;
-              background: rgba(0, 0, 0, 0.72);
-              border: 1px solid rgba(255, 255, 255, 0.2);
-              box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
-            }
           `}</style>
           <div
             role="dialog"
@@ -486,12 +467,30 @@ export const AjouterPage = () => {
                 >
                   Démarrage de la caméra…
                 </div>
-              ) : (
-                <div className="scanner-hint-overlay" role="status">
-                  Scannez le code-barres de votre produit
-                </div>
-              )}
+              ) : null}
             </div>
+            {!isStarting ? (
+              <div
+                role="status"
+                style={{
+                  position: "fixed",
+                  top: 120,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  zIndex: 9999,
+                  background: "rgba(0,0,0,0.7)",
+                  color: "#ffffff",
+                  borderRadius: 12,
+                  padding: "12px 24px",
+                  fontSize: 16,
+                  fontWeight: 700,
+                  textAlign: "center",
+                  pointerEvents: "none",
+                }}
+              >
+                Scannez le code-barres de votre produit
+              </div>
+            ) : null}
             <button
               type="button"
               onClick={() => void closeScanner()}
