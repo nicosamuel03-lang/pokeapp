@@ -367,7 +367,7 @@ const AddModal = ({ item, onClose, onAdd }: AddModalProps) => {
 
 const FREE_COLLECTION_LIMIT = 5;
 /** Durée d’affichage « Ajouté ✓ » + alignement avec la navigation (même délai que l’animation bouton). */
-const ADD_TO_COLLECTION_SUCCESS_MS = 1000;
+const ADD_TO_COLLECTION_SUCCESS_MS = 400;
 
 export const SearchCatalogue = () => {
   const [searchParams, setSearchParams] = useSearchParams();
