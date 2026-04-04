@@ -1624,7 +1624,7 @@ const ProductDetailPageInner = () => {
               style={{
                 position: "relative",
                 background: "var(--bg-card-elevated)",
-                height: 260,
+                height: 350,
                 width: "100%",
                 minHeight: 200,
                 boxSizing: "border-box",
@@ -1866,7 +1866,7 @@ const ProductDetailPageInner = () => {
                 top: 0,
                 left: 0,
                 right: 0,
-                height: 260,
+                height: 350,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
