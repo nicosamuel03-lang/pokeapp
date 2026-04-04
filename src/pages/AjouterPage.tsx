@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
 import Quagga from "@ericblade/quagga2";
-import type { QuaggaJSResultObject } from "@ericblade/quagga2";
 import { supabase } from "../lib/supabase";
 import { useCollection } from "../state/CollectionContext";
 import type { Product } from "../state/ProductsContext";
@@ -75,13 +75,20 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
   }
 }
 
+function isUserCancelledCamera(err: unknown): boolean {
+  const msg = formatUnknownError(err).toLowerCase();
+  return (
+    msg.includes("cancel") ||
+    msg.includes("cancelled") ||
+    msg.includes("canceled") ||
+    msg.includes("dismiss")
+  );
+}
+
 export const AjouterPage = () => {
   const { addToCollection } = useCollection();
-  const quaggaTargetRef = useRef<HTMLDivElement>(null);
-  const onDetectedRef = useRef<((r: QuaggaJSResultObject) => void) | null>(null);
   const scanBusy = useRef(false);
 
-  const [scannerOpen, setScannerOpen] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [product, setProduct] = useState<ScannedProduct | null>(null);
@@ -105,36 +112,6 @@ export const AjouterPage = () => {
     setSuccessModalOpen(true);
   }, []);
 
-  const stopQuagga = useCallback(async () => {
-    const handler = onDetectedRef.current;
-    if (handler) {
-      try {
-        Quagga.offDetected(handler);
-      } catch {
-        /* ignore */
-      }
-      onDetectedRef.current = null;
-    }
-    try {
-      await Quagga.stop();
-    } catch {
-      /* ignore */
-    }
-  }, []);
-
-  const closeScanner = useCallback(async () => {
-    await stopQuagga();
-    setScannerOpen(false);
-    setIsAnalyzing(false);
-    scanBusy.current = false;
-  }, [stopQuagga]);
-
-  useEffect(() => {
-    return () => {
-      void stopQuagga();
-    };
-  }, [stopQuagga]);
-
   const runBarcodeScan = useCallback(async () => {
     if (scanBusy.current) {
       const msg = "Un scan est déjà en cours.";
@@ -147,84 +124,53 @@ export const AjouterPage = () => {
     setNotFoundModalOpen(false);
 
     try {
+      const photo = await Camera.getPhoto({
+        quality: 90,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+
+      const dataUrl = photo.dataUrl;
+      if (!dataUrl) {
+        setNotFoundModalOpen(true);
+        return;
+      }
+
+      let decodeResult;
       try {
-        const probe = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
+        decodeResult = await Quagga.decodeSingle({
+          src: dataUrl,
+          numOfWorkers: 0,
+          inputStream: { size: 800, singleChannel: false },
+          locator: { patchSize: "medium", halfSample: true },
+          decoder: { readers: ["ean_reader"] },
+          locate: true,
         });
-        probe.getTracks().forEach((t) => t.stop());
       } catch (e) {
-        const msg = `Caméra : ${formatUnknownError(e)}`;
+        const msg = `Décodage : ${formatUnknownError(e)}`;
         showDebugError(msg, setScanError);
-        scanBusy.current = false;
-        setIsAnalyzing(false);
+        setNotFoundModalOpen(true);
         return;
       }
 
-      setScannerOpen(true);
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-      });
-
-      const target = quaggaTargetRef.current;
-      if (!target) {
-        showDebugError("Conteneur de scan introuvable.", setScanError);
-        await closeScanner();
+      const code = decodeResult?.codeResult?.code;
+      if (code == null || String(code).trim() === "") {
+        setNotFoundModalOpen(true);
         return;
       }
 
-      const onDetected = (data: QuaggaJSResultObject) => {
-        const code = data.codeResult?.code;
-        if (code == null || String(code).trim() === "") return;
-
-        void (async () => {
-          await stopQuagga();
-          setScannerOpen(false);
-          setIsAnalyzing(false);
-          scanBusy.current = false;
-          await processEanCode(String(code));
-        })();
-      };
-      onDetectedRef.current = onDetected;
-      Quagga.onDetected(onDetected);
-
-      await new Promise<void>((resolve, reject) => {
-        void Quagga.init(
-          {
-            inputStream: {
-              type: "LiveStream",
-              target,
-              constraints: {
-                width: { min: 640 },
-                height: { min: 480 },
-                facingMode: "environment",
-              },
-            },
-            locator: { patchSize: "medium", halfSample: true },
-            frequency: 8,
-            decoder: {
-              readers: ["ean_reader"],
-            },
-            numOfWorkers: 0,
-            locate: true,
-          },
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          }
-        );
-      });
-
-      Quagga.start();
-      setIsAnalyzing(false);
+      await processEanCode(String(code));
     } catch (e) {
-      const msg = `Scanner : ${formatUnknownError(e)}`;
+      if (isUserCancelledCamera(e)) {
+        return;
+      }
+      const msg = `Caméra : ${formatUnknownError(e)}`;
       showDebugError(msg, setScanError);
-      await stopQuagga();
-      setScannerOpen(false);
+    } finally {
       setIsAnalyzing(false);
       scanBusy.current = false;
     }
-  }, [closeScanner, processEanCode, stopQuagga]);
+  }, [processEanCode]);
 
   const cardStyle: CSSProperties = {
     background: "var(--card-color, #1a1a1a)",
@@ -294,7 +240,8 @@ export const AjouterPage = () => {
           lineHeight: 1.45,
         }}
       >
-        Appuyez sur Scanner : la caméra lit le code EAN-13 en direct dans le navigateur (Quagga2).
+        Appuyez sur Scanner : photo avec la caméra native (Capacitor), puis lecture du code EAN avec
+        Quagga2.
       </p>
 
       <button
@@ -305,63 +252,6 @@ export const AjouterPage = () => {
       >
         Scanner
       </button>
-
-      {scannerOpen ? (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Scanner code-barres"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 100,
-            background: "#000",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <div
-            ref={quaggaTargetRef}
-            style={{
-              flex: 1,
-              minHeight: 0,
-              width: "100%",
-              position: "relative",
-            }}
-          >
-            <video
-              playsInline
-              muted
-              autoPlay
-              style={{
-                position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => void closeScanner()}
-            style={{
-              flexShrink: 0,
-              margin: 12,
-              padding: "14px 20px",
-              borderRadius: 12,
-              border: "none",
-              fontSize: 16,
-              fontWeight: 600,
-              background: "rgba(255,255,255,0.15)",
-              color: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            Fermer
-          </button>
-        </div>
-      ) : null}
 
       {scanError ? (
         <div
@@ -386,7 +276,7 @@ export const AjouterPage = () => {
         </div>
       ) : null}
 
-      {isAnalyzing && !scannerOpen ? (
+      {isAnalyzing ? (
         <div
           style={{
             textAlign: "center",
@@ -395,7 +285,7 @@ export const AjouterPage = () => {
             fontSize: 15,
           }}
         >
-          Ouverture de la caméra…
+          Traitement de la photo…
         </div>
       ) : null}
 
@@ -508,7 +398,7 @@ export const AjouterPage = () => {
                 color: "var(--text-primary)",
               }}
             >
-              Produit non reconnu
+              Produit non reconnu - Réessayer
             </h2>
             <button
               type="button"

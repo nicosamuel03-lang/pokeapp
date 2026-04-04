@@ -15,6 +15,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@capacitor/camera": "^8.0.2",
     "@capacitor/core": "^8.3.0",
     "@clerk/backend": "^1.0.0",
     "@clerk/localizations": "^4.0.0",
