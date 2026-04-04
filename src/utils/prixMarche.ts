@@ -104,3 +104,23 @@ export function getPrixMarcheForProduct(
     catalogReferencePrice: base,
   });
 }
+
+/**
+ * Clé `product_id` dans `ebay_prices` / batch `tracked-prices` — même règle que `ProductDetailPage` (`trackedProductId`).
+ */
+export function ebayPricesTableProductId(product: {
+  id?: string | null;
+  etbId?: string | null;
+  category?: string | null;
+}): string | null {
+  const rawId = product.etbId ?? product.id ?? null;
+  if (!rawId) return null;
+  const category = (product.category || "").toLowerCase();
+  if (category === "displays" || category === "display") {
+    return `display-${String(rawId).replace(/^display-/i, "")}`;
+  }
+  if (category === "upc") {
+    return `upc-${String(rawId).replace(/^upc-/i, "")}`;
+  }
+  return String(rawId);
+}

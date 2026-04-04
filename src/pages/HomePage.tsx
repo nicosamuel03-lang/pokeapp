@@ -7,7 +7,7 @@ import { ItemIcon } from "../components/ItemIcon";
 import { RasterImage } from "../components/RasterImage";
 import { etbData } from "../data/etbData";
 import { displayData } from "../data/displayData";
-import { getPrixMarcheForProduct } from "../utils/prixMarche";
+import { ebayPricesTableProductId, getPrixMarcheForProduct } from "../utils/prixMarche";
 import { useSalesHistory } from "../hooks/useSalesHistory";
 import { getEraBadge, getEraNeonBadgeStyle, getEraStyle } from "../utils/eraBadge";
 import { formatProductNameWithSetCode, formatReleaseDate, getSetCodeFromProduct } from "../utils/formatProduct";
@@ -24,6 +24,7 @@ import {
 } from "../utils/productCardEraBadge";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import { usePortfolioEbayPrices } from "../hooks/usePortfolioEbayPrices";
+import { isEbayMockMode } from "../services/ebayMarketPrice";
 const categories: { key: Category; label: string }[] = [
   { key: "Displays", label: "Displays" },
   { key: "ETB", label: "ETB" },
@@ -344,19 +345,17 @@ export const HomePage = () => {
     return sortHomeProductsBySearch(filterHomeProductsBySearch(base, ""), "");
   }, [filtered]);
 
-  // Un seul appel batch pour récupérer tous les prix eBay trackés (Supabase 7j).
-  // On utilise product.id (jamais etbId) car c'est l'ID qui correspond exactement
-  // aux product_id stockés dans Supabase :
-  //   ETB     → "EV10"          (pas de préfixe)
-  //   Display → "display-EV10"  (préfixe "display-")
-  //   UPC     → "upc-UPC08"     (préfixe "upc-")
+  // Batch `ebay_prices` : mêmes `product_id` que la fiche détail (`trackedProductId`).
   const _databaseProductsAsLines = useMemo(
     () =>
       databaseProducts.map((p) => ({
         quantity: 1,
         buyPrice: p.prixAchat,
-        // etbId absent → le hook utilise systématiquement product.id
-        product: { id: p.id } as { id: string; etbId?: string },
+        product: {
+          id: p.id,
+          etbId: p.etbId,
+          category: p.category,
+        },
       })),
     [databaseProducts]
   );
@@ -373,11 +372,19 @@ export const HomePage = () => {
     }
   }, [ebayHomePriceMap]);
 
-  /** Retourne le prix eBay tracké s'il est disponible, sinon le prix catalogue. */
+  /** Même logique que la fiche produit : moyenne eBay 90j si dispo, sinon `getPrixMarcheForProduct`. */
   const homeCardPrice = (product: HomeProduct): number => {
-    // product.id est toujours l'ID Supabase exact (ex: "EV10", "display-ME02", "upc-UPC08")
-    const ebay = ebayHomePriceMap.get(product.id);
-    return ebay != null && ebay > 0 ? ebay : homeProductMarcheAffiché(product);
+    if (isEbayMockMode()) return homeProductMarcheAffiché(product);
+    const key = ebayPricesTableProductId({
+      id: product.id,
+      etbId: product.etbId,
+      category: product.category,
+    });
+    if (key != null) {
+      const ebay = ebayHomePriceMap.get(key);
+      if (ebay != null && ebay > 0) return ebay;
+    }
+    return homeProductMarcheAffiché(product);
   };
 
   const applyHomeSearchFromValue = useCallback(
