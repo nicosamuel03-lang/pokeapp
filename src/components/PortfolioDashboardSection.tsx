@@ -120,6 +120,12 @@ export function PortfolioDashboardSection({
     return (
       <>
       <section className="rounded-2xl px-2 py-3 overflow-hidden -mx-0" style={isDark ? { background: DARK_MAIN } : mainCardStyle}>
+        <p
+          className="mb-1 px-2 text-left text-xs font-medium"
+          style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}
+        >
+          Graphique de collection
+        </p>
         <div className="mb-2 flex gap-2 px-2">
           <button
             type="button"
