@@ -379,10 +379,10 @@ const FREE_COLLECTION_LIMIT = 5;
 const ADD_TO_COLLECTION_SUCCESS_MS = 400;
 
 export const SearchCatalogue = ({
-  onClosedAddModalFromScannedItem,
+  historyBackOnAddModalClose,
 }: {
-  /** Après scan code-barres : fermeture du modal d’ajout → retour scanner (AddProductPage). */
-  onClosedAddModalFromScannedItem?: () => void;
+  /** Page /ajouter : fermeture du modal (Annuler / overlay) → `navigate(-1)` vers la page précédente. */
+  historyBackOnAddModalClose?: boolean;
 } = {}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -410,7 +410,6 @@ export const SearchCatalogue = ({
 
   const itemParam = searchParams.get("item");
   const fromScan = searchParams.get("fromScan");
-  const openedFromBarcodeItemParam = useRef(false);
 
   useEffect(() => {
     if (!itemParam) return;
@@ -425,7 +424,6 @@ export const SearchCatalogue = ({
         i.id.toLowerCase() === `upc-${paramLower}`
     );
     if (match) {
-      openedFromBarcodeItemParam.current = true;
       setSelected(match);
       setSearchParams({}, { replace: true });
     }
@@ -511,7 +509,6 @@ export const SearchCatalogue = ({
         "Limite de 5 produits en collection (version gratuite). Passez à Premium pour continuer."
       );
     }
-    openedFromBarcodeItemParam.current = false;
     const marchéActuel =
       typeof prixMarcheActuel === "number" &&
       Number.isFinite(prixMarcheActuel) &&
@@ -736,9 +733,8 @@ export const SearchCatalogue = ({
           onClose={() => {
             setSelected(null);
             setOpen(query.trim().length >= 1);
-            if (openedFromBarcodeItemParam.current) {
-              openedFromBarcodeItemParam.current = false;
-              onClosedAddModalFromScannedItem?.();
+            if (historyBackOnAddModalClose) {
+              navigate(-1);
             }
           }}
           onAdd={handleAdd}
