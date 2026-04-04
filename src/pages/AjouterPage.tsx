@@ -35,15 +35,22 @@ function rowToProduct(row: ScannedProduct): Product {
 }
 
 async function fetchProductByBarcode(code: string): Promise<ScannedProduct | null> {
-  const { data, error } = await supabase
-    .from("products")
-    .select("id, name, series, era, category, ean")
-    .eq("barcode", code)
-    .maybeSingle();
+  const { data, error } = await supabase.from("products").select("*").eq("barcode", code);
 
-  if (error || !data) return null;
+  try {
+    window.alert(
+      "Query barcode=" + code + " | data=" + JSON.stringify(data) + " | error=" + JSON.stringify(error)
+    );
+  } catch {
+    /* ignore */
+  }
 
-  const r = data as Record<string, unknown>;
+  if (error || data == null) return null;
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (row == null) return null;
+
+  const r = row as Record<string, unknown>;
   const id = r.id != null ? String(r.id) : "";
   if (!id) return null;
 
@@ -103,6 +110,12 @@ export const AjouterPage = () => {
     if (!trimmed) {
       setNotFoundModalOpen(true);
       return;
+    }
+
+    try {
+      window.alert("Code détecté: " + trimmed);
+    } catch {
+      /* ignore */
     }
 
     const found = await fetchProductByBarcode(trimmed);
