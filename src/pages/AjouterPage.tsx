@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
 import Quagga from "@ericblade/quagga2";
@@ -132,6 +132,9 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
     /* ignore */
   }
 }
+
+const POKEVAULT_SCANNER_FULLSCREEN_ATTR = "data-pokevault-scanner-fullscreen";
+const POKEVAULT_SCANNER_CHROME_STYLE_ID = "pokevault-scanner-hide-app-chrome";
 
 /** Quagga : lecture fiable uniquement si erreur de décodage faible. */
 function isHighConfidenceScan(data: QuaggaJSResultObject): boolean {
@@ -412,6 +415,44 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
     };
   }, [runBarcodeScan, stopQuagga]);
 
+  useLayoutEffect(() => {
+    if (typeof document === "undefined") return;
+    if (!document.getElementById(POKEVAULT_SCANNER_CHROME_STYLE_ID)) {
+      const el = document.createElement("style");
+      el.id = POKEVAULT_SCANNER_CHROME_STYLE_ID;
+      el.textContent = `
+html[${POKEVAULT_SCANNER_FULLSCREEN_ATTR}="true"] main > div > header {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html[${POKEVAULT_SCANNER_FULLSCREEN_ATTR}="true"] main > div > div[class~="-mx-3"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+html[${POKEVAULT_SCANNER_FULLSCREEN_ATTR}="true"] #app-bottom-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+`;
+      document.head.appendChild(el);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (scannerOpen) {
+      document.documentElement.setAttribute(POKEVAULT_SCANNER_FULLSCREEN_ATTR, "true");
+    } else {
+      document.documentElement.removeAttribute(POKEVAULT_SCANNER_FULLSCREEN_ATTR);
+    }
+    return () => {
+      document.documentElement.removeAttribute(POKEVAULT_SCANNER_FULLSCREEN_ATTR);
+    };
+  }, [scannerOpen]);
+
   const cardStyle: CSSProperties = {
     background: "var(--card-color, #1a1a1a)",
     border: "1px solid var(--border-color, rgba(255,255,255,0.08))",
@@ -516,7 +557,7 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
               width: "100vw",
               height: "100vh",
               maxHeight: "100dvh",
-              zIndex: 9999,
+              zIndex: 20050,
               background: "#000",
               display: "flex",
               flexDirection: "column",
