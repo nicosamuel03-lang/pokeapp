@@ -141,7 +141,12 @@ function isHighConfidenceScan(data: QuaggaJSResultObject): boolean {
   return typeof err === "number" && err < 0.1;
 }
 
-export const AjouterPage = () => {
+type AjouterPageProps = {
+  /** Appelé quand l’utilisateur ferme le scanner (Fermer) — ex. retour au catalogue inline. */
+  onScannerClosedByUser?: () => void;
+};
+
+export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
   const navigate = useNavigate();
   const quaggaTargetRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -182,11 +187,19 @@ export const AjouterPage = () => {
   );
 
   const stopMediaStream = useCallback(() => {
-    mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+    try {
+      mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* flux / élément vidéo déjà démonté */
+    }
     mediaStreamRef.current = null;
-    const v = videoRef.current;
-    if (v) {
-      v.srcObject = null;
+    try {
+      const v = videoRef.current;
+      if (v) {
+        v.srcObject = null;
+      }
+    } catch {
+      /* vidéo absente ou plus dans le DOM */
     }
   }, []);
 
@@ -203,7 +216,7 @@ export const AjouterPage = () => {
     try {
       await Quagga.stop();
     } catch {
-      /* ignore */
+      /* Quagga / vidéo déjà détruits (navigation, démontage) */
     }
     stopMediaStream();
   }, [stopMediaStream]);
@@ -213,7 +226,8 @@ export const AjouterPage = () => {
     setScannerOpen(false);
     setIsStarting(false);
     scanBusy.current = false;
-  }, [stopQuagga]);
+    onScannerClosedByUser?.();
+  }, [stopQuagga, onScannerClosedByUser]);
 
   const runBarcodeScan = useCallback(async () => {
     if (scanBusy.current) {
@@ -245,8 +259,14 @@ export const AjouterPage = () => {
       const video = videoRef.current;
       if (!video) {
         stopMediaStream();
-        showDebugError("Élément vidéo introuvable.", setScanError);
-        await closeScanner();
+        try {
+          await stopQuagga();
+        } catch {
+          /* ignore */
+        }
+        setScannerOpen(false);
+        setIsStarting(false);
+        scanBusy.current = false;
         return;
       }
 
@@ -258,8 +278,14 @@ export const AjouterPage = () => {
       const target = quaggaTargetRef.current;
       if (!target) {
         stopMediaStream();
-        showDebugError("Conteneur de scan introuvable.", setScanError);
-        await closeScanner();
+        try {
+          await stopQuagga();
+        } catch {
+          /* ignore */
+        }
+        setScannerOpen(false);
+        setIsStarting(false);
+        scanBusy.current = false;
         return;
       }
 
