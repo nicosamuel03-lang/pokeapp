@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import {
-  BarcodeScanner,
-  BarcodeFormat,
-  type Barcode,
-} from "@capacitor-mlkit/barcode-scanning";
+import { BarcodeScanner, BarcodeFormat } from "@capacitor-mlkit/barcode-scanning";
 import { supabase } from "../lib/supabase";
 import { useCollection } from "../state/CollectionContext";
 import type { Product } from "../state/ProductsContext";
@@ -18,11 +14,6 @@ type ScannedProduct = {
   imageUrl?: string | null;
   currentPrice?: number | null;
 };
-
-function barcodeToEanString(barcode: Barcode): string {
-  const raw = (barcode.rawValue ?? barcode.displayValue ?? "").trim();
-  return raw.replace(/\s/g, "");
-}
 
 function rowToProduct(row: ScannedProduct): Product {
   const price = Number(row.currentPrice);
@@ -64,13 +55,23 @@ async function fetchProductByEan(code: string): Promise<ScannedProduct | null> {
   };
 }
 
-async function ensureCameraPermission(): Promise<boolean> {
-  const checked = await BarcodeScanner.checkPermissions();
-  if (checked.camera === "granted" || checked.camera === "limited") {
-    return true;
+function formatUnknownError(err: unknown): string {
+  if (err instanceof Error) return err.message || String(err);
+  if (typeof err === "string") return err;
+  try {
+    return JSON.stringify(err);
+  } catch {
+    return String(err);
   }
-  const requested = await BarcodeScanner.requestPermissions();
-  return requested.camera === "granted" || requested.camera === "limited";
+}
+
+function showDebugError(message: string, setScanError: (s: string | null) => void) {
+  setScanError(message);
+  try {
+    window.alert(message);
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Évite un double lancement auto du scan en React StrictMode (remontage). */
@@ -81,6 +82,7 @@ export const AjouterPage = () => {
   const scanBusy = useRef(false);
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [scanError, setScanError] = useState<string | null>(null);
   const [product, setProduct] = useState<ScannedProduct | null>(null);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
@@ -103,32 +105,74 @@ export const AjouterPage = () => {
   }, []);
 
   const runBarcodeScan = useCallback(async () => {
-    if (scanBusy.current) return;
+    if (scanBusy.current) {
+      const msg = "Un scan est déjà en cours. Patientez ou réessayez dans un instant.";
+      showDebugError(msg, setScanError);
+      return;
+    }
     scanBusy.current = true;
     setIsAnalyzing(true);
+    setScanError(null);
     setNotFoundModalOpen(false);
 
     try {
-      const allowed = await ensureCameraPermission();
-      if (!allowed) {
+      let supported: boolean;
+      try {
+        const res = await BarcodeScanner.isSupported();
+        supported = res.supported;
+      } catch (e) {
+        const msg = `isSupported: ${formatUnknownError(e)}`;
+        showDebugError(msg, setScanError);
         return;
       }
 
-      const { barcodes } = await BarcodeScanner.scan({
-        formats: [BarcodeFormat.Ean13],
-      });
-
-      const eanBarcode =
-        barcodes.find((b) => b.format === BarcodeFormat.Ean13) ?? barcodes[0];
-      const ean = eanBarcode ? barcodeToEanString(eanBarcode) : "";
-
-      if (!ean) {
+      if (!supported) {
+        const msg = "Scanner non supporté sur cet appareil";
+        showDebugError(msg, setScanError);
         return;
       }
 
-      await processEanCode(ean);
-    } catch {
-      /* annulation ou indisponibilité */
+      let permissionOk = false;
+      try {
+        const perm = await BarcodeScanner.requestPermissions();
+        permissionOk = perm.camera === "granted" || perm.camera === "limited";
+      } catch (e) {
+        const msg = `requestPermissions: ${formatUnknownError(e)}`;
+        showDebugError(msg, setScanError);
+        return;
+      }
+
+      if (!permissionOk) {
+        const msg = "Permission caméra refusée";
+        showDebugError(msg, setScanError);
+        return;
+      }
+
+      let barcodes: Awaited<ReturnType<typeof BarcodeScanner.scan>>["barcodes"];
+      try {
+        const result = await BarcodeScanner.scan({ formats: [BarcodeFormat.Ean13] });
+        barcodes = result.barcodes;
+      } catch (e) {
+        const msg = `BarcodeScanner.scan: ${formatUnknownError(e)}`;
+        showDebugError(msg, setScanError);
+        return;
+      }
+
+      if (barcodes.length > 0) {
+        const raw = (barcodes[0].rawValue ?? barcodes[0].displayValue ?? "").trim().replace(/\s/g, "");
+        if (raw) {
+          await processEanCode(raw);
+        } else {
+          const msg = "Code lu mais valeur vide (rawValue/displayValue).";
+          showDebugError(msg, setScanError);
+        }
+      } else {
+        const msg = "Aucun code-barres détecté (session terminée sans résultat).";
+        showDebugError(msg, setScanError);
+      }
+    } catch (e) {
+      const msg = `Scanner: ${formatUnknownError(e)}`;
+      showDebugError(msg, setScanError);
     } finally {
       setIsAnalyzing(false);
       scanBusy.current = false;
@@ -224,6 +268,29 @@ export const AjouterPage = () => {
       >
         Scanner
       </button>
+
+      {scanError ? (
+        <div
+          role="alert"
+          style={{
+            marginTop: 16,
+            maxWidth: 420,
+            marginLeft: "auto",
+            marginRight: "auto",
+            padding: 14,
+            borderRadius: 12,
+            background: "rgba(220, 38, 38, 0.15)",
+            border: "1px solid rgba(248, 113, 113, 0.45)",
+            color: "#fecaca",
+            fontSize: 13,
+            lineHeight: 1.45,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          {scanError}
+        </div>
+      ) : null}
 
       {isAnalyzing ? (
         <div
