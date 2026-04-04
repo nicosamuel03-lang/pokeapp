@@ -1204,7 +1204,7 @@ const ProductDetailPageInner = () => {
         <ChevronLeft size={28} strokeWidth={1.5} />
       </button>
       <div
-        className="rounded-2xl px-2 py-3"
+        className="mb-0 rounded-2xl px-2 py-3"
         style={{
           background: "var(--card-color)",
           boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
@@ -1212,7 +1212,7 @@ const ProductDetailPageInner = () => {
         }}
       >
         <div style={{ paddingLeft: 12 }}>
-          <div className="mb-2 flex items-start justify-between gap-3">
+          <div className="mb-0 flex items-start justify-between gap-3">
             <div className="flex min-w-0 flex-1 items-stretch gap-2 md:gap-3">
               <div
                 className="flex max-h-56 w-[min(35%,130px)] max-w-[130px] shrink-0 items-center justify-center rounded-xl p-1.5 md:w-[220px] md:max-w-[220px] md:p-2"
@@ -1548,11 +1548,15 @@ const ProductDetailPageInner = () => {
       )}
 
       <div
-        className="rounded-2xl px-2 py-3 !mt-2"
+        className="mb-0 rounded-2xl px-2 pb-3 pt-2 !mt-1"
         style={{
           background: "var(--card-color)",
           boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-          ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
+          ...(isLight && {
+            border: "1px solid var(--border-color)",
+            padding: "8px 8px 16px 8px",
+            borderRadius: 12,
+          }),
         }}
       >
         <div className="space-y-3">
