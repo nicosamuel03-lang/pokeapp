@@ -108,7 +108,8 @@ function catalogueItemToItemQueryParam(item: PokemonCatalogueItem): string {
 }
 
 async function fetchProductsRowByBarcode(code: string): Promise<Record<string, unknown> | null> {
-  const { data, error } = await supabase.from("products").select("*").eq("barcode", code);
+  const normalizedCode = code.padStart(13, "0");
+  const { data, error } = await supabase.from("products").select("*").eq("barcode", normalizedCode);
   if (error || data == null) return null;
   const row = Array.isArray(data) ? data[0] : data;
   return row != null ? (row as Record<string, unknown>) : null;
