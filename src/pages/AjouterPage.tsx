@@ -27,6 +27,34 @@ function resolveEtbIdFromProductsRow(row: Record<string, unknown>): string | und
   const name = typeof row.name === "string" ? row.name : "";
   const m = name.match(/\b((?:EB|EV|ME|SL)\d{2}(?:\.\d)?)\b/i);
   if (m) return m[1]!.toUpperCase();
+
+  // Fallback: extract code from the product name (e.g. "Display Rivalités Destinées" -> match via series)
+  // Or from any field that might contain the code pattern
+  const nameVal = typeof row.name === "string" ? row.name : "";
+  const seriesVal = typeof row.series === "string" ? row.series : "";
+
+  // Try to find the code by matching the series name against known catalogue items
+  const catalogue = searchPokemonCatalogue("") ?? [];
+  const rawCategory = typeof row.category === "string" ? row.category.trim().toLowerCase() : "";
+
+  let targetType: string | null = null;
+  if (rawCategory === "etb") targetType = "ETB";
+  else if (rawCategory === "display") targetType = "Display";
+  else if (rawCategory === "upc") targetType = "UPC";
+
+  const filtered = targetType ? catalogue.filter((i) => i.type === targetType) : catalogue;
+
+  // Match by checking if the series name appears in the catalogue item's name
+  const seriesLower = seriesVal.toLowerCase();
+  if (seriesLower) {
+    const match = filtered.find((i) => {
+      const iName = i.name?.toLowerCase() ?? "";
+      return iName.includes(seriesLower);
+    });
+    if (match?.id) return match.id;
+    if (match && "etbId" in match && typeof match.etbId === "string") return match.etbId;
+  }
+
   return undefined;
 }
 
