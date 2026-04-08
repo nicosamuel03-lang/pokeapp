@@ -94,6 +94,9 @@ function findLocalCatalogueMatchFromProductsRow(row: Record<string, unknown>): P
     if (byEtb) return byEtb;
     const anyWithCode = pool.find((i) => i.etbId === etbId);
     if (anyWithCode) return anyWithCode;
+    // Also try matching by item id (for Displays which use id instead of etbId)
+    const byId = pool.find((i) => i.id === etbId);
+    if (byId) return byId;
   }
 
   // Fallback: match by series name in the filtered pool
