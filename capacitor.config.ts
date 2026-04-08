@@ -7,6 +7,7 @@ const config: CapacitorConfig = {
   appName: 'PokéVault',
   webDir: 'dist',
   server: {
+    url: 'https://pokeapp-weld.vercel.app',
     cleartext: true,
     allowNavigation: ['*'],
     iosScheme: 'https',
