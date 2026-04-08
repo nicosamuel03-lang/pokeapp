@@ -68,6 +68,17 @@ function findLocalCatalogueMatchFromProductsRow(row: Record<string, unknown>): P
     if (anyWithCode) return anyWithCode;
   }
 
+  // Fallback: match by series name in the filtered pool
+  if (series) {
+    const bySeriesName = pool.find((i) => {
+      const itemName = i.name?.toLowerCase() ?? "";
+      const itemBlock = i.block?.toLowerCase() ?? "";
+      const seriesLower = series.toLowerCase();
+      return itemName.includes(seriesLower) || itemBlock.includes(seriesLower);
+    });
+    if (bySeriesName) return bySeriesName;
+  }
+
   if (series) {
     const sNorm = removeAccents(series.toLowerCase());
     const words = sNorm.split(/\s+/).filter((w) => w.length > 2);
