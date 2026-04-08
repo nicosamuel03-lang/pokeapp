@@ -292,10 +292,8 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
       showDebugError("Un scan est déjà en cours.", setScanError);
       return;
     }
-    if (!navigator.mediaDevices?.getUserMedia) {
-      showDebugError("getUserMedia n’est pas disponible sur cet appareil.", setScanError);
-      return;
-    }
+    // On Capacitor iOS, getUserMedia may work even if detection fails
+    // Skip the availability check and let Quagga handle it directly
 
     scanBusy.current = true;
     setIsStarting(true);
@@ -309,50 +307,89 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
         requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
       });
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-      if (!aliveRef.current) {
-        stream.getTracks().forEach((t) => t.stop());
-        setIsStarting(false);
-        scanBusy.current = false;
-        return;
-      }
-      mediaStreamRef.current = stream;
-
-      const video = videoRef.current;
-      if (!video) {
-        stopMediaStream();
-        try {
-          await stopQuagga();
-        } catch {
-          /* ignore */
-        }
-        setScannerOpen(false);
-        setIsStarting(false);
-        scanBusy.current = false;
-        return;
-      }
-
-      video.srcObject = stream;
-      video.muted = true;
-      video.playsInline = true;
+      let stream: MediaStream | undefined;
       try {
-        await video.play();
-      } catch (playErr) {
-        stopMediaStream();
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+        });
+      } catch {
+        stream = undefined;
+      }
+
+      if (stream) {
+        if (!aliveRef.current) {
+          stream.getTracks().forEach((t) => t.stop());
+          setIsStarting(false);
+          scanBusy.current = false;
+          return;
+        }
+        mediaStreamRef.current = stream;
+
+        const video = videoRef.current;
+        if (!video) {
+          stopMediaStream();
+          try {
+            await stopQuagga();
+          } catch {
+            /* ignore */
+          }
+          setScannerOpen(false);
+          setIsStarting(false);
+          scanBusy.current = false;
+          return;
+        }
+
+        video.srcObject = stream;
+        video.muted = true;
+        video.playsInline = true;
         try {
-          await stopQuagga();
-        } catch {
-          /* ignore */
+          await video.play();
+        } catch (playErr) {
+          stopMediaStream();
+          try {
+            await stopQuagga();
+          } catch {
+            /* ignore */
+          }
+          setScannerOpen(false);
+          setIsStarting(false);
+          scanBusy.current = false;
+          if (aliveRef.current) {
+            showDebugError(`Caméra / scanner : ${formatUnknownError(playErr)}`, setScanError);
+          }
+          return;
         }
-        setScannerOpen(false);
-        setIsStarting(false);
-        scanBusy.current = false;
-        if (aliveRef.current) {
-          showDebugError(`Caméra / scanner : ${formatUnknownError(playErr)}`, setScanError);
+
+        if (!aliveRef.current) {
+          stopMediaStream();
+          try {
+            await stopQuagga();
+          } catch {
+            /* ignore */
+          }
+          setScannerOpen(false);
+          setIsStarting(false);
+          scanBusy.current = false;
+          return;
         }
-        return;
+
+        const targetWarmup = quaggaTargetRef.current;
+        if (!targetWarmup) {
+          stopMediaStream();
+          try {
+            await stopQuagga();
+          } catch {
+            /* ignore */
+          }
+          setScannerOpen(false);
+          setIsStarting(false);
+          scanBusy.current = false;
+          return;
+        }
+
+        stream.getTracks().forEach((t) => t.stop());
+        mediaStreamRef.current = null;
+        video.srcObject = null;
       }
 
       if (!aliveRef.current) {
@@ -381,10 +418,6 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
         scanBusy.current = false;
         return;
       }
-
-      stream.getTracks().forEach((t) => t.stop());
-      mediaStreamRef.current = null;
-      video.srcObject = null;
 
       let handled = false;
       const onDetected = (data: QuaggaJSResultObject) => {
