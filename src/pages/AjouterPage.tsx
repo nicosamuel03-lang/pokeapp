@@ -30,9 +30,12 @@ function resolveEtbIdFromProductsRow(row: Record<string, unknown>): string | und
   return undefined;
 }
 
-function findCatalogueEtbItem(etbId: string, seriesHint: string): PokemonCatalogueItem | undefined {
-  const full = searchPokemonCatalogue("") ?? [];
-  const candidates = full.filter((i) => i.type === "ETB" && i.etbId === etbId);
+function findCatalogueEtbItem(
+  etbId: string,
+  seriesHint: string,
+  pool: PokemonCatalogueItem[]
+): PokemonCatalogueItem | undefined {
+  const candidates = pool.filter((i) => i.type === "ETB" && i.etbId === etbId);
   if (candidates.length <= 1) return candidates[0];
   const hint = removeAccents(seriesHint.trim().toLowerCase());
   if (!hint) return candidates[0];
@@ -49,19 +52,26 @@ function findLocalCatalogueMatchFromProductsRow(row: Record<string, unknown>): P
   const series = typeof row.series === "string" ? row.series.trim() : "";
   const name = typeof row.name === "string" ? row.name.trim() : "";
   const full = searchPokemonCatalogue("") ?? [];
+  const rawCategory = typeof row.category === "string" ? row.category.trim() : "";
+  const catLower = rawCategory.toLowerCase();
+  let typeFilter: PokemonCatalogueItem["type"] | null = null;
+  if (catLower === "etb") typeFilter = "ETB";
+  else if (catLower === "display") typeFilter = "Display";
+  else if (catLower === "upc") typeFilter = "UPC";
+  const pool = typeFilter != null ? full.filter((i) => i.type === typeFilter) : full;
   const etbId = resolveEtbIdFromProductsRow(row);
 
   if (etbId) {
-    const byEtb = findCatalogueEtbItem(etbId, series);
+    const byEtb = findCatalogueEtbItem(etbId, series, pool);
     if (byEtb) return byEtb;
-    const anyWithCode = full.find((i) => i.etbId === etbId);
+    const anyWithCode = pool.find((i) => i.etbId === etbId);
     if (anyWithCode) return anyWithCode;
   }
 
   if (series) {
     const sNorm = removeAccents(series.toLowerCase());
     const words = sNorm.split(/\s+/).filter((w) => w.length > 2);
-    const bySeries = full.filter((i) => {
+    const bySeries = pool.filter((i) => {
       const n = removeAccents(i.name.toLowerCase());
       if (n.includes(sNorm)) return true;
       return words.length > 0 && words.every((w) => n.includes(w));
@@ -86,7 +96,7 @@ function findLocalCatalogueMatchFromProductsRow(row: Record<string, unknown>): P
       .split(/\s+/)
       .filter((t) => t.length > 3);
     if (tokens.length > 0) {
-      const scored = full
+      const scored = pool
         .map((i) => {
           const n = removeAccents(i.name.toLowerCase());
           const hits = tokens.filter((t) => n.includes(t)).length;
