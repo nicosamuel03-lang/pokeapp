@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import Quagga from "@ericblade/quagga2";
-import type { QuaggaJSResultObject } from "@ericblade/quagga2";
+import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
+import { BarcodeDetector } from "barcode-detector";
 import { supabase } from "../lib/supabase";
 import {
   removeAccents,
@@ -189,14 +189,6 @@ function showDebugError(message: string, setScanError: (s: string | null) => voi
 const POKEVAULT_SCANNER_FULLSCREEN_ATTR = "data-pokevault-scanner-fullscreen";
 const POKEVAULT_SCANNER_CHROME_STYLE_ID = "pokevault-scanner-hide-app-chrome";
 
-/** Quagga : lecture fiable uniquement si erreur de décodage faible. */
-function isHighConfidenceScan(data: QuaggaJSResultObject): boolean {
-  const code = data.codeResult?.code;
-  if (code == null || String(code).trim() === "") return false;
-  const err = data.codeResult?.startInfo?.error;
-  return typeof err === "number" && err < 0.1;
-}
-
 type AjouterPageProps = {
   /** Appelé quand l’utilisateur ferme le scanner (Fermer) — ex. retour au catalogue inline. */
   onScannerClosedByUser?: () => void;
@@ -204,19 +196,13 @@ type AjouterPageProps = {
 
 export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
   const navigate = useNavigate();
-  const quaggaTargetRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const mediaStreamRef = useRef<MediaStream | null>(null);
-  const onDetectedRef = useRef<((r: QuaggaJSResultObject) => void) | null>(null);
   const scanBusy = useRef(false);
-  /** false pendant le démontage : évite alertes si getUserMedia / play continuent après navigation. */
   const aliveRef = useRef(true);
 
   const [scannerOpen, setScannerOpen] = useState(true);
   const [isStarting, setIsStarting] = useState(true);
   const [scanError, setScanError] = useState<string | null>(null);
   const [notFoundModalOpen, setNotFoundModalOpen] = useState(false);
-  const [scanHintVisible, setScanHintVisible] = useState(true);
 
   const processDetectedCode = useCallback(
     async (code: string) => {
@@ -244,252 +230,94 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
     [navigate]
   );
 
-  const stopMediaStream = useCallback(() => {
-    try {
-      mediaStreamRef.current?.getTracks().forEach((t) => t.stop());
-    } catch {
-      /* flux / élément vidéo déjà démonté */
-    }
-    mediaStreamRef.current = null;
-    try {
-      const v = videoRef.current;
-      if (v) {
-        v.srcObject = null;
-      }
-    } catch {
-      /* vidéo absente ou plus dans le DOM */
-    }
-  }, []);
-
-  const stopQuagga = useCallback(async () => {
-    const handler = onDetectedRef.current;
-    if (handler) {
-      try {
-        Quagga.offDetected(handler);
-      } catch {
-        /* ignore */
-      }
-      onDetectedRef.current = null;
-    }
-    try {
-      await Quagga.stop();
-    } catch {
-      /* Quagga / vidéo déjà détruits (navigation, démontage) */
-    }
-    stopMediaStream();
-  }, [stopMediaStream]);
-
-  const closeScanner = useCallback(async () => {
-    await stopQuagga();
+  const closeScanner = useCallback(() => {
     setScannerOpen(false);
     setIsStarting(false);
     scanBusy.current = false;
     onScannerClosedByUser?.();
-  }, [stopQuagga, onScannerClosedByUser]);
+  }, [onScannerClosedByUser]);
 
   const runBarcodeScan = useCallback(async () => {
     if (scanBusy.current) {
       showDebugError("Un scan est déjà en cours.", setScanError);
       return;
     }
-    // On Capacitor iOS, getUserMedia may work even if detection fails
-    // Skip the availability check and let Quagga handle it directly
+    if (!aliveRef.current) return;
 
     scanBusy.current = true;
     setIsStarting(true);
-    setScanHintVisible(true);
     setScanError(null);
     setNotFoundModalOpen(false);
     setScannerOpen(true);
 
     try {
-      await new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      const photo = await Camera.getPhoto({
+        quality: 90,
+        source: CameraSource.Camera,
+        resultType: CameraResultType.DataUrl,
       });
 
-      let stream: MediaStream | undefined;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        });
-      } catch {
-        stream = undefined;
+      const dataUrl = photo.dataUrl;
+      if (!dataUrl) {
+        throw new Error("Aucune image retournée par la caméra.");
       }
 
-      if (stream) {
-        if (!aliveRef.current) {
-          stream.getTracks().forEach((t) => t.stop());
-          setIsStarting(false);
-          scanBusy.current = false;
-          return;
-        }
-        mediaStreamRef.current = stream;
-
-        const video = videoRef.current;
-        if (!video) {
-          stopMediaStream();
-          try {
-            await stopQuagga();
-          } catch {
-            /* ignore */
-          }
-          setScannerOpen(false);
-          setIsStarting(false);
-          scanBusy.current = false;
-          return;
-        }
-
-        video.srcObject = stream;
-        video.muted = true;
-        video.playsInline = true;
-        try {
-          await video.play();
-        } catch (playErr) {
-          stopMediaStream();
-          try {
-            await stopQuagga();
-          } catch {
-            /* ignore */
-          }
-          setScannerOpen(false);
-          setIsStarting(false);
-          scanBusy.current = false;
-          if (aliveRef.current) {
-            showDebugError(`Caméra / scanner : ${formatUnknownError(playErr)}`, setScanError);
-          }
-          return;
-        }
-
-        if (!aliveRef.current) {
-          stopMediaStream();
-          try {
-            await stopQuagga();
-          } catch {
-            /* ignore */
-          }
-          setScannerOpen(false);
-          setIsStarting(false);
-          scanBusy.current = false;
-          return;
-        }
-
-        const targetWarmup = quaggaTargetRef.current;
-        if (!targetWarmup) {
-          stopMediaStream();
-          try {
-            await stopQuagga();
-          } catch {
-            /* ignore */
-          }
-          setScannerOpen(false);
-          setIsStarting(false);
-          scanBusy.current = false;
-          return;
-        }
-
-        stream.getTracks().forEach((t) => t.stop());
-        mediaStreamRef.current = null;
-        video.srcObject = null;
-      }
-
-      if (!aliveRef.current) {
-        stopMediaStream();
-        try {
-          await stopQuagga();
-        } catch {
-          /* ignore */
-        }
-        setScannerOpen(false);
-        setIsStarting(false);
-        scanBusy.current = false;
-        return;
-      }
-
-      const target = quaggaTargetRef.current;
-      if (!target) {
-        stopMediaStream();
-        try {
-          await stopQuagga();
-        } catch {
-          /* ignore */
-        }
-        setScannerOpen(false);
-        setIsStarting(false);
-        scanBusy.current = false;
-        return;
-      }
-
-      let handled = false;
-      const onDetected = (data: QuaggaJSResultObject) => {
-        if (handled) return;
-        const raw = data.codeResult?.code;
-        if (raw != null && String(raw).trim() !== "") {
-          setScanHintVisible(false);
-        }
-        if (!isHighConfidenceScan(data)) return;
-        if (raw == null || String(raw).trim() === "") return;
-        handled = true;
-
-        void (async () => {
-          await stopQuagga();
-          setScannerOpen(false);
-          setIsStarting(false);
-          scanBusy.current = false;
-          await processDetectedCode(String(raw));
-        })();
-      };
-      onDetectedRef.current = onDetected;
-      Quagga.onDetected(onDetected);
-
+      const image = new Image();
       await new Promise<void>((resolve, reject) => {
-        void Quagga.init(
-          {
-            inputStream: {
-              type: "LiveStream",
-              target,
-              constraints: {
-                facingMode: "environment",
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-              },
-              area: {
-                top: "30%",
-                right: "10%",
-                left: "10%",
-                bottom: "30%",
-                borderColor: "rgba(212, 167, 87, 0.85)",
-                borderWidth: 2,
-              },
-            },
-            decoder: {
-              readers: ["ean_reader"],
-              multiple: false,
-            },
-            locate: true,
-            frequency: 10,
-            locator: { patchSize: "medium", halfSample: true },
-            numOfWorkers: 0,
-          },
-          (err) => {
-            if (err) reject(err);
-            else resolve();
-          }
-        );
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("Impossible de charger l’image."));
+        image.src = dataUrl;
       });
 
-      Quagga.start();
+      const detector = new BarcodeDetector({ formats: ["ean_13", "ean_8"] });
+      const barcodes = await detector.detect(image);
       setIsStarting(false);
-    } catch (e) {
-      if (aliveRef.current) {
-        const msg = `Caméra / scanner : ${formatUnknownError(e)}`;
-        showDebugError(msg, setScanError);
+
+      if (!barcodes.length) {
+        try {
+          window.alert("Aucun code-barres détecté, réessayez");
+        } catch {
+          /* ignore */
+        }
+        scanBusy.current = false;
+        if (aliveRef.current) {
+          void Promise.resolve().then(() => runBarcodeScan());
+        }
+        return;
       }
-      await stopQuagga();
+
+      const rawValue = barcodes[0]?.rawValue;
+      if (rawValue == null || String(rawValue).trim() === "") {
+        try {
+          window.alert("Aucun code-barres détecté, réessayez");
+        } catch {
+          /* ignore */
+        }
+        scanBusy.current = false;
+        if (aliveRef.current) {
+          void Promise.resolve().then(() => runBarcodeScan());
+        }
+        return;
+      }
+
       setScannerOpen(false);
+      scanBusy.current = false;
+      await processDetectedCode(String(rawValue));
+    } catch (e) {
       setIsStarting(false);
       scanBusy.current = false;
+      if (aliveRef.current) {
+        const msg = formatUnknownError(e);
+        const lower = msg.toLowerCase();
+        if (lower.includes("cancel") || lower.includes("cancelled") || lower.includes("canceled")) {
+          closeScanner();
+          return;
+        }
+        showDebugError(`Caméra / scanner : ${msg}`, setScanError);
+      }
+      setScannerOpen(false);
     }
-  }, [closeScanner, processDetectedCode, stopMediaStream, stopQuagga]);
+  }, [closeScanner, processDetectedCode]);
 
   useEffect(() => {
     aliveRef.current = true;
@@ -497,9 +325,8 @@ export const AjouterPage = ({ onScannerClosedByUser }: AjouterPageProps) => {
     return () => {
       aliveRef.current = false;
       scanBusy.current = false;
-      void stopQuagga();
     };
-  }, [runBarcodeScan, stopQuagga]);
+  }, [runBarcodeScan]);
 
   useLayoutEffect(() => {
     if (typeof document === "undefined") return;
@@ -582,56 +409,12 @@ html[${POKEVAULT_SCANNER_FULLSCREEN_ATTR}="true"] #app-bottom-nav {
           lineHeight: 1.45,
         }}
       >
-        La caméra démarre automatiquement : détection EAN-13 (Quagga2). Contexte sécurisé recommandé (ex.
-        iosScheme https côté Capacitor).
+        La caméra native s’ouvre : photographiez le code-barres (EAN-13 / EAN-8). L’image est analysée sur
+        l’appareil.
       </p>
 
       {scannerOpen ? (
         <>
-          <style>{`
-            #scanner-container {
-              position: relative;
-              flex: 1;
-              min-height: 0;
-              width: 100%;
-              overflow: hidden;
-              background: #000;
-            }
-            #scanner-container video {
-              position: absolute;
-              inset: 0;
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              z-index: 0;
-            }
-            .scanner-zone-overlay {
-              position: absolute;
-              top: 30%;
-              right: 10%;
-              left: 10%;
-              bottom: 30%;
-              z-index: 2;
-              pointer-events: none;
-              border: 3px solid rgba(212, 167, 87, 0.95);
-              border-radius: 10px;
-              box-shadow:
-                0 0 0 1px rgba(0, 0, 0, 0.5) inset,
-                0 0 20px rgba(212, 167, 87, 0.35);
-            }
-            .scanner-zone-message-wrap {
-              position: absolute;
-              top: 30%;
-              right: 10%;
-              left: 10%;
-              bottom: 30%;
-              z-index: 3;
-              pointer-events: none;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-          `}</style>
           <div
             role="dialog"
             aria-modal="true"
@@ -647,57 +430,38 @@ html[${POKEVAULT_SCANNER_FULLSCREEN_ATTR}="true"] #app-bottom-nav {
               background: "#000",
               display: "flex",
               flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <div
-              id="scanner-container"
-              ref={quaggaTargetRef}
-            >
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                autoPlay
-              />
-              <div className="scanner-zone-overlay" aria-hidden />
-              {!isStarting && scanHintVisible ? (
-                <div className="scanner-zone-message-wrap" role="status">
-                  <span
-                    style={{
-                      color: "#ffffff",
-                      fontSize: 16,
-                      fontWeight: 700,
-                      textAlign: "center",
-                      textShadow: "0 1px 4px rgba(0,0,0,0.8)",
-                    }}
-                  >
-                    Scannez le code-barres de l&apos;item
-                  </span>
-                </div>
-              ) : null}
-              {isStarting ? (
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    zIndex: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: "rgba(0,0,0,0.55)",
-                    color: "#ffffff",
-                    fontSize: 17,
-                    fontWeight: 600,
-                    pointerEvents: "none",
-                  }}
-                >
-                  Démarrage de la caméra…
-                </div>
-              ) : null}
-            </div>
+            {isStarting ? (
+              <div
+                style={{
+                  padding: 24,
+                  color: "#ffffff",
+                  fontSize: 17,
+                  fontWeight: 600,
+                  textAlign: "center",
+                }}
+              >
+                Ouverture de la caméra…
+              </div>
+            ) : (
+              <p
+                style={{
+                  padding: 24,
+                  color: "rgba(255,255,255,0.85)",
+                  fontSize: 15,
+                  textAlign: "center",
+                  maxWidth: 320,
+                }}
+              >
+                Préparation du prochain scan…
+              </p>
+            )}
             <button
               type="button"
-              onClick={() => void closeScanner()}
+              onClick={() => closeScanner()}
               style={{
                 position: "absolute",
                 top: "max(16px, env(safe-area-inset-top, 16px))",
