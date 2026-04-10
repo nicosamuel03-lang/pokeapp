@@ -95,21 +95,12 @@ function simplifyQuery(raw) {
   let q = String(raw || "").trim();
 
   // Détecter le type AVANT de supprimer les préfixes
-  const isETB     = /^ETB\b/i.test(q);
-  const isUPC     = /^UPC\b/i.test(q);
-  const isDisplay = /^Display\b/i.test(q);
-
-  // Supprime le préfixe de catégorie
-  q = q.replace(/^(ETB|UPC|Display|Coffret|Blister)\s+/i, "");
+  const isETB     = /\bETB\b/i.test(q);
+  const isUPC     = /\bUPC\b/i.test(q);
+  const isDisplay = /\bDisplay\b/i.test(q);
 
   // Supprime les codes set (EB07, EV08.5, SV09, …)
   q = q.replace(/\(?\b(EB|EV|ME|SL|SV|XY|BW|DP|HGSS)\d{1,2}(?:\.\d+)?\b\)?/gi, "");
-
-  // Supprime " FR" en fin de chaîne
-  q = q.replace(/\s+FR\s*$/i, "");
-
-  // Supprime "ex" isolé (suffixe Pokémon)
-  q = q.replace(/\bex\b/gi, "");
 
   // Supprime les numéros de version isolés (2, II, III)
   q = q.replace(/\s+\b(2|II|III)\b/g, "");
@@ -117,17 +108,14 @@ function simplifyQuery(raw) {
   // Nettoie les espaces multiples
   q = q.replace(/\s{2,}/g, " ").trim();
 
-  // Ajoute les termes produit scellé selon le type
-  if (isETB) {
-    // "coffret dresseur élite" = traduction française officielle de "Elite Trainer Box"
-    q = `${q} coffret dresseur élite pokemon scellé`;
-  } else if (isUPC) {
-    q = `${q} ultra premium collection pokemon scellé`;
-  } else if (isDisplay) {
-    q = `${q} display pokemon scellé`;
-  } else {
-    if (!/pokemon/i.test(q)) q = `${q} pokemon`;
-    q = `${q} scellé`;
+  // Ajoute "pokemon" si absent
+  if (!/\bpokemon\b/i.test(q)) {
+    q = `${q} pokemon`.trim();
+  }
+
+  // Force un suffixe "FR scellé neuf" (sans enlever d'éventuels "FR" déjà présents)
+  if (!/\bFR\s+scellé\s+neuf\s*$/i.test(q)) {
+    q = `${q} FR scellé neuf`.trim();
   }
 
   return q;
@@ -177,18 +165,16 @@ function extractPriceEur(item) {
   return null;
 }
 
-// ─── Calcul médiane avec écrêtage 15 %/15 % ──────────────────────────────────
+// ─── Calcul moyenne tronquée 15 %/15 % ───────────────────────────────────────
 
-function trimmedMedian(prices) {
+function trimmedMean(prices) {
   if (prices.length === 0) return null;
   const sorted = [...prices].sort((a, b) => a - b);
   const cut = Math.floor(sorted.length * 0.15);
   const trimmed = cut > 0 ? sorted.slice(cut, sorted.length - cut) : sorted;
-  if (trimmed.length === 0) return sorted[Math.floor(sorted.length / 2)];
-  const mid = Math.floor(trimmed.length / 2);
-  return trimmed.length % 2 === 0
-    ? (trimmed[mid - 1] + trimmed[mid]) / 2
-    : trimmed[mid];
+  if (trimmed.length === 0) return sorted.reduce((a, b) => a + b, 0) / sorted.length;
+  const sum = trimmed.reduce((acc, v) => acc + v, 0);
+  return sum / trimmed.length;
 }
 
 // ─── Point d'entrée public ───────────────────────────────────────────────────
@@ -224,7 +210,7 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
 
   // Catégorie eBay pour les produits Pokémon scellés (183454 = Pokémon Sealed)
   // Prix minimum 80 € pour exclure les cartes individuelles et boosters seuls
-  const EBAY_FILTER = "buyingOptions:{FIXED_PRICE},price:[80..],priceCurrency:EUR,categoryIds:{183454}";
+  const EBAY_FILTER = "buyingOptions:{FIXED_PRICE},conditions:{NEW},price:[80..],priceCurrency:EUR,categoryIds:{183454}";
 
   const url = new URL(EBAY_SEARCH_URL);
   url.searchParams.set("q",      cleanQuery);
@@ -252,7 +238,7 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
     const url2 = new URL(EBAY_SEARCH_URL);
     url2.searchParams.set("q",      cleanQuery);
     url2.searchParams.set("limit",  "20");
-    url2.searchParams.set("filter", "buyingOptions:{FIXED_PRICE},price:[80..],priceCurrency:EUR");
+    url2.searchParams.set("filter", "buyingOptions:{FIXED_PRICE},conditions:{NEW},price:[80..],priceCurrency:EUR");
     res  = await fetch(url2.toString(), {
       method: "GET",
       headers: {
@@ -293,8 +279,8 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
     throw err;
   }
 
-  const median = trimmedMedian(prices);
-  const averagePriceEur = Math.round(median * 100) / 100;
+  const avg = trimmedMean(prices);
+  const averagePriceEur = Math.round(avg * 100) / 100;
 
   // Nb de prix utilisés après écrêtage
   const cut = Math.floor(prices.length * 0.15);
@@ -310,7 +296,7 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
 
   setCached(cacheKey, result);
   console.log(
-    `[ebay/browse] Succès — "${cleanQuery}" → médiane ${averagePriceEur} € (${prices.length} prix, écrêtage 15%, cache 24h)`
+    `[ebay/browse] Succès — "${cleanQuery}" → moyenne tronquée ${averagePriceEur} € (${prices.length} prix, écrêtage 15%, cache 24h)`
   );
   return result;
 }

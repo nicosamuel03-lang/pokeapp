@@ -420,7 +420,7 @@ export const BottomNavLayout = () => {
             padding: "0 8px",
           }}
         >
-          {navItems.map((item) => {
+          {navItems.filter((item) => item.key !== "ajouter").map((item) => {
             const isActive =
               item.key === "ajouter"
                 ? ajouterOverlayOpen || location.pathname === "/ajouter"
