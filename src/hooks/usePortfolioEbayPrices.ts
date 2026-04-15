@@ -2,24 +2,26 @@
  * Hook : prix eBay trackés (90 derniers jours, Supabase) pour toute la collection.
  * Appelle /api/ebay/tracked-prices?ids=... en une seule requête batch.
  *
- * Retourne une Map<productId, averagePriceEur> avec uniquement les produits
- * qui ont au moins 3 entrées disponibles dans ebay_prices (les autres = null,
- * le calcul du portfolio utilisera le prix catalogue en fallback).
+ * Retourne une Map<productId, médiane robuste> pour les produits ayant au moins
+ * une entrée dans ebay_prices sur 90 jours (les autres = null → fallback catalogue).
  */
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiUrl } from "../config/apiUrl";
 import type { CollectionLineForChart } from "../utils/portfolioChartData";
+import { getEbayPriceCorridor } from "../data/ebayPriceCorridor";
+import { robustMedianFromSamplePrices } from "../utils/ebayTrackedPriceStats";
 
 export interface PortfolioEbayPricesResult {
-  /** Map productId → prix eBay moyen 90j (présent seulement si ≥ 3 entrées) */
+  /** Map productId → médiane robuste 90j (filtre ±40 %) */
   priceMap: Map<string, number>;
   loading: boolean;
   /** Nombre de produits avec un prix eBay disponible */
   coveredCount: number;
 }
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1h
+/** Court délai : après backfill serveur, un nouvel appel batch doit voir le prix inséré. */
+const CACHE_TTL_MS = 60 * 1000; // 1 min
 
 let _cache: { key: string; result: PortfolioEbayPricesResult; expiresAt: number } | null = null;
 
@@ -83,13 +85,28 @@ export function usePortfolioEbayPrices(
       .then((res) => {
         console.log("[EbayPrices] HTTP status:", res.status);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json() as Promise<{ prices: Record<string, number | null> }>;
+        return res.json() as Promise<{
+          priceEntries?: Record<string, number[]>;
+          prices?: Record<string, number | null>;
+        }>;
       })
-      .then(({ prices }) => {
-        console.log("[EbayPrices] 📦 Raw API response:", JSON.stringify(prices, null, 2));
+      .then(({ priceEntries, prices: legacyPrices }) => {
+        console.log("[EbayPrices] 📦 Raw API response:", JSON.stringify(priceEntries ?? legacyPrices, null, 2));
         const priceMap = new Map<string, number>();
-        for (const [id, price] of Object.entries(prices)) {
-          if (price != null && price > 0) priceMap.set(id, price);
+        const ids = productIds;
+        for (const id of ids) {
+          const entries = priceEntries?.[id];
+          if (entries && entries.length > 0) {
+            const corridor = getEbayPriceCorridor(id);
+            const r = robustMedianFromSamplePrices(entries, undefined, {
+              corridor,
+              productId: id,
+            });
+            if (r && r.medianPriceEur > 0) priceMap.set(id, r.medianPriceEur);
+          } else {
+            const p = legacyPrices?.[id];
+            if (p != null && p > 0) priceMap.set(id, p);
+          }
         }
         console.log("[EbayPrices] ✅ priceMap entries:", priceMap.size, "| keys:", Array.from(priceMap.keys()));
         console.log("[EbayPrices] EB10.5 (Pokémon GO) →", priceMap.get("EB10.5") ?? "NOT IN MAP");

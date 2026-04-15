@@ -8,7 +8,7 @@ export type EbayLivePhase = "idle" | "loading" | "ok" | "error";
 const EBAY_CALL_DELAY_MS = 2000;
 
 /**
- * Charge la moyenne eBay FR (Browse API top-5) pour `searchQuery`.
+ * Charge le prix marché eBay FR (Browse API, médiane robuste) pour `searchQuery`.
  * Retombe sur `catalogFallback` si indisponible.
  * Applique un délai de 2s avant d'envoyer la requête pour
  * éviter les bursts lors des changements rapides de page / composants.
@@ -22,12 +22,14 @@ export function useEbayLiveMarketPrice(
   livePrice: number | null;
   resultCount: number;
   itemsUsed: number;
+  marketDataWarning: boolean;
 } {
   const query = searchQuery.trim();
   const [phase, setPhase] = useState<EbayLivePhase>("idle");
   const [livePrice, setLivePrice] = useState<number | null>(null);
   const [resultCount, setResultCount] = useState(0);
   const [itemsUsed, setItemsUsed] = useState(0);
+  const [marketDataWarning, setMarketDataWarning] = useState(false);
 
   /** Ref pour l'AbortController courant (annulation si la query change avant fetch). */
   const abortRef = useRef<AbortController | null>(null);
@@ -38,6 +40,7 @@ export function useEbayLiveMarketPrice(
       setLivePrice(null);
       setResultCount(0);
       setItemsUsed(0);
+      setMarketDataWarning(false);
       return;
     }
 
@@ -45,6 +48,7 @@ export function useEbayLiveMarketPrice(
     setLivePrice(null);
     setResultCount(0);
     setItemsUsed(0);
+    setMarketDataWarning(false);
 
     /** Annule tout appel précédent immédiatement. */
     abortRef.current?.abort();
@@ -61,6 +65,7 @@ export function useEbayLiveMarketPrice(
           setLivePrice(r.averagePriceEur);
           setResultCount(r.resultCount);
           setItemsUsed(r.itemsUsed);
+          setMarketDataWarning(r.marketDataWarning);
           setPhase("ok");
         } else {
           setPhase("error");
@@ -81,5 +86,5 @@ export function useEbayLiveMarketPrice(
     return catalogFallback;
   }, [phase, livePrice, catalogFallback]);
 
-  return { displayPrice, phase, livePrice, resultCount, itemsUsed };
+  return { displayPrice, phase, livePrice, resultCount, itemsUsed, marketDataWarning };
 }

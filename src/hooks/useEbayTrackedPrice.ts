@@ -1,10 +1,10 @@
 /**
  * Hook : prix de marché eBay issu de la table Supabase `ebay_prices`
- * (moyenne des 90 derniers jours synchronisés par priceSyncJob).
+ * (médiane robuste 90j, filtre ±40 %, corridor catalogue optionnel, jitter en bordure).
  *
  * Logique :
- *   - Si ≥ MIN_ENTRIES entrées disponibles → retourne la moyenne sur 90 jours
- *   - Sinon → retourne null et le composant utilise le prix catalogue
+ *   - Si des entrées existent sur 90 jours (ou backfill serveur) → médiane affichée
+ *   - Sinon → null, fallback catalogue
  *
  * @param productId  ID du produit (ex. "ME02.5", "display-ME02", "upc-UPC08")
  * @param enabled    Désactiver le fetch si false (ex. produit non ETB)
@@ -12,14 +12,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { apiUrl } from "../config/apiUrl";
+import { getEbayPriceCorridor } from "../data/ebayPriceCorridor";
+import { robustMedianFromSamplePrices } from "../utils/ebayTrackedPriceStats";
 
-/** Nombre minimum d'entrées dans ebay_prices pour considérer le prix fiable. */
-const MIN_ENTRIES = 3;
+/** Après un backfill serveur, au moins une entrée suffit pour afficher le prix marché. */
+const MIN_ENTRIES = 1;
 
 export interface TrackedPriceResult {
-  /** true si au moins MIN_ENTRIES entrées disponibles dans Supabase */
+  /** true si le prix marché eBay est utilisable (≥1 entrée ou backfill) */
   available: boolean;
-  /** Moyenne eBay sur 90 jours (null si available=false) */
+  /** Médiane robuste eBay sur 90 jours (null si available=false) — nom historique `averagePriceEur`. */
   averagePriceEur: number | null;
   /** Nombre d'entrées utilisées */
   count: number;
@@ -29,21 +31,7 @@ export interface TrackedPriceResult {
   error: string | null;
 }
 
-const CACHE_TTL_MS = 60 * 60 * 1000; // 1h en mémoire côté client
-
-// Cache en mémoire partagé entre les instances du hook
-const _cache = new Map<string, { result: TrackedPriceResult; expiresAt: number }>();
-
-function getCached(productId: string): TrackedPriceResult | null {
-  const entry = _cache.get(productId);
-  if (!entry) return null;
-  if (Date.now() > entry.expiresAt) { _cache.delete(productId); return null; }
-  return entry.result;
-}
-
-function setCached(productId: string, result: TrackedPriceResult) {
-  _cache.set(productId, { result, expiresAt: Date.now() + CACHE_TTL_MS });
-}
+// Pas de cache client : après INSERT côté serveur ou suppression en base, le prix doit se mettre à jour tout de suite.
 
 export function useEbayTrackedPrice(
   productId: string | null | undefined,
@@ -65,13 +53,6 @@ export function useEbayTrackedPrice(
       return;
     }
 
-    // Cache hit
-    const cached = getCached(productId);
-    if (cached) {
-      setState(cached);
-      return;
-    }
-
     // Annule la requête précédente
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -86,23 +67,38 @@ export function useEbayTrackedPrice(
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json() as Promise<{
           available: boolean;
+          pricesEur?: number[];
+          /** Ancienne forme API (moyenne serveur) */
           averagePriceEur?: number;
           count?: number;
           error?: string;
         }>;
       })
       .then((data) => {
-        const count = data.count ?? 0;
-        // Exige au moins MIN_ENTRIES pour lisser les pics de prix
-        const isReliable = (data.available ?? false) && count >= MIN_ENTRIES;
+        const rawList = Array.isArray(data.pricesEur)
+          ? data.pricesEur.map((p) => Number(p)).filter(Number.isFinite)
+          : typeof data.averagePriceEur === "number" && Number.isFinite(data.averagePriceEur)
+            ? [data.averagePriceEur]
+            : [];
+        const count = data.count ?? rawList.length;
+        const corridor = productId ? getEbayPriceCorridor(productId) : undefined;
+        const robust = robustMedianFromSamplePrices(rawList, undefined, {
+          corridor,
+          productId: productId ?? undefined,
+        });
+        const median = robust?.medianPriceEur ?? null;
+        const isReliable =
+          (data.available ?? false) &&
+          count >= MIN_ENTRIES &&
+          median != null &&
+          Number.isFinite(median);
         const result: TrackedPriceResult = {
-          available:       isReliable,
-          averagePriceEur: isReliable ? (data.averagePriceEur ?? null) : null,
+          available: isReliable,
+          averagePriceEur: isReliable ? median : null,
           count,
-          loading:         false,
-          error:           data.error ?? null,
+          loading: false,
+          error: data.error ?? null,
         };
-        setCached(productId, result);
         setState(result);
       })
       .catch((err) => {

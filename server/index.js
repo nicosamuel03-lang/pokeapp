@@ -265,7 +265,11 @@ app.post(
 
 app.use(express.json());
 
-const { searchAveragePriceTop5 } = require("./ebayBrowse");
+const {
+  searchAveragePriceTop5,
+  searchFresh,
+  searchFreshTopListingPrices,
+} = require("./ebayBrowse");
 const { startPriceSyncJob, syncAllPrices } = require("./priceSyncJob");
 const { getSupabaseAdmin } = require("./supabaseAdmin");
 
@@ -284,6 +288,7 @@ app.get("/api/ebay/price", async (req, res) => {
       marketplace: result.marketplace,
       query: result.query ?? String(raw).trim(),
       originalQuery: String(raw).trim(),
+      marketDataWarning: Boolean(result.marketDataWarning),
     });
   } catch (err) {
     if (err?.code === "EBAY_CONFIG") {
@@ -525,6 +530,60 @@ app.post("/api/delete-account", async (req, res) => {
   }
 });
 
+const { getStrictEbayPriceFetchConfig } = require("./ebayStrictProductQueries");
+
+/**
+ * Appelle eBay (sans réécriture de requête), insère une ou plusieurs lignes `ebay_prices`.
+ * @returns {Promise<number|null>} médiane indicative des prix insérés, ou null si pas de mapping / échec
+ */
+async function fetchAndInsertEbayPriceIfConfigured(productId, db) {
+  const conf = getStrictEbayPriceFetchConfig(productId);
+  if (!conf) return null;
+
+  const listingLimit = conf.listingFetchLimit;
+  if (typeof listingLimit === "number" && listingLimit > 1) {
+    const result = await searchFreshTopListingPrices(conf.searchQuery, {
+      skipSimplify: true,
+      limit: listingLimit,
+    });
+    const rows = result.listingPricesEur.map((price_eur) => ({
+      product_id: productId,
+      product_name: conf.productName,
+      price_eur,
+    }));
+    const { error: insertError } = await db.from("ebay_prices").insert(rows);
+    if (insertError) {
+      console.error(
+        `[tracked-price/backfill] Insert échoué pour ${productId}:`,
+        insertError.message
+      );
+      throw insertError;
+    }
+    console.log(
+      `[tracked-price/backfill] ✓ ${productId} → ${rows.length} ligne(s), médiane annonces ${result.averagePriceEur} € (requête stricte)`
+    );
+    return result.averagePriceEur;
+  }
+
+  const result = await searchFresh(conf.searchQuery, { skipSimplify: true });
+  const { error: insertError } = await db.from("ebay_prices").insert({
+    product_id: productId,
+    product_name: conf.productName,
+    price_eur: result.averagePriceEur,
+  });
+  if (insertError) {
+    console.error(
+      `[tracked-price/backfill] Insert échoué pour ${productId}:`,
+      insertError.message
+    );
+    throw insertError;
+  }
+  console.log(
+    `[tracked-price/backfill] ✓ ${productId} → ${result.averagePriceEur} € (requête stricte)`
+  );
+  return result.averagePriceEur;
+}
+
 // ─── Route : prix trackés (90 derniers jours depuis Supabase) ─────────────────
 app.get("/api/ebay/tracked-price", async (req, res) => {
   const productId = String(req.query.productId || "").trim();
@@ -549,22 +608,53 @@ app.get("/api/ebay/tracked-price", async (req, res) => {
       return res.status(502).json({ error: error.message });
     }
 
-    const entries = Array.isArray(data) ? data : [];
+    let entries = Array.isArray(data) ? data : [];
 
     if (entries.length < 1) {
-      // Aucune donnée — le frontend utilise le prix catalogue
+      try {
+        const inserted = await fetchAndInsertEbayPriceIfConfigured(productId, db);
+        if (inserted != null && Number.isFinite(inserted)) {
+          const { data: data2, error: err2 } = await db
+            .from("ebay_prices")
+            .select("price_eur, fetched_at")
+            .eq("product_id", productId)
+            .gte("fetched_at", since)
+            .order("fetched_at", { ascending: false })
+            .limit(200);
+          if (!err2 && Array.isArray(data2) && data2.length > 0) {
+            entries = data2;
+          } else {
+            return res.json({
+              available: true,
+              pricesEur: [inserted],
+              count: 1,
+              backfilled: true,
+            });
+          }
+        } else {
+          return res.json({ available: false, count: 0 });
+        }
+      } catch (backfillErr) {
+        if (backfillErr?.code === "EBAY_CONFIG" || backfillErr?.code === "SUPABASE_CONFIG") {
+          throw backfillErr;
+        }
+        console.error("[tracked-price/backfill]", backfillErr?.message || backfillErr);
+        return res.json({ available: false, count: 0 });
+      }
+    }
+
+    if (entries.length < 1) {
       return res.json({ available: false, count: 0 });
     }
 
-    const prices = entries.map((e) => Number(e.price_eur)).filter(Number.isFinite);
-    const avg = Math.round((prices.reduce((a, b) => a + b, 0) / prices.length) * 100) / 100;
+    const pricesEur = entries.map((e) => Number(e.price_eur)).filter(Number.isFinite);
 
     return res.json({
-      available:     true,
-      averagePriceEur: avg,
-      count:         prices.length,
-      oldestEntry:   entries[entries.length - 1]?.fetched_at,
-      newestEntry:   entries[0]?.fetched_at,
+      available: true,
+      pricesEur,
+      count: pricesEur.length,
+      oldestEntry: entries[entries.length - 1]?.fetched_at,
+      newestEntry: entries[0]?.fetched_at,
     });
   } catch (err) {
     if (err.code === "SUPABASE_CONFIG") {
@@ -598,29 +688,53 @@ app.get("/api/ebay/tracked-prices", async (req, res) => {
       return res.status(502).json({ error: error.message });
     }
 
-    // Agrège les prix par product_id (moyenne des entrées des 90 derniers jours)
-    const grouped = new Map();
-    for (const row of (data || [])) {
-      const id = row.product_id;
-      if (!grouped.has(id)) grouped.set(id, []);
-      grouped.get(id).push(Number(row.price_eur));
-    }
+    const buildGrouped = (rowsIn) => {
+      const g = new Map();
+      for (const row of rowsIn || []) {
+        const id = row.product_id;
+        if (!g.has(id)) g.set(id, []);
+        g.get(id).push(Number(row.price_eur));
+      }
+      return g;
+    };
 
-    const prices = {};
-    for (const id of productIds) {
-      const entries = grouped.get(id) || [];
-      if (entries.length >= 1) {
-        const avg = entries.reduce((a, b) => a + b, 0) / entries.length;
-        prices[id] = Math.round(avg * 100) / 100;
-      } else {
-        prices[id] = null; // aucune donnée → fallback catalogue côté client
+    let rows = Array.isArray(data) ? data : [];
+    let grouped = buildGrouped(rows);
+
+    const missingIds = productIds.filter((id) => (grouped.get(id) || []).length < 1);
+    for (const id of missingIds) {
+      try {
+        await fetchAndInsertEbayPriceIfConfigured(id, db);
+      } catch (e) {
+        console.warn(`[tracked-prices/batch] backfill skip ${id}:`, e?.message || e);
       }
     }
 
-    return res.json({ prices });
+    if (missingIds.length > 0) {
+      const { data: dataFresh, error: errFresh } = await db
+        .from("ebay_prices")
+        .select("product_id, price_eur")
+        .in("product_id", productIds)
+        .gte("fetched_at", since);
+      if (!errFresh && Array.isArray(dataFresh)) {
+        rows = dataFresh;
+        grouped = buildGrouped(rows);
+      }
+    }
+
+    /** Liste brute des prix 90j par produit — médiane + filtre outliers côté client. */
+    const priceEntries = {};
+    for (const id of productIds) {
+      const arr = grouped.get(id) || [];
+      priceEntries[id] = arr.filter((p) => Number.isFinite(p));
+    }
+
+    return res.json({ priceEntries });
   } catch (err) {
     if (err.code === "SUPABASE_CONFIG") {
-      return res.json({ prices: Object.fromEntries(productIds.map((id) => [id, null])) });
+      return res.json({
+        priceEntries: Object.fromEntries(productIds.map((id) => [id, []])),
+      });
     }
     console.error("[tracked-prices/batch]", err.message);
     return res.status(500).json({ error: err.message });

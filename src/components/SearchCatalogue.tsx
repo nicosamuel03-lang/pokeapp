@@ -263,7 +263,21 @@ const AddModal = ({ item, onClose, onCloseAfterSuccess, onAdd }: AddModalProps) 
                   </p>
                   {!isEbayMockMode() && ebayLive.phase === "ok" ? (
                     <p className="mt-0 text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                      Moyenne eBay FR ({ebayLive.itemsUsed} annonce{ebayLive.itemsUsed > 1 ? "s" : ""} en €).
+                      Médiane eBay FR (cœur après retrait des extrêmes, {ebayLive.itemsUsed} prix retenu
+                      {ebayLive.itemsUsed > 1 ? "s" : ""}).
+                    </p>
+                  ) : null}
+                  {!isEbayMockMode() && ebayLive.phase === "ok" && ebayLive.marketDataWarning ? (
+                    <p
+                      className="mt-1 rounded-lg px-2 py-1.5 text-[10px] font-medium leading-snug"
+                      role="status"
+                      style={{
+                        background: "rgba(234,179,8,0.12)",
+                        color: "#eab308",
+                        border: "1px solid rgba(234,179,8,0.35)",
+                      }}
+                    >
+                      Market Data Warning : ce prix peut être faussé (annonce hors produit scellé).
                     </p>
                   ) : null}
                   {!isEbayMockMode() && ebayLive.phase === "error" ? (

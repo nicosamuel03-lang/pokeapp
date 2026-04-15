@@ -53,19 +53,37 @@ export function PrivacyPage() {
           lineHeight: 1.6,
           fontSize: 14,
           color: "var(--text-primary)",
+          whiteSpace: "pre-line",
         }}
       >
-        <p style={{ marginBottom: 12 }}>
-          Cette politique de confidentialité décrit comment PokéVault collecte, utilise
-          et protège vos données personnelles.
-        </p>
-        <p style={{ marginBottom: 12 }}>
-          Nous nous engageons à préserver la confidentialité des informations que vous
-          nous fournissez. Le contenu complet de la politique sera ajouté prochainement.
-        </p>
-        <p style={{ marginBottom: 0 }}>
-          Dernière mise à jour : placeholder.
-        </p>
+        {`Giovanni — Politique de Confidentialité
+Date d'entrée en vigueur : 11 mars 2026
+
+Responsable du traitement : support@giovanni.app
+
+Données collectées : adresse e-mail (via Clerk), données de collection (noms, quantités, prix d'achat), informations de paiement (gérées exclusivement par Apple via In-App Purchase — données bancaires jamais stockées par Giovanni), données de connexion, statut d'abonnement.
+
+Utilisation des données : faire fonctionner et améliorer l'application, gérer votre compte et abonnement, vous envoyer des informations liées à votre compte, respecter nos obligations légales.
+
+Partage des données : vos données ne sont jamais vendues. Elles sont partagées uniquement avec Clerk (authentification), Supabase (base de données) et les services de paiement de l'App Store (gestion des abonnements via In-App Purchase), tous conformes au RGPD.
+
+Conservation : données conservées tant que le compte est actif. Suppression dans les 30 jours suivant la clôture du compte.
+
+Suppression de compte : vous pouvez supprimer votre compte et l'intégralité de vos données personnelles à tout moment via les réglages de l'application (Profil > Supprimer mon compte) ou en contactant support@giovanni.app. La suppression est effective dans un délai maximum de 30 jours.
+
+Vos droits (RGPD) : droit d'accès, rectification, effacement, portabilité et opposition. Contact : support@giovanni.app — réponse sous 30 jours.
+
+Cookies : stockage local minimal (thème, langue). Aucun cookie publicitaire ou tracking tiers.
+
+Sécurité : connexions HTTPS, authentification via Clerk, accès restreint à la base de données.
+
+Mineurs : Giovanni n'est pas destinée aux enfants de moins de 13 ans. Aucune donnée personnelle n'est sciemment collectée auprès de mineurs de moins de 13 ans. Si un parent ou tuteur légal découvre que son enfant de moins de 13 ans a créé un compte sans consentement parental, il peut nous contacter à support@giovanni.app pour demander la suppression immédiate du compte et des données associées. Pour les utilisateurs âgés de 13 à 16 ans résidant dans l'Union européenne, le consentement parental est requis conformément au RGPD.
+
+Modifications : notification par e-mail ou via l'app au moins 15 jours avant tout changement important.
+
+Contact : support@giovanni.app
+
+Giovanni est une application indépendante. Elle n'est ni affiliée, ni sponsorisée, ni approuvée par The Pokémon Company International, Nintendo Co. Ltd., Game Freak Inc. ou Creatures Inc. Pokémon et tous les noms et images associés sont des marques déposées de The Pokémon Company International, Nintendo, Game Freak et Creatures Inc.`}
       </div>
     </div>
   );

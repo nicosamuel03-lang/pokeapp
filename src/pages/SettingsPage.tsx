@@ -149,92 +149,8 @@ export function SettingsPage() {
           ...(isLight && { border: "1px solid var(--border-color)", padding: "16px 8px", borderRadius: 12 }),
         }}
       >
-        {/* COMPTE */}
-        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold, marginTop: 0 }}>
-          COMPTE
-        </h2>
-        <div style={rowStyle}>
-          <button
-            type="button"
-            onClick={() => signOut()}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 0",
-              border: "none",
-              background: "transparent",
-              color: "var(--text-primary)",
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <LogOut size={18} />
-            Déconnexion
-          </button>
-        </div>
-        <div style={rowStyle}>
-          <button
-            type="button"
-            onClick={() => setDeleteModalOpen(true)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 0",
-              border: "none",
-              background: "transparent",
-              color: "#ef4444",
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            <Trash2 size={18} />
-            Supprimer mon compte
-          </button>
-        </div>
-
-        {/* APPARENCE */}
-        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
-          APPARENCE
-        </h2>
-        <div style={rowStyle}>
-          <span style={{ fontSize: 14, color: "var(--text-primary)" }}>
-            Thème clair / sombre
-          </span>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <button
-              type="button"
-              onClick={premiumLoading ? undefined : isPremium ? toggleTheme : undefined}
-              disabled={premiumLoading || !isPremium}
-              aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                background: theme === "dark" ? "var(--bg-card-elevated)" : "#D4A757",
-                color: theme === "dark" ? "var(--text-secondary)" : "#111827",
-                border: "none",
-                cursor: isPremium && !premiumLoading ? "pointer" : "not-allowed",
-                padding: 0,
-                opacity: isPremium && !premiumLoading ? 1 : 0.4,
-              }}
-            >
-              {theme === "dark" ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
-            </button>
-            {!premiumLoading && !isPremium && (
-              <Lock size={14} color="var(--text-secondary)" aria-hidden />
-            )}
-          </div>
-        </div>
-
         {/* ABONNEMENT */}
-        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold, marginTop: 0 }}>
           ABONNEMENT
         </h2>
         <div
@@ -314,6 +230,167 @@ export function SettingsPage() {
           )}
         </div>
 
+        {/* NOTIFICATIONS */}
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
+          NOTIFICATIONS
+        </h2>
+        <div style={{ ...rowStyle, borderBottom: "none", paddingBottom: 20 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text-primary)" }}>
+            <Bell size={18} />
+            Activer les notifications
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={notificationsEnabled}
+            onClick={() => handleNotificationsToggle(!notificationsEnabled)}
+            style={{
+              width: 48,
+              height: 28,
+              borderRadius: 9999,
+              border: "none",
+              cursor: "pointer",
+              background: notificationsEnabled ? accentGold : "var(--input-bg)",
+              position: "relative",
+            }}
+          >
+            <span
+              style={{
+                position: "absolute",
+                top: 2,
+                left: notificationsEnabled ? 22 : 2,
+                width: 24,
+                height: 24,
+                borderRadius: "50%",
+                background: "#fff",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                transition: "left 0.2s ease",
+              }}
+            />
+          </button>
+        </div>
+
+        {/* APPARENCE */}
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
+          APPARENCE
+        </h2>
+        <div style={rowStyle}>
+          <span style={{ fontSize: 14, color: "var(--text-primary)" }}>
+            Thème clair / sombre
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <button
+              type="button"
+              onClick={premiumLoading ? undefined : isPremium ? toggleTheme : undefined}
+              disabled={premiumLoading || !isPremium}
+              aria-label={theme === "dark" ? "Passer en mode clair" : "Passer en mode sombre"}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                background: theme === "dark" ? "var(--bg-card-elevated)" : "#D4A757",
+                color: theme === "dark" ? "var(--text-secondary)" : "#111827",
+                border: "none",
+                cursor: isPremium && !premiumLoading ? "pointer" : "not-allowed",
+                padding: 0,
+                opacity: isPremium && !premiumLoading ? 1 : 0.4,
+              }}
+            >
+              {theme === "dark" ? <Sun size={20} strokeWidth={2} /> : <Moon size={20} strokeWidth={2} />}
+            </button>
+            {!premiumLoading && !isPremium && (
+              <Lock size={14} color="var(--text-secondary)" aria-hidden />
+            )}
+          </div>
+        </div>
+
+        {/* SUPPORT */}
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
+          SUPPORT
+        </h2>
+        <a
+          href="mailto:support@giovanni.app"
+          style={{
+            ...rowStyle,
+            textDecoration: "none",
+            color: "var(--text-primary)",
+            fontSize: 14,
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Mail size={18} color="var(--text-secondary)" />
+            Nous contacter
+          </span>
+          <ExternalLink size={14} color="var(--text-secondary)" />
+        </a>
+        <a
+          href="https://apps.apple.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            ...rowStyle,
+            textDecoration: "none",
+            color: "var(--text-primary)",
+            fontSize: 14,
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Star size={18} color="var(--text-secondary)" />
+            Noter l&apos;app
+          </span>
+          <ExternalLink size={14} color="var(--text-secondary)" />
+        </a>
+
+        {/* COMPTE */}
+        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
+          COMPTE
+        </h2>
+        <div style={rowStyle}>
+          <button
+            type="button"
+            onClick={() => signOut()}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 0",
+              border: "none",
+              background: "transparent",
+              color: "var(--text-primary)",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <LogOut size={18} />
+            Déconnexion
+          </button>
+        </div>
+        <div style={rowStyle}>
+          <button
+            type="button"
+            onClick={() => setDeleteModalOpen(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "8px 0",
+              border: "none",
+              background: "transparent",
+              color: "#ef4444",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            <Trash2 size={18} />
+            Supprimer mon compte
+          </button>
+        </div>
+
         {/* MENTIONS LÉGALES */}
         <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
           Mentions légales
@@ -361,41 +438,55 @@ export function SettingsPage() {
                 whiteSpace: "pre-line",
               }}
             >
-{`PokéVault — Conditions Générales d'Utilisation
+{`Giovanni — Conditions Générales d'Utilisation
 Date d'entrée en vigueur : 11 mars 2026
 
 Article 1 — Présentation de l'application
-PokéVault est une application indépendante permettant aux collectionneurs de cartes Pokémon de gérer leur collection personnelle, de suivre l'évolution de sa valeur marchande et de consulter des historiques de prix. PokéVault n'est pas affiliée, sponsorisée, approuvée ou associée à Nintendo, Game Freak, Creatures Inc., The Pokémon Company ou leurs filiales. Les noms, marques, personnages et logos Pokémon sont la propriété exclusive de The Pokémon Company International, Nintendo, Game Freak et Creatures Inc. Leur utilisation dans PokéVault est purement descriptive et référentielle.
+Giovanni est une application indépendante permettant aux collectionneurs de cartes Pokémon de gérer leur collection personnelle, de suivre l'évolution de sa valeur marchande et de consulter des historiques de prix. Giovanni n'est pas affiliée, sponsorisée, approuvée ou associée à Nintendo, Game Freak, Creatures Inc., The Pokémon Company ou leurs filiales. Les noms, marques, personnages et logos Pokémon sont la propriété exclusive de The Pokémon Company International, Nintendo, Game Freak et Creatures Inc. Leur utilisation dans Giovanni est purement descriptive et référentielle.
+
+Pokémon et les noms des personnages associés sont des marques déposées de Nintendo, Creatures Inc. et Game Freak. L'utilisation de ces noms dans cette application est purement illustrative et ne suggère aucune affiliation officielle.
 
 Article 2 — Acceptation des conditions
-En accédant à PokéVault ou en utilisant ses services, vous acceptez pleinement et sans réserve les présentes CGU. Si vous n'acceptez pas ces conditions, vous devez cesser immédiatement d'utiliser l'application.
+En accédant à Giovanni ou en utilisant ses services, vous acceptez pleinement et sans réserve les présentes CGU. Si vous n'acceptez pas ces conditions, vous devez cesser immédiatement d'utiliser l'application.
 
 Article 3 — Description des services
-PokéVault propose : gestion et suivi d'une collection de cartes Pokémon, consultation des valeurs marchandes estimées, historique de prix sur 1 an et 2 ans (Premium), portefeuille global de la collection (Premium), accès au marché secondaire de référence.
+Giovanni propose : gestion et suivi d'une collection de cartes Pokémon, consultation des valeurs marchandes estimées, historique de prix sur 6 mois et 1 an (Premium), portefeuille global de la collection (Premium), accès au marché secondaire de référence.
+
+Avertissement sur les estimations de prix : les valeurs marchandes affichées dans l'application sont des estimations informatives basées sur des algorithmes de données de marché. Elles ne constituent en aucun cas une garantie de valeur réelle ou un conseil en investissement. L'Éditeur décline toute responsabilité quant aux décisions d'achat, de vente ou d'échange prises par l'utilisateur sur la base de ces informations.
+
+Certains liens vers des sites marchands (Amazon, Fnac, etc.) peuvent être des liens d'affiliation. En tant que partenaire, Giovanni peut percevoir une commission sur les achats éligibles effectués via ces liens, sans coût supplémentaire pour l'utilisateur.
 
 Article 4 — Abonnement Premium (Boss Access)
-L'abonnement Boss Access est proposé à 3,99 € par mois ou 39,99 € par an. L'abonnement est renouvelé automatiquement. L'utilisateur peut annuler à tout moment. Conformément à la législation européenne, un droit de rétractation de 14 jours s'applique à compter de la souscription.
+L'abonnement Boss Access est proposé à 3,99 € par mois ou 39,99 € par an. L'abonnement est géré et facturé exclusivement via l'Apple App Store (In-App Purchase). Le paiement est débité du compte Apple ID de l'utilisateur à la confirmation de l'achat.
+
+L'abonnement se renouvelle automatiquement sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours. Le compte est débité pour le renouvellement dans les 24 heures précédant la fin de la période en cours, au tarif de l'abonnement choisi.
+
+L'utilisateur peut gérer et annuler ses abonnements à tout moment dans les Réglages de son compte App Store (Réglages > [Nom] > Abonnements). Conformément à la législation européenne, un droit de rétractation de 14 jours s'applique à compter de la souscription.
 
 Article 5 — Propriété intellectuelle
-Le code source, le design, les fonctionnalités et le nom \"PokéVault\" sont la propriété exclusive de leur créateur. Les noms, images et marques liés à Pokémon appartiennent à leurs propriétaires respectifs et sont utilisés uniquement à des fins descriptives.
+Le code source, le design, les fonctionnalités et le nom « Giovanni » sont la propriété exclusive de leur créateur. Les noms, images et marques liés à Pokémon appartiennent à leurs propriétaires respectifs et sont utilisés uniquement à des fins descriptives.
 
 Article 6 — Limitation de responsabilité
-Les valeurs et prix affichés sont fournis à titre indicatif uniquement. Ils ne constituent pas une offre d'achat ou de vente. PokéVault ne peut être tenu responsable des décisions financières prises sur la base de ces informations, ni des interruptions de service ou pertes de données.
+Les valeurs et prix affichés sont fournis à titre indicatif uniquement. Ils ne constituent pas une offre d'achat ou de vente. Giovanni ne peut être tenu responsable des décisions financières prises sur la base de ces informations, ni des interruptions de service ou pertes de données.
+
+Les estimations de prix fournies par Giovanni sont calculées à partir de données du marché secondaire collectées automatiquement. Giovanni ne garantit pas l'exactitude, l'exhaustivité ou l'actualité de ces données de marché et ne peut en aucun cas être tenu responsable des pertes financières liées à l'achat, la vente ou l'échange de produits Pokémon basés sur ces estimations.
 
 Article 7 — Comportement des utilisateurs
 Il est interdit de tenter de pirater l'application, reproduire le code source, utiliser l'application à des fins illégales ou partager ses identifiants avec des tiers.
 
+Il est également strictement interdit d'utiliser des bots, scripts automatisés, techniques de web-scraping ou tout autre moyen automatisé pour extraire, copier ou collecter les données de prix, les estimations de marché ou toute autre donnée propriétaire de Giovanni. Toute tentative d'extraction automatisée des données pourra entraîner la suspension immédiate du compte sans préavis.
+
 Article 8 — Modifications des CGU
-PokéVault se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront notifiés par e-mail ou via l'application.
+Giovanni se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront notifiés par e-mail ou via l'application.
 
 Article 9 — Résiliation
-PokéVault se réserve le droit de suspendre ou supprimer tout compte en cas de violation des CGU, sans préavis ni remboursement.
+Giovanni se réserve le droit de suspendre ou supprimer tout compte en cas de violation des CGU, sans préavis ni remboursement.
 
 Article 10 — Droit applicable
 Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux compétents de France seront saisis.
 
 Article 11 — Contact
-support@pokevault.app`}
+support@giovanni.app`}
             </div>
           )}
         </div>
@@ -443,20 +534,32 @@ support@pokevault.app`}
                 whiteSpace: "pre-line",
               }}
             >
-{`PokéVault — Politique de Confidentialité
+{`Giovanni — Politique de Confidentialité
 Date d'entrée en vigueur : 11 mars 2026
 
-Responsable du traitement : support@pokevault.app
-Données collectées : adresse e-mail (via Clerk), données de collection (noms, quantités, prix d'achat), informations de paiement (traitées par Stripe — données bancaires jamais stockées), données de connexion, statut d'abonnement.
+Responsable du traitement : support@giovanni.app
+
+Données collectées : adresse e-mail (via Clerk), données de collection (noms, quantités, prix d'achat), informations de paiement (gérées exclusivement par Apple via In-App Purchase — données bancaires jamais stockées par Giovanni), données de connexion, statut d'abonnement.
+
 Utilisation des données : faire fonctionner et améliorer l'application, gérer votre compte et abonnement, vous envoyer des informations liées à votre compte, respecter nos obligations légales.
-Partage des données : vos données ne sont jamais vendues. Elles sont partagées uniquement avec Clerk (authentification), Supabase (base de données) et Stripe (paiement), tous conformes au RGPD.
+
+Partage des données : vos données ne sont jamais vendues. Elles sont partagées uniquement avec Clerk (authentification), Supabase (base de données) et les services de paiement de l'App Store (gestion des abonnements via In-App Purchase), tous conformes au RGPD.
+
 Conservation : données conservées tant que le compte est actif. Suppression dans les 30 jours suivant la clôture du compte.
-Vos droits (RGPD) : droit d'accès, rectification, effacement, portabilité et opposition. Contact : support@pokevault.app — réponse sous 30 jours.
+
+Suppression de compte : vous pouvez supprimer votre compte et l'intégralité de vos données personnelles à tout moment via les réglages de l'application (Profil > Supprimer mon compte) ou en contactant support@giovanni.app. La suppression est effective dans un délai maximum de 30 jours.
+
+Vos droits (RGPD) : droit d'accès, rectification, effacement, portabilité et opposition. Contact : support@giovanni.app — réponse sous 30 jours.
+
 Cookies : stockage local minimal (thème, langue). Aucun cookie publicitaire ou tracking tiers.
+
 Sécurité : connexions HTTPS, authentification via Clerk, accès restreint à la base de données.
-Mineurs : application non destinée aux moins de 13 ans.
+
+Mineurs : Giovanni n'est pas destinée aux enfants de moins de 13 ans. Aucune donnée personnelle n'est sciemment collectée auprès de mineurs de moins de 13 ans. Si un parent ou tuteur légal découvre que son enfant de moins de 13 ans a créé un compte sans consentement parental, il peut nous contacter à support@giovanni.app pour demander la suppression immédiate du compte et des données associées. Pour les utilisateurs âgés de 13 à 16 ans résidant dans l'Union européenne, le consentement parental est requis conformément au RGPD.
+
 Modifications : notification par e-mail ou via l'app au moins 15 jours avant tout changement important.
-Contact : support@pokevault.app`}
+
+Contact : support@giovanni.app`}
             </div>
           )}
         </div>
@@ -468,88 +571,11 @@ Contact : support@pokevault.app`}
             marginTop: 4,
           }}
         >
-          PokéVault est une application indépendante. Elle n&apos;est ni affiliée, ni sponsorisée, ni approuvée par
-          The Pokémon Company International, Nintendo Co. Ltd., Game Freak Inc. ou Creatures Inc. Pokémon et tous les
-          noms et images associés sont des marques déposées de The Pokémon Company International, Nintendo, Game Freak
-          et Creatures Inc.
+          Giovanni est une application indépendante. Elle n&apos;est ni affiliée, ni sponsorisée, ni approuvée par The
+          Pokémon Company International, Nintendo Co. Ltd., Game Freak Inc. ou Creatures Inc. Pokémon et tous les noms
+          et images associés sont des marques déposées de The Pokémon Company International, Nintendo, Game Freak et
+          Creatures Inc.
         </p>
-
-        {/* SUPPORT */}
-        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
-          SUPPORT
-        </h2>
-        <a
-          href="mailto:support@pokevault.app"
-          style={{
-            ...rowStyle,
-            textDecoration: "none",
-            color: "var(--text-primary)",
-            fontSize: 14,
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Mail size={18} color="var(--text-secondary)" />
-            Nous contacter
-          </span>
-          <ExternalLink size={14} color="var(--text-secondary)" />
-        </a>
-        <a
-          href="https://apps.apple.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            ...rowStyle,
-            textDecoration: "none",
-            color: "var(--text-primary)",
-            fontSize: 14,
-          }}
-        >
-          <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Star size={18} color="var(--text-secondary)" />
-            Noter l&apos;app
-          </span>
-          <ExternalLink size={14} color="var(--text-secondary)" />
-        </a>
-
-        {/* NOTIFICATIONS */}
-        <h2 className="title-section" style={{ ...sectionHeaderBaseStyle, color: accentGold }}>
-          NOTIFICATIONS
-        </h2>
-        <div style={{ ...rowStyle, borderBottom: "none", paddingBottom: 20 }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text-primary)" }}>
-            <Bell size={18} />
-            Activer les notifications
-          </span>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={notificationsEnabled}
-            onClick={() => handleNotificationsToggle(!notificationsEnabled)}
-            style={{
-              width: 48,
-              height: 28,
-              borderRadius: 9999,
-              border: "none",
-              cursor: "pointer",
-              background: notificationsEnabled ? accentGold : "var(--input-bg)",
-              position: "relative",
-            }}
-          >
-            <span
-              style={{
-                position: "absolute",
-                top: 2,
-                left: notificationsEnabled ? 22 : 2,
-                width: 24,
-                height: 24,
-                borderRadius: "50%",
-                background: "#fff",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-                transition: "left 0.2s ease",
-              }}
-            />
-          </button>
-        </div>
       </div>
 
       <p
@@ -561,7 +587,7 @@ Contact : support@pokevault.app`}
           marginBottom: 100,
         }}
       >
-        PokéVault v1.0.0
+        Giovanni v1.0.0
       </p>
 
       {/* Modal confirmation suppression compte */}

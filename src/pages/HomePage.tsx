@@ -131,7 +131,7 @@ function homeDetailTrackedProductId(product: HomeProduct): string | null {
   return String(rawId);
 }
 
-/** Même source que le « PRIX ACTUEL » détail : `useEbayTrackedPrice` (moy. 90j, ≥3 entrées) puis catalogue. */
+/** Même source que le « PRIX ACTUEL » détail : `useEbayTrackedPrice` (médiane robuste 90j) puis catalogue. */
 function HomeGridTrackedMarketPrice({
   product,
   priceColor,

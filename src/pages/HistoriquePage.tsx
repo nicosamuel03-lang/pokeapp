@@ -131,9 +131,9 @@ export const HistoriquePage = () => {
       className="space-y-4"
       style={{ minHeight: "100vh", width: "100%", touchAction: "pan-y" }}
     >
-      <h2 className="title-section" style={{ color: "var(--text-primary)" }}>
+      <p className="text-xs font-medium mb-1" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
         Historique des ventes
-      </h2>
+      </p>
 
       {sales.length === 0 ? (
         <section
@@ -213,9 +213,9 @@ export const HistoriquePage = () => {
             className="rounded-2xl p-4"
             style={{ background: "var(--card-color)", boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}
           >
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+            <p className="text-xs font-medium mb-1" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
               Synthèse des ventes
-            </h3>
+            </p>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div
                 className={!isLight ? "rounded-2xl p-3" : ""}
@@ -298,13 +298,13 @@ export const HistoriquePage = () => {
 
           {/* Liste des ventes */}
           <section className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>
+            <p className="text-xs font-medium mb-1" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
               Détail des ventes (
               <span className={STAT_CARD_VALUE_CLASS}>
                 {sortedSales.length}
               </span>
               )
-            </h3>
+            </p>
             <div className="space-y-3">
               {(isPremium ? sortedSales : sortedSales.slice(0, 5)).map((sale) => {
                 const investi = sale.buyPrice * sale.quantity;

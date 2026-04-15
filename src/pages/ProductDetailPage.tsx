@@ -33,6 +33,7 @@ import { getGuestSalesTransactionCount } from "../utils/salesHistoryStorage";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import type { PortfolioChartPeriod } from "../utils/portfolioChartData";
 import { formatProductNameWithSetCode, getSetCodeFromProduct } from "../utils/formatProduct";
+import { getMarketDataWarningForDisplayedPrice } from "../utils/ebayMarketDataWarning";
 import { getEraBadge, getEraNeonBadgeStyle, getEraStyle } from "../utils/eraBadge";
 import {
   isKnownProductCardEraLabel,
@@ -1029,6 +1030,11 @@ const ProductDetailPageInner = () => {
     ebayTracked.averagePriceEur > 0
       ? ebayTracked.averagePriceEur
       : catalogPrixMarche;
+  const marketDataWarning = useMemo(
+    () =>
+      product ? getMarketDataWarningForDisplayedPrice(product, prixMarche) : false,
+    [product, prixMarche]
+  );
   const performanceVsPurchasePercent =
     collectionMatch != null && collectionMatch.buyPrice > 0 && Number.isFinite(prixMarche)
       ? ((prixMarche - collectionMatch.buyPrice) / collectionMatch.buyPrice) * 100
@@ -1338,25 +1344,41 @@ const ProductDetailPageInner = () => {
                     </div>
 
                     {!isEbayMockMode() && !ebayTracked.loading ? (
-                      <div className="mt-1 flex items-center gap-1.5">
-                        <span
-                          className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                          style={{
-                            background: "rgba(59,130,246,0.15)",
-                            color: "#60a5fa",
-                            border: "1px solid rgba(59,130,246,0.3)",
-                          }}
-                        >
-                          <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
-                            <circle cx="4" cy="4" r="3" />
-                          </svg>
-                          Prix marché eBay
-                        </span>
-                        <span className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
-                          {prixSource === "ebay_tracked"
-                            ? `moy. 90j · ${ebayTracked.count} ${ebayTracked.count > 1 ? "entrées" : "entrée"}`
-                            : "estimé"}
-                        </span>
+                      <div className="mt-1 flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                            style={{
+                              background: "rgba(59,130,246,0.15)",
+                              color: "#60a5fa",
+                              border: "1px solid rgba(59,130,246,0.3)",
+                            }}
+                          >
+                            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
+                              <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            Prix marché eBay
+                          </span>
+                          <span className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
+                            {prixSource === "ebay_tracked"
+                              ? `moy. 90j · ${ebayTracked.count} ${ebayTracked.count > 1 ? "entrées" : "entrée"}`
+                              : "estimé"}
+                          </span>
+                        </div>
+                        {marketDataWarning ? (
+                          <p
+                            className="rounded-lg px-2 py-1.5 text-[10px] font-medium leading-snug"
+                            role="status"
+                            style={{
+                              background: "rgba(234,179,8,0.12)",
+                              color: "#eab308",
+                              border: "1px solid rgba(234,179,8,0.35)",
+                            }}
+                          >
+                            Market Data Warning : le prix affiché semble anormalement bas pour ce set —
+                            vérifiez les annonces (boosters, codes, erreur de matching).
+                          </p>
+                        ) : null}
                       </div>
                     ) : null}
                   </div>

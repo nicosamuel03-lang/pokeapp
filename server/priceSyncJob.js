@@ -13,6 +13,7 @@
 const path = require("path");
 const { searchFresh } = require("./ebayBrowse");
 const { getSupabaseAdmin } = require("./supabaseAdmin");
+const { getEbaySearchOptionsForCatalogProduct } = require("./ebayStrictProductQueries");
 
 const SYNC_INTERVAL_MS  = 24 * 60 * 60 * 1000; // 24 heures
 const RETENTION_DAYS    = 90;
@@ -112,7 +113,11 @@ async function syncAllPrices({ signal } = {}) {
     }
 
     try {
-      const result = await searchFresh(product.name, { signal });
+      const q = getEbaySearchOptionsForCatalogProduct(product);
+      const result = await searchFresh(q.searchQuery, {
+        skipSimplify: q.skipSimplify,
+        signal,
+      });
 
       const { error: insertError } = await supabase
         .from("ebay_prices")

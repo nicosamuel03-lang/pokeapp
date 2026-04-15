@@ -4,8 +4,8 @@
  *
  * Flow :
  *  1. POST /identity/v1/oauth2/token → Bearer token (mis en cache 2h)
- *  2. GET  /buy/browse/v1/item_summary/search  (FIXED_PRICE, EBAY_FR, limit=20)
- *  3. Garde les prix EUR, retire top/bottom 15 %, retourne la médiane
+ *  2. GET  /buy/browse/v1/item_summary/search  (FIXED_PRICE, EBAY_FR, limit=80)
+ *  3. Garde les prix EUR, retire top/bottom 15 %, médiane sur le cœur (≈70 %)
  *  4. Résultat mis en cache 24h par query normalisée
  */
 
@@ -91,13 +91,16 @@ function setCached(key, result) {
  * "UPC Sulfura ex Team Rocket"    → "Sulfura Team Rocket ultra premium collection pokemon"
  * "Display Flammes Obsidiennes"   → "Flammes Obsidiennes display pokemon scellé"
  */
+/** Exclusions strictes pour Display / Booster Box (évite boosters unitaires, codes, etc.). */
+const DISPLAY_OR_BOOSTER_BOX_EXCLUSIONS =
+  "sealed -booster -empty -vide -artset -code -loose -lot -online -repacked";
+
 function simplifyQuery(raw) {
   let q = String(raw || "").trim();
 
-  // Détecter le type AVANT de supprimer les préfixes
-  const isETB     = /\bETB\b/i.test(q);
-  const isUPC     = /\bUPC\b/i.test(q);
+  // Détecter Display / Booster Box AVANT de supprimer les codes set
   const isDisplay = /\bDisplay\b/i.test(q);
+  const isBoosterBox = /\bBooster\s*Box\b/i.test(q);
 
   // Supprime les codes set (EB07, EV08.5, SV09, …)
   q = q.replace(/\(?\b(EB|EV|ME|SL|SV|XY|BW|DP|HGSS)\d{1,2}(?:\.\d+)?\b\)?/gi, "");
@@ -116,6 +119,10 @@ function simplifyQuery(raw) {
   // Force un suffixe "FR scellé neuf" (sans enlever d'éventuels "FR" déjà présents)
   if (!/\bFR\s+scellé\s+neuf\s*$/i.test(q)) {
     q = `${q} FR scellé neuf`.trim();
+  }
+
+  if (isDisplay || isBoosterBox) {
+    q = `${q} ${DISPLAY_OR_BOOSTER_BOX_EXCLUSIONS}`.replace(/\s{2,}/g, " ").trim();
   }
 
   return q;
@@ -165,29 +172,51 @@ function extractPriceEur(item) {
   return null;
 }
 
-// ─── Calcul moyenne tronquée 15 %/15 % ───────────────────────────────────────
+// ─── Médiane sur prix triés après exclusion du bas 15 % et haut 15 % ─────────
 
-function trimmedMean(prices) {
-  if (prices.length === 0) return null;
-  const sorted = [...prices].sort((a, b) => a - b);
-  const cut = Math.floor(sorted.length * 0.15);
-  const trimmed = cut > 0 ? sorted.slice(cut, sorted.length - cut) : sorted;
-  if (trimmed.length === 0) return sorted.reduce((a, b) => a + b, 0) / sorted.length;
-  const sum = trimmed.reduce((acc, v) => acc + v, 0);
-  return sum / trimmed.length;
+function medianOfSorted(sorted) {
+  if (sorted.length === 0) return null;
+  const m = sorted.length;
+  const mid = Math.floor(m / 2);
+  return m % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
-// ─── Point d'entrée public ───────────────────────────────────────────────────
+/**
+ * Trie les prix, retire 15 % bas + 15 % haut, médiane sur le cœur (~70 %).
+ * Retourne { value, usedCount } où usedCount = nombre de prix dans le cœur.
+ */
+function outlierTrimmedMedian15(prices) {
+  if (prices.length === 0) return { value: null, usedCount: 0 };
+  const sorted = [...prices].sort((a, b) => a - b);
+  const n = sorted.length;
+  const cut = Math.floor(n * 0.15);
+  let core = sorted.slice(cut, n - cut);
+  if (core.length === 0) core = sorted;
+  return { value: medianOfSorted(core), usedCount: core.length };
+}
+
+/** Seuils planchers (€) pour flag « market data warning » (aligné client : `ebayMarketDataWarning.ts`). */
+const MIN_DISPLAY_MARKET_EUR_BY_SET = { EB07: 450 };
+
+function computeMarketDataWarning(rawQuery, priceEur) {
+  if (priceEur == null || !Number.isFinite(priceEur)) return false;
+  const raw = String(rawQuery || "");
+  const isDisplayLike = /\bDisplay\b/i.test(raw) || /\bBooster\s*Box\b/i.test(raw);
+  if (!isDisplayLike) return false;
+  const m = raw.match(/\b(EB|EV|ME|SL|SV)\d{1,2}(?:\.\d+)?\b/i);
+  if (!m) return false;
+  const code = m[0].toUpperCase();
+  const min = MIN_DISPLAY_MARKET_EUR_BY_SET[code];
+  return min != null && priceEur < min;
+}
+
+// ─── Recherche brute (annonces filtrées) ─────────────────────────────────────
 
 /**
- * Médiane € (écrêtée 15%/15%) des annonces FIXED_PRICE eBay FR.
- * Token OAuth2 mis en cache 2h ; résultat mis en cache 24h.
- *
- * @param {string} rawQuery  Nom brut du produit (ex. "ETB Zénith Suprême")
- * @param {{ signal?: AbortSignal }} [opts]
- * @returns {Promise<{ averagePriceEur, resultCount, itemsUsed, query, marketplace }>}
+ * Appelle l’API Browse, post-filtre les titres ; pas de cache sur ce résultat.
+ * @returns {Promise<{ validSummaries: object[], cleanQuery: string, raw: string }>}
  */
-async function searchAveragePriceTop5(rawQuery, opts = {}) {
+async function getBrowseValidSummaries(rawQuery, opts = {}) {
   const raw = String(rawQuery || "").trim();
   if (!raw) {
     const err = new Error("query vide");
@@ -195,26 +224,19 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
     throw err;
   }
 
-  const cleanQuery = simplifyQuery(raw);
-  const cacheKey   = cleanQuery.toLowerCase();
-
-  const cached = getCached(cacheKey);
-  if (cached) {
-    console.log(`[ebay/browse] cache hit — "${cleanQuery}"`);
-    return cached;
-  }
+  const cleanQuery =
+    opts.skipSimplify === true ? raw : simplifyQuery(raw);
 
   console.log(`[ebay/browse] Recherche — "${raw}" → "${cleanQuery}"`);
 
   const token = await getAccessToken();
 
-  // Catégorie eBay pour les produits Pokémon scellés (183454 = Pokémon Sealed)
-  // Prix minimum 80 € pour exclure les cartes individuelles et boosters seuls
-  const EBAY_FILTER = "buyingOptions:{FIXED_PRICE},conditions:{NEW},price:[80..],priceCurrency:EUR,categoryIds:{183454}";
+  const EBAY_FILTER =
+    "buyingOptions:{FIXED_PRICE},conditionIds:{1000},price:[80..],priceCurrency:EUR,categoryIds:{183454}";
 
   const url = new URL(EBAY_SEARCH_URL);
-  url.searchParams.set("q",      cleanQuery);
-  url.searchParams.set("limit",  "20");
+  url.searchParams.set("q", cleanQuery);
+  url.searchParams.set("limit", "80");
   url.searchParams.set("filter", EBAY_FILTER);
 
   const fullUrl = url.toString();
@@ -223,28 +245,30 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
   let res = await fetch(fullUrl, {
     method: "GET",
     headers: {
-      "Authorization":           `Bearer ${token}`,
+      "Authorization": `Bearer ${token}`,
       "X-EBAY-C-MARKETPLACE-ID": "EBAY_FR",
-      "Content-Type":            "application/json",
+      "Content-Type": "application/json",
     },
     signal: opts.signal,
   });
 
   let data = await res.json().catch(() => ({}));
 
-  // Si la catégorie 183454 retourne 0 résultats, réessaye sans le filtre categoryIds
   if (res.ok && (!data.itemSummaries || data.itemSummaries.length === 0)) {
     console.log("[ebay/browse] 0 résultat avec categoryIds:183454 — nouvelle tentative sans filtre catégorie");
     const url2 = new URL(EBAY_SEARCH_URL);
-    url2.searchParams.set("q",      cleanQuery);
-    url2.searchParams.set("limit",  "20");
-    url2.searchParams.set("filter", "buyingOptions:{FIXED_PRICE},conditions:{NEW},price:[80..],priceCurrency:EUR");
-    res  = await fetch(url2.toString(), {
+    url2.searchParams.set("q", cleanQuery);
+    url2.searchParams.set("limit", "80");
+    url2.searchParams.set(
+      "filter",
+      "buyingOptions:{FIXED_PRICE},conditionIds:{1000},price:[80..],priceCurrency:EUR"
+    );
+    res = await fetch(url2.toString(), {
       method: "GET",
       headers: {
-        "Authorization":           `Bearer ${token}`,
+        "Authorization": `Bearer ${token}`,
         "X-EBAY-C-MARKETPLACE-ID": "EBAY_FR",
-        "Content-Type":            "application/json",
+        "Content-Type": "application/json",
       },
       signal: opts.signal,
     });
@@ -263,12 +287,44 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
   const summaries = Array.isArray(data.itemSummaries) ? data.itemSummaries : [];
   console.log(`[ebay/browse] ${summaries.length} annonce(s) reçue(s)`);
 
-  // Post-filtrage : exclure les titres contenant des mots-clés hors-sujet
   const validSummaries = summaries.filter((item) => !isTitleBlacklisted(item.title));
   const excluded = summaries.length - validSummaries.length;
   if (excluded > 0) {
     console.log(`[ebay/browse] ${excluded} annonce(s) exclue(s) par filtre de titre`);
   }
+
+  return { validSummaries, cleanQuery, raw };
+}
+
+// ─── Point d'entrée public ───────────────────────────────────────────────────
+
+/**
+ * Médiane € (cœur 70 % après retrait 15 % bas / 15 % haut) des annonces FIXED_PRICE eBay FR.
+ * Token OAuth2 mis en cache 2h ; résultat mis en cache 24h.
+ *
+ * @param {string} rawQuery  Nom brut du produit (ex. "ETB Zénith Suprême")
+ * @param {{ signal?: AbortSignal }} [opts]
+ * @returns {Promise<{ averagePriceEur, resultCount, itemsUsed, query, marketplace }>}
+ */
+async function searchAveragePriceTop5(rawQuery, opts = {}) {
+  const raw = String(rawQuery || "").trim();
+  if (!raw) {
+    const err = new Error("query vide");
+    err.code = "BAD_QUERY";
+    throw err;
+  }
+
+  const cleanQuery =
+    opts.skipSimplify === true ? raw : simplifyQuery(raw);
+  const cacheKey = cleanQuery.toLowerCase();
+
+  const cached = getCached(cacheKey);
+  if (cached) {
+    console.log(`[ebay/browse] cache hit — "${cleanQuery}"`);
+    return cached;
+  }
+
+  const { validSummaries, cleanQuery: cq, raw: rawInner } = await getBrowseValidSummaries(rawQuery, opts);
 
   const prices = validSummaries.map(extractPriceEur).filter((p) => p !== null);
   console.log(`[ebay/browse] ${prices.length} prix EUR retenus : [${prices.map(p => p + '€').join(", ")}]`);
@@ -279,24 +335,27 @@ async function searchAveragePriceTop5(rawQuery, opts = {}) {
     throw err;
   }
 
-  const avg = trimmedMean(prices);
-  const averagePriceEur = Math.round(avg * 100) / 100;
-
-  // Nb de prix utilisés après écrêtage
-  const cut = Math.floor(prices.length * 0.15);
-  const itemsUsed = Math.max(1, prices.length - 2 * cut);
+  const { value: medianCore, usedCount: itemsUsed } = outlierTrimmedMedian15(prices);
+  if (medianCore == null || !Number.isFinite(medianCore)) {
+    const err = new Error("Médiane invalide après filtrage des prix");
+    err.code = "NO_PRICES";
+    throw err;
+  }
+  const averagePriceEur = Math.round(medianCore * 100) / 100;
+  const marketDataWarning = computeMarketDataWarning(rawInner, averagePriceEur);
 
   const result = {
     averagePriceEur,
     resultCount: validSummaries.length,
     itemsUsed,
-    query:       cleanQuery,
+    query: cq,
     marketplace: "EBAY_FR",
+    marketDataWarning,
   };
 
-  setCached(cacheKey, result);
+  setCached(cq.toLowerCase(), result);
   console.log(
-    `[ebay/browse] Succès — "${cleanQuery}" → moyenne tronquée ${averagePriceEur} € (${prices.length} prix, écrêtage 15%, cache 24h)`
+    `[ebay/browse] Succès — "${cq}" → médiane (cœur 70 %) ${averagePriceEur} € (${prices.length} prix bruts, ${itemsUsed} dans le cœur, cache 24h)`
   );
   return result;
 }
@@ -314,13 +373,82 @@ async function searchFresh(rawQuery, opts = {}) {
     throw err;
   }
 
-  const cleanQuery = simplifyQuery(raw);
-  const cacheKey   = cleanQuery.toLowerCase();
+  const cleanQuery =
+    opts.skipSimplify === true ? raw : simplifyQuery(raw);
+  const cacheKey = cleanQuery.toLowerCase();
 
-  // On supprime l'entrée du cache pour forcer un fetch frais
   _resultCache.delete(cacheKey);
 
   return searchAveragePriceTop5(rawQuery, opts);
 }
 
-module.exports = { searchAveragePriceTop5, searchFresh, simplifyQuery };
+/**
+ * Fetch frais : jusqu’à `limit` annonces valides (ordre eBay), une valeur EUR par annonce.
+ * Contourne le cache agrégé ; insère côté appelant une ligne par prix dans `ebay_prices`.
+ *
+ * @param {string} rawQuery
+ * @param {{ skipSimplify?: boolean, limit?: number, signal?: AbortSignal }} [opts]
+ * @returns {Promise<{ listingPricesEur: number[], resultCount: number, itemsReturned: number, averagePriceEur: number, query: string, marketplace: string, marketDataWarning: boolean }>}
+ */
+async function searchFreshTopListingPrices(rawQuery, opts = {}) {
+  const raw = String(rawQuery || "").trim();
+  if (!raw) {
+    const err = new Error("query vide");
+    err.code = "BAD_QUERY";
+    throw err;
+  }
+
+  const cleanQuery =
+    opts.skipSimplify === true ? raw : simplifyQuery(raw);
+  _resultCache.delete(cleanQuery.toLowerCase());
+
+  const limit = Math.min(Math.max(Number(opts.limit) || 20, 1), 80);
+
+  const { validSummaries, cleanQuery: cq, raw: rawInner } = await getBrowseValidSummaries(rawQuery, opts);
+
+  const listingPricesEur = [];
+  for (const item of validSummaries) {
+    const p = extractPriceEur(item);
+    if (p !== null) {
+      listingPricesEur.push(p);
+      if (listingPricesEur.length >= limit) break;
+    }
+  }
+
+  if (listingPricesEur.length === 0) {
+    const err = new Error("Aucun prix EUR dans les résultats eBay FR");
+    err.code = "NO_PRICES";
+    throw err;
+  }
+
+  const sorted = [...listingPricesEur].sort((a, b) => a - b);
+  const medianListings = medianOfSorted(sorted);
+  if (medianListings == null || !Number.isFinite(medianListings)) {
+    const err = new Error("Médiane invalide sur les annonces");
+    err.code = "NO_PRICES";
+    throw err;
+  }
+  const averagePriceEur = Math.round(medianListings * 100) / 100;
+  const marketDataWarning = computeMarketDataWarning(rawInner, averagePriceEur);
+
+  console.log(
+    `[ebay/browse] Top ${listingPricesEur.length} annonce(s) — [${listingPricesEur.map((p) => p + "€").join(", ")}] → médiane ${averagePriceEur} €`
+  );
+
+  return {
+    listingPricesEur,
+    resultCount: validSummaries.length,
+    itemsReturned: listingPricesEur.length,
+    averagePriceEur,
+    query: cq,
+    marketplace: "EBAY_FR",
+    marketDataWarning,
+  };
+}
+
+module.exports = {
+  searchAveragePriceTop5,
+  searchFresh,
+  searchFreshTopListingPrices,
+  simplifyQuery,
+};

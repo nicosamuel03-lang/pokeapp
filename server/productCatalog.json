@@ -2,412 +2,576 @@
   {
     "id": "ME03",
     "name": "ETB Équilibre Parfait (ME03)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 50,
+    "maxPrice": 61
   },
   {
     "id": "ME02.5",
     "name": "ETB Héros Transcendants (ME02.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 72,
+    "maxPrice": 88
   },
   {
     "id": "ME02",
     "name": "ETB Méga Évolution (Lucario) (ME01)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 68,
+    "maxPrice": 83
   },
   {
     "id": "ME02-2",
     "name": "ETB Flammes Fantasmagoriques (ME02)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 68,
+    "maxPrice": 83
   },
   {
     "id": "ME01",
     "name": "ETB Méga Évolution (Gardevoir) (ME01)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 77,
+    "maxPrice": 94
   },
   {
     "id": "EV10.5",
     "name": "ETB Foudre Noire (EV10.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 68,
+    "maxPrice": 83
   },
   {
     "id": "EV10.5-2",
     "name": "ETB Flamme Blanche (EV10.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 68,
+    "maxPrice": 83
   },
   {
     "id": "EV10",
     "name": "ETB Rivalités Destinées (EV10)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 117,
+    "maxPrice": 143
   },
   {
     "id": "EV09",
     "name": "ETB Aventure Ensemble (EV09)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 72,
+    "maxPrice": 88
   },
   {
     "id": "EV08",
     "name": "ETB Étincelles Déferlantes (EV08)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 104,
+    "maxPrice": 127
   },
   {
     "id": "EV08.5",
     "name": "ETB Évolutions Prismatiques (EV08.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 81,
+    "maxPrice": 99
   },
   {
     "id": "EV07",
     "name": "ETB Couronne Stellaire (EV07)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 68,
+    "maxPrice": 83
   },
   {
     "id": "EV06",
     "name": "ETB Forces Temporelles (Serpente-eau) (EV05)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 108,
+    "maxPrice": 132
   },
   {
     "id": "EV06.5",
     "name": "ETB Fable Nébuleuse (EV06.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 63,
+    "maxPrice": 77
   },
   {
     "id": "EV06-2",
     "name": "ETB Mascarade Crépusculaire (EV06)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 122,
+    "maxPrice": 149
   },
   {
     "id": "EV05",
     "name": "ETB Faille Paradoxe (Rugit-Lune) (EV04)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 270,
+    "maxPrice": 330
   },
   {
     "id": "EV05-2",
     "name": "ETB Forces Temporelles (Vert-de-Fer) (EV05)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 108,
+    "maxPrice": 132
   },
   {
     "id": "EV04.5",
     "name": "ETB Destinées de Paldéa (EV04.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 68,
+    "maxPrice": 83
   },
   {
     "id": "EV04",
     "name": "ETB Faille Paradoxe (Garde-de-Fer) (EV04)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 270,
+    "maxPrice": 330
   },
   {
     "id": "EV03.5",
     "name": "ETB Pokémon 151 (EV03.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 350,
+    "maxPrice": 400
   },
   {
     "id": "EV03",
     "name": "ETB Flammes Obsidiennes (EV03)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 162,
+    "maxPrice": 198
   },
   {
     "id": "EV02",
     "name": "ETB Écarlate et Violet (Miraidon) (EV01)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 144,
+    "maxPrice": 176
   },
   {
     "id": "EV02-2",
     "name": "ETB Évolutions à Paldéa (EV02)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 144,
+    "maxPrice": 176
   },
   {
     "id": "EV01",
     "name": "ETB Écarlate et Violet (Koraidon) (EV01)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 158,
+    "maxPrice": 193
   },
   {
     "id": "EB12.5",
     "name": "ETB Zénith Suprême (EB12.5) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 234,
+    "maxPrice": 286
   },
   {
     "id": "EB12",
     "name": "ETB Tempête Argentée (EB12) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 198,
+    "maxPrice": 242
   },
   {
     "id": "EB11",
     "name": "ETB Origine Perdue (EB11) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 279,
+    "maxPrice": 341
   },
   {
     "id": "EB07",
     "name": "ETB Évolution Céleste (Mentali) (EB07) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 360,
+    "maxPrice": 440
   },
   {
     "id": "EB10.5",
     "name": "ETB Pokémon GO (EB10.5) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 158,
+    "maxPrice": 193
   },
   {
     "id": "EB06-2",
     "name": "ETB Règne de Glace (Sylveroy Cavalier du Froid) (EB06) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 234,
+    "maxPrice": 286
   },
   {
     "id": "EB10",
     "name": "ETB Astres Radieux (EB10) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 158,
+    "maxPrice": 193
   },
   {
     "id": "EB05-2",
     "name": "ETB Styles de Combat (Shifours Mille Poings) (EB05) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1530,
+    "maxPrice": 1870
   },
   {
     "id": "EB09",
     "name": "ETB Stars Étincelantes (EB09) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 167,
+    "maxPrice": 204
   },
   {
     "id": "EB08",
     "name": "ETB Poing de Fusion (EB08) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 300,
+    "maxPrice": 350
   },
   {
     "id": "EB07.5",
     "name": "ETB Célébrations 25 Ans (EB07.5) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 450,
+    "maxPrice": 550
   },
   {
     "id": "EB07-2",
     "name": "ETB Évolution Céleste (Noctali) (EB07) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 360,
+    "maxPrice": 440
   },
   {
     "id": "EB06",
     "name": "ETB Règne de Glace (Sylveroy Cavalier d'Effroi) (EB06) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 234,
+    "maxPrice": 286
   },
   {
     "id": "EB05",
     "name": "ETB Styles de Combat (Shifours Mille Poings Final) (EB05) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 360,
+    "maxPrice": 440
   },
   {
     "id": "EB04.5",
     "name": "ETB Destinées Radieuses (EB04.5) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 250,
+    "maxPrice": 350
   },
   {
     "id": "EB01-2",
     "name": "ETB Épée et Bouclier (Zamazenta) (EB01) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1350,
+    "maxPrice": 1650
   },
   {
     "id": "EB04",
     "name": "ETB Voltage Éclatant (EB04) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1800,
+    "maxPrice": 2200
   },
   {
     "id": "EB03,5",
     "name": "ETB La voie du Maître (EB03.5) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 504,
+    "maxPrice": 616
   },
   {
     "id": "EB03",
     "name": "ETB Ténèbres Embrasées (EB03) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1845,
+    "maxPrice": 2255
   },
   {
     "id": "EB02",
     "name": "ETB Clash des Rebelles (EB02) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 500,
+    "maxPrice": 1000
   },
   {
     "id": "EB01",
     "name": "ETB Épée et Bouclier (Zacian) (EB01) FR",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1350,
+    "maxPrice": 1650
   },
   {
     "id": "SL12",
     "name": "ETB Éclipse Cosmique (SL12)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1350,
+    "maxPrice": 1650
   },
   {
     "id": "SL11",
     "name": "ETB Harmonie des Esprits (SL11)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1143,
+    "maxPrice": 1397
   },
   {
     "id": "SL10.5",
     "name": "ETB Destinées Occultes (SL10)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 405,
+    "maxPrice": 495
   },
   {
     "id": "SL10",
     "name": "ETB Alliance Infaillible (SL10)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1980,
+    "maxPrice": 2420
   },
   {
     "id": "SL09",
     "name": "ETB Duo de Choc (SL09)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 5850,
+    "maxPrice": 7150
   },
   {
     "id": "SL08",
     "name": "ETB Tonnerre Perdu (SL08)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 3600,
+    "maxPrice": 4400
   },
   {
     "id": "SL03.5",
     "name": "ETB Légendes Brillantes (SL03.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 360,
+    "maxPrice": 440
   },
   {
     "id": "SL07.5",
     "name": "ETB Majesté des Dragons (SL07.5)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 3600,
+    "maxPrice": 4400
   },
   {
     "id": "SL07",
     "name": "ETB Tempête Céleste (SL07)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1800,
+    "maxPrice": 2200
   },
   {
     "id": "SL06",
     "name": "ETB Lumière Interdite (SL06)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 1080,
+    "maxPrice": 1320
   },
   {
     "id": "SL05",
     "name": "ETB Ultra Prisme (Necrozma Ailes de l’Aurore) (SL05)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 405,
+    "maxPrice": 495
   },
   {
     "id": "SL05-2",
     "name": "ETB Ultra Prisme (Necrozma Crinière du Couchant) (SL05)",
-    "type": "ETB"
+    "type": "ETB",
+    "minPrice": 405,
+    "maxPrice": 495
   },
   {
     "id": "display-ME02",
     "name": "ME02 Flammes Fantasmagoriques FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 270
   },
   {
     "id": "display-ME01",
     "name": "ME01 Méga Évolution FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 270
   },
   {
     "id": "display-EV10",
     "name": "EV10 Rivalités Destinées FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 290,
+    "maxPrice": 350
   },
   {
     "id": "display-EV09",
     "name": "EV09 Aventure Ensemble FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV08",
     "name": "EV08 Étincelles Déferlantes FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV07",
     "name": "EV07 Couronne Stellaire FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV06",
     "name": "EV06 Mascarade Crépusculaire FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV05",
     "name": "EV05 Forces Temporelles FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV04",
     "name": "EV04 Faille Paradoxe FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV03",
     "name": "EV03 Flammes Obsidiennes FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV02",
     "name": "EV02 Évolutions à Paldéa FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EV01",
     "name": "EV01 Écarlate et Violet FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 230
   },
   {
     "id": "display-EB12",
     "name": "EB12 Tempête Argentée FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 300,
+    "maxPrice": 360
   },
   {
     "id": "display-EB11",
     "name": "EB11 Origine Perdue FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 380,
+    "maxPrice": 460
   },
   {
     "id": "display-EB10",
     "name": "EB10 Astres Radieux FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 250,
+    "maxPrice": 310
   },
   {
     "id": "display-EB09",
     "name": "EB09 Stars Étincelantes FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 340,
+    "maxPrice": 420
   },
   {
     "id": "display-EB08",
     "name": "EB08 Poing de Fusion FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 520,
+    "maxPrice": 640
   },
   {
     "id": "display-EB07",
     "name": "EB07 Évolution Céleste FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 1050,
+    "maxPrice": 1250
   },
   {
     "id": "display-EB06",
     "name": "EB06 Règne de Glace FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 380,
+    "maxPrice": 460
   },
   {
     "id": "display-EB05",
     "name": "EB05 Styles de Combat FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 540,
+    "maxPrice": 660
   },
   {
     "id": "display-EB04",
     "name": "EB04 Voltage Éclatant FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 1000,
+    "maxPrice": 1200
   },
   {
     "id": "display-EB03",
     "name": "EB03 Ténèbres Embrasées FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 1600,
+    "maxPrice": 2000
   },
   {
     "id": "display-EB02",
     "name": "EB02 Clash des Rebelles FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 2700,
+    "maxPrice": 3300
   },
   {
     "id": "display-EB01",
     "name": "EB01 Épée et Bouclier FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 1900,
+    "maxPrice": 2300
   },
   {
     "id": "display-ME03",
     "name": "ME03 Tempête Émeraude FR",
-    "type": "Display"
+    "type": "Display",
+    "minPrice": 190,
+    "maxPrice": 270
   },
   {
     "id": "upc-UPC08",

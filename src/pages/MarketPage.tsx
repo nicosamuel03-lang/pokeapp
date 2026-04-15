@@ -472,7 +472,6 @@ export const MarketPage = () => {
     [filteredProducts]
   );
 
-
   return (
     <div style={{ position: "relative", minHeight: "100%", ...(!premiumLoading && !isPremium ? { overflow: "hidden", maxHeight: "100vh" } : {}) }}>
       <div
@@ -487,16 +486,9 @@ export const MarketPage = () => {
               }
         }
       >
-        <h2
-          className="title-section"
-          style={{
-            color: "var(--text-primary)",
-            marginBottom: 24,
-            display: "block",
-          }}
-        >
-          MARCHÉ DES CARTES
-        </h2>
+        <p className="text-xs font-medium mb-1" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
+          Marché des cartes
+        </p>
 
         <div className="-mx-4 w-[calc(100%+2rem)] max-w-none px-0">
           <NewsCarousel />

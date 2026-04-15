@@ -7,11 +7,13 @@ export type EbayPriceResponse =
       averagePriceEur: number;
       resultCount: number;
       itemsUsed: number;
+      /** Prix suspect vs seuils connus (ex. Display EB07). */
+      marketDataWarning: boolean;
     }
   | { ok: false; error: string; status?: number };
 
 /**
- * Appelle le backend `GET /api/ebay/price?query=…` (moyenne € des 5 premières annonces eBay FR).
+ * Appelle le backend `GET /api/ebay/price?query=…` (médiane robuste sur annonces eBay FR).
  */
 export async function fetchEbayAveragePriceEur(
   query: string,
@@ -30,6 +32,7 @@ export async function fetchEbayAveragePriceEur(
     averagePriceEur?: number;
     resultCount?: number;
     itemsUsed?: number;
+    marketDataWarning?: boolean;
   };
 
   if (!res.ok) {
@@ -50,5 +53,6 @@ export async function fetchEbayAveragePriceEur(
     averagePriceEur: avg,
     resultCount: typeof data.resultCount === "number" ? data.resultCount : 0,
     itemsUsed: typeof data.itemsUsed === "number" ? data.itemsUsed : 0,
+    marketDataWarning: Boolean(data.marketDataWarning),
   };
 }

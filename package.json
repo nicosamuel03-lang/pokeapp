@@ -9,6 +9,8 @@
     "build:etb": "node scripts/build-etb-data.mjs",
     "build:display": "node scripts/build-display-data.mjs",
     "fix:display-prices": "node scripts/fix-display-prices.mjs",
+    "recovery:ebay": "node scripts/recovery-ebay-prices.js",
+    "maintenance:ebay-evolution-celeste": "node scripts/maintenance-ebay-prices-evolution-celeste.js",
     "optimize:images": "node scripts/optimize-public-images.mjs",
     "build": "npm run build:data && npm run build:display && vite build",
     "preview": "vite preview",
