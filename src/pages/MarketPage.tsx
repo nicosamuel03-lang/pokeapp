@@ -486,7 +486,7 @@ export const MarketPage = () => {
               }
         }
       >
-        <p className="text-xs font-medium mb-1" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
+        <p className="text-xs font-medium mb-1 pl-1" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
           Marché des cartes
         </p>
 

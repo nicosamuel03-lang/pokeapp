@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Haptics, ImpactStyle } from "@capacitor/haptics";
-import { useAuth, useUser } from "@clerk/react";
-import { supabase } from "../lib/supabase";
-import { incrementSalesCounterByOne } from "../lib/salesSupabase";
+import { useAuth } from "@clerk/react";
 import { useProducts } from "../state/ProductsContext";
 import { useCollection } from "../state/CollectionContext";
 import { useSubscription } from "../state/SubscriptionContext";
@@ -404,7 +402,6 @@ export const SearchCatalogue = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const { addProduct } = useProducts();
@@ -557,58 +554,6 @@ export const SearchCatalogue = ({
       prixVente: null,
       etbId: item.etbId ?? item.id?.replace(/^(?:display-|upc-|etb-)/, "") ?? undefined,
     });
-
-    const userId = user?.id ?? null;
-    if (userId) {
-      let imageToSave: string | null = product.imageUrl ?? null;
-      if (!imageToSave && (product.etbId || product.id)) {
-        const etb =
-          etbData.find((e) => e.id === (product.etbId ?? product.id)) ||
-          etbData.find((e) => product.id.startsWith(e.id));
-        imageToSave = etb?.imageUrl ?? null;
-      }
-
-      const displayProductName = formatProductNameWithSetCode(
-        item.name,
-        getSetCodeFromProduct({ id: item.id, etbId: item.etbId }),
-        item.type === "Display" ? "Displays" : item.type === "UPC" ? "UPC" : "ETB"
-      );
-
-      const saleDateRaw = purchaseDate?.trim() ?? "";
-      const saleDate =
-        /^\d{4}-\d{2}-\d{2}$/.test(saleDateRaw) ? saleDateRaw : todayISO();
-
-      const salePriceNumber = Number(buyPrice);
-      const totalBuyCost = buyPrice * qty;
-      const profit = salePriceNumber * qty - totalBuyCost;
-
-      const row = {
-        user_id: userId,
-        product_id: String(product.id),
-        product_name: String(displayProductName || product.name || ""),
-        image: imageToSave != null ? String(imageToSave) : null,
-        buy_price: Number(buyPrice),
-        sale_price: Number(salePriceNumber),
-        quantity: Math.floor(Number(qty)) || 1,
-        sale_date: saleDate,
-        profit: Number(profit),
-      };
-
-      const { error: insertError } = await supabase.from("sales").insert([row]).select("id").single();
-      if (insertError) {
-        throw new Error(insertError.message || String(insertError));
-      }
-      const countOk = await incrementSalesCounterByOne(userId);
-      if (!countOk) {
-        try {
-          window.alert(
-            "Ajout enregistré, mais le compteur « Ventes utilisées » n’a pas pu être mis à jour (table sales_counter / RLS)."
-          );
-        } catch {
-          /* ignore */
-        }
-      }
-    }
 
     addToCollection(product, buyPrice, qty, purchaseDate);
 
