@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import XLSX from "xlsx";
+import { toAsciiImageFilename } from "./imageFilenameAscii.mjs";
 
 const displayXlsxPath = path.join(process.cwd(), "pokedisplay.xlsx");
 const upcXlsxPath = path.join(process.cwd(), "pokeupc.xlsx");
@@ -207,14 +208,14 @@ function parseUpcData() {
 
   /** Chemins manuels fixes — /images/upc/ = public/images/upc/ (pas de 'public' dans l'URL). */
   const UPC_IMAGE_OVERRIDES = {
-    UPC01: "/images/upc/UPC Célébrations 25 ans.png",
-    UPC02: "/images/upc/UPC Dracaufeu VSTAR.png?v=2",
-    UPC03: "/images/upc/UPC Mew 151.png",
-    UPC04: "/images/upc/UPC Amphinobi ex.png",
-    UPC05: "/images/upc/UPC Terapagos ex.png",
-    UPC06: "/images/upc/UPC Évoli ex (Évolutions Prismatiques).png",
-    UPC07: "/images/upc/UPC Méga-Dracaufeu X ex.png",
-    UPC08: "/images/upc/UPC Sulfura ex Team Rocket.png",
+    UPC01: "/images/upc/UPC-Celebrations-25-ans.png",
+    UPC02: "/images/upc/UPC-Dracaufeu-VSTAR.png?v=2",
+    UPC03: "/images/upc/UPC-Mew-151.png",
+    UPC04: "/images/upc/UPC-Amphinobi-ex.png",
+    UPC05: "/images/upc/UPC-Terapagos-ex.png",
+    UPC06: "/images/upc/UPC-Evoli-ex-Evolutions-Prismatiques.png",
+    UPC07: "/images/upc/UPC-Mega-Dracaufeu-X-ex.png",
+    UPC08: "/images/upc/UPC-Sulfura-ex-Team-Rocket.png",
   };
 
   const upcItems = rows
@@ -281,6 +282,13 @@ function parseUpcData() {
   console.log(`✅ UPC : ${upcItems.length} items extraits de ${path.basename(upcXlsxPath)}`);
   return upcItems;
 }
+
+/** Fautes dans la colonne extension Excel → libellé utilisé pour résoudre le fichier image sur disque. */
+const DISPLAY_EXTENSION_IMAGE_FIXES = {
+  "Chaos Acendant": "Chaos Ascendant",
+  /** Excel : « parfait » en minuscules → aligner sur le fichier Equilibre-Parfait.png (casse iOS). */
+  "Équilibre parfait": "Équilibre Parfait",
+};
 
 function buildDisplayData() {
   try {
@@ -349,13 +357,25 @@ function buildDisplayData() {
         const imageFilename =
           imageCol >= 0 ? String(row[imageCol] ?? "").trim() : "";
 
-        // Préférer les images locales dans public/images/displays/ si elles existent
+        // Préférer les images locales dans public/images/displays/ (racine et png/) si elles existent
+        const extensionForImage = DISPLAY_EXTENSION_IMAGE_FIXES[extension] ?? extension;
         const displaysDir = path.join(process.cwd(), "public", "images", "displays");
-        const localPath = path.join(displaysDir, `${extension}.png`);
+        const displaysPngDir = path.join(displaysDir, "png");
+        const asciiWebp = toAsciiImageFilename(`${extensionForImage}.webp`);
+        const asciiPng = toAsciiImageFilename(`${extensionForImage}.png`);
+        const localWebp = path.join(displaysDir, asciiWebp);
+        const localPng = path.join(displaysDir, asciiPng);
+        const localWebpSub = path.join(displaysPngDir, asciiWebp);
+        const localPngSub = path.join(displaysPngDir, asciiPng);
         let imageUrl = null;
-        if (fs.existsSync(localPath)) {
-          // ?v=2 : cache-bust pour forcer le rechargement après remplacement des PNG
-          imageUrl = `/images/displays/${extension}.png?v=2`;
+        if (fs.existsSync(localWebp)) {
+          imageUrl = `/images/displays/${asciiWebp}?v=2`;
+        } else if (fs.existsSync(localPng)) {
+          imageUrl = `/images/displays/${asciiPng}?v=2`;
+        } else if (fs.existsSync(localWebpSub)) {
+          imageUrl = `/images/displays/png/${asciiWebp}?v=2`;
+        } else if (fs.existsSync(localPngSub)) {
+          imageUrl = `/images/displays/png/${asciiPng}?v=2`;
         } else if (imageFilename !== "") {
           imageUrl = `/images/pokedata/${imageFilename}`;
         }

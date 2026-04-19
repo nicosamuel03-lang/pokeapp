@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import XLSX from "xlsx";
+import { toAsciiImageFilename } from "./imageFilenameAscii.mjs";
 
 // pokedata.xlsx at project ROOT
 const xlsxPath = path.resolve(process.cwd(), "pokedata.xlsx");
@@ -396,35 +397,44 @@ for (let i = 0; i < dataRows.length; i += 1) {
     march2026Prix: prixActuel > 0 ? prixActuel : null,
   });
 
-  // Image locale : préférer .webp, fallback .png
-  // Si non trouvé avec le nom complet, essaie en retirant le code set final ex: "(EB01)", "(SL05.5)"
+  // Image locale : préférer .webp, fallback .png (racine et sous-dossier png/)
+  // Base de fichier : sans code set "(MExx)" pour éviter Chaos-Ascendant-ME04.webp ; overrides Excel d’abord.
   const etbDir = path.join(process.cwd(), "public", "images", "etb");
+  const etbPngDir = path.join(etbDir, "png");
   const imageBaseName = nameFromC || code;
   const sansSetForOverride = stripTrailingDisplaySetCodes(imageBaseName);
   const imageFileBase =
     ETB_IMAGE_FILE_OVERRIDES[imageBaseName] ??
     ETB_IMAGE_FILE_OVERRIDES[sansSetForOverride] ??
-    imageBaseName;
+    sansSetForOverride;
+
+  function resolveEtbLocalImageUrl(baseName) {
+    const webpName = toAsciiImageFilename(`${baseName}.webp`);
+    const pngName = toAsciiImageFilename(`${baseName}.png`);
+    const pairs = [
+      [path.join(etbDir, webpName), `/images/etb/${webpName}`],
+      [path.join(etbDir, pngName), `/images/etb/${pngName}`],
+      [path.join(etbPngDir, webpName), `/images/etb/png/${webpName}`],
+      [path.join(etbPngDir, pngName), `/images/etb/png/${pngName}`],
+    ];
+    for (const [abs, url] of pairs) {
+      if (fs.existsSync(abs)) return url;
+    }
+    return null;
+  }
+
   let imageUrl = null;
   if (imageFileBase) {
-    const webpPath = path.join(etbDir, `${imageFileBase}.webp`);
-    const pngPath  = path.join(etbDir, `${imageFileBase}.png`);
-    if (fs.existsSync(webpPath)) {
-      imageUrl = `/images/etb/${imageFileBase}.webp`;
-    } else if (fs.existsSync(pngPath)) {
-      imageUrl = `/images/etb/${imageFileBase}.png`;
-    } else {
-      // Fallback : retirer le code set en fin de nom jusqu'à trouver un fichier
+    imageUrl = resolveEtbLocalImageUrl(imageFileBase);
+    if (!imageUrl) {
       const stripped = stripTrailingDisplaySetCodes(imageFileBase);
-      const strWebp = path.join(etbDir, `${stripped}.webp`);
-      const strPng  = path.join(etbDir, `${stripped}.png`);
-      if (stripped !== imageFileBase && fs.existsSync(strWebp)) {
-        imageUrl = `/images/etb/${stripped}.webp`;
-      } else if (stripped !== imageFileBase && fs.existsSync(strPng)) {
-        imageUrl = `/images/etb/${stripped}.png`;
-      } else {
-        imageUrl = `/images/etb/${imageFileBase}.webp`; // fallback (404 si fichier absent)
+      if (stripped !== imageFileBase) {
+        imageUrl = resolveEtbLocalImageUrl(stripped);
       }
+    }
+    if (!imageUrl) {
+      const webpName = toAsciiImageFilename(`${imageFileBase}.webp`);
+      imageUrl = `/images/etb/${webpName}`; // fallback (404 si fichier absent)
     }
   }
 

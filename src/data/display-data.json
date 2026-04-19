@@ -1,13 +1,167 @@
 [
   {
+    "id": "ME04",
+    "name": "ME04 Chaos Acendant FR",
+    "category": "Displays",
+    "block": "Méga Évolution",
+    "releaseDate": "22/05/2026",
+    "msrp": 150,
+    "currentMarketPrice": 210,
+    "imageUrl": "/images/displays/png/Chaos-Ascendant.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2025-03",
+        "mois_label": "2025-03",
+        "prix": null
+      },
+      {
+        "mois": "2025-04",
+        "mois_label": "2025-04",
+        "prix": null
+      },
+      {
+        "mois": "2025-05",
+        "mois_label": "2025-05",
+        "prix": null
+      },
+      {
+        "mois": "2025-06",
+        "mois_label": "2025-06",
+        "prix": null
+      },
+      {
+        "mois": "2025-07",
+        "mois_label": "2025-07",
+        "prix": null
+      },
+      {
+        "mois": "2025-08",
+        "mois_label": "2025-08",
+        "prix": null
+      },
+      {
+        "mois": "2025-09",
+        "mois_label": "2025-09",
+        "prix": null
+      },
+      {
+        "mois": "2025-10",
+        "mois_label": "2025-10",
+        "prix": null
+      },
+      {
+        "mois": "2025-11",
+        "mois_label": "2025-11",
+        "prix": null
+      },
+      {
+        "mois": "2025-12",
+        "mois_label": "2025-12",
+        "prix": null
+      },
+      {
+        "mois": "2026-01",
+        "mois_label": "2026-01",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "2026-02",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "2026-03",
+        "prix": 210
+      }
+    ]
+  },
+  {
+    "id": "ME03",
+    "name": "ME03 Équilibre parfait FR",
+    "category": "Displays",
+    "block": "Méga Évolution",
+    "releaseDate": "27/03/2026",
+    "msrp": 150,
+    "currentMarketPrice": 210,
+    "imageUrl": "/images/displays/png/Equilibre-Parfait.png?v=2",
+    "historique_prix": [
+      {
+        "mois": "2025-03",
+        "mois_label": "2025-03",
+        "prix": null
+      },
+      {
+        "mois": "2025-04",
+        "mois_label": "2025-04",
+        "prix": null
+      },
+      {
+        "mois": "2025-05",
+        "mois_label": "2025-05",
+        "prix": null
+      },
+      {
+        "mois": "2025-06",
+        "mois_label": "2025-06",
+        "prix": null
+      },
+      {
+        "mois": "2025-07",
+        "mois_label": "2025-07",
+        "prix": null
+      },
+      {
+        "mois": "2025-08",
+        "mois_label": "2025-08",
+        "prix": null
+      },
+      {
+        "mois": "2025-09",
+        "mois_label": "2025-09",
+        "prix": null
+      },
+      {
+        "mois": "2025-10",
+        "mois_label": "2025-10",
+        "prix": null
+      },
+      {
+        "mois": "2025-11",
+        "mois_label": "2025-11",
+        "prix": null
+      },
+      {
+        "mois": "2025-12",
+        "mois_label": "2025-12",
+        "prix": null
+      },
+      {
+        "mois": "2026-01",
+        "mois_label": "2026-01",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "mois_label": "2026-02",
+        "prix": null
+      },
+      {
+        "mois": "2026-03",
+        "mois_label": "2026-03",
+        "prix": 210
+      }
+    ]
+  },
+  {
     "id": "ME02",
     "name": "ME02 Flammes Fantasmagoriques FR",
     "category": "Displays",
     "block": "Méga Évolution",
     "releaseDate": "14/11/2025",
     "msrp": 150,
-    "currentMarketPrice": 220,
-    "imageUrl": "/images/displays/Flammes Fantasmagoriques.png?v=2",
+    "currentMarketPrice": 230,
+    "imageUrl": "/images/displays/Flammes-Fantasmagoriques.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -83,8 +237,8 @@
     "block": "Méga Évolution",
     "releaseDate": "26/09/2025",
     "msrp": 150,
-    "currentMarketPrice": 230,
-    "imageUrl": "/images/displays/Méga Évolution.png?v=2",
+    "currentMarketPrice": 250,
+    "imageUrl": "/images/displays/Mega-Evolution.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -160,8 +314,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "30/05/2025",
     "msrp": 140,
-    "currentMarketPrice": 300,
-    "imageUrl": "/images/displays/Rivalités Destinées.png?v=2",
+    "currentMarketPrice": 320,
+    "imageUrl": "/images/displays/Rivalites-Destinees.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -237,8 +391,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "28/03/2025",
     "msrp": 140,
-    "currentMarketPrice": 220,
-    "imageUrl": "/images/displays/Aventure Ensemble.png?v=2",
+    "currentMarketPrice": 210,
+    "imageUrl": "/images/displays/Aventure-Ensemble.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -314,8 +468,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "08/11/2024",
     "msrp": 140,
-    "currentMarketPrice": 230,
-    "imageUrl": "/images/displays/Étincelles Déferlantes.png?v=2",
+    "currentMarketPrice": 210,
+    "imageUrl": "/images/displays/Etincelles-Deferlantes.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -392,7 +546,7 @@
     "releaseDate": "13/09/2024",
     "msrp": 140,
     "currentMarketPrice": 200,
-    "imageUrl": "/images/displays/Couronne Stellaire.png?v=2",
+    "imageUrl": "/images/displays/Couronne-Stellaire.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -468,8 +622,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "24/05/2024",
     "msrp": 140,
-    "currentMarketPrice": 200,
-    "imageUrl": "/images/displays/Mascarade Crépusculaire.png?v=2",
+    "currentMarketPrice": 205,
+    "imageUrl": "/images/displays/Mascarade-Crepusculaire.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -545,8 +699,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "22/03/2024",
     "msrp": 140,
-    "currentMarketPrice": 230,
-    "imageUrl": "/images/displays/Forces Temporelles.png?v=2",
+    "currentMarketPrice": 245,
+    "imageUrl": "/images/displays/Forces-Temporelles.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -622,8 +776,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "03/11/2023",
     "msrp": 140,
-    "currentMarketPrice": 240,
-    "imageUrl": "/images/displays/Faille Paradoxe.png?v=2",
+    "currentMarketPrice": 245,
+    "imageUrl": "/images/displays/Faille-Paradoxe.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -699,8 +853,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "11/08/2023",
     "msrp": 140,
-    "currentMarketPrice": 250,
-    "imageUrl": "/images/displays/Flammes Obsidiennes.png?v=2",
+    "currentMarketPrice": 220,
+    "imageUrl": "/images/displays/Flammes-Obsidiennes.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -776,8 +930,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "09/06/2023",
     "msrp": 140,
-    "currentMarketPrice": 270,
-    "imageUrl": "/images/displays/Évolutions à Paldéa.png?v=2",
+    "currentMarketPrice": 220,
+    "imageUrl": "/images/displays/Evolutions-a-Paldea.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -853,8 +1007,8 @@
     "block": "Écarlate & Violet",
     "releaseDate": "31/03/2023",
     "msrp": 140,
-    "currentMarketPrice": 250,
-    "imageUrl": "/images/displays/Écarlate et Violet.png?v=2",
+    "currentMarketPrice": 215,
+    "imageUrl": "/images/displays/Ecarlate-et-Violet.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -930,8 +1084,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "11/11/2022",
     "msrp": 130,
-    "currentMarketPrice": 320,
-    "imageUrl": "/images/displays/Tempête Argentée.png?v=2",
+    "currentMarketPrice": 330,
+    "imageUrl": "/images/displays/Tempete-Argentee.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1007,8 +1161,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "09/09/2022",
     "msrp": 130,
-    "currentMarketPrice": 400,
-    "imageUrl": "/images/displays/Origine Perdue.png?v=2",
+    "currentMarketPrice": 420,
+    "imageUrl": "/images/displays/Origine-Perdue.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1084,8 +1238,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "27/05/2022",
     "msrp": 130,
-    "currentMarketPrice": 320,
-    "imageUrl": "/images/displays/Astres Radieux.png?v=2",
+    "currentMarketPrice": 280,
+    "imageUrl": "/images/displays/Astres-Radieux.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1161,8 +1315,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "25/02/2022",
     "msrp": 130,
-    "currentMarketPrice": 420,
-    "imageUrl": "/images/displays/Stars Étincelantes.png?v=2",
+    "currentMarketPrice": 380,
+    "imageUrl": "/images/displays/Stars-Etincelantes.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1238,8 +1392,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "26/11/2021",
     "msrp": 130,
-    "currentMarketPrice": 600,
-    "imageUrl": "/images/displays/Poing de Fusion.png?v=2",
+    "currentMarketPrice": 580,
+    "imageUrl": "/images/displays/Poing-de-Fusion.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1315,8 +1469,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "27/08/2021",
     "msrp": 130,
-    "currentMarketPrice": 1380,
-    "imageUrl": "/images/displays/Évolution Céleste.png?v=2",
+    "currentMarketPrice": 1150,
+    "imageUrl": "/images/displays/Evolution-Celeste.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1392,8 +1546,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "18/06/2021",
     "msrp": 110,
-    "currentMarketPrice": 215,
-    "imageUrl": "/images/displays/Règne de Glace.png?v=2",
+    "currentMarketPrice": 420,
+    "imageUrl": "/images/displays/Regne-de-Glace.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1469,8 +1623,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "19/03/2021",
     "msrp": 110,
-    "currentMarketPrice": 210,
-    "imageUrl": "/images/displays/Styles de Combat.png?v=2",
+    "currentMarketPrice": 600,
+    "imageUrl": "/images/displays/Styles-de-Combat.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1546,8 +1700,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "13/11/2020",
     "msrp": 110,
-    "currentMarketPrice": 290,
-    "imageUrl": "/images/displays/Voltage Éclatant.png?v=2",
+    "currentMarketPrice": 1100,
+    "imageUrl": "/images/displays/Voltage-Eclatant.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1623,8 +1777,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "14/08/2020",
     "msrp": 110,
-    "currentMarketPrice": 310,
-    "imageUrl": "/images/displays/Ténèbres Embrasées.png?v=2",
+    "currentMarketPrice": 1800,
+    "imageUrl": "/images/displays/Tenebres-Embrasees.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1700,8 +1854,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "01/05/2020",
     "msrp": 110,
-    "currentMarketPrice": 320,
-    "imageUrl": "/images/displays/Clash des Rebelles.png?v=2",
+    "currentMarketPrice": 3000,
+    "imageUrl": "/images/displays/Clash-des-Rebelles.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1777,8 +1931,8 @@
     "block": "Épée & Bouclier",
     "releaseDate": "07/02/2020",
     "msrp": 110,
-    "currentMarketPrice": 499,
-    "imageUrl": "/images/displays/Épée et Bouclier.png?v=2",
+    "currentMarketPrice": 2100,
+    "imageUrl": "/images/displays/Epee-et-Bouclier.webp?v=2",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1848,83 +2002,6 @@
     ]
   },
   {
-    "id": "ME03",
-    "name": "ME03 Tempête Émeraude FR",
-    "category": "Displays",
-    "block": "Méga Évolution",
-    "releaseDate": "",
-    "msrp": 150,
-    "currentMarketPrice": 150,
-    "imageUrl": "/images/pokedata/210",
-    "historique_prix": [
-      {
-        "mois": "2025-03",
-        "mois_label": "2025-03",
-        "prix": null
-      },
-      {
-        "mois": "2025-04",
-        "mois_label": "2025-04",
-        "prix": null
-      },
-      {
-        "mois": "2025-05",
-        "mois_label": "2025-05",
-        "prix": null
-      },
-      {
-        "mois": "2025-06",
-        "mois_label": "2025-06",
-        "prix": null
-      },
-      {
-        "mois": "2025-07",
-        "mois_label": "2025-07",
-        "prix": null
-      },
-      {
-        "mois": "2025-08",
-        "mois_label": "2025-08",
-        "prix": null
-      },
-      {
-        "mois": "2025-09",
-        "mois_label": "2025-09",
-        "prix": null
-      },
-      {
-        "mois": "2025-10",
-        "mois_label": "2025-10",
-        "prix": null
-      },
-      {
-        "mois": "2025-11",
-        "mois_label": "2025-11",
-        "prix": null
-      },
-      {
-        "mois": "2025-12",
-        "mois_label": "2025-12",
-        "prix": null
-      },
-      {
-        "mois": "2026-01",
-        "mois_label": "2026-01",
-        "prix": null
-      },
-      {
-        "mois": "2026-02",
-        "mois_label": "2026-02",
-        "prix": null
-      },
-      {
-        "mois": "2026-03",
-        "mois_label": "2026-03",
-        "prix": 210
-      }
-    ]
-  },
-  {
     "id": "UPC08",
     "name": "UPC Sulfura ex Team Rocket FR",
     "category": "UPC",
@@ -1932,7 +2009,7 @@
     "releaseDate": "19/12/2025",
     "msrp": 159.99,
     "currentMarketPrice": 200,
-    "imageUrl": "/images/upc/UPC Sulfura ex Team Rocket.png",
+    "imageUrl": "/images/upc/UPC-Sulfura-ex-Team-Rocket.png",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2004,7 +2081,7 @@
     "releaseDate": "14/11/2025",
     "msrp": 159.99,
     "currentMarketPrice": 180,
-    "imageUrl": "/images/upc/UPC Méga-Dracaufeu X ex.png",
+    "imageUrl": "/images/upc/UPC-Mega-Dracaufeu-X-ex.png",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2076,7 +2153,7 @@
     "releaseDate": "28/03/2025",
     "msrp": 79.99,
     "currentMarketPrice": 150,
-    "imageUrl": "/images/upc/UPC Évoli ex (Évolutions Prismatiques).png",
+    "imageUrl": "/images/upc/UPC-Evoli-ex-Evolutions-Prismatiques.png",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2148,7 +2225,7 @@
     "releaseDate": "08/11/2024",
     "msrp": 149.99,
     "currentMarketPrice": 200,
-    "imageUrl": "/images/upc/UPC Amphinobi ex.png",
+    "imageUrl": "/images/upc/UPC-Amphinobi-ex.png",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2220,7 +2297,7 @@
     "releaseDate": "08/11/2024",
     "msrp": 149.99,
     "currentMarketPrice": 200,
-    "imageUrl": "/images/upc/UPC Terapagos ex.png",
+    "imageUrl": "/images/upc/UPC-Terapagos-ex.png",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2292,7 +2369,7 @@
     "releaseDate": "06/10/2023",
     "msrp": 149.99,
     "currentMarketPrice": 400,
-    "imageUrl": "/images/upc/UPC Mew 151.png",
+    "imageUrl": "/images/upc/UPC-Mew-151.png",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2364,7 +2441,7 @@
     "releaseDate": "04/11/2022",
     "msrp": 129.99,
     "currentMarketPrice": 500,
-    "imageUrl": "/images/upc/UPC Dracaufeu VSTAR.png?v=2",
+    "imageUrl": "/images/upc/UPC-Dracaufeu-VSTAR.png?v=2",
     "historique_prix": [
       {
         "mois": "2026-01",
@@ -2436,7 +2513,7 @@
     "releaseDate": "22/10/2021",
     "msrp": 129.99,
     "currentMarketPrice": 1000,
-    "imageUrl": "/images/upc/UPC Célébrations 25 ans.png",
+    "imageUrl": "/images/upc/UPC-Celebrations-25-ans.png",
     "historique_prix": [
       {
         "mois": "2026-01",

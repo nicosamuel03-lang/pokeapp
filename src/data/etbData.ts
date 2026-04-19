@@ -29,6 +29,195 @@ export interface ETBItem {
 
 export const etbData: ETBItem[] = [
   {
+    "id": "ME04",
+    "nom": "Chaos Ascendant (ME04)",
+    "bloc": "me",
+    "series": "Méga Évolution",
+    "dateSortie": "22/05/2026",
+    "pvcSortie": 60,
+    "statut": "",
+    "prixActuel": 55,
+    "imageUrl": "/images/etb/png/Chaos-Ascendant.png",
+    "historique_prix": [
+      {
+        "mois": "2025-03",
+        "prix": null
+      },
+      {
+        "mois": "2025-04",
+        "prix": null
+      },
+      {
+        "mois": "2025-05",
+        "prix": null
+      },
+      {
+        "mois": "2025-06",
+        "prix": null
+      },
+      {
+        "mois": "2025-07",
+        "prix": null
+      },
+      {
+        "mois": "2025-08",
+        "prix": null
+      },
+      {
+        "mois": "2025-09",
+        "prix": null
+      },
+      {
+        "mois": "2025-10",
+        "prix": null
+      },
+      {
+        "mois": "2025-11",
+        "prix": null
+      },
+      {
+        "mois": "2025-12",
+        "prix": null
+      },
+      {
+        "mois": "2026-01",
+        "prix": null
+      },
+      {
+        "mois": "2026-02",
+        "prix": 55
+      },
+      {
+        "mois": "2026-03",
+        "prix": 55
+      }
+    ],
+    "historique_prix_2024": [
+      {
+        "mois": "2024-01",
+        "mois_label": "Janvier 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-02",
+        "mois_label": "Février 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-03",
+        "mois_label": "Mars 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-04",
+        "mois_label": "Avril 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-05",
+        "mois_label": "Mai 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-06",
+        "mois_label": "Juin 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-07",
+        "mois_label": "Juillet 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-08",
+        "mois_label": "Août 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-09",
+        "mois_label": "Septembre 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-10",
+        "mois_label": "Octobre 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-11",
+        "mois_label": "Novembre 2024",
+        "prix": null
+      },
+      {
+        "mois": "2024-12",
+        "mois_label": "Décembre 2024",
+        "prix": 55
+      }
+    ],
+    "historique_prix_2025": [
+      {
+        "mois": "2025-01",
+        "mois_label": "Janvier 2025",
+        "prix": 55
+      },
+      {
+        "mois": "2025-02",
+        "mois_label": "Février 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-03",
+        "mois_label": "Mars 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-04",
+        "mois_label": "Avril 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-05",
+        "mois_label": "Mai 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-06",
+        "mois_label": "Juin 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-07",
+        "mois_label": "Juillet 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-08",
+        "mois_label": "Août 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-09",
+        "mois_label": "Septembre 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-10",
+        "mois_label": "Octobre 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-11",
+        "mois_label": "Novembre 2025",
+        "prix": null
+      },
+      {
+        "mois": "2025-12",
+        "mois_label": "Décembre 2025",
+        "prix": null
+      }
+    ]
+  },
+  {
     "id": "ME03",
     "nom": "Équilibre Parfait (ME03)",
     "bloc": "me",
@@ -37,7 +226,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 60,
     "statut": "",
     "prixActuel": 55,
-    "imageUrl": "/images/etb/Équilibre Parfait.webp",
+    "imageUrl": "/images/etb/Equilibre-Parfait.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -226,7 +415,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 60,
     "statut": "",
     "prixActuel": 70,
-    "imageUrl": "/images/etb/Héros Transcendants.webp",
+    "imageUrl": "/images/etb/Heros-Transcendants.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -415,7 +604,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 60,
     "statut": "",
     "prixActuel": 85,
-    "imageUrl": "/images/etb/Méga Évolution (Lucario).webp",
+    "imageUrl": "/images/etb/Mega-Evolution-Lucario.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -604,7 +793,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 60,
     "statut": "",
     "prixActuel": 80,
-    "imageUrl": "/images/etb/Flammes Fantasmagoriques.webp",
+    "imageUrl": "/images/etb/Flammes-Fantasmagoriques.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -793,7 +982,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 60,
     "statut": "",
     "prixActuel": 85,
-    "imageUrl": "/images/etb/Méga Évolution (Gardevoir).webp",
+    "imageUrl": "/images/etb/Mega-Evolution-Gardevoir.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -982,7 +1171,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "",
     "prixActuel": 75,
-    "imageUrl": "/images/etb/Foudre Noire.webp",
+    "imageUrl": "/images/etb/Foudre-Noire.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1171,7 +1360,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "",
     "prixActuel": 75,
-    "imageUrl": "/images/etb/Flamme Blanche.webp",
+    "imageUrl": "/images/etb/Flamme-Blanche.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1360,7 +1549,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "",
     "prixActuel": 130,
-    "imageUrl": "/images/etb/Rivalités Destinées.webp",
+    "imageUrl": "/images/etb/Rivalites-Destinees.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1549,7 +1738,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "55",
     "prixActuel": 80,
-    "imageUrl": "/images/etb/Aventure Ensemble.webp",
+    "imageUrl": "/images/etb/Aventure-Ensemble.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1738,7 +1927,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "100",
     "prixActuel": 115,
-    "imageUrl": "/images/etb/Étincelles Déferlantes.webp",
+    "imageUrl": "/images/etb/Etincelles-Deferlantes.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -1927,7 +2116,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "130",
     "prixActuel": 90,
-    "imageUrl": "/images/etb/Évolutions Prismatiques.webp",
+    "imageUrl": "/images/etb/Evolutions-Prismatiques.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -2116,7 +2305,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "65",
     "prixActuel": 75,
-    "imageUrl": "/images/etb/Couronne Stellaire.webp",
+    "imageUrl": "/images/etb/Couronne-Stellaire.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -2305,7 +2494,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "85",
     "prixActuel": 140,
-    "imageUrl": "/images/etb/Forces Temporelles (Serpente-eau).webp",
+    "imageUrl": "/images/etb/Forces-Temporelles-Serpente-eau.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -2494,7 +2683,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "65",
     "prixActuel": 70,
-    "imageUrl": "/images/etb/Fable Nébuleuse.webp",
+    "imageUrl": "/images/etb/Fable-Nebuleuse.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -2683,7 +2872,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "70",
     "prixActuel": 80,
-    "imageUrl": "/images/etb/Mascarade Crépusculaire.webp",
+    "imageUrl": "/images/etb/Mascarade-Crepusculaire.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -2872,7 +3061,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "90",
     "prixActuel": 120,
-    "imageUrl": "/images/etb/Faille Paradoxe (Rugit-Lune).webp",
+    "imageUrl": "/images/etb/Faille-Paradoxe-Rugit-Lune.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -3061,7 +3250,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "80",
     "prixActuel": 85,
-    "imageUrl": "/images/etb/Forces Temporelles (Vert-de-Fer).webp",
+    "imageUrl": "/images/etb/Forces-Temporelles-Vert-de-Fer.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -3250,7 +3439,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "85",
     "prixActuel": 135,
-    "imageUrl": "/images/etb/Destinées de Paldéa.webp",
+    "imageUrl": "/images/etb/Destinees-de-Paldea.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -3439,7 +3628,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "85",
     "prixActuel": 75,
-    "imageUrl": "/images/etb/Faille Paradoxe (Garde-de-Fer).webp",
+    "imageUrl": "/images/etb/Faille-Paradoxe-Garde-de-Fer.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -3628,7 +3817,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "210",
     "prixActuel": 300,
-    "imageUrl": "/images/etb/Pokémon 151.webp",
+    "imageUrl": "/images/etb/Pokemon-151.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -3817,7 +4006,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "160",
     "prixActuel": 180,
-    "imageUrl": "/images/etb/Flammes Obsidiennes.webp",
+    "imageUrl": "/images/etb/Flammes-Obsidiennes.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -4006,7 +4195,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "110",
     "prixActuel": 160,
-    "imageUrl": "/images/etb/Écarlate et Violet (Miraidon).webp",
+    "imageUrl": "/images/etb/Ecarlate-et-Violet-Miraidon.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -4195,7 +4384,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "110",
     "prixActuel": 180,
-    "imageUrl": "/images/etb/Évolutions à Paldéa.webp",
+    "imageUrl": "/images/etb/Evolutions-a-Paldea.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -4384,7 +4573,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 55,
     "statut": "110",
     "prixActuel": 175,
-    "imageUrl": "/images/etb/Écarlate et Violet (Koraidon).webp",
+    "imageUrl": "/images/etb/Ecarlate-et-Violet-Koraidon.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -4573,7 +4762,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "170",
     "prixActuel": 250,
-    "imageUrl": "/images/etb/Zénith Suprême.webp",
+    "imageUrl": "/images/etb/Zenith-Supreme.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -4762,7 +4951,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "170",
     "prixActuel": 200,
-    "imageUrl": "/images/etb/Tempête Argentée.webp",
+    "imageUrl": "/images/etb/Tempete-Argentee.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -4951,7 +5140,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "240",
     "prixActuel": 310,
-    "imageUrl": "/images/etb/Origine Perdue.webp",
+    "imageUrl": "/images/etb/Origine-Perdue.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -5140,7 +5329,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "360",
     "prixActuel": 430,
-    "imageUrl": "/images/etb/Évolution Céleste (Mentali).webp",
+    "imageUrl": "/images/etb/Evolution-Celeste-Mentali.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -5329,7 +5518,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "125",
     "prixActuel": 140,
-    "imageUrl": "/images/etb/Pokémon GO.webp",
+    "imageUrl": "/images/etb/Pokemon-GO.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -5518,7 +5707,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "170",
     "prixActuel": 185,
-    "imageUrl": "/images/etb/Règne de Glace (Sylveroy Cavalier du Froid).webp",
+    "imageUrl": "/images/etb/Regne-de-Glace-Sylveroy-Cavalier-du-Froid.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -5707,7 +5896,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "150",
     "prixActuel": 170,
-    "imageUrl": "/images/etb/Astres Radieux.webp",
+    "imageUrl": "/images/etb/Astres-Radieux.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -5896,7 +6085,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "220",
     "prixActuel": 400,
-    "imageUrl": "/images/etb/Styles de Combat (Shifours Mille Poings).webp",
+    "imageUrl": "/images/etb/Styles-de-Combat-Shifours-Mille-Poings.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -6085,7 +6274,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "210",
     "prixActuel": 200,
-    "imageUrl": "/images/etb/Stars Étincelantes.webp",
+    "imageUrl": "/images/etb/Stars-Etincelantes.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -6274,7 +6463,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "180",
     "prixActuel": 300,
-    "imageUrl": "/images/etb/Poing de Fusion.webp",
+    "imageUrl": "/images/etb/Poing-de-Fusion.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -6463,7 +6652,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "280",
     "prixActuel": 470,
-    "imageUrl": "/images/etb/Célébrations 25 Ans.webp",
+    "imageUrl": "/images/etb/Celebrations-25-Ans.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -6652,7 +6841,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 50,
     "statut": "360",
     "prixActuel": 450,
-    "imageUrl": "/images/etb/Évolution Céleste (Noctali).webp",
+    "imageUrl": "/images/etb/Evolution-Celeste-Noctali.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -6841,7 +7030,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "170",
     "prixActuel": 230,
-    "imageUrl": "/images/etb/Règne de Glace (Sylveroy Cavalier d'Effroi).webp",
+    "imageUrl": "/images/etb/Regne-de-Glace-Sylveroy-Cavalier-dEffroi.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -7030,7 +7219,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "220",
     "prixActuel": 400,
-    "imageUrl": "/images/etb/Styles de Combat (Shifours Mille Poings Final).webp",
+    "imageUrl": "/images/etb/Styles-de-Combat-Shifours-Mille-Poings-Final.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -7219,7 +7408,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "180",
     "prixActuel": 260,
-    "imageUrl": "/images/etb/Destinées Radieuses.webp",
+    "imageUrl": "/images/etb/Destinees-Radieuses.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -7408,7 +7597,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "1800",
     "prixActuel": 2050,
-    "imageUrl": "/images/etb/Épée et Bouclier (Zamazenta).webp",
+    "imageUrl": "/images/etb/Epee-et-Bouclier-Zamazenta.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -7597,7 +7786,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "1650",
     "prixActuel": 1700,
-    "imageUrl": "/images/etb/Voltage Éclatant.webp",
+    "imageUrl": "/images/etb/Voltage-Eclatant.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -7786,7 +7975,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "420",
     "prixActuel": 500,
-    "imageUrl": "/images/etb/La voie du Maître.webp",
+    "imageUrl": "/images/etb/La-voie-du-Maitre.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -7975,7 +8164,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "1700",
     "prixActuel": 2000,
-    "imageUrl": "/images/etb/Ténèbres Embrasées.webp",
+    "imageUrl": "/images/etb/Tenebres-Embrasees.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -8164,7 +8353,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "400",
     "prixActuel": 560,
-    "imageUrl": "/images/etb/Clash des Rebelles.webp",
+    "imageUrl": "/images/etb/Clash-des-Rebelles.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -8353,7 +8542,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 45,
     "statut": "1800",
     "prixActuel": 2050,
-    "imageUrl": "/images/etb/Épée et Bouclier (Zacian).webp",
+    "imageUrl": "/images/etb/Epee-et-Bouclier-Zacian.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -8542,7 +8731,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "-",
     "prixActuel": 1500,
-    "imageUrl": "/images/etb/Éclipse Cosmique.webp",
+    "imageUrl": "/images/etb/Eclipse-Cosmique.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -8731,7 +8920,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "-",
     "prixActuel": 1270,
-    "imageUrl": "/images/etb/Harmonie des Esprits.webp",
+    "imageUrl": "/images/etb/Harmonie-des-Esprits.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -8920,7 +9109,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "370",
     "prixActuel": 450,
-    "imageUrl": "/images/etb/Destinées Occultes.webp",
+    "imageUrl": "/images/etb/Destinees-Occultes.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -9109,7 +9298,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "-",
     "prixActuel": 2200,
-    "imageUrl": "/images/etb/Alliance Infaillible.webp",
+    "imageUrl": "/images/etb/Alliance-Infaillible.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -9298,7 +9487,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "-",
     "prixActuel": 4500,
-    "imageUrl": "/images/etb/Duo de Choc.webp",
+    "imageUrl": "/images/etb/Duo-de-Choc.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -9487,7 +9676,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "-",
     "prixActuel": 6500,
-    "imageUrl": "/images/etb/Tonnerre Perdue.webp",
+    "imageUrl": "/images/etb/Tonnerre-Perdue.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -9676,7 +9865,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "380",
     "prixActuel": 400,
-    "imageUrl": "/images/etb/Légendes Brillantes.webp",
+    "imageUrl": "/images/etb/Legendes-Brillantes.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -9865,7 +10054,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "-",
     "prixActuel": 4000,
-    "imageUrl": "/images/etb/Majesté des Dragons.webp",
+    "imageUrl": "/images/etb/Majeste-des-Dragons.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -10054,7 +10243,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "1400",
     "prixActuel": 2000,
-    "imageUrl": "/images/etb/Tempête Céleste.webp",
+    "imageUrl": "/images/etb/Tempete-Celeste.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -10243,7 +10432,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "950",
     "prixActuel": 1200,
-    "imageUrl": "/images/etb/Lumière Interdite.webp",
+    "imageUrl": "/images/etb/Lumiere-Interdite.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -10432,7 +10621,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "400",
     "prixActuel": 450,
-    "imageUrl": "/images/etb/Ultra Prisme (Necrozma Ailes de l’Aurore).webp",
+    "imageUrl": "/images/etb/Ultra-Prisme-Necrozma-Ailes-de-lAurore.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
@@ -10621,7 +10810,7 @@ export const etbData: ETBItem[] = [
     "pvcSortie": 40,
     "statut": "400",
     "prixActuel": 450,
-    "imageUrl": "/images/etb/Ultra Prisme (Necrozma Crinière du Couchant).webp",
+    "imageUrl": "/images/etb/Ultra-Prisme-Necrozma-Criniere-du-Couchant.webp",
     "historique_prix": [
       {
         "mois": "2025-03",
