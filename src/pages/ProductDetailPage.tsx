@@ -1174,7 +1174,15 @@ const ProductDetailPageInner = () => {
   };
 
   return (
-    <div className="relative space-y-4 -mx-3">
+    <div
+      className="relative space-y-4 -mx-3"
+      style={{
+        minHeight: 0,
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        paddingBottom: "calc(100px + env(safe-area-inset-bottom, 0px))",
+      }}
+    >
       {authMessage && (
         <div
           style={{
