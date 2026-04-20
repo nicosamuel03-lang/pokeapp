@@ -3,8 +3,8 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const APP_DARK_BG = '#111111';
 
 const config: CapacitorConfig = {
-  appId: 'com.pokevault.app',
-  appName: 'PokéVault',
+  appId: 'com.giovanni.app',
+  appName: 'Giovanni TCG',
   webDir: 'dist',
   server: {
     cleartext: true,
