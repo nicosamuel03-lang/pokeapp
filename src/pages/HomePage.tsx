@@ -566,6 +566,18 @@ export const HomePage = () => {
 
   return (
     <div className="space-y-4 -mx-3">
+      <style>
+        {`
+          /* Accueil : logo GIOVANNI.png sans agrandir le conteneur (défini dans PortfolioDashboardSection) */
+          .home-portfolio-watermark .portfolio-card-mewtwo-watermark img[src*="/images/GIOVANNI"] {
+            width: 100px !important;
+            height: 100px !important;
+            max-width: none !important;
+            object-fit: contain;
+            object-position: center;
+          }
+        `}
+      </style>
       {isDark ? (
         <style>
           {`

@@ -652,7 +652,7 @@ export function PortfolioDashboardSection({
           draggable={false}
           loading="lazy"
           className="relative z-[2] object-contain pointer-events-none"
-          style={{ width: 80, height: 80, filter: "none", opacity: 0.85 }}
+          style={{ width: 104, height: 104, filter: "none", opacity: 0.85 }}
         />
       </div>
     );
