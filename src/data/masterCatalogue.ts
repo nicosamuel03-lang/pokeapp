@@ -567,7 +567,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2021-02",
     msrp: 145,
     currentMarketPrice: 380,
-    imageUrl: "/images/displays/Voltage Éclatant.png",
+    imageUrl: "/images/displays/Voltage-Eclatant.webp",
     emoji: "⚡",
   },
   {
@@ -600,7 +600,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2021-05",
     msrp: 145,
     currentMarketPrice: 270,
-    imageUrl: "/images/displays/Styles de Combat.png",
+    imageUrl: "/images/displays/Styles-de-Combat.webp",
     emoji: "🥊",
   },
   {
@@ -622,7 +622,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2021-08",
     msrp: 150,
     currentMarketPrice: 1380,
-    imageUrl: "/images/displays/Évolution Céleste.png",
+    imageUrl: "/images/displays/Evolution-Celeste.webp",
     emoji: "🌤️",
   },
   {
@@ -688,7 +688,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2022-02",
     msrp: 180,
     currentMarketPrice: 420,
-    imageUrl: "/images/displays/Poing de Fusion.png",
+    imageUrl: "/images/displays/Poing-de-Fusion.webp",
     emoji: "⭐",
   },
   {
@@ -710,7 +710,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2022-06",
     msrp: 180,
     currentMarketPrice: 280,
-    imageUrl: "/images/displays/Astres Radieux.png",
+    imageUrl: "/images/displays/Astres-Radieux.webp",
     emoji: "✨",
   },
   {
@@ -765,7 +765,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2022-11",
     msrp: 195,
     currentMarketPrice: 250,
-    imageUrl: "/images/displays/Tempête Argentée.png",
+    imageUrl: "/images/displays/Tempete-Argentee.webp",
     emoji: "🌨️",
   },
   {
@@ -811,7 +811,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2023-03",
     msrp: 215,
     currentMarketPrice: 380,
-    imageUrl: "/images/displays/Écarlate et Violet.png",
+    imageUrl: "/images/displays/Ecarlate-et-Violet.webp",
     emoji: "🔴",
   },
   {
@@ -833,7 +833,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2023-06",
     msrp: 215,
     currentMarketPrice: 290,
-    imageUrl: "/images/displays/Évolutions à Paldéa.png",
+    imageUrl: "/images/displays/Evolutions-a-Paldea.webp",
     emoji: "🌿",
   },
   {
@@ -855,7 +855,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2023-08",
     msrp: 215,
     currentMarketPrice: 450,
-    imageUrl: "/images/displays/Flammes Obsidiennes.png",
+    imageUrl: "/images/displays/Flammes-Obsidiennes.webp",
     emoji: "🌋",
   },
   {
@@ -877,7 +877,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2023-09",
     msrp: 215,
     currentMarketPrice: 750,
-    imageUrl: "/images/displays/Flammes Obsidiennes.png",
+    imageUrl: "/images/displays/Flammes-Obsidiennes.webp",
     emoji: "🎴",
   },
   {
@@ -943,7 +943,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2024-03",
     msrp: 215,
     currentMarketPrice: 290,
-    imageUrl: "/images/displays/Forces Temporelles.png",
+    imageUrl: "/images/displays/Forces-Temporelles.webp",
     emoji: "⌚",
   },
   {
@@ -965,7 +965,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2024-05",
     msrp: 215,
     currentMarketPrice: 280,
-    imageUrl: "/images/displays/Mascarade Crépusculaire.png",
+    imageUrl: "/images/displays/Mascarade-Crepusculaire.webp",
     emoji: "🎭",
   },
   {
@@ -1020,7 +1020,7 @@ export const masterCatalogue: CatalogueItem[] = [
     releaseDate: "2024-11",
     msrp: 215,
     currentMarketPrice: 260,
-    imageUrl: "/images/displays/Étincelles Déferlantes.png",
+    imageUrl: "/images/displays/Etincelles-Deferlantes.webp",
     emoji: "⚡",
   },
   {

@@ -110,12 +110,20 @@ const autoUpcItems: PokemonCatalogueItem[] = displayData
     etbId: d.id.replace(/^upc-/, ""),
   }));
 
-/** Pour chaque item de type Display, remplace imageUrl par celui de displayData si un entrant correspond (nom ou bloc). */
+/** Pour chaque item de type Display, aligne imageUrl sur displayData — d’abord par id (obligatoire), puis fallback nom/bloc. */
 function resolveDisplayImageUrls(
   items: PokemonCatalogueItem[]
 ): PokemonCatalogueItem[] {
   return items.map((item) => {
     if (item.type !== "Display") return item;
+    const catalogId = item.id.startsWith("display-")
+      ? item.id.slice("display-".length)
+      : item.id;
+    const byId = displayData.find(
+      (d) => d.category === "Displays" && d.id === catalogId
+    );
+    if (byId) return { ...item, imageUrl: byId.imageUrl };
+
     const match = displayData.find(
       (d) =>
         item.name.includes(d.name) ||
@@ -133,10 +141,12 @@ const FULL_CATALOGUE: PokemonCatalogueItem[] = resolveDisplayImageUrls([
   ...autoUpcItems,
 ]);
 
-console.log(
-  "Display items sample:",
-  FULL_CATALOGUE.filter((i) => JSON.stringify(i).toLowerCase().includes("display")).slice(0, 3)
-);
+if (import.meta.env.DEV) {
+  const displayRows = FULL_CATALOGUE.filter((i) => i.type === "Display");
+  for (const i of displayRows) {
+    console.log("[Catalogue][Display image src]", i.id, "→", i.imageUrl);
+  }
+}
 
 function dedupeCatalogueById(items: PokemonCatalogueItem[]): PokemonCatalogueItem[] {
   return Array.from(new Map(items.map((item) => [item.id, item])).values());

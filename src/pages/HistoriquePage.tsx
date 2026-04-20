@@ -301,7 +301,7 @@ export const HistoriquePage = () => {
 
           {/* Liste des ventes */}
           <section className="space-y-2">
-            <p className="text-xs font-medium mb-1 pl-4" style={{ color: isDark ? "#888888" : "var(--text-secondary)" }}>
+            <p className="text-xs font-medium mb-1 pl-4" style={{ color: isDark ? "#FFFFFF" : "var(--text-secondary)" }}>
               Détail des ventes ({sortedSales.length})
             </p>
             <div className="space-y-3">
@@ -373,9 +373,8 @@ export const HistoriquePage = () => {
                           {displayName}
                         </p>
                         <p
-                          className="mt-2 shrink-0 tabular-nums leading-tight"
+                          className="mt-2 shrink-0 tabular-nums leading-tight text-xs"
                           style={{
-                            fontSize: "0.75rem",
                             fontWeight: 400,
                             color: isDark ? "#888888" : "var(--text-secondary)",
                             marginBottom: 0,
@@ -520,9 +519,8 @@ export const HistoriquePage = () => {
                                 {displayName}
                               </p>
                               <p
-                                className="mt-2 shrink-0 tabular-nums leading-tight"
+                                className="mt-2 shrink-0 tabular-nums leading-tight text-xs"
                                 style={{
-                                  fontSize: "0.75rem",
                                   fontWeight: 400,
                                   color: isDark ? "#888888" : "var(--text-secondary)",
                                   marginBottom: 0,
@@ -628,6 +626,8 @@ export const HistoriquePage = () => {
           </section>
         </>
       )}
+
+      <div style={{ height: "20px" }} aria-hidden />
 
       {/* Modal Modifier */}
       {editId && (

@@ -11,9 +11,6 @@ import { useSubscription } from "../state/SubscriptionContext";
 const SWIPE_MIN_DISTANCE = 90;
 const SWIPE_MIN_VELOCITY = 0.4; // px/ms — évite les glissements lents
 
-const NAV_HEIGHT = 78;
-/** Espace réservé sous le contenu = hauteur barre + encoche iOS (aligné sur la barre fixe). */
-const MAIN_PADDING_BOTTOM = `calc(${NAV_HEIGHT}px + env(safe-area-inset-bottom, 0px))`;
 /** Espace sous encoche : min 20px (web/Android) ; iOS = calc(env(safe-area-inset-top) + 8px). */
 const HEADER_SAFE_TOP = "max(20px, calc(env(safe-area-inset-top, 0px) + 8px))";
 const VIEWPORT_KEYBOARD_SHRINK_PX = 120;
@@ -155,15 +152,26 @@ export const BottomNavLayout = () => {
   }, []);
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", background: "var(--bg-app)", color: "var(--text-secondary)" }}>
+    <div
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        /* Aucun fond opaque : parent direct de la barre fixe — sinon backdrop-filter ne peut pas flouter le contenu qui défile. */
+        background: "transparent",
+        color: "var(--text-secondary)",
+      }}
+    >
       <main
         style={{
           minHeight: "100vh",
           width: "100%",
-          paddingBottom: MAIN_PADDING_BOTTOM,
           touchAction: "pan-y",
           overflowY: "auto",
           WebkitOverflowScrolling: "touch",
+          /* Mode clair : fond app. Mode sombre : transparent pour que le contenu (cartes) passe sous la nav en verre. */
+          background: isLight ? "var(--bg-app)" : "transparent",
+          position: "relative",
+          zIndex: 0,
         }}
         onTouchStartCapture={handleTouchStart}
         onTouchEndCapture={handleTouchEnd}
@@ -172,16 +180,15 @@ export const BottomNavLayout = () => {
           style={{
             maxWidth: "480px",
             margin: "0 auto",
-            paddingTop: HEADER_SAFE_TOP,
             paddingLeft: 16,
             paddingRight: 16,
-            paddingBottom: 8,
+            background: "transparent",
           }}
         >
           <header
             style={{
               position: "sticky",
-              top: HEADER_SAFE_TOP,
+              top: 0,
               zIndex: 10,
               marginBottom: "16px",
               display: "flex",
@@ -189,6 +196,7 @@ export const BottomNavLayout = () => {
               justifyContent: "space-between",
               gap: 8,
               background: "var(--bg-app)",
+              paddingTop: HEADER_SAFE_TOP,
               paddingBottom: 4,
               minHeight: 44,
             }}
@@ -371,7 +379,7 @@ export const BottomNavLayout = () => {
         </div>
       </main>
 
-      {/* Bottom bar: stealth, fixed, no transparency/shadow, same font as PORTEFEUILLE GLOBAL */}
+      {/* Bottom bar: mode clair = fond opaque ; mode sombre = verre sur ce seul nœud (parents sans fond opaque). */}
       <div
         id="app-bottom-nav"
         role="navigation"
@@ -382,28 +390,35 @@ export const BottomNavLayout = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 9999,
+          zIndex: 50,
           height: "auto",
           paddingTop: 8,
           paddingBottom: "env(safe-area-inset-bottom, 8px)",
-          display: "flex",
+          display: keyboardCoversViewport ? "none" : "flex",
           justifyContent: "center",
           alignItems: "center",
           width: "100%",
           maxWidth: "100%",
           margin: 0,
-          background: "var(--bg-nav)",
-          backgroundColor: "var(--bg-nav)",
-          borderTop: "none",
+          ...(isLight
+            ? {
+                background: "var(--bg-nav)",
+                backgroundColor: "var(--bg-nav)",
+                borderTop: "none",
+              }
+            : {
+                isolation: "isolate",
+                background: "rgba(20, 20, 20, 0.72)",
+                backdropFilter: "blur(30px)",
+                WebkitBackdropFilter: "blur(30px)",
+                transform: "translateZ(0)",
+                willChange: "backdrop-filter",
+              }),
           borderLeft: "none",
           borderRight: "none",
           borderBottom: "none",
           boxShadow: "none",
           outline: "none",
-          opacity: keyboardCoversViewport ? 0 : 1,
-          pointerEvents: keyboardCoversViewport ? "none" : "auto",
-          transform: keyboardCoversViewport ? "translateY(100%)" : "none",
-          transition: "opacity 0.2s ease, transform 0.2s ease",
           fontFamily: FONT_HEADING,
           fontWeight: 700,
           letterSpacing: LETTER_SPACING,

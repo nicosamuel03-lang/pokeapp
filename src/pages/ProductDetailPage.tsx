@@ -1385,14 +1385,14 @@ const ProductDetailPageInner = () => {
                   {isInCollection && (
                     <p className="mt-0 text-xs" style={{ color: "var(--text-secondary)" }}>
                       Achat{" "}
-                      <span className={STAT_CARD_VALUE_CLASS} style={{ color: "var(--text-primary)" }}>
+                      <span className="tabular-nums" style={{ color: "var(--text-primary)" }}>
                         {prixAchat.toLocaleString("fr-FR", {
                           style: "currency",
                           currency: "EUR",
                           maximumFractionDigits: 0
                         })}
                       </span>{" "}
-                      • ×<span className={STAT_CARD_VALUE_CLASS}>{quantite}</span>
+                      • ×<span className="tabular-nums">{quantite}</span>
                     </p>
                   )}
                 </div>
@@ -1455,9 +1455,7 @@ const ProductDetailPageInner = () => {
 
             <label className="mb-1 mt-3 block text-xs font-medium" style={{ color: "var(--text-secondary)" }}>
               Quantité à vendre{" "}
-              <span className="font-normal opacity-80">
-                (max. <span className={STAT_CARD_VALUE_CLASS}>{quantite}</span>)
-              </span>
+              (max. <span className="tabular-nums">{quantite}</span>)
             </label>
             <div className="flex items-center gap-2">
               <div
@@ -1469,8 +1467,8 @@ const ProductDetailPageInner = () => {
                   inputMode="numeric"
                   min={1}
                   max={quantite}
-                  className={`${STAT_CARD_VALUE_CLASS} w-full bg-transparent focus:outline-none`}
-                  style={{ color: "var(--text-primary)" }}
+                  className="w-full bg-transparent text-xs font-medium tabular-nums focus:outline-none"
+                  style={{ color: "var(--text-secondary)" }}
                   value={saleQuantityToSell}
                   onChange={(e) => {
                     setSaleError(null);
@@ -1558,7 +1556,7 @@ const ProductDetailPageInner = () => {
               className="mt-3 w-full rounded-lg px-4 py-2.5 text-sm transition disabled:cursor-not-allowed"
               style={{
                 background: hasSale && !isSelling ? accentGold : "var(--input-bg)",
-                color: hasSale && !isSelling ? "var(--text-primary)" : "var(--text-secondary)",
+                color: hasSale && !isSelling ? "#000000" : "var(--text-secondary)",
                 fontWeight: hasSale ? "bold" : "normal",
                 border: "1px solid var(--border-color)",
               }}

@@ -574,8 +574,8 @@ export const HomePage = () => {
               content: url("/images/GIOVANNI%203.png?v=2");
               filter: saturate(1) !important;
               -webkit-filter: saturate(1) !important;
-              /* Un peu plus grand qu'avant (≈ +15%), mais reste subtil */
-              transform: scale(0.886);
+              /* Plus visible sur la carte « Valeur du portefeuille » */
+              transform: scale(1.2);
               transform-origin: center center;
               transition: transform 150ms ease;
               pointer-events: auto !important;
@@ -583,7 +583,7 @@ export const HomePage = () => {
             }
 
             .home-portfolio-watermark .portfolio-card-mewtwo-img:active {
-              transform: scale(0.753);
+              transform: scale(1.05);
             }
           `}
         </style>
@@ -899,6 +899,7 @@ export const HomePage = () => {
           )}
         </div>
       </section>
+      <div style={{ height: "20px" }} aria-hidden />
     </div>
   );
 };

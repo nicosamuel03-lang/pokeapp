@@ -87,16 +87,40 @@ function getProductImageUrl(product: {
   category?: string;
   imageUrl?: string | null;
 }): string | null {
-  // 1. Toujours privilégier l'image du produit lui-même (issue du catalogue ETB/Displays/UPC)
-  if (product.imageUrl) {
-    return product.imageUrl;
-  }
-
   // UPC : priorité displayData (UPC items) — par id upc-* ou par etbId quand category UPC
   const upcId = product.id.startsWith("upc-") ? product.id.replace(/^upc-/, "") : (product.category === "UPC" && product.etbId ? product.etbId : null);
   if (upcId) {
     const upc = displayData.find((d) => d.id === upcId);
-    return upc?.imageUrl ?? product.imageUrl ?? null;
+    const resolved = upc?.imageUrl ?? product.imageUrl ?? null;
+    if (import.meta.env.DEV) {
+      console.log("[Collection][UPC image path]", { upcId, resolved });
+    }
+    return resolved;
+  }
+
+  // Displays : source de vérité = display-data.json (rétablit le comportement d’avant le « prioriser product.imageUrl »
+  // qui figeait des chemins obsolètes en localStorage, ex. .png à la racine après déplacement des PNG)
+  const displayCatalogId = product.id.startsWith("display-")
+    ? product.id.replace(/^display-/i, "")
+    : null;
+  if (displayCatalogId) {
+    const displayRow = displayData.find(
+      (d) => d.category === "Displays" && d.id === displayCatalogId
+    );
+    if (import.meta.env.DEV) {
+      console.log("[Collection][Display image path]", {
+        displayCatalogId,
+        fromDisplayData: displayRow?.imageUrl ?? null,
+        snapshotImageUrl: product.imageUrl ?? null,
+      });
+    }
+    if (displayRow?.imageUrl) {
+      return displayRow.imageUrl;
+    }
+  }
+
+  if (product.imageUrl) {
+    return product.imageUrl;
   }
 
   // Priorité à l'ETB explicitement liée
@@ -105,8 +129,11 @@ function getProductImageUrl(product: {
     if (etb?.imageUrl) return etb.imageUrl;
   }
 
-  // Sinon, on tente un match direct sur l'id exact
-  const etb = etbData.find((e) => e.id === product.id);
+  // Sinon, on tente un match direct sur l'id exact ou un id préfixé (comportement d’origine)
+  const etb =
+    etbData.find((e) => e.id === product.id) ||
+    etbData.find((e) => product.id.startsWith(e.id));
+
   if (etb?.imageUrl) return etb.imageUrl;
 
   return product.imageUrl ?? null;
@@ -443,23 +470,12 @@ export const CollectionPage = () => {
 
       {/* Détail des produits — grille 2 colonnes comme Accueil */}
       <section className="space-y-2" style={{ overflow: "visible", maxWidth: "100%" }}>
-        <h3
-          className="title-section pl-3"
-          style={{
-            color: "var(--text-primary)",
-            overflow: "visible",
-            maxWidth: "none",
-            width: "100%",
-            whiteSpace: "nowrap",
-            lineHeight: 1.4,
-          }}
-        >
+        <p className="text-xs font-medium mb-1 pl-3" style={{ color: isDark ? "#FFFFFF" : "var(--text-secondary)" }}>
           Détail des produits (
-          <span className="tabular-nums" style={{ font: "inherit", fontWeight: 700 }}>
-            {displayedQuantity}
-          </span>
-          {" "}{displayedQuantity >= 2 ? "items" : "item"})
-        </h3>
+          <span className="tabular-nums">{displayedQuantity}</span>
+          {" "}
+          {displayedQuantity >= 2 ? "items" : "item"})
+        </p>
         <div className="grid grid-cols-2 gap-3" style={{ minHeight: "600px" }}>
           {displayedItems.map((item) => {
             const rawProductId = item.product.etbId ?? item.product.id;
@@ -501,23 +517,6 @@ export const CollectionPage = () => {
               >
                 <button
                   type="button"
-                  aria-label="Modifier le prix et la date d'achat"
-                  className="rounded-md border"
-                  style={{
-                    position: "absolute",
-                    top: "8px",
-                    left: "8px",
-                    padding: "2px 6px",
-                    fontSize: "10px",
-                    fontWeight: 600,
-                    lineHeight: 1.2,
-                    opacity: 1,
-                    background: isDark ? "#374151" : "#FFFFFF",
-                    color: isDark ? "#FFFFFF" : "#111827",
-                    border: isDark ? "1px solid #4b5563" : "1px solid #9ca3af",
-                    boxShadow: "none",
-                    zIndex: 11,
-                  }}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -525,6 +524,16 @@ export const CollectionPage = () => {
                     setEditPriceInput(String(item.buyPrice));
                     setEditDateInput(item.purchaseDate || todayISO());
                     setEditQuantityInput(String(item.quantity));
+                  }}
+                  className="rounded-full px-2 py-0.5 text-xs font-semibold transition hover:opacity-90"
+                  style={{
+                    position: "absolute",
+                    top: "8px",
+                    left: "8px",
+                    zIndex: 11,
+                    background: "rgba(0,0,0,0.75)",
+                    color: "#FFFFFF",
+                    border: "none",
                   }}
                 >
                   Modifier
@@ -600,12 +609,10 @@ export const CollectionPage = () => {
                     />
                   )}
                   <span
-                    className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-[9px] z-[5] tabular-nums"
+                    className="absolute left-2 bottom-2 rounded-full px-1.5 py-0.5 text-xs font-medium z-[5] tabular-nums"
                     style={{
                       background: "rgba(0,0,0,0.75)",
                       color: "#fff",
-                      fontFamily: '"Inter", ui-sans-serif, system-ui, sans-serif',
-                      fontWeight: 300,
                     }}
                   >
                     x{item.quantity}

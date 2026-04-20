@@ -14,8 +14,25 @@ import { SsoCallbackPage } from "./pages/SsoCallbackPage";
 import { BottomNavLayout } from "./components/BottomNavLayout";
 import { TabSwitch } from "./components/TabSwitch";
 import { SubscriptionProvider, type AuthState } from "./state/SubscriptionContext";
-import { ThemeProvider } from "./state/ThemeContext";
+import { ThemeProvider, useTheme } from "./state/ThemeContext";
 import { supabase } from "./lib/supabase";
+
+/** Sous ThemeProvider : fond app opaque en clair, transparent en sombre (verre sur la barre du bas). */
+function AppThemedLayout({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+  return (
+    <div
+      className="min-h-screen"
+      style={{
+        background: isLight ? "var(--bg-app)" : "transparent",
+        color: "var(--text-secondary)",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 /** Remet le scroll en haut de page à chaque changement de route (ex. ouverture détail produit). */
 function ScrollToTop() {
@@ -134,7 +151,7 @@ const App = () => {
   return (
     <SubscriptionProvider value={{ authState, isPremium, isLoading, refreshSubscription }}>
       <ThemeProvider isPremium={isPremium} subscriptionLoading={isLoading}>
-        <div className="min-h-screen" style={{ background: "var(--bg-app)", color: "var(--text-secondary)" }}>
+        <AppThemedLayout>
           <ScrollToTop />
           <Routes>
             <Route path="/sign-in" element={<SignInPage />} />
@@ -154,7 +171,7 @@ const App = () => {
               <Route path="*" element={<TabSwitch />} />
             </Route>
           </Routes>
-        </div>
+        </AppThemedLayout>
       </ThemeProvider>
     </SubscriptionProvider>
   );

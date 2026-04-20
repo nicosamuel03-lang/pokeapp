@@ -60,10 +60,16 @@ export function ThemeProvider({
     const el = document.documentElement;
     el.classList.remove("light", "dark");
     el.classList.add(theme);
-    el.style.backgroundColor = isDark ? "#0a0a0a" : "#ffffff";
+    /* Mode sombre : pas de fond opaque sur html/body en JS — le noir plein vient uniquement de #root (index.css), pour que le backdrop-filter de la nav voie les cartes qui défilent. Mode clair : fond blanc inchangé. */
+    if (isDark) {
+      el.style.backgroundColor = "transparent";
+      if (document.body) document.body.style.backgroundColor = "transparent";
+    } else {
+      el.style.backgroundColor = "#ffffff";
+      if (document.body) document.body.style.backgroundColor = "#ffffff";
+    }
     const metaThemeColor = document.querySelectorAll('meta[name="theme-color"]');
     metaThemeColor.forEach((meta) => meta.setAttribute("content", isDark ? "#0a0a0a" : "#ffffff"));
-    if (document.body) document.body.style.backgroundColor = isDark ? "#0a0a0a" : "#ffffff";
 
     if (subscriptionLoading) return;
 

@@ -561,6 +561,7 @@ export const MarketPage = () => {
         <div className="space-y-4 -mx-3" style={{ marginTop: 18 }}>
           <RankingSection key={mainTab} products={productsToShow} />
         </div>
+        <div style={{ height: "20px" }} aria-hidden />
       </div>
 
       {!premiumLoading && !isPremium && (

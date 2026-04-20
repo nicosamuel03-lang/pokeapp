@@ -136,9 +136,9 @@ export function SettingsPage() {
         >
           <ChevronLeft size={28} strokeWidth={1.5} />
         </button>
-        <h1 className="title-section" style={{ color: "var(--text-primary)", margin: 0 }}>
-          PARAMÈTRES
-        </h1>
+        <p className="text-xs font-medium" style={{ color: isDark ? "#888888" : "var(--text-secondary)", margin: 0 }}>
+          Retour
+        </p>
       </div>
 
       <div

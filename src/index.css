@@ -7,7 +7,18 @@ body,
   min-height: 100%;
 }
 html.light, html.light body, html.light #root { background-color: #ffffff; }
-html.dark, html.dark body, html.dark #root { background-color: #0a0a0a; }
+/* Fond plein uniquement sur #root en sombre (ThemeContext ne colore plus html/body en JS). */
+html.dark #root { background-color: #0a0a0a; }
+html.dark body {
+  background-color: transparent;
+}
+
+@supports (-webkit-backdrop-filter: blur(1px)) {
+  html.dark #app-bottom-nav {
+    -webkit-backdrop-filter: blur(30px) !important;
+    backdrop-filter: blur(30px) !important;
+  }
+}
 
 /* ========== THEME: CSS Custom Properties ========== */
 :root,
