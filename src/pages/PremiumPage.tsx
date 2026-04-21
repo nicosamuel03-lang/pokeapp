@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/react";
 import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
 import { useTheme } from "../state/ThemeContext";
@@ -39,6 +39,7 @@ const benefits = [
 ];
 
 export function PremiumPage() {
+  const navigate = useNavigate();
   const { user } = useUser();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
@@ -72,8 +73,16 @@ export function PremiumPage() {
           const selectedPackage = packages.find((p: any) => p.packageType === targetIdentifier) || packages[0];
           const result = await purchasePackage(selectedPackage);
           if (result) {
-            // Purchase successful - refresh subscription status
-            window.location.reload();
+            // Purchase successful - update Supabase
+            try {
+              const { supabase } = await import('../lib/supabase');
+              await supabase.from('users').update({ is_premium: true }).eq('id', user?.id);
+              console.log('is_premium set to true after Apple purchase');
+            } catch (e) {
+              console.error('Failed to update is_premium:', e);
+            }
+            // Navigate to home instead of reload to keep session
+            navigate('/');
           }
         } catch (err) {
           console.error('iOS purchase error:', err);
