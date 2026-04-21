@@ -255,6 +255,10 @@ export const HomePage = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | "Tous">(
     "Tous"
   );
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   /** `null` = « Tous » sur la ligne génération. */
   const [selectedEra, setSelectedEra] = useState<string | null>(null);
   const [pressedFilterKey, setPressedFilterKey] = useState<string | null>(null);

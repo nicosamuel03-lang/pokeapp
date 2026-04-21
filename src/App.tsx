@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useAuth, useUser } from "@clerk/react";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
@@ -83,8 +83,10 @@ async function fetchIsPremiumFromSupabase(userId: string): Promise<boolean> {
 }
 
 const App = () => {
+  const { pathname } = useLocation();
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
+  const previousSignedInRef = useRef<boolean | undefined>(undefined);
   // Incrémenté à chaque navigation ou retour sur l’onglet → nouveau fetch Supabase (évite l’état free obsolète après paiement).
   const [premiumFetchNonce, setPremiumFetchNonce] = useState(0);
   const refreshSubscription = useCallback(() => {
@@ -126,6 +128,15 @@ const App = () => {
       void initRevenueCat(user?.id);
     }
   }, [user?.id]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const prev = previousSignedInRef.current;
+    previousSignedInRef.current = isSignedIn;
+    if (pathname === "/" && isSignedIn === true && prev !== true) {
+      window.scrollTo(0, 0);
+    }
+  }, [isLoaded, isSignedIn, pathname]);
 
   useEffect(() => {
     let cancelled = false;
