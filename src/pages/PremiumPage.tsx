@@ -43,6 +43,7 @@ export function PremiumPage() {
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
   const nativeIOS = isNativeIOS();
+  console.log("PremiumPage: isNativeIOS =", nativeIOS, "platform =", window.navigator.userAgent);
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
