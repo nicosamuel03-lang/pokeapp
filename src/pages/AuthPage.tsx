@@ -29,6 +29,27 @@ export function AuthPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 360 }}>
+        {view !== "landing" && (
+          <button
+            type="button"
+            onClick={() => setView("landing")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              color: "var(--text-secondary)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              marginBottom: 16,
+              padding: 0,
+            }}
+          >
+            ← Retour
+          </button>
+        )}
+
         {view === "landing" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <img
@@ -99,22 +120,6 @@ export function AuthPage() {
           </div>
         ) : view === "signup" ? (
           <div style={{ width: "100%" }}>
-            <button
-              type="button"
-              onClick={() => setView("landing")}
-              style={{
-                padding: 0,
-                border: "none",
-                background: "transparent",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                fontSize: 13,
-                fontWeight: 600,
-                marginBottom: 12,
-              }}
-            >
-              ← Retour
-            </button>
             <SignUp
               routing="hash"
               signInUrl="#signin"
@@ -123,22 +128,6 @@ export function AuthPage() {
           </div>
         ) : (
           <div style={{ width: "100%" }}>
-            <button
-              type="button"
-              onClick={() => setView("landing")}
-              style={{
-                padding: 0,
-                border: "none",
-                background: "transparent",
-                color: "var(--text-secondary)",
-                cursor: "pointer",
-                fontSize: 13,
-                fontWeight: 600,
-                marginBottom: 12,
-              }}
-            >
-              ← Retour
-            </button>
             <SignIn
               routing="hash"
               signUpUrl="#signup"
