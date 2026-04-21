@@ -20,20 +20,25 @@ export function AuthPage() {
       size: number;
       speedY: number;
       speedX: number;
-      opacity: number;
+      baseOpacity: number;
+      phase: number;
       color: string;
+      isBright: boolean;
     }[] = [];
-    const colors = ["#FBBF24", "#D4A757", "#F59E0B", "#c91517"];
+    const colors = ["#FFD700", "#FFC857", "#FBBF24", "#E8A317", "#FFFFFF"];
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 50; i++) {
+      const isBright = i < 5;
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 3 + 1,
-        speedY: -(Math.random() * 0.5 + 0.1),
-        speedX: (Math.random() - 0.5) * 0.3,
-        opacity: Math.random() * 0.3 + 0.1,
+        size: isBright ? Math.random() + 2 : Math.random() * 1.5 + 0.5,
+        speedY: -(Math.random() * 0.25 + 0.05),
+        speedX: Math.random() * 0.3 - 0.15,
+        baseOpacity: isBright ? Math.random() * 0.3 + 0.4 : Math.random() * 0.2 + 0.05,
+        phase: Math.random() * Math.PI * 2,
         color: colors[Math.floor(Math.random() * colors.length)],
+        isBright,
       });
     }
 
@@ -41,12 +46,29 @@ export function AuthPage() {
 
     function animate() {
       ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+      const t = Date.now();
       particles.forEach((p) => {
+        let opacity: number;
+        if (p.isBright) {
+          opacity = p.baseOpacity + Math.sin(t * 0.004 + p.phase) * 0.3;
+        } else {
+          opacity = p.baseOpacity + Math.sin(t * 0.002 + p.phase) * 0.2;
+        }
+
+        if (p.isBright) {
+          ctx!.shadowBlur = 8;
+          ctx!.shadowColor = p.color;
+        } else {
+          ctx!.shadowBlur = 0;
+        }
+
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx!.fillStyle = p.color;
-        ctx!.globalAlpha = p.opacity;
+        ctx!.globalAlpha = Math.max(0, Math.min(1, opacity));
         ctx!.fill();
+        ctx!.shadowBlur = 0;
+
         p.y += p.speedY;
         p.x += p.speedX;
         if (p.y < -10) {
