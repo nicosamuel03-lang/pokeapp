@@ -11,6 +11,7 @@ import { PrivacyPage } from "./pages/PrivacyPage";
 import { SignInPage } from "./pages/SignInPage";
 import { SignUpPage } from "./pages/SignUpPage";
 import { SsoCallbackPage } from "./pages/SsoCallbackPage";
+import { AuthPage } from "./pages/AuthPage";
 import { BottomNavLayout } from "./components/BottomNavLayout";
 import { TabSwitch } from "./components/TabSwitch";
 import { SubscriptionProvider, type AuthState } from "./state/SubscriptionContext";
@@ -177,6 +178,29 @@ const App = () => {
 
   const isPremium = authState === "premium";
   const isLoading = authState === "loading";
+
+  if (!isLoaded) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "var(--bg-app)",
+          color: "var(--text-secondary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 14,
+          fontWeight: 600,
+        }}
+      >
+        Chargement…
+      </div>
+    );
+  }
+
+  if (isSignedIn === false) {
+    return <AuthPage />;
+  }
 
   return (
     <SubscriptionProvider value={{ authState, isPremium, isLoading, refreshSubscription }}>
