@@ -1,5 +1,6 @@
 import { PushNotifications } from "@capacitor/push-notifications";
 import { Capacitor } from "@capacitor/core";
+import { apiUrl } from "../config/apiUrl";
 
 export async function registerPushNotifications() {
   if (!Capacitor.isNativePlatform()) return;
@@ -9,8 +10,18 @@ export async function registerPushNotifications() {
   if (permissionResult.receive !== "granted") return;
 
   // Add listeners BEFORE registering so we catch the token
-  await PushNotifications.addListener("registration", (token) => {
+  await PushNotifications.addListener("registration", async (token) => {
     console.log("Push token:", token.value);
+
+    try {
+      const { getToken } = await import('@clerk/react');
+      // Get userId from Clerk
+      const userModule = await import('@clerk/react');
+      // Store token locally for later use
+      localStorage.setItem('pushDeviceToken', token.value);
+    } catch (err) {
+      console.error("Failed to store push token:", err);
+    }
   });
 
   await PushNotifications.addListener("registrationError", (error) => {
@@ -28,6 +39,21 @@ export async function registerPushNotifications() {
   // Now register
   await PushNotifications.register();
   console.log("PushNotifications.register() called");
+}
+
+export async function sendTokenToBackend(userId: string, clerkToken: string) {
+  const token = localStorage.getItem('pushDeviceToken');
+  if (!token) return;
+  try {
+    await fetch(apiUrl("/api/device-tokens"), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${clerkToken}` },
+      body: JSON.stringify({ userId, token, platform: 'ios' })
+    });
+    console.log("Push token sent to backend");
+  } catch (err) {
+    console.error("Failed to send push token to backend:", err);
+  }
 }
 
 export async function checkPushPermissionStatus(): Promise<boolean> {

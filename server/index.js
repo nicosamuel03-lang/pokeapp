@@ -265,6 +265,47 @@ app.post(
 
 app.use(express.json());
 
+app.post("/api/device-tokens", async (req, res) => {
+  try {
+    const { userId, token, platform } = req.body || {};
+    if (!userId || !token || !platform) {
+      return res.status(400).json({ error: "Missing userId, token, or platform" });
+    }
+    if (!supabase) {
+      return res.status(500).json({ error: "Supabase not configured" });
+    }
+
+    await supabase.from('device_tokens').upsert(
+      { user_id: userId, token, platform, updated_at: new Date().toISOString() },
+      { onConflict: 'user_id,token' }
+    );
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("[api/device-tokens] POST error:", err?.message || err);
+    return res.status(500).json({ error: "Failed to store device token" });
+  }
+});
+
+app.delete("/api/device-tokens", async (req, res) => {
+  try {
+    const { userId, token } = req.body || {};
+    if (!userId || !token) {
+      return res.status(400).json({ error: "Missing userId or token" });
+    }
+    if (!supabase) {
+      return res.status(500).json({ error: "Supabase not configured" });
+    }
+
+    await supabase.from("device_tokens").delete().eq("user_id", userId).eq("token", token);
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("[api/device-tokens] DELETE error:", err?.message || err);
+    return res.status(500).json({ error: "Failed to delete device token" });
+  }
+});
+
 const {
   searchAveragePriceTop5,
   searchFresh,

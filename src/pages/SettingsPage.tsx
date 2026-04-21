@@ -69,6 +69,13 @@ export function SettingsPage() {
       console.log("CALLING registerPushNotifications...");
       await registerPushNotifications();
       console.log("registerPushNotifications COMPLETED");
+      setTimeout(async () => {
+        const { sendTokenToBackend } = await import('../services/pushNotifications');
+        if (user?.id) {
+          const token = await getToken();
+          if (token) await sendTokenToBackend(user.id, token);
+        }
+      }, 3000);
     }
     else await unregisterPushNotifications();
     try {
