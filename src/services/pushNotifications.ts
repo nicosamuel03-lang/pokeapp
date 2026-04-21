@@ -2,9 +2,12 @@ import { PushNotifications } from "@capacitor/push-notifications";
 import { Capacitor } from "@capacitor/core";
 
 export async function registerPushNotifications() {
+  console.log("registerPushNotifications CALLED");
   if (!Capacitor.isNativePlatform()) return;
+  console.log("Is native platform:", Capacitor.isNativePlatform());
 
   const permissionResult = await PushNotifications.requestPermissions();
+  console.log("Permission result:", permissionResult);
   if (permissionResult.receive !== "granted") return;
 
   await PushNotifications.register();

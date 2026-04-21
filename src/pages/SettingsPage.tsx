@@ -57,8 +57,13 @@ export function SettingsPage() {
   }, []);
 
   const handleNotificationsToggle = async (enabled: boolean) => {
+    console.log("NOTIFICATIONS TOGGLE CLICKED, new value:", !notificationsEnabled);
     setNotificationsEnabled(enabled);
-    if (enabled) await registerPushNotifications();
+    if (enabled) {
+      console.log("CALLING registerPushNotifications...");
+      await registerPushNotifications();
+      console.log("registerPushNotifications COMPLETED");
+    }
     else await unregisterPushNotifications();
     try {
       localStorage.setItem('pushNotificationsEnabled', enabled ? 'true' : 'false');
