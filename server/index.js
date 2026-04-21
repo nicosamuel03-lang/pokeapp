@@ -306,6 +306,26 @@ app.delete("/api/device-tokens", async (req, res) => {
   }
 });
 
+app.post('/api/activate-premium', async (req, res) => {
+  try {
+    const { userId, source } = req.body;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    
+    const { error } = await supabase
+      .from('users')
+      .update({ is_premium: true })
+      .eq('id', userId);
+    
+    if (error) throw error;
+    
+    console.log(`Premium activated for ${userId} via ${source}`);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Activate premium error:', err);
+    res.status(500).json({ error: 'Failed to activate premium' });
+  }
+});
+
 const {
   searchAveragePriceTop5,
   searchFresh,

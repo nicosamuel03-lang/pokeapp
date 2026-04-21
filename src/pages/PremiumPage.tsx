@@ -73,15 +73,18 @@ export function PremiumPage() {
           const selectedPackage = packages.find((p: any) => p.packageType === targetIdentifier) || packages[0];
           const result = await purchasePackage(selectedPackage);
           if (result) {
-            // Purchase successful - update Supabase
+            // Purchase successful - update via backend API
             try {
-              const { supabase } = await import('../lib/supabase');
-              await supabase.from('users').update({ is_premium: true }).eq('id', user?.id);
-              console.log('is_premium set to true after Apple purchase');
+              const res = await fetch(apiUrl('/api/activate-premium'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user?.id, source: 'apple_iap' }),
+              });
+              const data = await res.json();
+              console.log('Activate premium response:', data);
             } catch (e) {
-              console.error('Failed to update is_premium:', e);
+              console.error('Failed to activate premium:', e);
             }
-            // Navigate to home instead of reload to keep session
             navigate('/');
           }
         } catch (err) {
