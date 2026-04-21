@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useClerk } from "@clerk/react";
 
 export function AuthPage() {
-  const navigate = useNavigate();
+  const { redirectToSignIn, redirectToSignUp } = useClerk();
 
   return (
     <div
@@ -23,7 +23,16 @@ export function AuthPage() {
             alt="Giovanni"
             width={120}
             height={120}
-            style={{ width: 120, height: 120, objectFit: "contain", marginBottom: 14 }}
+            style={{
+              width: 120,
+              height: 120,
+              objectFit: "contain",
+              marginBottom: 14,
+              border: "none",
+              outline: "none",
+              boxShadow: "none",
+              display: "block",
+            }}
           />
           <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "0.14em", color: "#c91517" }}>
             GIOVANNI TCG
@@ -36,7 +45,7 @@ export function AuthPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <button
             type="button"
-            onClick={() => navigate("/sign-up")}
+            onClick={() => redirectToSignUp()}
             style={{
               width: "100%",
               padding: "14px 16px",
@@ -55,7 +64,7 @@ export function AuthPage() {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/sign-in")}
+            onClick={() => redirectToSignIn()}
             style={{
               width: "100%",
               padding: "14px 16px",
