@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import Purchases from '@revenuecat/purchases-capacitor';
+import { Purchases } from '@revenuecat/purchases-capacitor';
 
 const REVENUECAT_API_KEY = 'test_NURUBCHLabVdWOPpqNYqWFhKSNs';
 
