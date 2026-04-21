@@ -29,30 +29,32 @@ export function AuthPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 360 }}>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-          <img
-            src="/images/GIOVANNI_version_deux.png"
-            alt="Giovanni"
-            width={120}
-            height={120}
-            style={{
-              width: 120,
-              height: 120,
-              objectFit: "contain",
-              marginBottom: 14,
-              border: "none",
-              outline: "none",
-              boxShadow: "none",
-              display: "block",
-            }}
-          />
-          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "0.14em", color: "#c91517" }}>
-            GIOVANNI TCG
+        {view === "landing" && (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
+            <img
+              src="/images/GIOVANNI_version_deux.png"
+              alt="Giovanni"
+              width={120}
+              height={120}
+              style={{
+                width: 120,
+                height: 120,
+                objectFit: "contain",
+                marginBottom: 14,
+                border: "none",
+                outline: "none",
+                boxShadow: "none",
+                display: "block",
+              }}
+            />
+            <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "0.14em", color: "#c91517" }}>
+              GIOVANNI TCG
+            </div>
+            <div style={{ marginTop: 8, marginBottom: 18, fontSize: 13, color: "var(--text-secondary)" }}>
+              Gérez votre collection Pokémon scellée
+            </div>
           </div>
-          <div style={{ marginTop: 8, marginBottom: 18, fontSize: 13, color: "var(--text-secondary)" }}>
-            Gérez votre collection Pokémon scellée
-          </div>
-        </div>
+        )}
 
         {view === "landing" ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
