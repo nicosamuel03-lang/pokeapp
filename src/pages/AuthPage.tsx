@@ -1,23 +1,78 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SignIn, SignUp } from "@clerk/react";
 
 export function AuthPage() {
   const [view, setView] = useState<"landing" | "signin" | "signup">("landing");
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const particleSpecs = useMemo(
-    () =>
-      Array.from({ length: 20 }).map((_, i) => ({
-        w: Math.random() * 4 + 2,
-        h: Math.random() * 4 + 2,
-        left: Math.random() * 100,
-        bottom: -Math.random() * 20,
-        duration: Math.random() * 10 + 15,
-        delay: Math.random() * 15,
-        color: ["#FBBF24", "#D4A757", "#F59E0B"][i % 3],
-        opacity: Math.random() * 0.25 + 0.15,
-      })),
-    []
-  );
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles: {
+      x: number;
+      y: number;
+      size: number;
+      speedY: number;
+      speedX: number;
+      opacity: number;
+      color: string;
+    }[] = [];
+    const colors = ["#FBBF24", "#D4A757", "#F59E0B", "#c91517"];
+
+    for (let i = 0; i < 30; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speedY: -(Math.random() * 0.5 + 0.1),
+        speedX: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.3 + 0.1,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      });
+    }
+
+    let animationId: number;
+
+    function animate() {
+      ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
+      particles.forEach((p) => {
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx!.fillStyle = p.color;
+        ctx!.globalAlpha = p.opacity;
+        ctx!.fill();
+        p.y += p.speedY;
+        p.x += p.speedX;
+        if (p.y < -10) {
+          p.y = canvas!.height + 10;
+          p.x = Math.random() * canvas!.width;
+        }
+        if (p.x < 0) p.x = canvas!.width;
+        if (p.x > canvas!.width) p.x = 0;
+      });
+      ctx!.globalAlpha = 1;
+      animationId = requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    const handleResize = () => {
+      canvas!.width = window.innerWidth;
+      canvas!.height = window.innerHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   const appearance = {
     elements: {
@@ -57,47 +112,6 @@ export function AuthPage() {
   } as const;
 
   return (
-    <>
-      <style>{`
-        @keyframes floatUp {
-          0% { transform: translateY(0) translateX(0); opacity: 0; }
-          10% { opacity: 0.3; }
-          30% { transform: translateY(-33vh) translateX(12px); opacity: 0.3; }
-          55% { transform: translateY(-60vh) translateX(-15px); opacity: 0.3; }
-          80% { transform: translateY(-90vh) translateX(8px); opacity: 0.3; }
-          90% { opacity: 0.3; }
-          100% { transform: translateY(-110vh) translateX(20px); opacity: 0; }
-        }
-      `}</style>
-
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 0,
-          pointerEvents: "none",
-          overflow: "hidden",
-        }}
-      >
-        {particleSpecs.map((p, i) => (
-          <span
-            key={i}
-            style={{
-              position: "absolute",
-              width: `${p.w}px`,
-              height: `${p.h}px`,
-              borderRadius: "50%",
-              background: p.color,
-              opacity: p.opacity,
-              left: `${p.left}%`,
-              bottom: `${p.bottom}%`,
-              animation: `floatUp ${p.duration}s linear infinite`,
-              animationDelay: `${p.delay}s`,
-            }}
-          />
-        ))}
-      </div>
-
       <div
         style={{
           position: "relative",
@@ -112,6 +126,18 @@ export function AuthPage() {
           boxSizing: "border-box",
         }}
       >
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
         {view !== "landing" && (
           <button
             type="button"
@@ -224,7 +250,6 @@ export function AuthPage() {
         )}
         </div>
       </div>
-    </>
   );
 }
 
