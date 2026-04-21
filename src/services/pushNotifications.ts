@@ -2,27 +2,32 @@ import { PushNotifications } from "@capacitor/push-notifications";
 import { Capacitor } from "@capacitor/core";
 
 export async function registerPushNotifications() {
-  console.log("registerPushNotifications CALLED");
   if (!Capacitor.isNativePlatform()) return;
-  console.log("Is native platform:", Capacitor.isNativePlatform());
 
   const permissionResult = await PushNotifications.requestPermissions();
-  console.log("Permission result:", permissionResult);
+  console.log("Permission result:", JSON.stringify(permissionResult));
   if (permissionResult.receive !== "granted") return;
 
-  await PushNotifications.register();
-
-  PushNotifications.addListener("registration", (token) => {
+  // Add listeners BEFORE registering so we catch the token
+  await PushNotifications.addListener("registration", (token) => {
     console.log("Push token:", token.value);
   });
 
-  PushNotifications.addListener("pushNotificationReceived", (notification) => {
-    console.log("Push notification received:", notification);
+  await PushNotifications.addListener("registrationError", (error) => {
+    console.error("Push registration error:", JSON.stringify(error));
   });
 
-  PushNotifications.addListener("pushNotificationActionPerformed", (action) => {
-    console.log("Push notification action performed:", action);
+  await PushNotifications.addListener("pushNotificationReceived", (notification) => {
+    console.log("Push notification received:", JSON.stringify(notification));
   });
+
+  await PushNotifications.addListener("pushNotificationActionPerformed", (action) => {
+    console.log("Push notification action performed:", JSON.stringify(action));
+  });
+
+  // Now register
+  await PushNotifications.register();
+  console.log("PushNotifications.register() called");
 }
 
 export async function unregisterPushNotifications() {
