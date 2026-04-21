@@ -18,6 +18,7 @@ export function AuthPage() {
   return (
     <div
       style={{
+        position: "relative",
         minHeight: "100vh",
         background: "var(--bg-app)",
         color: "var(--text-secondary)",
@@ -28,32 +29,35 @@ export function AuthPage() {
         boxSizing: "border-box",
       }}
     >
-      <div style={{ width: "100%", maxWidth: 360 }}>
-        {view !== "landing" && (
-          <button
-            type="button"
-            onClick={() => setView("landing")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 13,
-              color: "var(--text-secondary)",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              marginBottom: 16,
-              padding: 0,
-            }}
-          >
-            ← Retour
-          </button>
-        )}
+      {view !== "landing" && (
+        <button
+          type="button"
+          onClick={() => setView("landing")}
+          style={{
+            position: "absolute",
+            top: "calc(env(safe-area-inset-top, 16px) + 12px)",
+            left: 16,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 13,
+            color: "var(--text-secondary)",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: "8px 12px",
+          }}
+        >
+          ← Retour
+        </button>
+      )}
 
+      <div style={{ width: "100%", maxWidth: 360 }}>
         {view === "landing" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <img
-              src="/images/GIOVANNI_version_deux.png"
+              src="/images/GIOVANNI.png"
               alt="Giovanni"
               width={120}
               height={120}
