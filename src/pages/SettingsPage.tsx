@@ -5,7 +5,7 @@ import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
 import { apiUrl } from "../config/apiUrl";
-import { registerPushNotifications, unregisterPushNotifications } from '../services/pushNotifications';
+import { registerPushNotifications, unregisterPushNotifications, checkPushPermissionStatus } from '../services/pushNotifications';
 
 const NOTIFICATIONS_STORAGE_KEY = "pushNotificationsEnabled";
 
@@ -48,12 +48,18 @@ export function SettingsPage() {
   const [legalPrivacyOpen, setLegalPrivacyOpen] = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('pushNotificationsEnabled');
-      setNotificationsEnabled(saved === 'true');
-    } catch {
-      /* ignore */
-    }
+    (async () => {
+      try {
+        const realPermission = await checkPushPermissionStatus();
+        const savedPref = localStorage.getItem('pushNotificationsEnabled') === 'true';
+        const isEnabled = realPermission && savedPref;
+        setNotificationsEnabled(isEnabled);
+        // Sync localStorage with reality
+        localStorage.setItem('pushNotificationsEnabled', String(isEnabled));
+      } catch {
+        /* ignore */
+      }
+    })();
   }, []);
 
   const handleNotificationsToggle = async (enabled: boolean) => {

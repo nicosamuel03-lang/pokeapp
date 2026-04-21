@@ -30,6 +30,13 @@ export async function registerPushNotifications() {
   console.log("PushNotifications.register() called");
 }
 
+export async function checkPushPermissionStatus(): Promise<boolean> {
+  if (!Capacitor.isNativePlatform()) return false;
+  const status = await PushNotifications.checkPermissions();
+  console.log("Push permission status:", JSON.stringify(status));
+  return status.receive === "granted";
+}
+
 export async function unregisterPushNotifications() {
   if (!Capacitor.isNativePlatform()) return;
   await PushNotifications.removeAllListeners();
