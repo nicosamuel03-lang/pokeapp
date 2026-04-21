@@ -6,6 +6,7 @@ import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
 import { apiUrl } from "../config/apiUrl";
 import { registerPushNotifications, unregisterPushNotifications, checkPushPermissionStatus } from '../services/pushNotifications';
+import { isNativeIOS } from "../services/revenueCat";
 
 const NOTIFICATIONS_STORAGE_KEY = "pushNotificationsEnabled";
 
@@ -35,6 +36,7 @@ export function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
   const isLight = theme === "light";
+  const nativeIOS = isNativeIOS();
   const accentGold = isDark ? "#FBBF24" : "#D4A757";
   const { isPremium, isLoading: premiumLoading } = useSubscription();
   console.log("[RENDER] SettingsPage", "isPremium:", isPremium, "isLoading:", premiumLoading, new Date().toISOString());
@@ -201,25 +203,43 @@ export function SettingsPage() {
                 <Crown size={18} color={accentGold} />
                 Boss Access actif
               </p>
-              <button
-                type="button"
-                onClick={handleCancelSubscription}
-                disabled={cancelLoading}
-                onMouseEnter={() => setCancelLinkHover(true)}
-                onMouseLeave={() => setCancelLinkHover(false)}
-                style={{
-                  padding: 0,
-                  border: "none",
-                  background: "none",
-                  color: "#ef4444",
-                  fontSize: 12,
-                  cursor: cancelLoading ? "default" : "pointer",
-                  opacity: cancelLoading ? 0.7 : 1,
-                  textDecoration: cancelLinkHover && !cancelLoading ? "underline" : "none",
-                }}
-              >
-                {cancelLoading ? "Annulation…" : "Annuler"}
-              </button>
+              {nativeIOS ? (
+                <button
+                  type="button"
+                  onClick={() => window.open("https://apps.apple.com/account/subscriptions", "_blank")}
+                  style={{
+                    padding: 0,
+                    border: "none",
+                    background: "none",
+                    color: accentGold,
+                    fontSize: 12,
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  Gérer l'abonnement
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleCancelSubscription}
+                  disabled={cancelLoading}
+                  onMouseEnter={() => setCancelLinkHover(true)}
+                  onMouseLeave={() => setCancelLinkHover(false)}
+                  style={{
+                    padding: 0,
+                    border: "none",
+                    background: "none",
+                    color: "#ef4444",
+                    fontSize: 12,
+                    cursor: cancelLoading ? "default" : "pointer",
+                    opacity: cancelLoading ? 0.7 : 1,
+                    textDecoration: cancelLinkHover && !cancelLoading ? "underline" : "none",
+                  }}
+                >
+                  {cancelLoading ? "Annulation…" : "Annuler"}
+                </button>
+              )}
             </>
           ) : (
             <>

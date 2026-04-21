@@ -17,6 +17,8 @@ import { SubscriptionProvider, type AuthState } from "./state/SubscriptionContex
 import { ThemeProvider, useTheme } from "./state/ThemeContext";
 import { supabase } from "./lib/supabase";
 import { registerPushNotifications } from "./services/pushNotifications";
+import { initRevenueCat } from "./services/revenueCat";
+import { isNativeIOS } from "./services/revenueCat";
 
 /** Sous ThemeProvider : fond app opaque en clair, transparent en sombre (verre sur la barre du bas). */
 function AppThemedLayout({ children }: { children: React.ReactNode }) {
@@ -118,6 +120,12 @@ const App = () => {
       /* ignore */
     }
   }, []);
+
+  useEffect(() => {
+    if (isNativeIOS()) {
+      void initRevenueCat(user?.id);
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     let cancelled = false;

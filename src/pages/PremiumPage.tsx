@@ -5,6 +5,7 @@ import { Package, TrendingUp, ShoppingCart, Bell } from "lucide-react";
 import { useTheme } from "../state/ThemeContext";
 import { STAT_CARD_VALUE_CLASS } from "../constants/statCardValueClass";
 import { apiUrl, getApiBaseUrl } from "../config/apiUrl";
+import { isNativeIOS, getOfferings, purchasePackage, restorePurchases } from "../services/revenueCat";
 
 const VITE_MONTHLY_PRICE_ID = import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID as string | undefined;
 const VITE_ANNUAL_PRICE_ID = import.meta.env.VITE_STRIPE_ANNUAL_PRICE_ID as string | undefined;
@@ -41,6 +42,7 @@ export function PremiumPage() {
   const { user } = useUser();
   const { theme } = useTheme();
   const accentGold = theme === "dark" ? "#FBBF24" : "#D4A757";
+  const nativeIOS = isNativeIOS();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,6 +57,29 @@ export function PremiumPage() {
     setLoading(true);
     setError(null);
     try {
+      if (isNativeIOS()) {
+        try {
+          const offerings = await getOfferings();
+          if (!(offerings as any)?.current?.availablePackages) {
+            alert('Aucune offre disponible');
+            return;
+          }
+          const packages = (offerings as any).current.availablePackages;
+          // Find monthly or yearly based on the current toggle state
+          const isYearly = isAnnual;
+          const targetIdentifier = isYearly ? '$rc_annual' : '$rc_monthly';
+          const selectedPackage = packages.find((p: any) => p.packageType === targetIdentifier) || packages[0];
+          const result = await purchasePackage(selectedPackage);
+          if (result) {
+            // Purchase successful - refresh subscription status
+            window.location.reload();
+          }
+        } catch (err) {
+          console.error('iOS purchase error:', err);
+          alert('Erreur lors de l\'achat');
+        }
+        return; // IMPORTANT: return here so Stripe code below never runs on iOS
+      }
       if (!user?.id) {
         setError("Connectez-vous pour souscrire — compte requis pour lier l’abonnement.");
         return;
@@ -120,7 +145,7 @@ export function PremiumPage() {
         paddingBottom: 120,
       }}
     >
-      {success && (
+      {!nativeIOS && success && (
         <p
           style={{
             color: "var(--gain-green)",
@@ -132,7 +157,7 @@ export function PremiumPage() {
           Paiement réussi. Merci !
         </p>
       )}
-      {canceled && (
+      {!nativeIOS && canceled && (
         <p
           style={{
             color: "var(--text-secondary)",
@@ -304,15 +329,41 @@ export function PremiumPage() {
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        {!user?.id && (
+        {!nativeIOS && !user?.id && (
           <p style={{ fontSize: 12, color: "var(--loss-red)", textAlign: "center", marginBottom: 8 }}>
             Connectez-vous pour souscrire — votre compte lie l’abonnement Premium.
           </p>
         )}
+        {nativeIOS && (
+          <button
+            type="button"
+            onClick={async () => {
+              await restorePurchases();
+            }}
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "14px 24px",
+              borderRadius: 9999,
+              background: "transparent",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-color)",
+              boxShadow: "none",
+              cursor: loading ? "not-allowed" : "pointer",
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+              opacity: loading ? 0.7 : 1,
+            }}
+          >
+            Restaurer les achats
+          </button>
+        )}
         <button
           type="button"
           onClick={() => handleSubscribe(isAnnual ? "annual" : "monthly")}
-          disabled={loading || !user?.id}
+          disabled={loading || (!nativeIOS && !user?.id)}
           style={{
             width: "100%",
             padding: "14px 24px",
@@ -331,9 +382,11 @@ export function PremiumPage() {
         >
           {loading
             ? "Redirection…"
-            : isAnnual
-              ? "S'ABONNER ANNUELLEMENT — 39,99 € / AN"
-              : "S'ABONNER MENSUELLEMENT — 3,99 € / MOIS"}
+            : nativeIOS
+              ? "S'abonner via Apple"
+              : isAnnual
+                ? "S'ABONNER ANNUELLEMENT — 39,99 € / AN"
+                : "S'ABONNER MENSUELLEMENT — 3,99 € / MOIS"}
         </button>
         <Link
           to="/"
