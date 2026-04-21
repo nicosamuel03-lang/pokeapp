@@ -1,8 +1,23 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { SignIn, SignUp } from "@clerk/react";
 
 export function AuthPage() {
   const [view, setView] = useState<"landing" | "signin" | "signup">("landing");
+
+  const particleSpecs = useMemo(
+    () =>
+      Array.from({ length: 20 }).map((_, i) => ({
+        w: Math.random() * 4 + 2,
+        h: Math.random() * 4 + 2,
+        left: Math.random() * 100,
+        bottom: -Math.random() * 20,
+        duration: Math.random() * 10 + 15,
+        delay: Math.random() * 15,
+        color: ["#FBBF24", "#D4A757", "#F59E0B"][i % 3],
+        opacity: Math.random() * 0.25 + 0.15,
+      })),
+    []
+  );
 
   const appearance = {
     elements: {
@@ -42,44 +57,86 @@ export function AuthPage() {
   } as const;
 
   return (
-    <div
-      style={{
-        position: "relative",
-        minHeight: "100vh",
-        background: "var(--bg-app)",
-        color: "var(--text-secondary)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 24,
-        boxSizing: "border-box",
-      }}
-    >
-      {view !== "landing" && (
-        <button
-          type="button"
-          onClick={() => setView("landing")}
-          style={{
-            position: "absolute",
-            top: "calc(env(safe-area-inset-top, 16px) + 12px)",
-            left: 16,
-            zIndex: 9999,
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            fontSize: 13,
-            color: "var(--text-secondary)",
-            background: "transparent",
-            border: "none",
-            cursor: "pointer",
-            padding: "8px 12px",
-          }}
-        >
-          ← Retour
-        </button>
-      )}
+    <>
+      <style>{`
+        @keyframes floatUp {
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          10% { opacity: 0.3; }
+          30% { transform: translateY(-33vh) translateX(12px); opacity: 0.3; }
+          55% { transform: translateY(-60vh) translateX(-15px); opacity: 0.3; }
+          80% { transform: translateY(-90vh) translateX(8px); opacity: 0.3; }
+          90% { opacity: 0.3; }
+          100% { transform: translateY(-110vh) translateX(20px); opacity: 0; }
+        }
+      `}</style>
 
-      <div style={{ width: "100%", maxWidth: 360 }}>
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: "none",
+          overflow: "hidden",
+        }}
+      >
+        {particleSpecs.map((p, i) => (
+          <span
+            key={i}
+            style={{
+              position: "absolute",
+              width: `${p.w}px`,
+              height: `${p.h}px`,
+              borderRadius: "50%",
+              background: p.color,
+              opacity: p.opacity,
+              left: `${p.left}%`,
+              bottom: `${p.bottom}%`,
+              animation: `floatUp ${p.duration}s linear infinite`,
+              animationDelay: `${p.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          minHeight: "100vh",
+          background: "var(--bg-app)",
+          color: "var(--text-secondary)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+          boxSizing: "border-box",
+        }}
+      >
+        {view !== "landing" && (
+          <button
+            type="button"
+            onClick={() => setView("landing")}
+            style={{
+              position: "absolute",
+              top: "calc(env(safe-area-inset-top, 16px) + 12px)",
+              left: 16,
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              color: "var(--text-secondary)",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              padding: "8px 12px",
+            }}
+          >
+            ← Retour
+          </button>
+        )}
+
+        <div style={{ width: "100%", maxWidth: 360, position: "relative", zIndex: 1 }}>
         {view === "landing" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <img
@@ -165,8 +222,9 @@ export function AuthPage() {
             />
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
