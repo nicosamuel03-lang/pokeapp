@@ -5,8 +5,9 @@ import { useClerk, useUser, useAuth } from "@clerk/react";
 import { useTheme } from "../state/ThemeContext";
 import { useSubscription } from "../state/SubscriptionContext";
 import { apiUrl } from "../config/apiUrl";
+import { registerPushNotifications, unregisterPushNotifications } from '../services/pushNotifications';
 
-const NOTIFICATIONS_STORAGE_KEY = "pokevault_notifications_enabled";
+const NOTIFICATIONS_STORAGE_KEY = "pushNotificationsEnabled";
 
 const sectionHeaderBaseStyle: React.CSSProperties = {
   fontSize: 11,
@@ -48,17 +49,19 @@ export function SettingsPage() {
 
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
-      setNotificationsEnabled(stored === "true");
+      const saved = localStorage.getItem('pushNotificationsEnabled');
+      setNotificationsEnabled(saved === 'true');
     } catch {
       /* ignore */
     }
   }, []);
 
-  const handleNotificationsToggle = (enabled: boolean) => {
+  const handleNotificationsToggle = async (enabled: boolean) => {
     setNotificationsEnabled(enabled);
+    if (enabled) await registerPushNotifications();
+    else await unregisterPushNotifications();
     try {
-      window.localStorage.setItem(NOTIFICATIONS_STORAGE_KEY, String(enabled));
+      localStorage.setItem('pushNotificationsEnabled', enabled ? 'true' : 'false');
     } catch {
       /* ignore */
     }

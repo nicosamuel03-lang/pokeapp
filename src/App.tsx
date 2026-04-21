@@ -16,6 +16,7 @@ import { TabSwitch } from "./components/TabSwitch";
 import { SubscriptionProvider, type AuthState } from "./state/SubscriptionContext";
 import { ThemeProvider, useTheme } from "./state/ThemeContext";
 import { supabase } from "./lib/supabase";
+import { registerPushNotifications } from "./services/pushNotifications";
 
 /** Sous ThemeProvider : fond app opaque en clair, transparent en sombre (verre sur la barre du bas). */
 function AppThemedLayout({ children }: { children: React.ReactNode }) {
@@ -106,6 +107,16 @@ const App = () => {
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem("pushNotificationsEnabled") === "true") {
+        void registerPushNotifications();
+      }
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   useEffect(() => {
