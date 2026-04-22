@@ -4,6 +4,7 @@ import { SignIn, SignUp } from "@clerk/react";
 export function AuthPage() {
   const [view, setView] = useState<"landing" | "signin" | "signup">("landing");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -96,6 +97,13 @@ export function AuthPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.play().catch((err) => console.log('Video autoplay blocked:', err));
+    }
+  }, []);
+
   const appearance = {
     elements: {
       socialButtonsBlockButton: { display: "none" },
@@ -149,10 +157,12 @@ export function AuthPage() {
         }}
       >
         <video
+          ref={videoRef}
           autoPlay
           loop
           muted
           playsInline
+          webkit-playsinline="true"
           style={{
             position: 'fixed',
             top: 0,
