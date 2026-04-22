@@ -4,7 +4,6 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env.local") });
 const express = require("express");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
-const https = require('https');
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { Webhook } = require("svix");
 const { createClient } = require("@supabase/supabase-js");
@@ -27,63 +26,68 @@ function maskSecret(value) {
 
 function sendAPNS(deviceToken, title, body, data = {}) {
   return new Promise((resolve, reject) => {
+    const http2 = require('http2');
     const keyId = process.env.APNS_KEY_ID;
     const teamId = process.env.APNS_TEAM_ID;
-    const p8Key = process.env.APNS_KEY_P8;
-    const key = p8Key.replace(/\\n/g, '\n');
-    
+    const p8Key = (process.env.APNS_KEY_P8 || '').replace(/\\n/g, '\n');
+
     if (!keyId || !teamId || !p8Key) {
       return reject(new Error('Missing APNs configuration'));
     }
 
-    // Create JWT token for APNs
-    const token = jwt.sign({}, key, {
+    const token = jwt.sign({}, p8Key, {
       algorithm: 'ES256',
-      header: {
-        alg: 'ES256',
-        kid: keyId,
-      },
+      header: { alg: 'ES256', kid: keyId },
       issuer: teamId,
       expiresIn: '1h',
     });
 
     const payload = JSON.stringify({
-      aps: {
-        alert: { title, body },
-        sound: 'default',
-        badge: 1,
-      },
+      aps: { alert: { title, body }, sound: 'default', badge: 1 },
       ...data,
     });
 
-    const options = {
-      hostname: 'api.sandbox.push.apple.com',
-      port: 443,
-      path: `/3/device/${deviceToken}`,
-      method: 'POST',
-      headers: {
-        'authorization': `bearer ${token}`,
-        'apns-topic': 'com.giovanni.app',
-        'apns-push-type': 'alert',
-        'Content-Type': 'application/json',
-      },
-    };
+    const client = http2.connect('https://api.sandbox.push.apple.com');
 
-    console.log('Sending APNs to device:', deviceToken.substring(0, 10) + '...');
-
-    const req = https.request(options, (res) => {
-      let responseData = '';
-      res.on('data', (chunk) => { responseData += chunk; });
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          resolve({ success: true });
-        } else {
-          reject(new Error(`APNs error ${res.statusCode}: ${responseData}`));
-        }
-      });
+    client.on('error', (err) => {
+      console.error('HTTP/2 connection error:', err);
+      reject(err);
     });
 
-    req.on('error', reject);
+    const req = client.request({
+      ':method': 'POST',
+      ':path': `/3/device/${deviceToken}`,
+      'authorization': `bearer ${token}`,
+      'apns-topic': 'com.giovanni.app',
+      'apns-push-type': 'alert',
+      'Content-Type': 'application/json',
+    });
+
+    let responseData = '';
+    let statusCode = 0;
+
+    req.on('response', (headers) => {
+      statusCode = headers[':status'];
+    });
+
+    req.on('data', (chunk) => { responseData += chunk; });
+
+    req.on('end', () => {
+      client.close();
+      if (statusCode === 200) {
+        console.log('APNs push sent successfully');
+        resolve({ success: true });
+      } else {
+        console.error(`APNs error ${statusCode}: ${responseData}`);
+        reject(new Error(`APNs error ${statusCode}: ${responseData}`));
+      }
+    });
+
+    req.on('error', (err) => {
+      client.close();
+      reject(err);
+    });
+
     req.write(payload);
     req.end();
   });
