@@ -68,6 +68,8 @@ function sendAPNS(deviceToken, title, body, data = {}) {
       },
     };
 
+    console.log('Sending APNs to device:', deviceToken.substring(0, 10) + '...');
+
     const req = https.request(options, (res) => {
       let responseData = '';
       res.on('data', (chunk) => { responseData += chunk; });
@@ -359,6 +361,12 @@ app.post('/api/send-notification', async (req, res) => {
 
     const sent = results.filter(r => r.status === 'fulfilled').length;
     const failed = results.filter(r => r.status === 'rejected').length;
+    
+    results.forEach((r, i) => {
+      if (r.status === 'rejected') {
+        console.error(`Push failed for token ${tokens[i]?.token}:`, r.reason?.message || r.reason);
+      }
+    });
     
     console.log(`Notifications sent: ${sent} success, ${failed} failed`);
     res.json({ success: true, sent, failed, total: tokens.length });
