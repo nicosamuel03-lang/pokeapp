@@ -139,7 +139,7 @@ export function AuthPage() {
           position: "relative",
           zIndex: 1,
           minHeight: "100vh",
-          background: "var(--bg-app)",
+          background: "transparent",
           color: "var(--text-secondary)",
           display: "flex",
           alignItems: "center",
@@ -148,6 +148,36 @@ export function AuthPage() {
           boxSizing: "border-box",
         }}
       >
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            zIndex: 0,
+          }}
+        >
+          <source src="/video/video-accueil.mp4" type="video/mp4" />
+        </video>
+
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.55)',
+            zIndex: 1,
+          }}
+        />
+
         <canvas
           ref={canvasRef}
           style={{
@@ -156,7 +186,7 @@ export function AuthPage() {
             left: 0,
             width: "100%",
             height: "100%",
-            zIndex: 0,
+            zIndex: 2,
             pointerEvents: "none",
           }}
         />
@@ -168,7 +198,7 @@ export function AuthPage() {
               position: "absolute",
               top: "calc(env(safe-area-inset-top, 16px) + 12px)",
               left: 16,
-              zIndex: 9999,
+              zIndex: 4,
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -184,7 +214,7 @@ export function AuthPage() {
           </button>
         )}
 
-        <div style={{ width: "100%", maxWidth: 360, position: "relative", zIndex: 1 }}>
+        <div style={{ width: "100%", maxWidth: 360, position: "relative", zIndex: 3 }}>
         {view === "landing" && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <img
