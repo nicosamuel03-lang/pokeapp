@@ -12,7 +12,12 @@ const config: CapacitorConfig = {
     iosScheme: 'https',
   },
   ios: {
+    allowsLinkPreview: false,
     allowsInlineMediaPlayback: true,
+    webView: {
+      allowsInlineMediaPlayback: true,
+      mediaTypesRequiringUserActionForPlayback: 'none',
+    },
     webContentsDebuggingEnabled: true,
     infoPlist: {
       NSCameraUsageDescription: 'Scanner de codes-barres pour vos produits Pokémon',
