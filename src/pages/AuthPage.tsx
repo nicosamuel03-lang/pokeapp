@@ -162,7 +162,8 @@ export function AuthPage() {
           loop
           muted
           playsInline
-          webkit-playsinline="true"
+          onError={(e) => console.error('Video error:', e)}
+          onLoadedData={() => console.log('Video loaded successfully')}
           style={{
             position: 'fixed',
             top: 0,
@@ -172,9 +173,8 @@ export function AuthPage() {
             objectFit: 'cover',
             zIndex: 0,
           }}
-        >
-          <source src="/video/video-accueil.mp4" type="video/mp4" />
-        </video>
+          src="/video/video-accueil.mp4"
+        />
 
         <div
           style={{
