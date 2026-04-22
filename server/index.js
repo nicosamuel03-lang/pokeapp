@@ -30,13 +30,14 @@ function sendAPNS(deviceToken, title, body, data = {}) {
     const keyId = process.env.APNS_KEY_ID;
     const teamId = process.env.APNS_TEAM_ID;
     const p8Key = process.env.APNS_KEY_P8;
+    const key = p8Key.replace(/\\n/g, '\n');
     
     if (!keyId || !teamId || !p8Key) {
       return reject(new Error('Missing APNs configuration'));
     }
 
     // Create JWT token for APNs
-    const token = jwt.sign({}, p8Key, {
+    const token = jwt.sign({}, key, {
       algorithm: 'ES256',
       header: {
         alg: 'ES256',
