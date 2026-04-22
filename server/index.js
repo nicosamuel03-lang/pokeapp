@@ -3,6 +3,8 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 require("dotenv").config({ path: path.resolve(__dirname, "../.env.local") });
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
+const https = require('https');
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { Webhook } = require("svix");
 const { createClient } = require("@supabase/supabase-js");
@@ -21,6 +23,67 @@ function maskSecret(value) {
   if (!value || typeof value !== "string") return "(absent)";
   if (value.length <= 8) return `set (len=${value.length})`;
   return `set (len=${value.length}, …${value.slice(-4)})`;
+}
+
+function sendAPNS(deviceToken, title, body, data = {}) {
+  return new Promise((resolve, reject) => {
+    const keyId = process.env.APNS_KEY_ID;
+    const teamId = process.env.APNS_TEAM_ID;
+    const p8Key = process.env.APNS_KEY_P8;
+    
+    if (!keyId || !teamId || !p8Key) {
+      return reject(new Error('Missing APNs configuration'));
+    }
+
+    // Create JWT token for APNs
+    const token = jwt.sign({}, p8Key, {
+      algorithm: 'ES256',
+      header: {
+        alg: 'ES256',
+        kid: keyId,
+      },
+      issuer: teamId,
+      expiresIn: '1h',
+    });
+
+    const payload = JSON.stringify({
+      aps: {
+        alert: { title, body },
+        sound: 'default',
+        badge: 1,
+      },
+      ...data,
+    });
+
+    const options = {
+      hostname: 'api.sandbox.push.apple.com',
+      port: 443,
+      path: `/3/device/${deviceToken}`,
+      method: 'POST',
+      headers: {
+        'authorization': `bearer ${token}`,
+        'apns-topic': 'com.giovanni.app',
+        'apns-push-type': 'alert',
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let responseData = '';
+      res.on('data', (chunk) => { responseData += chunk; });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          resolve({ success: true });
+        } else {
+          reject(new Error(`APNs error ${res.statusCode}: ${responseData}`));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
 }
 
 // CORS doit être le premier middleware pour autoriser le front
@@ -264,6 +327,46 @@ app.post(
 );
 
 app.use(express.json());
+
+app.post('/api/send-notification', async (req, res) => {
+  try {
+    const { title, body, adminKey } = req.body;
+    
+    // Simple admin protection - only you can send notifications
+    if (adminKey !== process.env.ADMIN_NOTIFICATION_KEY) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    if (!title || !body) {
+      return res.status(400).json({ error: 'title and body required' });
+    }
+
+    // Get all device tokens from Supabase
+    const { data: tokens, error } = await supabase
+      .from('device_tokens')
+      .select('token');
+    
+    if (error) throw error;
+    
+    if (!tokens || tokens.length === 0) {
+      return res.json({ success: true, sent: 0, message: 'No devices registered' });
+    }
+
+    // Send to all devices
+    const results = await Promise.allSettled(
+      tokens.map(t => sendAPNS(t.token, title, body))
+    );
+
+    const sent = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.filter(r => r.status === 'rejected').length;
+    
+    console.log(`Notifications sent: ${sent} success, ${failed} failed`);
+    res.json({ success: true, sent, failed, total: tokens.length });
+  } catch (err) {
+    console.error('Send notification error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.post("/api/device-tokens", async (req, res) => {
   try {
