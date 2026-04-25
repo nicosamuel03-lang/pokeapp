@@ -7,9 +7,19 @@ export function AuthPage() {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (video) {
-      video.play().catch((err) => console.log('Video autoplay blocked:', err));
-    }
+    if (!video) return;
+
+    video.play().catch((err) => console.log('Video autoplay blocked:', err));
+
+    const handleTimeUpdate = () => {
+      if (video.duration - video.currentTime < 0.3) {
+        video.currentTime = 0;
+        video.play();
+      }
+    };
+
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    return () => video.removeEventListener('timeupdate', handleTimeUpdate);
   }, []);
 
   const appearance = {
@@ -70,6 +80,7 @@ export function AuthPage() {
           loop
           muted
           playsInline
+          preload="auto"
           onError={(e) => console.error('Video error:', e)}
           onLoadedData={() => console.log('Video loaded successfully')}
           style={{
