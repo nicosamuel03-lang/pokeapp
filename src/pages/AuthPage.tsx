@@ -127,7 +127,7 @@ export function AuthPage() {
               GIOVANNI TCG
             </div>
             <div style={{ marginTop: 8, marginBottom: 18, fontSize: 13, color: "var(--text-secondary)" }}>
-              Gérez votre collection Pokémon scellée
+              Gérez votre collection d&apos;items scellés
             </div>
           </div>
         )}

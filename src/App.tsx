@@ -140,6 +140,26 @@ const App = () => {
   }, [isLoaded, isSignedIn, pathname]);
 
   useEffect(() => {
+    if (isLoaded) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'video';
+    link.href = '/video/video-accueil.mp4';
+    document.head.appendChild(link);
+    
+    // Also create a hidden video element to force browser to download and buffer it
+    const preloadVideo = document.createElement('video');
+    preloadVideo.src = '/video/video-accueil.mp4';
+    preloadVideo.muted = true;
+    preloadVideo.preload = 'auto';
+    preloadVideo.load();
+    
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, [isLoaded]);
+
+  useEffect(() => {
     let cancelled = false;
     if (!isLoaded) return;
 
