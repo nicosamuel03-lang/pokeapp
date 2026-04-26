@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useClerk, useSignUp } from "@clerk/react";
 
 export function AuthPage() {
-  const [view, setView] = useState<"landing" | "signin" | "signup">("landing");
+  const [view, setView] = useState<"landing" | "signin" | "signup" | "signin_verify">("landing");
   const [videoReady, setVideoReady] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +44,16 @@ export function AuthPage() {
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
         window.scrollTo(0, 0);
+      } else if (result.status === 'needs_client_trust') {
+        // Send email verification code to establish trust
+        await client.signIn.prepareFirstFactor({
+          strategy: 'email_code',
+          emailAddressId: (result.supportedFirstFactors?.find(
+            (f: any) => f.strategy === 'email_code'
+          ) as any)?.emailAddressId,
+        });
+        setStep('verify');
+        setView('signin_verify' as any);
       } else {
         setError('Connexion échouée: ' + result.status);
       }
@@ -244,6 +254,63 @@ export function AuthPage() {
                 }}
               >
                 {loading ? 'Connexion...' : 'CONTINUER'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {view === ('signin_verify' as any) && (
+          <div style={{ width: '100%' }}>
+            <div style={{ textAlign: 'center', color: '#ffffff', fontSize: 22, fontWeight: 800, marginBottom: 8 }}>
+              Vérification
+            </div>
+            <div style={{ textAlign: 'center', color: '#9ca3af', fontSize: 13, marginBottom: 16 }}>
+              Entrez le code envoyé à {email}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                type="text"
+                inputMode="numeric"
+                placeholder="------"
+                style={{ ...inputStyle, textAlign: 'center', letterSpacing: 8, fontSize: 24 }}
+              />
+              {error && <div style={{ color: '#ef4444', fontSize: 13 }}>{error}</div>}
+              <button
+                type="button"
+                onClick={async () => {
+                  setLoading(true);
+                  setError('');
+                  try {
+                    const result = await client.signIn.attemptFirstFactor({
+                      strategy: 'email_code',
+                      code,
+                    });
+                    if (result.status === 'complete') {
+                      await setActive({ session: result.createdSessionId });
+                      window.scrollTo(0, 0);
+                    } else {
+                      setError('Code invalide');
+                    }
+                  } catch (err: any) {
+                    setError(err.errors?.[0]?.message || 'Code invalide');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                style={{
+                  width: '100%', padding: '14px 16px',
+                  borderRadius: 9999, border: 'none',
+                  background: '#FFFFFF', color: '#000000',
+                  fontSize: 14, fontWeight: 800,
+                  letterSpacing: '0.04em', textTransform: 'uppercase',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.8 : 1,
+                }}
+              >
+                {loading ? 'Vérification...' : 'VÉRIFIER'}
               </button>
             </div>
           </div>
