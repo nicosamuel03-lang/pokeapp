@@ -68,38 +68,37 @@ export function AuthPage() {
     setLoading(true);
     setError('');
     try {
-      console.log('handleSignIn called with:', email);
-      
-      const result = await signIn.create({
+      // Step 1: Start sign in with email
+      const firstAttempt = await signIn.create({
         identifier: email,
-        password: password,
       });
       
-      console.log('signIn status:', result.status);
-      console.log('signIn result full:', JSON.stringify(result, null, 2));
+      console.log('Step 1 status:', firstAttempt.status);
       
-      if (result.status === 'complete') {
-        if (setSignInActive) {
-          await setSignInActive({ session: result.createdSessionId });
-        }
-      } else if (result.status === 'needs_first_factor') {
-        // Try password as first factor
-        const firstFactor = await signIn.attemptFirstFactor({
+      if (firstAttempt.status === 'needs_first_factor') {
+        // Step 2: Provide password
+        const result = await signIn.attemptFirstFactor({
           strategy: 'password',
           password: password,
         });
-        console.log('firstFactor status:', firstFactor.status);
-        if (firstFactor.status === 'complete' && setSignInActive) {
-          await setSignInActive({ session: firstFactor.createdSessionId });
+        
+        console.log('Step 2 status:', result.status);
+        
+        if (result.status === 'complete' && setSignInActive) {
+          await setSignInActive({ session: result.createdSessionId });
+          window.scrollTo(0, 0);
         } else {
-          setError('Vérification supplémentaire requise');
+          setError('Connexion échouée: ' + result.status);
         }
+      } else if (firstAttempt.status === 'complete' && setSignInActive) {
+        await setSignInActive({ session: firstAttempt.createdSessionId });
+        window.scrollTo(0, 0);
       } else {
-        setError('Statut inattendu: ' + result.status);
+        setError('Statut inattendu: ' + firstAttempt.status);
       }
     } catch (err: any) {
       console.error('SignIn error:', JSON.stringify(err));
-      setError(err.errors?.[0]?.longMessage || err.errors?.[0]?.message || err.message || 'Email ou mot de passe incorrect');
+      setError(err.errors?.[0]?.longMessage || err.errors?.[0]?.message || 'Email ou mot de passe incorrect');
     } finally {
       setLoading(false);
     }
