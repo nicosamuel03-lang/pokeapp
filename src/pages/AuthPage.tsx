@@ -153,9 +153,8 @@ export function AuthPage() {
             </button>
             <SignIn
               appearance={clerkAppearance}
-              routing="virtual"
+              routing="hash"
               signUpUrl={undefined}
-              afterSignInUrl="/"
             />
           </div>
         )}
@@ -175,9 +174,8 @@ export function AuthPage() {
             </button>
             <SignUp
               appearance={clerkAppearance}
-              routing="virtual"
+              routing="hash"
               signInUrl={undefined}
-              afterSignUpUrl="/"
             />
           </div>
         )}
