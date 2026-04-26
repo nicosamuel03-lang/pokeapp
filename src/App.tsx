@@ -181,19 +181,32 @@ const App = () => {
 
   if (!isLoaded) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "var(--bg-app)",
-          color: "var(--text-secondary)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 14,
-          fontWeight: 600,
-        }}
-      >
-        Chargement…
+      <div style={{
+        minHeight: '100vh',
+        background: '#000000',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 16,
+      }}>
+        <img
+          src="/images/GIOVANNI.png"
+          alt="Giovanni TCG"
+          style={{
+            width: 100,
+            height: 100,
+            objectFit: 'contain',
+          }}
+        />
+        <div style={{
+          fontSize: 18,
+          fontWeight: 800,
+          letterSpacing: '0.14em',
+          color: '#c91517',
+        }}>
+          GIOVANNI TCG
+        </div>
       </div>
     );
   }
