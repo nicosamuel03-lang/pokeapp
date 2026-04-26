@@ -3,12 +3,24 @@ import { SignIn, SignUp } from "@clerk/react";
 
 export function AuthPage() {
   const [view, setView] = useState<"landing" | "signin" | "signup">("landing");
+  const [videoReady, setVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    video.play().catch((err) => console.log('Video autoplay blocked:', err));
+    
+    if (video.readyState >= 3) {
+      video.play().catch(() => {});
+      setVideoReady(true);
+    } else {
+      const handleCanPlay = () => {
+        video.play().catch(() => {});
+        setVideoReady(true);
+      };
+      video.addEventListener('canplaythrough', handleCanPlay);
+      return () => video.removeEventListener('canplaythrough', handleCanPlay);
+    }
   }, []);
 
   const appearance = {
@@ -54,7 +66,7 @@ export function AuthPage() {
           position: "relative",
           zIndex: 1,
           minHeight: "100vh",
-          background: "transparent",
+          background: videoReady ? 'transparent' : '#000000',
           color: "var(--text-secondary)",
           display: "flex",
           alignItems: "center",
@@ -71,6 +83,7 @@ export function AuthPage() {
           preload="auto"
           onError={(e) => console.error('Video error:', e)}
           onLoadedData={() => console.log('Video loaded successfully')}
+          onCanPlayThrough={() => setVideoReady(true)}
           style={{
             position: 'fixed',
             top: 0,
