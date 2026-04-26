@@ -64,19 +64,41 @@ export function AuthPage() {
   };
 
   const handleSignIn = async () => {
-    console.log('handleSignIn called with:', email, password);
     if (!signIn) return;
     setLoading(true);
     setError('');
     try {
-      const result = await (signIn as any).create({ identifier: email, password });
-      console.log('signIn result:', JSON.stringify(result));
-      if (result.status === 'complete' && setSignInActive) {
-        await setSignInActive({ session: result.createdSessionId });
+      console.log('handleSignIn called with:', email);
+      
+      const result = await signIn.create({
+        identifier: email,
+        password: password,
+      });
+      
+      console.log('signIn status:', result.status);
+      console.log('signIn result full:', JSON.stringify(result, null, 2));
+      
+      if (result.status === 'complete') {
+        if (setSignInActive) {
+          await setSignInActive({ session: result.createdSessionId });
+        }
+      } else if (result.status === 'needs_first_factor') {
+        // Try password as first factor
+        const firstFactor = await signIn.attemptFirstFactor({
+          strategy: 'password',
+          password: password,
+        });
+        console.log('firstFactor status:', firstFactor.status);
+        if (firstFactor.status === 'complete' && setSignInActive) {
+          await setSignInActive({ session: firstFactor.createdSessionId });
+        } else {
+          setError('Vérification supplémentaire requise');
+        }
+      } else {
+        setError('Statut inattendu: ' + result.status);
       }
     } catch (err: any) {
-      console.error('SignIn error full:', JSON.stringify(err));
-      console.error('SignIn error message:', err.errors?.[0]?.message, err.errors?.[0]?.code);
+      console.error('SignIn error:', JSON.stringify(err));
       setError(err.errors?.[0]?.longMessage || err.errors?.[0]?.message || err.message || 'Email ou mot de passe incorrect');
     } finally {
       setLoading(false);
