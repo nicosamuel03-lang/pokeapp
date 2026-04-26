@@ -68,33 +68,18 @@ export function AuthPage() {
     setLoading(true);
     setError('');
     try {
-      // Step 1: Start sign in with email
-      const firstAttempt = await signIn.create({
+      const result = await signIn.create({
         identifier: email,
+        password: password,
       });
       
-      console.log('Step 1 status:', firstAttempt.status);
+      console.log('SignIn status:', result.status);
       
-      if (firstAttempt.status === 'needs_first_factor') {
-        // Step 2: Provide password
-        const result = await signIn.attemptFirstFactor({
-          strategy: 'password',
-          password: password,
-        });
-        
-        console.log('Step 2 status:', result.status);
-        
-        if (result.status === 'complete' && setSignInActive) {
-          await setSignInActive({ session: result.createdSessionId });
-          window.scrollTo(0, 0);
-        } else {
-          setError('Connexion échouée: ' + result.status);
-        }
-      } else if (firstAttempt.status === 'complete' && setSignInActive) {
-        await setSignInActive({ session: firstAttempt.createdSessionId });
+      if (result.status === 'complete' && setSignInActive) {
+        await setSignInActive({ session: result.createdSessionId });
         window.scrollTo(0, 0);
       } else {
-        setError('Statut inattendu: ' + firstAttempt.status);
+        setError('Connexion échouée: ' + result.status);
       }
     } catch (err: any) {
       console.error('SignIn error:', JSON.stringify(err));
