@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { Line, LineChart as RechartsLineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Wallet, LineChart, Package, TrendingUp, ChevronRight, X } from "lucide-react";
+import { Wallet, LineChart, Package, TrendingUp, X } from "lucide-react";
 import {
   PortfolioCategoryDonut,
   CATEGORY_DONUT_COLORS,
@@ -611,19 +611,7 @@ export function PortfolioDashboardSection({
 
   const portfolioMainCardInner = (opts: { showLinks: boolean; to?: string }) => {
     const { showLinks, to } = opts;
-    const hasChevron = Boolean(showLinks && to);
-
-    const chevron =
-      showLinks && to ? (
-        <Link
-          to={to}
-          className="portfolio-summary-card-link relative z-[2] flex shrink-0 items-center justify-center rounded-lg p-1.5 no-underline cursor-pointer"
-          style={{ color: isDark ? LABEL_GRAY : "var(--text-secondary)" }}
-          aria-label="Aller à la collection"
-        >
-          <ChevronRight className="portfolio-summary-card-chevron" size={24} strokeWidth={2} aria-hidden />
-        </Link>
-      ) : null;
+    const hasChevron = false;
 
     /**
      * Taille proche de l’état d’avant le scale 1,22 / 156 px (sans regrossir la carte).
@@ -652,7 +640,7 @@ export function PortfolioDashboardSection({
           draggable={false}
           loading="lazy"
           className="relative z-[2] object-contain pointer-events-none"
-          style={{ width: 104, height: 104, filter: "none", opacity: 0.85 }}
+          style={{ width: 104, height: 104, filter: "none", opacity: 1 }}
         />
       </div>
     );
@@ -695,7 +683,6 @@ export function PortfolioDashboardSection({
           <div className="min-w-0 flex-1 basis-0 text-left">{portfolioValueBlock}</div>
         )}
         {portfolioCardMewtwoWatermark}
-        {chevron}
       </div>
     );
   };
