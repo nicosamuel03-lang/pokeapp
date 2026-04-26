@@ -64,16 +64,20 @@ export function AuthPage() {
   };
 
   const handleSignIn = async () => {
+    console.log('handleSignIn called with:', email, password);
     if (!signIn) return;
     setLoading(true);
     setError('');
     try {
       const result = await (signIn as any).create({ identifier: email, password });
+      console.log('signIn result:', JSON.stringify(result));
       if (result.status === 'complete' && setSignInActive) {
         await setSignInActive({ session: result.createdSessionId });
       }
     } catch (err: any) {
-      setError(err.errors?.[0]?.message || 'Email ou mot de passe incorrect');
+      console.error('SignIn error full:', JSON.stringify(err));
+      console.error('SignIn error message:', err.errors?.[0]?.message, err.errors?.[0]?.code);
+      setError(err.errors?.[0]?.longMessage || err.errors?.[0]?.message || err.message || 'Email ou mot de passe incorrect');
     } finally {
       setLoading(false);
     }
