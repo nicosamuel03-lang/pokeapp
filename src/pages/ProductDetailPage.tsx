@@ -1562,6 +1562,27 @@ const ProductDetailPageInner = () => {
         </div>
       )}
 
+      {!isInCollection && (
+        <button
+          type="button"
+          onClick={handleAddToCollection}
+          onPointerDown={triggerAddPress}
+          className={`btn-press flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:opacity-90 ${addBtnPressed ? "btn-press-pressed" : ""}`}
+          style={{
+            background: "var(--bg-card-elevated)",
+            color: "var(--text-primary)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
+            marginTop: 12,
+            marginLeft: 8,
+            marginRight: 8,
+            width: "calc(100% - 16px)",
+            boxSizing: "border-box",
+          }}
+        >
+          <span>Ajouter à ma collection</span>
+        </button>
+      )}
+
       <div
         className="mb-0 rounded-2xl px-2 pb-3 pt-2 !mt-1"
         style={{
@@ -1798,26 +1819,6 @@ const ProductDetailPageInner = () => {
               </div>
             </div>
           </div>
-            {!isInCollection && (
-              <button
-                type="button"
-                onClick={handleAddToCollection}
-                onPointerDown={triggerAddPress}
-                className={`btn-press flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition hover:opacity-90 ${addBtnPressed ? "btn-press-pressed" : ""}`}
-                style={{
-                  background: "var(--bg-card-elevated)",
-                  color: "var(--text-primary)",
-                  boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
-                  marginTop: 12,
-                  marginLeft: 8,
-                  marginRight: 8,
-                  width: "calc(100% - 16px)",
-                  boxSizing: "border-box",
-                }}
-              >
-                <span>Ajouter à ma collection</span>
-              </button>
-            )}
             {priceListRows.length > 0 && (
               <div
                 className="overflow-hidden text-xs"
