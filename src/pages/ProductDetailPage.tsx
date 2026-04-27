@@ -1354,19 +1354,6 @@ const ProductDetailPageInner = () => {
                     {!isEbayMockMode() && !ebayTracked.loading ? (
                       <div className="mt-1 flex flex-col gap-1">
                         <div className="flex items-center gap-1.5">
-                          <span
-                            className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                            style={{
-                              background: "rgba(59,130,246,0.15)",
-                              color: "#60a5fa",
-                              border: "1px solid rgba(59,130,246,0.3)",
-                            }}
-                          >
-                            <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor" aria-hidden="true">
-                              <circle cx="4" cy="4" r="3" />
-                            </svg>
-                            Prix marché eBay
-                          </span>
                           <span className="text-[10px]" style={{ color: "var(--text-secondary)" }}>
                             {prixSource === "ebay_tracked"
                               ? `moy. 90j · ${ebayTracked.count} ${ebayTracked.count > 1 ? "entrées" : "entrée"}`
@@ -1662,20 +1649,6 @@ const ProductDetailPageInner = () => {
                 boxSizing: "border-box",
               }}
             >
-              <div
-                className="mewtwo-png-watermark-layer"
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 0,
-                  backgroundImage: `url(${isDark ? "/images/fond%20graphique/mewtwoo.png?v=2" : "/images/fond%20graphique/mewtwoo_gris.png"})`,
-                  backgroundSize: "contain",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
-                  pointerEvents: "none",
-                }}
-              />
               <div style={{ position: "relative", zIndex: 1, height: "100%" }}>
               {!premiumLoading &&
               isPremium &&
