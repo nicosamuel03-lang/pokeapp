@@ -353,7 +353,7 @@ export function SettingsPage() {
           SUPPORT
         </h2>
         <a
-          href="mailto:support@giovanni.app"
+          href="mailto:giovannitcg.support@gmail.com"
           style={{
             ...rowStyle,
             textDecoration: "none",
@@ -527,7 +527,7 @@ Article 10 — Droit applicable
 Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux compétents de France seront saisis.
 
 Article 11 — Contact
-support@giovanni.app`}
+giovannitcg.support@gmail.com`}
             </div>
           )}
         </div>
@@ -578,7 +578,7 @@ support@giovanni.app`}
 {`Giovanni — Politique de Confidentialité
 Date d'entrée en vigueur : 11 mars 2026
 
-Responsable du traitement : support@giovanni.app
+Responsable du traitement : giovannitcg.support@gmail.com
 
 Données collectées : adresse e-mail (via Clerk), données de collection (noms, quantités, prix d'achat), informations de paiement (gérées exclusivement par Apple via In-App Purchase — données bancaires jamais stockées par Giovanni), données de connexion, statut d'abonnement.
 
@@ -588,19 +588,19 @@ Partage des données : vos données ne sont jamais vendues. Elles sont partagée
 
 Conservation : données conservées tant que le compte est actif. Suppression dans les 30 jours suivant la clôture du compte.
 
-Suppression de compte : vous pouvez supprimer votre compte et l'intégralité de vos données personnelles à tout moment via les réglages de l'application (Profil > Supprimer mon compte) ou en contactant support@giovanni.app. La suppression est effective dans un délai maximum de 30 jours.
+Suppression de compte : vous pouvez supprimer votre compte et l'intégralité de vos données personnelles à tout moment via les réglages de l'application (Profil > Supprimer mon compte) ou en contactant giovannitcg.support@gmail.com. La suppression est effective dans un délai maximum de 30 jours.
 
-Vos droits (RGPD) : droit d'accès, rectification, effacement, portabilité et opposition. Contact : support@giovanni.app — réponse sous 30 jours.
+Vos droits (RGPD) : droit d'accès, rectification, effacement, portabilité et opposition. Contact : giovannitcg.support@gmail.com — réponse sous 30 jours.
 
 Cookies : stockage local minimal (thème, langue). Aucun cookie publicitaire ou tracking tiers.
 
 Sécurité : connexions HTTPS, authentification via Clerk, accès restreint à la base de données.
 
-Mineurs : Giovanni n'est pas destinée aux enfants de moins de 13 ans. Aucune donnée personnelle n'est sciemment collectée auprès de mineurs de moins de 13 ans. Si un parent ou tuteur légal découvre que son enfant de moins de 13 ans a créé un compte sans consentement parental, il peut nous contacter à support@giovanni.app pour demander la suppression immédiate du compte et des données associées. Pour les utilisateurs âgés de 13 à 16 ans résidant dans l'Union européenne, le consentement parental est requis conformément au RGPD.
+Mineurs : Giovanni n'est pas destinée aux enfants de moins de 13 ans. Aucune donnée personnelle n'est sciemment collectée auprès de mineurs de moins de 13 ans. Si un parent ou tuteur légal découvre que son enfant de moins de 13 ans a créé un compte sans consentement parental, il peut nous contacter à giovannitcg.support@gmail.com pour demander la suppression immédiate du compte et des données associées. Pour les utilisateurs âgés de 13 à 16 ans résidant dans l'Union européenne, le consentement parental est requis conformément au RGPD.
 
 Modifications : notification par e-mail ou via l'app au moins 15 jours avant tout changement important.
 
-Contact : support@giovanni.app`}
+Contact : giovannitcg.support@gmail.com`}
             </div>
           )}
         </div>

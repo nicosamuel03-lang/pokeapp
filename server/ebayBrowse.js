@@ -9,6 +9,8 @@
  *  4. Résultat mis en cache 24h par query normalisée
  */
 
+const https = require("https");
+
 const EBAY_TOKEN_URL  = "https://api.ebay.com/identity/v1/oauth2/token";
 const EBAY_SEARCH_URL = "https://api.ebay.com/buy/browse/v1/item_summary/search";
 const EBAY_SCOPE      = "https://api.ebay.com/oauth/api_scope";
@@ -19,6 +21,49 @@ const RESULT_TTL_MS = 24 * 60 * 60 * 1000; // 24 heures
 // ─── Cache token OAuth2 ──────────────────────────────────────────────────────
 
 let _tokenCache = { token: null, expiresAtMs: 0 };
+
+async function httpsPost(urlStr, headers, body) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr);
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: "POST",
+      headers: { ...headers, "Content-Length": Buffer.byteLength(body) },
+    };
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => {
+        resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, json: () => Promise.resolve(JSON.parse(data)) });
+      });
+    });
+    req.on("error", reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+async function httpsGet(urlStr, headers) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(urlStr);
+    const options = {
+      hostname: url.hostname,
+      path: url.pathname + url.search,
+      method: "GET",
+      headers,
+    };
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => { data += chunk; });
+      res.on("end", () => {
+        resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, json: () => Promise.resolve(JSON.parse(data)) });
+      });
+    });
+    req.on("error", reject);
+    req.end();
+  });
+}
 
 async function getAccessToken() {
   if (_tokenCache.token && Date.now() < _tokenCache.expiresAtMs - 60_000) {
@@ -38,14 +83,11 @@ async function getAccessToken() {
 
   console.log(`[ebay/oauth] Demande de token (appId=${appId.slice(0, 16)}…)`);
 
-  const res = await fetch(EBAY_TOKEN_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type":  "application/x-www-form-urlencoded",
-      "Authorization": `Basic ${basic}`,
-    },
-    body: `grant_type=client_credentials&scope=${encodeURIComponent(EBAY_SCOPE)}`,
-  });
+  const body = `grant_type=client_credentials&scope=${encodeURIComponent(EBAY_SCOPE)}`;
+  const res = await httpsPost(EBAY_TOKEN_URL, {
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Authorization": `Basic ${basic}`,
+  }, body);
 
   const data = await res.json().catch(() => ({}));
 
@@ -242,15 +284,7 @@ async function getBrowseValidSummaries(rawQuery, opts = {}) {
   const fullUrl = url.toString();
   console.log(`[ebay/browse] GET ${fullUrl}`);
 
-  let res = await fetch(fullUrl, {
-    method: "GET",
-    headers: {
-      "Authorization": `Bearer ${token}`,
-      "X-EBAY-C-MARKETPLACE-ID": "EBAY_FR",
-      "Content-Type": "application/json",
-    },
-    signal: opts.signal,
-  });
+  let res = await httpsGet(fullUrl, { "Authorization": `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": "EBAY_FR", "Content-Type": "application/json" });
 
   let data = await res.json().catch(() => ({}));
 
@@ -263,15 +297,7 @@ async function getBrowseValidSummaries(rawQuery, opts = {}) {
       "filter",
       "buyingOptions:{FIXED_PRICE},conditionIds:{1000},price:[80..],priceCurrency:EUR"
     );
-    res = await fetch(url2.toString(), {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "X-EBAY-C-MARKETPLACE-ID": "EBAY_FR",
-        "Content-Type": "application/json",
-      },
-      signal: opts.signal,
-    });
+    res = await httpsGet(url2.toString(), { "Authorization": `Bearer ${token}`, "X-EBAY-C-MARKETPLACE-ID": "EBAY_FR", "Content-Type": "application/json" });
     data = await res.json().catch(() => ({}));
     console.log(`[ebay/browse] Fallback sans catégorie — GET ${url2.toString()}`);
   }

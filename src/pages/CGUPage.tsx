@@ -104,7 +104,7 @@ Article 10 — Droit applicable
 Les présentes CGU sont soumises au droit français. En cas de litige, les tribunaux compétents de France seront saisis.
 
 Article 11 — Contact
-support@giovanni.app`}
+giovannitcg.support@gmail.com`}
       </div>
     </div>
   );
