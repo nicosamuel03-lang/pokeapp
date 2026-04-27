@@ -187,7 +187,6 @@ const TITLE_BLACKLIST_RE = new RegExp(
     "\\bslot\\b",
     "\\bcheck\\s*list\\b",
     "\\bproxy\\b",
-    "\\bcode\\b",            // code booster numérique
   ].join("|"),
   "i"
 );
