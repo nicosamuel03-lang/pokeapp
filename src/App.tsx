@@ -209,6 +209,7 @@ const App = () => {
         alignItems: 'center',
         justifyContent: 'center',
         gap: 16,
+        paddingBottom: '40vh',
       }}>
         <img
           src="/images/GIOVANNI.png"
