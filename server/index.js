@@ -47,7 +47,7 @@ function sendAPNS(deviceToken, title, body, data = {}) {
       ...data,
     });
 
-    const client = http2.connect('https://api.push.apple.com');
+    const client = http2.connect('https://api.sandbox.push.apple.com');
 
     client.on('error', (err) => {
       console.error('HTTP/2 connection error:', err);
