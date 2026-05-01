@@ -185,13 +185,15 @@ const App = () => {
         // Auto-register push token
         const pushToken = localStorage.getItem('pushDeviceToken');
         if (pushToken && user?.id) {
-          fetch(import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL + '/api/device-tokens' : '/api/device-tokens', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: user.id, token: pushToken, platform: 'ios' })
-          })
-          .then(res => console.log('Push token registered:', res.ok))
-          .catch(err => console.error('Push token registration failed:', err));
+          import('./config/apiUrl').then(({ apiUrl }) => {
+            fetch(apiUrl('/api/device-tokens'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: user.id, token: pushToken, platform: 'ios' })
+            })
+            .then(res => console.log('Push token registered:', res.ok))
+            .catch(err => console.error('Push token registration failed:', err));
+          });
         }
       })
       .catch(() => {
