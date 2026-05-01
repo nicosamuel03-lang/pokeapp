@@ -337,7 +337,7 @@ app.use(express.json());
 
 app.post('/api/send-notification', async (req, res) => {
   try {
-    const { title, body, adminKey } = req.body;
+    const { title, body, adminKey, link } = req.body;
     
     // Simple admin protection - only you can send notifications
     if (adminKey !== process.env.ADMIN_NOTIFICATION_KEY) {
@@ -361,7 +361,7 @@ app.post('/api/send-notification', async (req, res) => {
 
     // Send to all devices
     const results = await Promise.allSettled(
-      tokens.map(t => sendAPNS(t.token, title, body))
+      tokens.map(t => sendAPNS(t.token, title, body, link ? { link } : {}))
     );
 
     const sent = results.filter(r => r.status === 'fulfilled').length;
