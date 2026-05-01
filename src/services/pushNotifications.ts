@@ -56,6 +56,7 @@ export async function registerPushNotifications() {
     console.log("Link found:", link);
     if (link) {
       try {
+        await new Promise(resolve => setTimeout(resolve, 1500));
         const { Browser } = await import('@capacitor/browser');
         await Browser.open({ url: link });
         console.log("Browser opened with:", link);
