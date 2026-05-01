@@ -12,15 +12,23 @@ export async function registerPushNotifications() {
   // Add listeners BEFORE registering so we catch the token
   await PushNotifications.addListener("registration", async (token) => {
     console.log("Push token:", token.value);
+    localStorage.setItem('pushDeviceToken', token.value);
 
+    // Send token to backend
     try {
-      const { getToken } = await import('@clerk/react');
-      // Get userId from Clerk
-      const userModule = await import('@clerk/react');
-      // Store token locally for later use
-      localStorage.setItem('pushDeviceToken', token.value);
+      const { apiUrl } = await import('../config/apiUrl');
+      const response = await fetch(apiUrl('/api/device-tokens'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userId: 'ios-device',
+          token: token.value, 
+          platform: 'ios' 
+        })
+      });
+      console.log("Push token sent to backend:", response.ok);
     } catch (err) {
-      console.error("Failed to store push token:", err);
+      console.error("Failed to send push token:", err);
     }
   });
 
