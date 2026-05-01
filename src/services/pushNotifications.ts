@@ -32,8 +32,13 @@ export async function registerPushNotifications() {
     console.log("Push notification received:", JSON.stringify(notification));
   });
 
-  await PushNotifications.addListener("pushNotificationActionPerformed", (action) => {
+  await PushNotifications.addListener("pushNotificationActionPerformed", async (action) => {
     console.log("Push notification action performed:", JSON.stringify(action));
+    const link = action.notification?.data?.link;
+    if (link) {
+      const { Browser } = await import('@capacitor/browser');
+      await Browser.open({ url: link });
+    }
   });
 
   // Now register
