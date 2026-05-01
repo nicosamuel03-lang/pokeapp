@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giovanni TCG — Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #d4d4d4;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #c91517;
+            font-size: 1.5rem;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .card-title {
+            color: #c91517;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 0.3rem;
+        }
+        input, textarea, select {
+            width: 100%;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            padding: 0.7rem;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            outline: none;
+        }
+        input:focus, textarea:focus, select:focus {
+            border-color: #c91517;
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        select { appearance: none; cursor: pointer; }
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-primary { background: #c91517; color: #fff; }
+        .btn-secondary { background: #222; color: #d4d4d4; margin-top: 0.5rem; }
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .result.success { background: #0a2a0a; border: 1px solid #1a4a1a; color: #4ade80; display: block; }
+        .result.error { background: #2a0a0a; border: 1px solid #4a1a1a; color: #f87171; display: block; }
+        .templates { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .template-btn {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #d4d4d4;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .template-btn:hover { border-color: #c91517; color: #c91517; }
+        .login-section { display: block; }
+        .panel-section { display: none; }
+        .history { margin-top: 0.5rem; }
+        .history-item {
+            background: #1a1a1a;
+            border-radius: 6px;
+            padding: 0.7rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+        .history-item .time { color: #666; }
+        .history-item .count { color: #4ade80; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Giovanni TCG</h1>
+        <p class="subtitle">Admin Panel — Push Notifications</p>
+
+        <!-- Login -->
+        <div class="login-section" id="loginSection">
+            <div class="card">
+                <div class="card-title">Connexion Admin</div>
+                <label>Clé admin</label>
+                <input type="password" id="adminKey" placeholder="Ta ADMIN_NOTIFICATION_KEY">
+                <label>URL backend</label>
+                <input type="text" id="apiUrl" placeholder="https://ton-backend.railway.app">
+                <button class="btn btn-primary" onclick="login()">Connexion</button>
+            </div>
+        </div>
+
+        <!-- Panel -->
+        <div class="panel-section" id="panelSection">
+            <!-- Alerte Restock -->
+            <div class="card">
+                <div class="card-title">🔔 Nouvelle alerte</div>
+
+                <label>Templates rapides</label>
+                <div class="templates">
+                    <button class="template-btn" onclick="useTemplate('restock')">🔄 Restock</button>
+                    <button class="template-btn" onclick="useTemplate('nouveau')">🆕 Nouveau produit</button>
+                    <button class="template-btn" onclick="useTemplate('promo')">💰 Bonne affaire</button>
+                    <button class="template-btn" onclick="useTemplate('info')">📢 Info générale</button>
+                </div>
+
+                <label>Titre</label>
+                <input type="text" id="title" placeholder="Ex: 🔄 Restock ETB Évolutions Prismatiques !">
+
+                <label>Message</label>
+                <textarea id="body" placeholder="Ex: Disponible maintenant sur Amazon à 54,99€ ! Fonce avant rupture."></textarea>
+
+                <label>Lien (optionnel)</label>
+                <input type="url" id="link" placeholder="https://amzn.to/xxxxx">
+
+                <label>Cible</label>
+                <select id="target">
+                    <option value="all">Tous les utilisateurs</option>
+                    <option value="premium">Premium uniquement (Boss Access)</option>
+                </select>
+
+                <button class="btn btn-primary" id="sendBtn" onclick="sendNotification()">
+                    Envoyer la notification
+                </button>
+
+                <div class="result" id="result"></div>
+            </div>
+
+            <!-- Historique -->
+            <div class="card">
+                <div class="card-title">📋 Historique récent</div>
+                <div class="history" id="history">
+                    <p style="color: #555; font-size: 0.85rem;">Aucune notification envoyée cette session.</p>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="logout()">Déconnexion</button>
+        </div>
+    </div>
+
+    <script>
+        let savedKey = '';
+        let savedUrl = '';
+        let historyItems = [];
+
+        // Check saved credentials
+        const stored = localStorage.getItem('giovanni_admin');
+        if (stored) {
+            try {
+                const { key, url } = JSON.parse(stored);
+                if (key && url) {
+                    savedKey = key;
+                    savedUrl = url;
+                    showPanel();
+                }
+            } catch(e) {}
+        }
+
+        function login() {
+            const key = document.getElementById('adminKey').value.trim();
+            const url = document.getElementById('apiUrl').value.trim().replace(/\/$/, '');
+            if (!key || !url) return alert('Remplis les deux champs');
+            savedKey = key;
+            savedUrl = url;
+            localStorage.setItem('giovanni_admin', JSON.stringify({ key, url }));
+            showPanel();
+        }
+
+        function logout() {
+            localStorage.removeItem('giovanni_admin');
+            savedKey = '';
+            savedUrl = '';
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('panelSection').style.display = 'none';
+        }
+
+        function showPanel() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('panelSection').style.display = 'block';
+        }
+
+        function useTemplate(type) {
+            const t = document.getElementById('title');
+            const b = document.getElementById('body');
+            switch(type) {
+                case 'restock':
+                    t.value = '🔄 Restock disponible !';
+                    b.value = 'Disponible maintenant ! Fonce avant rupture.';
+                    break;
+                case 'nouveau':
+                    t.value = '🆕 Nouveau produit disponible !';
+                    b.value = 'Un nouveau produit vient de sortir. Découvre-le maintenant.';
+                    break;
+                case 'promo':
+                    t.value = '💰 Bonne affaire détectée !';
+                    b.value = 'Prix en dessous du marché repéré. Agis vite !';
+                    break;
+                case 'info':
+                    t.value = '📢 Info Giovanni TCG';
+                    b.value = '';
+                    break;
+            }
+        }
+
+        async function sendNotification() {
+            const title = document.getElementById('title').value.trim();
+            const body = document.getElementById('body').value.trim();
+            const link = document.getElementById('link').value.trim();
+            const target = document.getElementById('target').value;
+            const resultDiv = document.getElementById('result');
+            const sendBtn = document.getElementById('sendBtn');
+
+            if (!title || !body) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = 'Titre et message obligatoires.';
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Envoi en cours...';
+            resultDiv.className = 'result';
+            resultDiv.style.display = 'none';
+
+            try {
+                const payload = {
+                    title,
+                    body,
+                    adminKey: savedKey,
+                    target,
+                };
+                if (link) payload.link = link;
+
+                const res = await fetch(`${savedUrl}/api/send-notification`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Envoyé ! ${data.sent} notification(s) délivrée(s)${data.failed ? `, ${data.failed} échec(s)` : ''}`;
+
+                    // Add to history
+                    const now = new Date().toLocaleTimeString('fr-FR');
+                    historyItems.unshift({ time: now, title, target, sent: data.sent });
+                    updateHistory();
+
+                    // Clear form
+                    document.getElementById('title').value = '';
+                    document.getElementById('body').value = '';
+                    document.getElementById('link').value = '';
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Erreur : ${data.error || 'Réponse inattendue'}`;
+                }
+            } catch (err) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Erreur réseau : ${err.message}`;
+            }
+
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Envoyer la notification';
+        }
+
+        function updateHistory() {
+            const div = document.getElementById('history');
+            if (historyItems.length === 0) return;
+            div.innerHTML = historyItems.slice(0, 10).map(h => `
+                <div class="history-item">
+                    <span class="time">${h.time}</span> — ${h.title}
+                    <br><span class="count">${h.sent} envoyé(s)</span> · ${h.target === 'premium' ? 'Premium' : 'Tous'}
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

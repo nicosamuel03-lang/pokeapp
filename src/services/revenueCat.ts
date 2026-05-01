@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 import { Purchases } from '@revenuecat/purchases-capacitor';
 
-const REVENUECAT_API_KEY = 'test_NURUBCHLabVdWOPpqNYqWFhKSNs';
+const REVENUECAT_API_KEY = 'appl_JbsulqnNPXRLMbNDTvVQaCzZrBQ';
 
 export async function initRevenueCat(userId?: string) {
   if (!Capacitor.isNativePlatform()) return;
