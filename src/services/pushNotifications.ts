@@ -37,17 +37,9 @@ export async function registerPushNotifications() {
 
   await PushNotifications.addListener("pushNotificationReceived", async (notification) => {
     console.log("Push notification received:", JSON.stringify(notification));
-    const link = notification?.data?.link;
-    if (link) {
-      try {
-        const { Browser } = await import('@capacitor/browser');
-        await Browser.open({ url: link });
-        console.log("Browser opened with:", link);
-      } catch (err) {
-        console.error("Browser open error:", err);
-      }
-    }
   });
+
+  // pushNotificationActionPerformed is handled in App.tsx
 
   // Now register
   await PushNotifications.register();
