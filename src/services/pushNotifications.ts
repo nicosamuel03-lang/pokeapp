@@ -35,8 +35,18 @@ export async function registerPushNotifications() {
     console.error("Push registration error:", JSON.stringify(error));
   });
 
-  await PushNotifications.addListener("pushNotificationReceived", (notification) => {
+  await PushNotifications.addListener("pushNotificationReceived", async (notification) => {
     console.log("Push notification received:", JSON.stringify(notification));
+    const link = notification?.data?.link;
+    if (link) {
+      try {
+        const { Browser } = await import('@capacitor/browser');
+        await Browser.open({ url: link });
+        console.log("Browser opened with:", link);
+      } catch (err) {
+        console.error("Browser open error:", err);
+      }
+    }
   });
 
   await PushNotifications.addListener("pushNotificationActionPerformed", async (action) => {
