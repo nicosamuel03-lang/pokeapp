@@ -49,25 +49,6 @@ export async function registerPushNotifications() {
     }
   });
 
-  await PushNotifications.addListener("pushNotificationActionPerformed", async (action) => {
-    console.log("Push notification action performed:", JSON.stringify(action));
-    console.log("Notification data:", JSON.stringify(action.notification?.data));
-    const link = action.notification?.data?.link;
-    console.log("Link found:", link);
-    if (link) {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const { Browser } = await import('@capacitor/browser');
-        await Browser.open({ url: link });
-        console.log("Browser opened with:", link);
-      } catch (err) {
-        console.error("Browser open error:", err);
-      }
-    } else {
-      console.log("No link in notification data");
-    }
-  });
-
   // Now register
   await PushNotifications.register();
   console.log("PushNotifications.register() called");
