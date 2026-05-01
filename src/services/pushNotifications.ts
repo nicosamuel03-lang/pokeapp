@@ -16,7 +16,6 @@ export async function registerPushNotifications() {
 
     // Send token to backend
     try {
-      const { apiUrl } = await import('../config/apiUrl');
       const response = await fetch(apiUrl('/api/device-tokens'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
