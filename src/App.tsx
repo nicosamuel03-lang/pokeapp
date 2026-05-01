@@ -181,6 +181,20 @@ const App = () => {
       .then((premium) => {
         if (cancelled) return;
         setAuthState(premium ? "premium" : "free");
+
+        // Auto-register push token
+        try {
+          const pushToken = localStorage.getItem('pushDeviceToken');
+          if (pushToken && user?.id) {
+            import('./services/pushNotifications').then(mod => {
+              mod.sendTokenToBackend(user.id, '').catch(err => 
+                console.error('Auto push token registration failed:', err)
+              );
+            });
+          }
+        } catch (e) {
+          console.error('Push token auto-register error:', e);
+        }
       })
       .catch(() => {
         if (cancelled) return;
