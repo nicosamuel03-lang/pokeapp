@@ -212,34 +212,6 @@ const App = () => {
     console.log("[AUTH] authState changed:", authState, new Date().toISOString());
   }, [authState]);
 
-  useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
-    
-    // Check if app was launched from a push notification
-    PushNotifications.getDeliveredNotifications().then(result => {
-      console.log("Delivered notifications:", JSON.stringify(result));
-    });
-
-    // Listen for notification taps (works even on cold start)
-    const listener = PushNotifications.addListener("pushNotificationActionPerformed", async (action) => {
-      console.log("App.tsx - Push tap detected:", JSON.stringify(action.notification?.data));
-      const link = action.notification?.data?.link;
-      if (link) {
-        setTimeout(async () => {
-          try {
-            const { Browser } = await import('@capacitor/browser');
-            await Browser.open({ url: link });
-            console.log("App.tsx - Browser opened:", link);
-          } catch (err) {
-            console.error("App.tsx - Browser error:", err);
-          }
-        }, 2000);
-      }
-    });
-
-    return () => { listener.then(l => l.remove()); };
-  }, []);
-
   const isPremium = authState === "premium";
   const isLoading = authState === "loading";
 

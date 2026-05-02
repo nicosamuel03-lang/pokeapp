@@ -49,7 +49,7 @@ export async function registerPushNotifications() {
         } catch (err) {
           console.error("Browser open error:", err);
         }
-      }, 2000);
+      }, 500);
     }
   });
 
