@@ -9,12 +9,10 @@ export async function registerPushNotifications() {
   console.log("Permission result:", JSON.stringify(permissionResult));
   if (permissionResult.receive !== "granted") return;
 
-  // Add listeners BEFORE registering so we catch the token
   await PushNotifications.addListener("registration", async (token) => {
     console.log("Push token:", token.value);
     localStorage.setItem('pushDeviceToken', token.value);
 
-    // Send token to backend
     try {
       const response = await fetch(apiUrl('/api/device-tokens'), {
         method: 'POST',
@@ -39,9 +37,22 @@ export async function registerPushNotifications() {
     console.log("Push notification received:", JSON.stringify(notification));
   });
 
-  // pushNotificationActionPerformed is handled in App.tsx
+  await PushNotifications.addListener("pushNotificationActionPerformed", async (action) => {
+    console.log("PUSH TAP:", JSON.stringify(action.notification?.data));
+    const link = action.notification?.data?.link;
+    if (link) {
+      setTimeout(async () => {
+        try {
+          const { Browser } = await import('@capacitor/browser');
+          await Browser.open({ url: link });
+          console.log("Browser opened:", link);
+        } catch (err) {
+          console.error("Browser open error:", err);
+        }
+      }, 2000);
+    }
+  });
 
-  // Now register
   await PushNotifications.register();
   console.log("PushNotifications.register() called");
 }
