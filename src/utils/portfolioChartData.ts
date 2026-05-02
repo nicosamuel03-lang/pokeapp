@@ -285,6 +285,11 @@ export function buildPortfolioChartData(
 
       let unit: number;
       if (useEbayForMonth) {
+        const rawIdDebug = item.product.etbId ?? item.product.id;
+        const catDebug = (item.product.category || "").toLowerCase();
+        console.log(`[CHART DEBUG] item: ${item.product.name}, cat: ${catDebug}, rawId: ${rawIdDebug}, qty: ${item.quantity}, isOwned: ${isOwned}`);
+      }
+      if (useEbayForMonth) {
         const rawId = item.product.etbId ?? item.product.id;
         const ebayLookupId = (() => {
           const cat = (item.product.category || "").toLowerCase();
@@ -297,6 +302,9 @@ export function buildPortfolioChartData(
           ebayPrice != null && ebayPrice > 0
             ? ebayPrice
             : getPriceAtMonthForItem(item, moisKey);
+        if (useEbayForMonth) {
+          console.log(`[CHART DEBUG] ebayLookupId: ${ebayLookupId}, ebayPrice: ${ebayPrice}, unit: ${unit}, sum will be: ${sum + unit * Number(item.quantity)}`);
+        }
       } else {
         unit = getPriceAtMonthForItem(item, moisKey);
       }
