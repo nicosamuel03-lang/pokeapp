@@ -267,6 +267,8 @@ export const CollectionPage = () => {
     [items]
   );
 
+  console.log("[COLLECTION DEBUG] items count:", items.length, "collectionLines:", collectionLines.map(l => ({ name: l.product.name, cat: l.product.category, id: l.product.id })));
+
   const { priceMap: collectionEbayPriceMap } = usePortfolioEbayPrices(collectionLines);
 
   const EMERALD = "#10b981";
