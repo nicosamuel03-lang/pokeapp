@@ -271,6 +271,7 @@ export function buildPortfolioChartData(
     let investiAtMonth = 0;
     const useEbayForMonth = index === lastIndex && ebayPriceMap != null;
     collectionItems.forEach((item) => {
+      console.log("[CHART ITEM]", item.product.name, item.product.category, item.product.id);
       const purchaseMonth = item.purchaseDate ? item.purchaseDate.slice(0, 7) : null;
       const isOwned = !purchaseMonth || purchaseMonth <= moisKey;
       if (isOwned) {
