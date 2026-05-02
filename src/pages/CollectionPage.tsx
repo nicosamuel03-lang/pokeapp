@@ -269,6 +269,8 @@ export const CollectionPage = () => {
 
   console.log("[COLLECTION DEBUG] items count:", items.length, "collectionLines:", collectionLines.map(l => ({ name: l.product.name, cat: l.product.category, id: l.product.id })));
 
+  console.log("[COLL ITEMS]", items.length, items.map(i => i.product.name));
+
   const { priceMap: collectionEbayPriceMap } = usePortfolioEbayPrices(collectionLines);
 
   useEffect(() => {
