@@ -393,7 +393,7 @@ app.post("/api/device-tokens", async (req, res) => {
 
     await supabase.from('device_tokens').upsert(
       { user_id: userId, token, platform, updated_at: new Date().toISOString() },
-      { onConflict: 'user_id,token' }
+      { onConflict: 'token' }
     );
 
     return res.json({ success: true });

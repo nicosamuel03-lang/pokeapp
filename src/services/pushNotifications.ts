@@ -20,7 +20,8 @@ export async function registerPushNotifications() {
         body: JSON.stringify({ 
           userId: 'ios-device',
           token: token.value, 
-          platform: 'ios' 
+          platform: 'ios',
+          upsertByToken: true
         })
       });
       console.log("Push token sent to backend:", response.ok);
