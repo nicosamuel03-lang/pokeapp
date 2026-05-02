@@ -271,6 +271,12 @@ export const CollectionPage = () => {
 
   const { priceMap: collectionEbayPriceMap } = usePortfolioEbayPrices(collectionLines);
 
+  useEffect(() => {
+    if (collectionEbayPriceMap && collectionEbayPriceMap.size > 0) {
+      console.log("[EBAY MAP DEBUG] keys:", Array.from(collectionEbayPriceMap.keys()), "values:", Array.from(collectionEbayPriceMap.values()));
+    }
+  }, [collectionEbayPriceMap]);
+
   const EMERALD = "#10b981";
   const LABEL_MUTED = "#888888";
 
